@@ -73,6 +73,7 @@ import * as socketStuff from "./socketinit.js";
     // Tips setup :D
     let tips = global.tips[Math.floor(Math.random() * global.tips.length)];
     global.tips = tips[Math.floor(Math.random() * tips.length)];
+
     // Window setup <3
     global.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent);
     global.mobile && document.body.classList.add("mobile");
