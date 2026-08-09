@@ -115,7 +115,7 @@ module.exports = {
 
             region: "Local",
             location: "Localhost",
-            gamemode: ['maze', 'ffa'],
+            gamemode: ['maze'],
             player_cap: 80,
 
             featured: false,
