@@ -235,7 +235,7 @@ let commands = [
                 classMap.clear();
 
                 // Log it.
-                util.warn(`[IMPORTANT] Reloading definitions on server ${gameManager.gamemode} (${gameManager.webProperties.id})`);
+                util.warn(`Reloading all definitions`);
 
                 // Purge all cache entries of every file in definitions
                 for (let file in require.cache) {
@@ -307,7 +307,7 @@ let commands = [
                         socket.talk("CC"); // Clear cache
                     });
                     // Log it again.
-                    util.warn(`[IMPORTANT] Successfully reloaded definitions on server ${gameManager.gamemode} (${gameManager.webProperties.id})`);
+                    util.log(`[INFO]: Successfully reloaded all definitions`);
                     gameManager.gameHandler.run();
                 }, 1000)
             } else sendAvailableDevCommandsMessage();

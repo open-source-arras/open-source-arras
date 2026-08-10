@@ -166,7 +166,7 @@ class socketManager {
             util.log("[INFO]: " + (player.body ? `User ${player.body.name == "" ? "A unnamed player" : player.body.name}` : "A user without an entity") + " disconnected!");
             util.remove(this.players, index);
         } else {
-            util.log("[INFO]: A player disconnected before entering the game.");
+            util.log("[INFO]: A player disconnected before entering the game!");
         }
         // Free the view
         util.remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
@@ -635,7 +635,7 @@ class socketManager {
                 if (player.body == null) return 1;
                 let abort, message = m[0], original = m[0];
     
-                if ("string" !==  typeof message) {
+                if ("string" !== typeof message) {
                     socket.kick("Non-string chat message.");
                     return 1;
                 }
