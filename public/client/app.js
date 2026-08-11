@@ -1383,19 +1383,68 @@ import * as socketStuff from "./socketinit.js";
         skas.push((i - 2) * 0.01 + Math.log(4 * (i / 9) + 1) / 1.513);
     }
     const ska = (x) => skas[x];
-    const getKeybind = (keybind) => {
+
+    function truncateKeybind(key) {
+        if (key.startsWith("Alt")) return "⎇";
+        if (key.startsWith("Control")) return "⎈";
+        if (key.startsWith("Meta")) return "⌘";
+        if (key.startsWith("Shift")) return "⇧";
+        if (key.endsWith("Backslash")) return "\\";
+        if (key.endsWith("Equal")) return "=";
+
+        const map = {
+            ArrowDown: "↓",
+            ArrowLeft: "←",
+            ArrowRight: "→",
+            ArrowUp: "↑",
+            Backquote: "`",
+            Backspace: "⌫",
+            BracketLeft: "[",
+            BracketRight: "]",
+            CapsLock: "⇪",
+            Comma: ",",
+            Delete: "⌦",
+            End: "⇲",
+            Enter: "↵",
+            Escape: "⎋",
+            Home: "⇱",
+            Insert: "⎀",
+            Minus: "-",
+            NumLock: "⇭",
+            NumpadAdd: "+",
+            NumpadDecimal: ".",
+            NumpadDivide: "/",
+            NumpadEnter: "⌅",
+            NumpadMultiply: "*",
+            NumpadSubtract: "-",
+            PageDown: "⇟",
+            PageUp: "⇞",
+            Pause: "⎊",
+            Period: ".",
+            PrintScreen: "⎙",
+            Quote: "'",
+            ScrollLock: "⤓",
+            Semicolon: ";",
+            Slash: "/",
+            Space: "␣",
+            Tab: "↹",
+        };
+        return map[key];
+    }
+    function getKeybind(keybind) {
         const key = global[keybind];
 
         // Remove undefined keys
-        if (key == -1 || key == undefined) return null;
+        if (key == -1 || key == undefined || key.toLowerCase() === "undefined" || key.toLowerCase() === "unidentified") return null;
 
         // Truncate common keycodes
-        if (key.startsWith('Key') && key.length === 4) return config.graphical.oldUIStyle ? key[3].toLowerCase() : key[3]
-        if (key.startsWith('Digit') && key.length === 6) return key[5];
-        if (key.startsWith('Numpad') && key.length === 7) return key[6];
+        if (key.startsWith("F") && key.length <= 3) return key;
+        if (key.startsWith("Key") && key.length === 4) return config.graphical.oldUIStyle ? key[3].toLowerCase() : key[3]
+        if (key.startsWith("Digit") && key.length === 6) return key[5];
+        if (key.startsWith("Numpad") && key.length === 7) return key[6];
 
         // Return the raw keycode if it doesn't need to be truncated
-        return config.graphical.oldUIStyle ? key.toLowerCase() : key;
+        return truncateKeybind(key);
     };
 
     let tiles,
