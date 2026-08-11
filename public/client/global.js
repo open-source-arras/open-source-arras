@@ -137,7 +137,7 @@ const global = {
     KEY_SKILL_7: 'Digit7',
     KEY_SKILL_8: 'Digit8',
     KEY_SKILL_9: 'Digit9',
-    KEY_SKILL_0: 'Digit0',
+    KEY_SKILL_10: 'Digit0',
 
     KEY_MOUSE_0: 'Space',
     KEY_MOUSE_2: 'ShiftLeft',

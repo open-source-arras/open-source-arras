@@ -306,7 +306,7 @@ class Canvas {
                     global.KEY_SKILL_7,
                     global.KEY_SKILL_8,
                     global.KEY_SKILL_9,
-                    global.KEY_SKILL_0
+                    global.KEY_SKILL_10
                 ].indexOf(event.code);
                 if (skill >= 0) this.socket.talk('x', skill, 1 * global.statMaxing);
             }

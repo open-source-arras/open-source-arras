@@ -3330,7 +3330,7 @@ import * as socketStuff from "./socketinit.js";
     }
 
     const getSkillKey = (number) => {
-        const key = global[`KEY_SKILL_${number % 10}`];
+        const key = global[`KEY_SKILL_${number}`];
 
         // Remove undefined keys
         if (key == -1 || key == undefined) return null;
