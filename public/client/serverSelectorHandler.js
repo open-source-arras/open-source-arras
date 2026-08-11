@@ -45,19 +45,15 @@ global.loadServerSelector = (serverData, text) => {
             td1.textContent = `${server.region}`;
             const td2 = document.createElement("td");
             td2.classList.add("tdCenter");
-            td2.textContent = `${server.gameMode}`;
+            td2.textContent = server.private ? "Private" : `${server.gameMode}`;
             const td3 = document.createElement("td");
-            td3.textContent = server.maxPlayers < 1 ? `${server.players}/∞` : td3.textContent = `${server.players}/${server.maxPlayers}`;
+            td3.textContent = server.players + (server.maxPlayers < 1 ? `/∞` : server.private ? `/?` : td3.textContent = `/${server.maxPlayers}`);
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
-            tr.title = `${server.region} - ${server.location} - #${server.id} (${server.private ? "Private" : server.gameMode})`;
+            tr.title = `${server.region} - ${server.location} - #${server.id} (${td2.textContent})`;
             server.featured && tr.classList.add("featured");
             if (server.unlisted) tr.style.display = 'none';
-            if (server.private) {
-                td2.textContent = "Private";
-                td3.textContent = "?/?";
-            };
             tr.onclick = () => {
                 if (myServer.classList.contains("selected")) {
                     myServer.classList.remove("selected");

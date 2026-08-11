@@ -255,7 +255,7 @@ import * as socketStuff from "./socketinit.js";
             if (!(global.gameStart || e.shiftKey || e.ctrlKey || e.altKey)) {
                 keybinderHandler.triggerKey(e);
                 let key = e.code;
-                if (key === global.KEY_ENTER) {
+                if (key === "Enter") {
                     startGame();
                 }
             }
