@@ -88,10 +88,10 @@ class Canvas {
     }
     keyPress(event) {
         switch (event.code) {
-            case global.KEY_ZOOM_OUT:
+            case "Minus":
                 if (!global.died && global.showTree) global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
                 break;
-            case global.KEY_ZOOM_IN:
+            case "Equal":
                 if (!global.died && global.showTree) global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
                 break;
         }
@@ -207,22 +207,22 @@ class Canvas {
                 }
                 break;
 
-            case global.KEY_UP_ARROW:
+            case "ArrowUp":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_UP:
                 this.socket.cmd.set(0, true);
                 break;
-            case global.KEY_DOWN_ARROW:
+            case "ArrowDown":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, true);
                 break;
-            case global.KEY_LEFT_ARROW:
+            case "ArrowLeft":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, true);
                 break;
-            case global.KEY_RIGHT_ARROW:
+            case "ArrowRight":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
@@ -339,25 +339,25 @@ class Canvas {
                 if (global.showTree) this.treeScrollSpeedMultiplier = 1;
                 else this.socket.cmd.set(6, false);
                 break;
-            case global.KEY_UP_ARROW:
+            case "ArrowUp":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_UP:
                 this.socket.cmd.set(0, false);
                 break;
-            case global.KEY_DOWN_ARROW:
+            case "ArrowDown":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, false);
                 break;
-            case global.KEY_LEFT_ARROW:
+            case "ArrowLeft":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, false);
                 break;
-            case global.KEY_RIGHT_ARROW:
+            case "ArrowRight":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_RIGHT:

@@ -101,13 +101,13 @@ let gameDraw;
 const global = {
     // Keys and other mathematical constants.
     KEY_AUTO_FIRE: 'KeyE',
-    KEY_AUTO_ALT: 'KeyG',
+    KEY_AUTO_ALT: 'KeyX',
     KEY_AUTO_SPIN: 'KeyC',
-    KEY_SPIN_LOCK: 'KeyX',
+    KEY_SPIN_LOCK: 'KeyG',
     KEY_OVERRIDE: 'KeyR',
     KEY_LEVEL_UP: 'KeyN',
     KEY_ABILITY: 'KeyF',
-    KEY_PAUSE: 'KeyG',
+    //KEY_PAUSE: 'KeyG',
     KEY_REVERSE_TANK: 'KeyV',
     KEY_REVERSE_MOUSE: 'KeyB',
     KEY_SCREENSHOT: 'KeyQ',
@@ -128,11 +128,6 @@ const global = {
     KEY_UPGRADE_5: 'KeyJ',
     KEY_UPGRADE_6: 'KeyK',
 
-    KEY_UP_ARROW: 'ArrowUp',
-    KEY_LEFT_ARROW: 'ArrowLeft',
-    KEY_DOWN_ARROW: 'ArrowDown',
-    KEY_RIGHT_ARROW: 'ArrowRight',
-
     KEY_SKILL_1: 'Digit1',
     KEY_SKILL_2: 'Digit2',
     KEY_SKILL_3: 'Digit3',
@@ -145,13 +140,9 @@ const global = {
     KEY_SKILL_0: 'Digit0',
 
     KEY_MOUSE_0: 'Space',
-    KEY_MOUSE_1: 'KeyV',
     KEY_MOUSE_2: 'ShiftLeft',
 
     KEY_SUICIDE: 'KeyO',
-
-    KEY_ZOOM_OUT: 'Minus',
-    KEY_ZOOM_IN: 'Equal',
 
     KEY_SPECIAL: 'Backquote',
     KEY_SPECIAL_HELP: 'Slash',
