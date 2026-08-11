@@ -1383,8 +1383,8 @@ import * as socketStuff from "./socketinit.js";
         skas.push((i - 2) * 0.01 + Math.log(4 * (i / 9) + 1) / 1.513);
     }
     const ska = (x) => skas[x];
-    const getClassUpgradeKey = (number) => {
-        const key = global[`KEY_UPGRADE_${number + 1}`];
+    const getKeybind = (keybind) => {
+        const key = global[keybind];
 
         // Remove undefined keys
         if (key == -1 || key == undefined) return null;
@@ -3329,20 +3329,6 @@ import * as socketStuff from "./socketinit.js";
         }
     }
 
-    const getSkillKey = (number) => {
-        const key = global[`KEY_SKILL_${number}`];
-
-        // Remove undefined keys
-        if (key == -1 || key == undefined) return null;
-
-        // Truncate common keycodes
-        if (key.startsWith('Key') && key.length === 4) return config.graphical.oldUIStyle ? key[3].toLowerCase() : key[3]
-        if (key.startsWith('Digit') && key.length === 6) return key[5];
-        if (key.startsWith('Numpad') && key.length === 7) return key[6];
-
-        // Return the raw keycode if it doesn't need to be truncated
-        return config.graphical.oldUIStyle ? key.toLowerCase() : key;
-    };
     function drawSkillBars(spacing, alcoveSize) {
         // Draw skill bars
         if (global.mobile) return drawMobileSkillUpgrades(spacing, alcoveSize);
@@ -3413,7 +3399,7 @@ import * as socketStuff from "./socketinit.js";
             drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
             // Skill key
-            drawText(`[${getSkillKey(ticker)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
+            drawText(`[${getKeybind(`KEY_SKILL_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
             if (textcolor === color.guiwhite) {
                 // If it's active
                 global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
@@ -3855,7 +3841,7 @@ import * as socketStuff from "./socketinit.js";
                 if (y > initialY) initialY = y;
                 rowWidth = x;
                 !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
-                let upgradeKey = getClassUpgradeKey(upgradeNum);
+                let upgradeKey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
 
                 drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? upgradeKey : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
 
