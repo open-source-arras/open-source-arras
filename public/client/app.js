@@ -3329,6 +3329,20 @@ import * as socketStuff from "./socketinit.js";
         }
     }
 
+    const getSkillKey = (number) => {
+        const key = global[`KEY_SKILL_${number % 10}`];
+
+        // Remove undefined keys
+        if (key == -1 || key == undefined) return null;
+
+        // Truncate common keycodes
+        if (key.startsWith('Key') && key.length === 4) return config.graphical.oldUIStyle ? key[3].toLowerCase() : key[3]
+        if (key.startsWith('Digit') && key.length === 6) return key[5];
+        if (key.startsWith('Numpad') && key.length === 7) return key[6];
+
+        // Return the raw keycode if it doesn't need to be truncated
+        return config.graphical.oldUIStyle ? key.toLowerCase() : key;
+    };
     function drawSkillBars(spacing, alcoveSize) {
         // Draw skill bars
         if (global.mobile) return drawMobileSkillUpgrades(spacing, alcoveSize);
@@ -3399,7 +3413,7 @@ import * as socketStuff from "./socketinit.js";
             drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
             // Skill key
-            drawText("[" + (ticker % 10) + "]", Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
+            drawText(`[${getSkillKey(ticker)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
             if (textcolor === color.guiwhite) {
                 // If it's active
                 global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
