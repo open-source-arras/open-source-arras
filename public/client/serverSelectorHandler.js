@@ -51,7 +51,7 @@ global.loadServerSelector = (serverData, text) => {
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
-            tr.title = `${server.region} - ${server.location} - #${server.id} (${td2.textContent})`;
+            tr.title = `${server.serverhost} - ${server.location} - #${server.id} (${td2.textContent})`;
             server.featured && tr.classList.add("featured");
             if (server.unlisted) tr.style.display = 'none';
             tr.onclick = () => {
@@ -69,7 +69,7 @@ global.loadServerSelector = (serverData, text) => {
             serverMap[server.id] = tr;
             global.serverMap[server.ip] = tr;
             if (id === server.id) myServer = tr;
-            availableServers.push({ element: tr, region: server.region, gameMode: server.gameMode, id: server.id, hidden: server.hidden, private: server.private });
+            availableServers.push({ element: tr, region: server.region, gameMode: server.gameMode, id: server.id });
         } catch (e) {
             console.log(e);
         }
@@ -144,16 +144,16 @@ let initializeFilter = () => {
         global.filters.regions.all.push(s);
 
         // USA
-        if (s.region.toLowerCase() == "usa" || s.region.toLowerCase() == "us west" || s.region.toLowerCase() == "us central" || s.region.toLowerCase() == "us east") global.filters.regions.america.push(s);
+        if (s.region.toLowerCase() === "usa" || s.region.toLowerCase() === "us west" || s.region.toLowerCase() === "us central" || s.region.toLowerCase() === "us east") global.filters.regions.america.push(s);
 
         // Europe
-        if (s.region.toLowerCase() == "europe") global.filters.regions.europe.push(s);
+        if (s.region.toLowerCase() === "europe") global.filters.regions.europe.push(s);
 
         // Asia
-        if (s.region.toLowerCase() == "asia") global.filters.regions.asia.push(s);
+        if (s.region.toLowerCase() === "asia") global.filters.regions.asia.push(s);
 
         // Oceania
-        if (s.region.toLowerCase() == "oceania") global.filters.regions.oceania.push(s);
+        if (s.region.toLowerCase() === "oceania") global.filters.regions.oceania.push(s);
 
         // Other
         if (
@@ -253,7 +253,7 @@ let initializeFilter = () => {
     let checkFilter = (h, e) => {
         let check = false;
         e.forEach(data => {
-            if (data.gameMode == h.gameMode && !h.hidden) {
+            if (data.gameMode == h.gameMode) {
                 check = true;
             }
         })

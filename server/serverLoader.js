@@ -8,6 +8,7 @@ new (require("./game.js").gameServer)(
     workerData.port,
     workerData.gamemode,
     workerData.region,
+    workerData.serverHost,
     workerData.location,
     workerData.webProperties,
     workerData.properties,

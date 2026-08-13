@@ -9,7 +9,7 @@ module.exports = {
 
     // Server
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    startup_logs: true, // Enable startup logs and log speed loop warnings in the terminal
+    startup_logs: true, // Enable detailed startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
     editor: true, // Enable the editor at '[host]/ext/editor'.
 
@@ -23,7 +23,9 @@ module.exports = {
         port        - The port on the server.
         id          - (<host>/#<id>)
 
-        region      - The region the server is on.
+        region      - The region tab the server is sorted into on the main menu.
+        serverhost  - The host of the server in the server list tooltip.
+        location    - The location of the server in the server list tooltip.
         gamemode    - The selected gamemode.
         player_cap  - Not including bots. Set to 0 to disable.
 
@@ -42,6 +44,7 @@ module.exports = {
             id: 'c',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['tdm'],
             player_cap: 80,
@@ -61,6 +64,7 @@ module.exports = {
             id: 'x',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['ffa'],
             player_cap: 80,
@@ -80,6 +84,7 @@ module.exports = {
             id: 'la',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['ffa'],
             player_cap: 80,
@@ -114,6 +119,7 @@ module.exports = {
             id: 'lb',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['maze'],
             player_cap: 80,
@@ -133,6 +139,7 @@ module.exports = {
             id: 'lc',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['tdm'],
             player_cap: 80,
@@ -166,6 +173,7 @@ module.exports = {
             id: 'ld',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['mothership'],
             player_cap: 80,
@@ -187,6 +195,7 @@ module.exports = {
             id: 'lz',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['sandbox'],
             player_cap: 80,
@@ -206,6 +215,7 @@ module.exports = {
             id: 'lzz',
 
             region: "Local",
+            serverhost: "Local",
             location: "Localhost",
             gamemode: ['arms_race', 'sandbox'],
             player_cap: 80,
