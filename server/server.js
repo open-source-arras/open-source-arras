@@ -203,15 +203,17 @@ server = http.createServer((req, res) => {
             // For all other routes, serve static files from the public directory
             ok = false;
             let fileToGet = path.join(publicRoot, pathname);
+            let httpCode = 200;
 
             // If the requested file doesn't exist or isn't a file, default to the main_menu file
-            if (!fs.existsSync(fileToGet) || !fs.lstatSync(fileToGet).isFile()) {
+            if (!fileToGet.startsWith(publicRoot) || !fs.existsSync(fileToGet) || !fs.lstatSync(fileToGet).isFile()) {
+                httpCode = 404;
                 fileToGet = path.join(publicRoot, Config.main_menu);
             }
 
             // Determine the file's MIME type based on its extension and serve the file stream
             const extension = fileToGet.split(".").pop();
-            res.writeHead(200, { "Content-Type": mimeSet[extension] || "text/html" });
+            res.writeHead(httpCode, { "Content-Type": mimeSet[extension] || "text/html" });
             fs.createReadStream(fileToGet).pipe(res);
         } break;
     }
