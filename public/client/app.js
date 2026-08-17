@@ -2409,7 +2409,7 @@ import * as socketStuff from "./socketinit.js";
                     }
 
                     // Draw body once
-                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, m.borderless, m.drawFill, m.imageInterpolation);
+                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
                 }
             }
 
