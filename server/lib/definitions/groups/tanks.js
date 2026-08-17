@@ -2333,7 +2333,7 @@ Class.dreadnought_old = {
                 X: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, { size: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([g.swarm, { reload: 0.5, damage: 2, size: 0.5 }]),
                 TYPE: 'swarm',
                 STAT_CALCULATOR: 'swarm'
             }
