@@ -59,8 +59,8 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: 'localhost:5000',
-            port: 5000,
+            host: 'localhost:5050',
+            port: 5050,
             id: 'x',
 
             region: "Local",
