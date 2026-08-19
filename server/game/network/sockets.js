@@ -627,9 +627,9 @@ class socketManager {
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the visitor.");
                     player.body.sendMessage("Press F to relinquish control of the visitor.");
-                } else {
+                }/* else {
                     player.body.sendMessage("There are no special tanks in this mode that you can control.");
-                }
+                }*/
             } break;
             case "M": {
                 if (player.body == null) return 1;
