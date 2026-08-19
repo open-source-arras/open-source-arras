@@ -448,7 +448,7 @@ class socketManager {
                 let branchId = m[1];
                 // Verify the request
                 if (typeof upgrade != "number" || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
-                    if (!upgrade.isDailyUpgrade) { // Atleast allow the daily upgrade request, else get out.
+                    if (!upgrade?.isDailyUpgrade) { // Atleast allow the daily upgrade request, else get out.
                         socket.kick("Bad upgrade request.");
                         return 1;
                     }
