@@ -2,9 +2,9 @@
 
 <img alt="Logo" src="public/img/round.png" width="100"/>
 
-![GitHub Release](https://img.shields.io/github/v/release/AE0Hello/open-source-arras)
+![GitHub Release](https://img.shields.io/github/v/release/open-source-arras/open-source-arras)
 ![Discord](https://img.shields.io/discord/1004907608018264094)
-![GitHub repo size](https://img.shields.io/github/repo-size/AE0Hello/open-source-arras)
+![GitHub repo size](https://img.shields.io/github/repo-size/open-source-arras/open-source-arras)
 
 > [!WARNING]
 > **Open Source Arras is beta software.** This build is **not** representative of the final product. Expect bugs and missing features.
@@ -17,7 +17,7 @@ This guide covers setting up your server on your own hardware and only supports 
 
 You'll first need to install [Node.js](https://nodejs.org). It you're not sure about what version to use, pick the latest.
 
-Once `Node.js` is installed, [download the source code of the latest release](https://github.com/AE0hello/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
+Once `Node.js` is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
 1. `npm i` (this installs necessary dependencies)
 2. `npm run start` (this actually starts the server)
 
