@@ -1,4 +1,4 @@
-const {combineStats, weaponArray, weaponMirror} = require('../facilitators.js')
+const {combineStats, makeAuto, weaponArray, weaponMirror} = require('../facilitators.js')
 const g = require('../gunvals.js')
 
 // Bullets
