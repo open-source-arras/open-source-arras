@@ -772,39 +772,6 @@ Class.desmosMinion = {
         })
     ]
 }
-Class.sentrySwarmMinion = {
-    PARENT: 'drone',
-    LABEL: 'sentry',
-    COLOR: 'pink',
-    UPGRADE_COLOR: 'pink',
-    DRAW_HEALTH: true,
-    HAS_NO_RECOIL: true,
-    GUNS: Class.sentrySwarm.GUNS
-}
-Class.sentryGunMinion = {
-    PARENT: 'drone',
-    LABEL: 'sentry',
-    COLOR: 'pink',
-    UPGRADE_COLOR: 'pink',
-    DRAW_HEALTH: true,
-    HAS_NO_RECOIL: true,
-    TURRETS: [{
-        POSITION: [12, 0, 0, 0, 360, 1],
-        TYPE: ['megaAutoTankGun', {GUN_STAT_SCALE: {health: 0.8}}]
-    }]
-}
-Class.sentryTrapMinion = {
-    PARENT: 'drone',
-    LABEL: 'sentry',
-    COLOR: 'pink',
-    UPGRADE_COLOR: 'pink',
-    DRAW_HEALTH: true,
-    HAS_NO_RECOIL: true,
-    TURRETS: [{
-        POSITION: [12, 0, 0, 0, 360, 1],
-        TYPE: 'trapTurret'
-    }]
-}
 Class.wranglerMinion = {
     PARENT: 'minion',
     ON: [
@@ -1189,3 +1156,7 @@ Class.superSplitterBullet = {
         },
     ],
 }
+
+// -Drive projectiles
+Class.autoDrone = makeAuto('drone', "Auto-Drone", {type: 'droneAutoTurret'});
+Class.autoMinion = makeAuto('minion', "Auto-Minion", {type: 'droneAutoTurret'});

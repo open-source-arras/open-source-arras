@@ -85,6 +85,39 @@ Class.sentryTrap = makeAuto("sentry", "Sentry", {
     size: 12,
 })
 Class.sentryTrap.UPGRADE_LABEL = "Trap Sentry"
+Class.sentrySwarmMinion = {
+    PARENT: 'drone',
+    LABEL: 'sentry',
+    COLOR: 'pink',
+    UPGRADE_COLOR: 'pink',
+    DRAW_HEALTH: true,
+    HAS_NO_RECOIL: true,
+    GUNS: Class.sentrySwarm.GUNS
+}
+Class.sentryGunMinion = {
+    PARENT: 'drone',
+    LABEL: 'sentry',
+    COLOR: 'pink',
+    UPGRADE_COLOR: 'pink',
+    DRAW_HEALTH: true,
+    HAS_NO_RECOIL: true,
+    TURRETS: [{
+        POSITION: [12, 0, 0, 0, 360, 1],
+        TYPE: ['megaAutoTankGun', {GUN_STAT_SCALE: {health: 0.8}}]
+    }]
+}
+Class.sentryTrapMinion = {
+    PARENT: 'drone',
+    LABEL: 'sentry',
+    COLOR: 'pink',
+    UPGRADE_COLOR: 'pink',
+    DRAW_HEALTH: true,
+    HAS_NO_RECOIL: true,
+    TURRETS: [{
+        POSITION: [12, 0, 0, 0, 360, 1],
+        TYPE: 'trapTurret'
+    }]
+}
 
 // Shiny Sentries
 Class.shinySentry = {

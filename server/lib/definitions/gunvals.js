@@ -547,6 +547,14 @@ module.exports = {
         reload: 1.5,
         maxSpeed: 1.25
     },
+    productionist: {
+        reload: 7/6,
+        recoil: 0.25,
+        shudder: 0.5,
+        speed: 4/3,
+        range: 1.5,
+        spray: 50
+    },
 
     // Heavy cannons
     pounder: {
@@ -707,6 +715,12 @@ module.exports = {
     },
 
     // Traps and blocks
+    megaTrap: {
+        reload: 2,
+        damage: 2,
+        recoil: 2,
+        size: 1.2
+    },
     setTrap: {
         reload: 1.1,
         recoil: 2,
@@ -748,7 +762,6 @@ module.exports = {
         shudder: 1.25,
         speed: 0.8,
         range: 0.5
-   
     },
     trapperDominator: {
         reload: 1.46,

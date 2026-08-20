@@ -3302,7 +3302,70 @@ Class.megaSmasher = {
         }
     ]
 };
+Class.megaSpawner = {
+    PARENT: 'genericTank',
+    LABEL: "Mega-Spawner",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.spawner.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 13
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 11.5,
+                WIDTH: 15
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 15,
+                X: 15
+            },
+            PROPERTIES: {
+                MAX_CHILDREN: 4,
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner, {size: 0.8 }]),
+                TYPE: "megaMinion",
+                STAT_CALCULATOR: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        }
+    ]
+};
 Class.megaTornado = makeWhirlwind('genericTank', {hat: "diamondHat_spin", hatSize: 16, satellites: 2, satelliteSize: 16, extraStats: [g.pounder, g.destroyer], label: "Mega-Tornado", danger: 7});
+Class.megaTrapper = {
+    PARENT: 'genericTank',
+    LABEL: "Mega Trapper",
+    DANGER: 7,
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 12
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5,
+                WIDTH: 12,
+                ASPECT: 1.7,
+                X: 13
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.megaTrap]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ]
+};
 Class.mender = {
     PARENT: 'genericTank',
     LABEL: "Mender",
@@ -3682,7 +3745,40 @@ Class.oroboros = {
         })
     ]
 };
-Class.overdrive = makeDrive('overseer', {label: "Overdrive"});
+Class.overdrive = {
+    PARENT: 'genericTank',
+    LABEL: "Overdrive",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.overseer.BODY,
+    TURRETS: [
+        {
+            TYPE: ['squareHat', {COLOR: 'grey'}],
+            POSITION: {
+                SIZE: 9,
+                LAYER: 1
+            }
+        }
+    ],
+    GUNS: weaponMirror({
+        POSITION: {
+            LENGTH: 6,
+            WIDTH: 12,
+            ASPECT: 1.2,
+            X: 8,
+            ANGLE: 90
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.drone, g.overseer]),
+            TYPE: 'autoDrone',
+            AUTOFIRE: true,
+            SYNCS_SKILLS: true,
+            STAT_CALCULATOR: 'drone',
+            WAIT_TO_CYCLE: true,
+            MAX_CHILDREN: 4
+        }
+    })
+};
 Class.overgunner = makeOver({
     PARENT: 'genericTank',
     LABEL: "Gunner",
@@ -4005,6 +4101,47 @@ Class.prodigy = {
         }], 3)
     ],
 };
+Class.productionist = {
+    PARENT: 'genericTank',
+    LABEL: "Productionist",
+    DANGER: 7,
+    STAT_NAMES: statnames.swarm,
+    BODY: {
+        SPEED: base.SPEED * 12/15,
+        FOV: base.FOV * 1.1
+    },
+    GUNS: weaponMirror([
+        {
+            POSITION: {
+                LENGTH: 14.5,
+                WIDTH: 6,
+                Y: 5.2
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 11,
+                WIDTH: 8,
+                ASPECT: -1.2,
+                Y: 5.2
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 8,
+                X: 14.5,
+                Y: 5.2
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.minion, g.productionist]),
+                TYPE: "tinyMinion",
+                STAT_CALCULATOR: "drone",
+                SYNCS_SKILLS: true
+            }
+        }
+    ], {delayIncrement: 0.5})
+};
 Class.prophet = makeWhirlwind('underseer', {label: "Prophet", satelliteType: 'squareSatellite'});
 Class.python = {
     PARENT: 'genericTank',
@@ -4139,6 +4276,41 @@ Class.quadruplex = {
         }, {delayIncrement: 0.5}), 4)
     ]
 };
+Class.railgun = {
+    PARENT: 'genericTank',
+    LABEL: "Railgun",
+    DANGER: 7,
+    BODY: {
+        SPEED: base.SPEED * 12/15,
+        FOV: base.FOV * 1.2625
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 7.95
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 24,
+                WIDTH: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.railgun]),
+                TYPE: "bullet",
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5.5,
+                WIDTH: 8,
+                ASPECT: -1.8,
+                X: 6.5
+            }
+        }
+    ]
+};
 Class.ranger = {
     PARENT: 'genericTank',
     LABEL: "Ranger",
@@ -4235,6 +4407,47 @@ Class.revolver = {
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.marksman]),
                 TYPE: 'bullet'
+            }
+        }
+    ]
+};
+Class.rimfire = {
+    PARENT: 'genericTank',
+    LABEL: "Rimfire",
+    DANGER: 7,
+    BODY: {
+        FOV: base.FOV * 1.1
+    },
+    GUNS: [
+        ...weaponMirror([{
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 7,
+                Y: 5,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2, size: 2/3}]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 2,
+                X: 2,
+                Y: -2.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { speed: 0.7, maxSpeed: 0.7 }, g.flankGuard, { recoil: 1.8 }]),
+                TYPE: 'bullet'
+            }
+        }], {delayIncrement: 0.5}),
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 10,
+                X: 2
             }
         }
     ]
@@ -4637,6 +4850,52 @@ Class.skimmer = {
             },
         },
     ],
+};
+Class.spawnerdrive = {
+    PARENT: 'genericTank',
+    LABEL: "Spawnerdrive",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.spawner.BODY,
+    TURRETS: [
+        {
+            TYPE: ['squareHat', {COLOR: 'grey'}],
+            POSITION: {
+                SIZE: 9,
+                LAYER: 1
+            }
+        }
+    ],
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 4.5,
+                WIDTH: 10,
+                X: 10.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 12,
+                X: 15
+            },
+            PROPERTIES: {
+                MAX_CHILDREN: 4,
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
+                TYPE: 'autoMinion',
+                STAT_CALCULATOR: 'drone',
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+            },
+        },
+        {
+            POSITION: {
+                LENGTH: 11.5,
+                WIDTH: 12
+            }
+        }
+    ]
 };
 Class.spike = {
     PARENT: 'genericSmasher',
@@ -5226,6 +5485,7 @@ Class.xHunter = {
 
 // Tier 4 (Level 60)
 Class.heptaAutoBasic = makeAuto('basic', "Hepta Auto-Basic", preset.makeAuto.hepta);
+Class.quadTwin = makeFlank('twin', 4, "Quad Twin", {extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8});
 Class.quintuplet = {
     PARENT: 'genericTank',
     LABEL: "Quintuplet",
