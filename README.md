@@ -13,13 +13,12 @@
 
 ## Setup Guide (Localhost)
 
-This guide covers setting up your server on your own hardware and only supports devices running up-to-date versions of Windows/macOS/Linux. It may also cover operating systems that `Node.js` supports but have not yet been tested by us, such as BSD and AIX.
+You'll first need to install Node.js from either [the Node website](http://nodejs.org) or your distribution's package manager (for *nix-like systems). Once Node.js is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
 
-You'll first need to install [Node.js](https://nodejs.org). It you're not sure about what version to use, pick the latest.
-
-Once `Node.js` is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
-1. `npm i` (this installs necessary dependencies)
-2. `npm run start` (this actually starts the server)
+```sh
+~$ npm install
+~$ npm run start
+```
 
 If there aren't any errors, your server will start up. Go to `localhost:3000` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
 
@@ -33,7 +32,7 @@ You can set up in-game servers in `server/config.js`. An example is present in t
 
 ### Travelling between servers (Nexus)
 Copy this code into your server's `properties`:
-```
+```js
 server_travel_properties: {
     loop_interval: 10000, // how often the portal loop executes in seconds
     portals: 1, // amount of portals to spawn
