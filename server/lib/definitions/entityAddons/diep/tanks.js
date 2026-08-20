@@ -68,12 +68,12 @@ const makeAuto = (type, name = -1, options = {}) => {
     if (type.GUNS != null) {
         output.GUNS = type.GUNS;
     }
-    if (type.PROPS == null || options.clearProps == true) {
+    if (type.PROPS == null || options.clearProps) {
         output.PROPS = [];
     } else {
         output.PROPS = [...type.PROPS];
     }
-    if (type.TURRETS == null || options.clearTurrets == true) {
+    if (type.TURRETS == null || options.clearTurrets) {
         output.TURRETS = [...autogun];
     } else {
         output.TURRETS = [...type.TURRETS, ...autogun];

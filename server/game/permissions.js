@@ -1,7 +1,8 @@
-// OPERATOR LEVELS
-// - level: 1 // basic stuff
-// - level: 2 // level 1 + advanced stuff
-// - level: 3 // level 2 + everything else
+// PERMISSION LEVELS
+// - level: 0 // Player
+// - level: 1 // Arena Conductor // basic stuff
+// - level: 2 // Arena Supervisor // level 1 + advanced stuff
+// - level: 3 // Arena Operator // level 2 + everything else
 
 // todo: be more specific here
 

@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="Definitions editor for Open Source Arras">
+        <meta name="robots" content="index, follow">
+        <meta property="og:image" content="/favicon/base.svg">
+        <meta property="og:image:width" content="54">
+        <meta property="og:image:height" content="54">
+        <title>Editor - Open Source Arras</title>
+        <link rel="stylesheet" href="/font.css"/>
+        <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/32x32.png">
+        <link rel="icon" type="image/png" sizes="64x64" href="/favicon/64x64.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/96x96.png">
+        <link rel="icon" type="image/png" sizes="128x128" href="/favicon/128x128.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/192x192.png">
+        <link rel="icon" type="image/png" sizes="256x256" href="/favicon/256x256.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/512x512.png">
+        <link rel="icon" type="image/png" sizes="1024x1024" href="/favicon/1024x1024.png">
+        <link rel="icon" type="image/png" sizes="2048x2048" href="/favicon/2048x2048.png">
+        <link rel="icon" type="image/svg+xml" sizes="400x400" href="/favicon/base.svg">
+        <meta name="theme-color" content="#8abc3f">
+        <style>
+            html, body {
+                overflow: hidden;
+                height: 100%;
+                width: 100%;
+                margin: 0;
+            }
+            .multi {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+            }
+            .multi-tabs {
+                width: 100%;
+                height: 32px;
+                background: #0e0e0e;
+            }
+            .multi-tabs > span {
+                display: inline-block;
+                height: 20px;
+                border-radius: 4px 4px 0 0;
+                padding: 6px 10px;
+                margin-left: 8px;
+                font: 12px/20px Ubuntu;
+                color: #cccccc;
+                background: #181818;
+            }
+            .multi-tabs > span.active {
+                color: #eeeeee;
+                background: #1e1e1e;
+            }
+            .multi-tabs > span::before {
+                content: '';
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                border-radius: 4px;
+                margin-right: 6px;
+                background: #8f8f8f;
+            }
+            .multi-tabs > span.active::before {
+                background: #fcfcfc;
+            }
+            .multi-editors {
+                width: 100%;
+                height: 100%;
+                background: #1e1e1e;
+            }
+            .multi-editors > div {
+                display: none;
+                width: 100%;
+                height: 100%;
+            }
+            .multi-editors > div.active {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="multi">
+            <div class="multi-tabs" id="multi-tabs"></div>
+            <div class="multi-editors" id="multi-editors"></div>
+        </div>
+        <script>
+            ;(async () => {
+                'use strict'
+
+                let loadMonaco = () => new Promise(resolve => {
+                    let vs = 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.30.0/min/vs'
+                    let script = document.createElement('script')
+                    script.src = `${vs}/loader.js`
+                    script.addEventListener('load', () => {
+                        require.config({ paths: { vs } })
+                        require(['vs/editor/editor.main'], resolve)
+                    })
+                    document.body.appendChild(script)
+                })
+
+                const stringify = value => {
+                    let input = [value]
+                    let known = new Map()
+                    known.set(value, 0)
+
+                    let output = []
+                    for (let i = 0; i < input.length; i++) {
+                        let firstRun = true
+                        output.push(JSON.stringify(input[i], (key, value) => {
+                            if (firstRun) {
+                                firstRun = false
+                                return value
+                            }
+
+                            if ((value !== null && typeof value === 'object') || (typeof value === 'string' && value.startsWith('#'))) {
+                                let index = known.get(value)
+                                if (index == null) {
+                                    index = input.length
+                                    input.push(value)
+                                    known.set(value, index)
+                                }
+
+                                return `#${index.toString(16)}`
+                            }
+
+                            return value
+                        }))
+                    }
+
+                    return output.join('\n')
+                }
+
+                const Connection = class {
+                    constructor(host) {
+                        let getPassword = () => {
+                            return localStorage['playerKeyInputValue'] || ''
+                        }
+                        this.url = `ws${location.protocol === "https:" ? "s" : ""}://${host}/api/editor?${getPassword()}`
+                        this.nextReqId = 0
+                        this.callbacks = {}
+                        this.ws = null
+                    }
+
+                    async connect() {
+                        if (this.ws && !(this.ws.readyState >= 2)) return this.ws
+
+                        let ws = new WebSocket(this.url)
+                        this.ws = new Promise((resolve, reject) => {
+                            let quit = err => {
+                                this.ws = null
+                                reject(err)
+                                for (let { reject, either } of Object.values(this.callbacks)) {
+                                    reject(err)
+                                    either()
+                                }
+                            }
+
+                            let timeout = setTimeout(() => quit(new Error('Connection timed out')), 10e3)
+
+                            ws.addEventListener('open', () => {
+                                clearTimeout(timeout)
+                                this.ws = ws
+                                resolve(ws)
+                            })
+
+                            ws.addEventListener('message', e => {
+                                let message = null
+                                try {
+                                    message = JSON.parse(e.data.toString())
+                                } catch {}
+                                // console.log(id, message || data)
+                                if (!message || typeof message !== 'object')
+                                    return
+                                if (this.callbacks.hasOwnProperty(message.id)) {
+                                    let { resolve, either } = this.callbacks[message.id]
+                                    resolve(message)
+                                    either()
+                                    delete this.callbacks[message.id]
+                                }
+                            })
+
+                            ws.addEventListener('close', () => quit('Connection closed'))
+                            ws.addEventListener('error', quit)
+                        })
+
+                        return this.ws
+                    }
+
+                    async tryRequest(req) {
+                        req.id = this.nextReqId++
+
+                        let ws = await this.connect()
+                        ws.send(JSON.stringify(req))
+
+                        return new Promise((resolve, reject) => {
+                            let timeout = setTimeout(() => {
+                                ws.close()
+                                reject(new Error('Request timed out'))
+                            }, 30e3)
+
+                            this.callbacks[req.id] = {
+                                resolve,
+                                reject,
+                                either() {
+                                    clearTimeout(timeout)
+                                },
+                            }
+                        })
+                    }
+
+                    async request(req) {
+                        try {
+                            return await this.tryRequest(req)
+                        } catch {
+                            return this.tryRequest(req)
+                        }
+                    }
+                }
+
+                let compilerInstance = null
+                let compile = source => {
+                    if (compilerInstance == null) {
+                        let script = `
+                            let intoModule = source => \`data:text/javascript;charset=utf-8,\${encodeURIComponent(source)}\`
+                            onmessage = e => {
+                                import(intoModule(e.data.source.replace('./modes.js', intoModule('export let c = {}')))).then(exports => {
+                                    postMessage({ id: e.data.id, ok: true, result: JSON.stringify(exports.default) })
+                                }).catch(err => {
+                                    postMessage({ id: e.data.id, ok: false, message: err.message, stack: err.stack })
+                                })
+                            }
+                        `
+                        let blob = new Blob([script], { type: 'application/javascript' })
+                        let url = URL.createObjectURL(blob)
+                        let worker = new Worker(url)
+                        URL.revokeObjectURL(url)
+                        let compiler = { worker, id: 0, promises: {} }
+                        worker.onmessage = e => {
+                            let callbacks = compiler.promises[e.data.id]
+                            if (!callbacks) return
+                            delete compiler.promises[e.data.id]
+
+                            if (e.data.ok) {
+                                callbacks.resolve(JSON.parse(e.data.result))
+                            } else {
+                                callbacks.reject({
+                                    message: e.data.message,
+                                    stack: e.data.stack,
+                                })
+                            }
+                        }
+                        compilerInstance = compiler
+                    }
+
+                    return new Promise((resolve, reject) => {
+                        let id = compilerInstance.id++
+                        compilerInstance.worker.postMessage({ id, source })
+                        compilerInstance.promises[id] = { resolve, reject }
+                    })
+                }
+
+                const monaco = await loadMonaco()
+
+                Promise._resolve = Promise._resolve || Promise.resolve
+                Promise.resolve = promise => {
+                    if (typeof promise === 'object' && promise != null && promise.hackyReplaceAllPreviousPromises) {
+                        return {
+                            then(a, b) {
+                                let result = promise.then(a, b)
+                                result.hackyReplaceAllPreviousPromises = true
+                                return result
+                            }
+                        }
+                    }
+                    return Promise._resolve(promise)
+                }
+                Promise._all = Promise._all || Promise.all
+                Promise.all = promises => {
+                    let modified = []
+                    for (let promise of promises) {
+                        if (typeof promise === 'object' && promise != null && promise.hackyReplaceAllPreviousPromises)
+                            modified = []
+                        modified.push(promise)
+                    }
+                    return Promise._all(modified)
+                }
+
+                monaco.languages.registerHoverProvider('javascript', {
+                    provideHover(model, { lineNumber, column }) {
+                        let line = model.getLineContent(lineNumber)
+                        let regex = /\b(?:Class|exports)\.([$_a-zA-Z][$_a-zA-Z0-9]*)\b/g
+                        let id = null
+                        let range = null
+
+                        while (true) {
+                            let match = regex.exec(line)
+                            if (!match) return
+                            if (column - 1 >= match.index && column - 1 <= match.index + match[0].length) {
+                                id = match[1]
+                                range = new monaco.Range(lineNumber, match.index + 1, lineNumber, match.index + match[0].length + 1)
+                                break
+                            }
+                        }
+
+                        let promise = new Promise(async resolve => {
+                            let compiled = null
+                            try {
+                                compiled = await compile(model.getValue())
+                            } catch (err) {
+                                resolve({
+                                    range,
+                                    contents: [
+                                        { value: `**COMPILATION ERROR** (\`${id}\`)` },
+                                        { value: `\`\`\`\nError: ${err.message}\n${err.stack}\`\`\`` },
+                                    ],
+                                })
+                                return
+                            }
+
+                            let canvas = document.createElement('canvas')
+                            canvas.width = 200
+                            canvas.height = 200
+                            let ctx = canvas.getContext('2d')
+                            let derive = (m, target = {}) => {
+                                if (typeof m === "string") m = compiled[m];
+                                if (Array.isArray(m)) {
+                                    for (let element of m)
+                                        derive(element, target)
+                                }
+                                if (m.PARENT)
+                                    derive(m.PARENT, target)
+                                for (let [key, value] of Object.entries(m))
+                                    target[key] = value
+                                return target
+                            }
+                            let getRealSize = (() => {
+                                let o = [1, 1, 1] // 0 to 2-gon defaults to 1
+                                for (let i = 3; i < 256; i++) {
+                                    let angle = 2 * Math.PI / i
+                                    o.push(Math.sqrt(angle / Math.sin(angle)))
+                                }
+                                return shape => {
+                                    if (typeof shape !== 'number' || !Number.isInteger(shape)) return 1
+                                    shape = Math.abs(shape)
+                                    return shape < 256 ? o[shape] : 1
+                                }
+                            })()
+                            let drawPolygon = sides => {
+                                let s = getRealSize(sides) * 10
+                                ctx.beginPath()
+                                if (!sides) {
+                                    ctx.arc(0, 0, s, 0, Math.PI * 2)
+                                } else if (sides instanceof Array) {
+                                    for (let [x, y] of sides) {
+                                        ctx.lineTo(s * x, s * y)
+                                    }
+                                } else if (sides < 0) { // Star
+                                    let angle = sides % 2 === 0 ? Math.PI / sides : 0
+                                    sides = -sides
+                                    let dip = 1 - 6 / (sides * sides)
+                                    ctx.moveTo(10 * Math.cos(angle), 10 * Math.sin(angle))
+                                    for (let i = 0; i < sides; i++) {
+                                        let theta = (i + 1) / sides * 2 * Math.PI
+                                        let hTheta = (i + 0.5) / sides * 2 * Math.PI
+                                        let c = {
+                                            x: s * dip * Math.cos(hTheta + angle),
+                                            y: s * dip * Math.sin(hTheta + angle),
+                                        }
+                                        let p = {
+                                            x: s * Math.cos(theta + angle),
+                                            y: s * Math.sin(theta + angle),
+                                        }
+                                        ctx.quadraticCurveTo(c.x, c.y, p.x, p.y);
+                                    }
+                                } else if (sides > 0) { // Polygon
+                                    for (let i = 0; i < sides; i++) {
+                                        let theta = (i * 2 + 1 - sides % 2) * Math.PI / sides
+                                        ctx.lineTo(s * Math.cos(theta), s * Math.sin(theta))
+                                    }
+                                }
+                                ctx.closePath()
+                                ctx.stroke()
+                                ctx.fill()
+                            }
+                            let drawEntity = (source, scaled) => {
+                                ctx.lineWidth = 1 / scaled
+                                let m = derive(source)
+                                if (m.TURRETS)
+                                    for (let { POSITION, TYPE } of m.TURRETS) {
+                                        let size, x, y, angle, _arc, layer;
+                                        if (Array.isArray(POSITION)) [size, x, y, angle, _arc, layer] = POSITION;
+                                        else ({ SIZE: size, X: x, Y: y, ANGLE: angle, LAYER: layer } = POSITION);
+                                        size ??= 10
+                                        x ??= 0
+                                        y ??= 0
+                                        angle ??= 0
+                                        layer ??= 0
+                                        if (layer !== 0) continue
+                                        ctx.save()
+                                        ctx.rotate(angle / 180 * Math.PI)
+                                        ctx.translate(x, y)
+                                        ctx.scale(size / 20, size / 20)
+                                        drawEntity(TYPE, scaled * size / 20)
+                                        ctx.restore()
+                                    }
+                                if (m.GUNS)
+                                    for (let { POSITION } of m.GUNS) {
+                                        let length, width, aspect, x, y, angle;
+                                        if (Array.isArray(POSITION)) [length, width, aspect, x, y, angle] = POSITION;
+                                        else ({ LENGTH: length, WIDTH: width, ASPECT: aspect, X: x, Y: y, ANGLE: angle } = POSITION);
+                                        length ??= 18
+                                        width ??= 8
+                                        aspect ??= 1
+                                        x ??= 0
+                                        y ??= 0
+                                        angle ??= 0
+                                        ctx.save()
+                                        ctx.rotate(angle / 180 * Math.PI)
+                                        ctx.beginPath()
+                                        let extend = width * 0.5
+                                        if (aspect === 0 || aspect === 1 || aspect === -1) {
+                                            ctx.rect(x, y - extend, length, width)
+                                        } else {
+                                            let a = aspect > 0 ? aspect : 1
+                                            let b = aspect < 0 ? -aspect : 1
+                                            ctx.moveTo(x, y - extend * b)
+                                            ctx.lineTo(x, y + extend * b)
+                                            ctx.lineTo(x + length, y + extend * a)
+                                            ctx.lineTo(x + length, y - extend * a)
+                                            ctx.closePath()
+                                        }
+                                        ctx.stroke()
+                                        ctx.fill()
+                                        ctx.restore()
+                                    }
+                                drawPolygon(m.SHAPE)
+                                if (m.TURRETS)
+                                    for (let { POSITION, TYPE } of m.TURRETS) {
+                                        let size, x, y, angle, _arc, layer;
+                                        if (Array.isArray(POSITION)) [size, x, y, angle, _arc, layer] = POSITION;
+                                        else ({ SIZE: size, X: x, Y: y, ANGLE: angle, LAYER: layer } = POSITION);
+                                        size ??= 10
+                                        x ??= 0
+                                        y ??= 0
+                                        angle ??= 0
+                                        layer ??= 0
+                                        if (layer !== 1) continue
+                                        ctx.save()
+                                        ctx.rotate(angle / 180 * Math.PI)
+                                        ctx.translate(x, y)
+                                        ctx.scale(size / 20, size / 20)
+                                        drawEntity(TYPE, scaled * size / 20)
+                                        ctx.restore()
+                                    }
+                            }
+                            let drawTank = m => {
+                                ctx.fillStyle = '#333'
+                                ctx.strokeStyle = '#fff'
+                                ctx.lineJoin = 'round'
+                                ctx.fillRect(0, 0, 256, 256)
+                                ctx.save()
+                                ctx.translate(100, 100)
+                                let scale = 2 * Math.pow(derive(m).SIZE, 0.2)
+                                ctx.scale(scale, scale)
+                                drawEntity(m, scale / 4)
+                                ctx.restore()
+                            }
+
+                            if (!compiled[id]) {
+                                resolve({
+                                    range,
+                                    contents: [
+                                        { value: `**EXPORT NOT FOUND** (\`${id}\`)` },
+                                    ],
+                                })
+                                return
+                            }
+
+                            try {
+                                drawTank(compiled[id])
+                                resolve({
+                                    range,
+                                    contents: [
+                                        { value: `**PREVIEW** (\`${id}\`)` },
+                                        { value: `<img src="${canvas.toDataURL()}">`, supportHtml: true },
+                                    ],
+                                })
+                            } catch (err) {
+                                resolve({
+                                    range,
+                                    contents: [
+                                        { value: `**RENDER ERROR** (\`${id}\`)` },
+                                        { value: `\`\`\`\nError: ${err.message}\n${err.stack}\`\`\`` },
+                                    ],
+                                })
+                                return
+                            }
+                        })
+                        promise.hackyReplaceAllPreviousPromises = true
+                        return promise
+                    },
+                })
+
+                let elements = {
+                    tabs: document.getElementById('multi-tabs'),
+                    editors: document.getElementById('multi-editors'),
+                }
+
+                const TabManager = {
+                    activeTab: null,
+                    create(name, config = {}) {
+                        let span = document.createElement('span')
+                        span.textContent = name
+                        elements.tabs.appendChild(span)
+
+                        let div = document.createElement('div')
+                        let editor = config.init(div)
+                        elements.editors.appendChild(div)
+
+                        let tab = {
+                            span,
+                            div,
+                            editor,
+                            open: config.open,
+                            active: false,
+                        }
+
+                        let openTab = () => {
+                            if (tab.active) return
+
+                            if (TabManager.active) {
+                                TabManager.active.active = false
+                                TabManager.active.span.classList.remove('active')
+                                TabManager.active.div.classList.remove('active')
+                            }
+
+                            tab.active = true
+                            tab.span.classList.add('active')
+                            tab.div.classList.add('active')
+
+                            tab.editor.layout()
+                            TabManager.active = tab
+                        }
+
+                        span.addEventListener('click', openTab)
+                        if (config.active) openTab()
+
+                        return tab
+                    },
+                }
+                window.addEventListener('resize', () => {
+                    if (TabManager.active)
+                        TabManager.active.editor.layout()
+                })
+
+                let local = monaco.editor.createModel('', 'javascript')
+                let remote = monaco.editor.createModel('', 'javascript')
+
+                let specialActions = [{
+                    id: 'special-deploy',
+                    label: 'Save and Deploy Code',
+                    keybindings: [
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS,
+                    ],
+                    contextMenuGroupId: 'special',
+                    async run() {
+                        try {
+                            await compile(local.getValue())
+                        } catch (err) {
+                            write(`[${new Date().toLocaleString()}] Compile Error: ${err.message}\n${err.stack}\n`)
+                            return
+                        }
+                        try {
+                            let res = await conn.request({ type: 'setDefinitions', data: local.getValue() })
+                            if (!res.ok) throw new Error(res.data)
+                            write(`[${new Date().toLocaleString()}] Updated server definitions\n`)
+                        } catch (err) {
+                            console.log(err)
+                            write(`[${new Date().toLocaleString()}] Error: ${err.message}\n`)
+                        }
+                    },
+                }, {
+                    id: 'special-diff',
+                    label: 'Generate Patch File',
+                    keybindings: [
+                        monaco.KeyCode.F6,
+                    ],
+                    async run() {
+                        let { original, modified } = combined.editor.getModel()
+                        let changes = combined.editor.getLineChanges()
+                        let patchData = '--- remote/definitions.js\n+++ local/definitions.js\n'
+                        for (let {
+                            originalStartLineNumber: originalStart,
+                            originalEndLineNumber: originalEnd,
+                            modifiedStartLineNumber: modifiedStart,
+                            modifiedEndLineNumber: modifiedEnd,
+                        } of changes) {
+                            let originalLines = [originalStart]
+                            if (originalEnd === 0) {
+                                originalLines.push(0)
+                            } else if (originalStart !== originalEnd) {
+                                originalLines.push(originalEnd - originalStart + 1)
+                            }
+
+                            let modifiedLines = [modifiedStart]
+                            if (modifiedEnd === 0) {
+                                modifiedLines.push(0)
+                            } else if (modifiedStart !== modifiedEnd) {
+                                modifiedLines.push(modifiedEnd - modifiedStart + 1)
+                            }
+
+                            patchData += `@@ -${originalLines.join(',')} +${modifiedLines.join(',')} @@\n`
+
+                            if (originalEnd) {
+                                let range = new monaco.Range(originalStart, 1, originalEnd, original.getLineLastNonWhitespaceColumn(originalEnd))
+                                let value = original.getValueInRange(range)
+                                patchData += value.replace(/^|\n/g, '$&-') + '\n'
+                            }
+
+                            if (modifiedEnd) {
+                                let range = new monaco.Range(modifiedStart, 1, modifiedEnd, modified.getLineLastNonWhitespaceColumn(modifiedEnd))
+                                let value = modified.getValueInRange(range)
+                                patchData += value.replace(/^|\n/g, '$&+') + '\n'
+                            }
+                        }
+                        patchFile.editor.getModel().setValue(patchData)
+                    },
+                }]
+
+                let config = {
+                    theme: 'vs-dark',
+                    fontSize: 13,
+                    lineNumbersMinChars: 6,
+                    wordWrap: true,
+                    wrappingIndent: 'indent',
+                    multiCursorModifier: 'ctrlCmd',
+                }
+
+                let terminal = TabManager.create('Terminal', {
+                    init(div) {
+                        let editor = monaco.editor.create(div, {
+                            ...config,
+                            readOnly: true,
+                        })
+                        for (let action of specialActions)
+                            editor.addAction(action)
+                        return editor
+                    },
+                    active: true,
+                })
+
+                let write = text => {
+                    let model = terminal.editor.getModel()
+
+                    let row = model.getLineCount()
+                    let column = model.getLineLastNonWhitespaceColumn(row)
+                    let end = new monaco.Selection(row, column, row, column)
+
+                    model.pushEditOperations([end], [
+                        { range: end, text, forceMoveMarkers: true },
+                    ], () => [end])
+                }
+
+                TabManager.create('local.js', {
+                    init(div) {
+                        let editor = monaco.editor.create(div, {
+                            model: local,
+                            ...config,
+                        })
+                        for (let action of specialActions)
+                            editor.addAction(action)
+                        return editor
+                    },
+                })
+                let combined = TabManager.create('combined.js', {
+                    init(div) {
+                        let editor = monaco.editor.createDiffEditor(div, {
+                            ...config,
+                            renderSideBySide: true,
+                            maxComputationTime: 60e3 * 5,
+                        })
+                        editor.setModel({ original: remote, modified: local })
+                        for (let action of specialActions)
+                            editor.addAction(action)
+                        return editor
+                    },
+                })
+                TabManager.create('remote.js', {
+                    init(div) {
+                        let editor = monaco.editor.create(div, {
+                            model: remote,
+                            ...config,
+                            readOnly: true,
+                        })
+                        for (let action of specialActions)
+                            editor.addAction(action)
+                        return editor
+                    },
+                })
+                let patchFile = TabManager.create('update.patch', {
+                    init(div) {
+                        let editor = monaco.editor.create(div, {
+                            ...config,
+                            language: 'patch',
+                            readOnly: true,
+                        })
+                        for (let action of specialActions)
+                            editor.addAction(action)
+                        return editor
+                    },
+                })
+
+                let host = location.hash.replace(/^#/, '')
+                write(`# Keybinds:\nCtrl+S - save and deploy\nF6 - generate patch file\n\n`)
+                if (!host) {
+                    write(`[${new Date().toLocaleString()}] No server to connect to\n`)
+                    return
+                }
+                let conn = new Connection(host)
+                window.conn = conn
+                write(`[${new Date().toLocaleString()}] Connecting to wss://${host}\n`)
+
+                let originalDefinitions = null
+                try {
+                    let res = await conn.request({ type: 'getDefinitions' })
+                    if (!res.ok) throw new Error('Response error')
+                    write(`[${new Date().toLocaleString()}] Connected to server and fetched server definitions\n`)
+                    originalDefinitions = res.data
+                } catch (err) {
+                    write(`[${new Date().toLocaleString()}] Failed to connect to server\n`)
+                    console.error(err)
+                    return
+                }
+                let save = {}
+                try {
+                    if (localStorage.definitions)
+                        save = JSON.parse(localStorage.definitions)
+                } catch {}
+                local.setValue(save.data || originalDefinitions)
+                remote.setValue(originalDefinitions)
+
+                window.addEventListener('beforeunload', e => {
+                    let localValue = local.getValue()
+                    let hasContent = !/^\s*$/.test(localValue) && localValue !== originalDefinitions
+                    localStorage.definitions = JSON.stringify(hasContent ? { data: localValue } : {})
+                })
+
+            })()
+        </script>
+    </body>
+</html>

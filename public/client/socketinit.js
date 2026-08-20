@@ -65,7 +65,7 @@ gui = {
                 deduction -= levelscore - deduction * d;
                 level--
             }
-        },  
+        },
         getProgress: () => levelscore ? Math.min(1, Math.max(0, (sscore.get() - deduction) / levelscore)) : 0,
         getScore: () => sscore.get(),
         getLevel: () => level,
@@ -351,8 +351,8 @@ const GunContainer = n => {
             isUpdated: true,
             configLoaded: false,
             color: "",
-            borderless: false, 
-            drawFill: true, 
+            borderless: false,
+            drawFill: true,
             drawAbove: false,
             length: 0,
             width: 0,
@@ -388,7 +388,7 @@ const GunContainer = n => {
             if (!g.configLoaded) {
                 g.configLoaded = true;
                 g.color = c.color;
-                g.borderless = c.borderless; 
+                g.borderless = c.borderless;
                 g.alpha = c.alpha;
                 g.strokeWidth = c.strokeWidth;
                 g.drawFill = c.drawFill;
@@ -400,7 +400,7 @@ const GunContainer = n => {
                 g.direction = c.direction;
                 g.offset = c.offset;
                 g.layer = c.layer;
-                
+
                 // Sort the gun layers by changing the array itself
                 a.sort((a, b) => a.layer - b.layer);
             }
@@ -857,7 +857,7 @@ let incoming = async function(message, socket) {
                 let blackoutData = JSON.parse(m[5]);
                 global.advanced.blackout.active = blackoutData.active;
                 global.advanced.blackout.color = blackoutData.color;
-                global.advanced.roundMap = m[6] == "circle" ? true : false;
+                global.advanced.roundArena = m[6];
                 // Start syncing
                 socket.talk('S', getNow());
             } break;
@@ -1195,10 +1195,10 @@ let incoming = async function(message, socket) {
             socket.open = false;
             clearInterval(socket.commandCycle);
             global.gameStart = false;
-    
+
             // Reset the player
             global.player = global.initPlayer();
-    
+
             // Setup
             global.gameLoading = true;
             global.serverAdd = m[0];
@@ -1217,9 +1217,9 @@ let incoming = async function(message, socket) {
             global.generateTankTree = true;
             global.renderTankTree = true;
         } break;
-        
+
         case 'K': { // kicked
-            // Put your code while being kicked from the server. 
+            // Put your code while being kicked from the server.
         } break;
         case 'z': { // name color
             global.nameColor = m[0];
@@ -1330,7 +1330,7 @@ const socketInit = () => {
         // define a pinging function
         socket.ping = payload => socket.talk('p', payload);
     };
-    
+
     // Handle incoming messages
     socket.onmessage = (msg) => incoming(msg, socket);
 

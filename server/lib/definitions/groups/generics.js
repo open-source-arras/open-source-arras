@@ -11,6 +11,7 @@ Class.genericEntity = {
     DANGER: 0,
     VALUE: 0,
     SHAPE: 0,
+    SIZE: 10,
     COLOR: {
         BASE: 16, // ID
         HUE_SHIFT: 0, // Additive, degrees

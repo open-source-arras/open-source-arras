@@ -17,6 +17,8 @@ const config = {
         colors: 'normal',
         pointy: true,
         showGrid: true,
+        hexaGrid: true,
+        gridDrawSize: 1,
         fontSizeBoost: 1.4,
         fontStrokeRatio: 4.5,
         neon: false,
@@ -48,8 +50,9 @@ const config = {
         centeredMinimap: false,
         incognitoMode: false,
     }
-  };
-  export { config }
+};
+export { config }
+
 // globals.
 function createMessage(con, dur = 10_000, JSONMessage = false) {
     if (JSONMessage) {
@@ -77,7 +80,7 @@ import { global } from "./global.js";
 global.tips = [
     [
         "Tip: You can view and edit your keybinds in the options menu.",
-        "Tip: You can play on mobile by just going to [host link here] on your phone!" // TODO: make this automatically change to the host
+        `Tip: You can play on mobile by just going to ${window.location.href.substr(0, window.location.href.indexOf('#'))} on your phone!`
     ],
     [
         "Tip: You can have the shield and health bar be separated by going to the options menu.",

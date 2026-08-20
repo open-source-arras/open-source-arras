@@ -37,6 +37,7 @@ global.loadServerSelector = (serverData, text) => {
     // If you dont want have a server filter, just dont run this function.
     initializeFilter();
 
+    // Initial server load
     servers.forEach(async (server) => {
         try {
             const tr = document.createElement("tr");
@@ -44,17 +45,15 @@ global.loadServerSelector = (serverData, text) => {
             td1.textContent = `${server.region}`;
             const td2 = document.createElement("td");
             td2.classList.add("tdCenter");
-            td2.textContent = `${server.gameMode}`;
+            td2.textContent = server.private ? "Private" : `${server.gameMode}`;
             const td3 = document.createElement("td");
-            if (server.maxPlayers < 1) {
-                td3.textContent = `${server.players}`;
-            } else {
-                td3.textContent = `${server.players}/${server.maxPlayers}`;
-            }
+            td3.textContent = server.players + (server.maxPlayers < 1 ? `/∞` : server.private ? `/?` : td3.textContent = `/${server.maxPlayers}`);
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
+            tr.title = `${server.serverhost} - ${server.location} - #${server.id} (${td2.textContent})`;
             server.featured && tr.classList.add("featured");
+            if (server.unlisted) tr.style.display = 'none';
             tr.onclick = () => {
                 if (myServer.classList.contains("selected")) {
                     myServer.classList.remove("selected");
@@ -64,8 +63,7 @@ global.loadServerSelector = (serverData, text) => {
                 global.locationHash = location.hash;
                 localStorage.setItem("lastServer", server.id);
                 tr.classList.add("selected"), (global.serverAdd = server.ip);
-                if (server.ip == "localhost")
-                  global.serverAdd = global.serverAdd + ":" + server.port;
+                if (server.ip == "localhost") global.serverAdd = global.serverAdd + ":" + server.port;
             };
             serversDocs.appendChild(tr);
             serverMap[server.id] = tr;
@@ -116,13 +114,19 @@ let initializeFilter = () => {
             oceania: [],
             other: [],
         },
-        gamemodeFilters: {
+        gamemodes: {
             all: [],
+            sandbox: [],
+
             ffa: [],
             squads: [],
             tdm: [],
             minigames: [],
-            sandbox: [],
+
+            normal: [],
+            growth: [],
+            armsRace: [],
+            other: [],
         }
     }
     let nvmText = document.createElement("td");
@@ -140,16 +144,16 @@ let initializeFilter = () => {
         global.filters.regions.all.push(s);
 
         // USA
-        if (s.region.toLowerCase() == "usa" || s.region.toLowerCase() == "us west" || s.region.toLowerCase() == "us central" || s.region.toLowerCase() == "us east") global.filters.regions.america.push(s);
+        if (s.region.toLowerCase() === "usa" || s.region.toLowerCase() === "us west" || s.region.toLowerCase() === "us central" || s.region.toLowerCase() === "us east") global.filters.regions.america.push(s);
 
         // Europe
-        if (s.region.toLowerCase() == "europe") global.filters.regions.europe.push(s);
+        if (s.region.toLowerCase() === "europe") global.filters.regions.europe.push(s);
 
         // Asia
-        if (s.region.toLowerCase() == "asia") global.filters.regions.asia.push(s);
+        if (s.region.toLowerCase() === "asia") global.filters.regions.asia.push(s);
 
         // Oceania
-        if (s.region.toLowerCase() == "oceania") global.filters.regions.oceania.push(s);
+        if (s.region.toLowerCase() === "oceania") global.filters.regions.oceania.push(s);
 
         // Other
         if (
@@ -162,36 +166,65 @@ let initializeFilter = () => {
         }
 
         // Gamemodes
-        global.filters.gamemodeFilters.all.push(s);
-
-        // FFA
-        if (s.gameMode.includes("FFA")) global.filters.gamemodeFilters.ffa.push(s);
-
-        // Squads
-        if (s.gameMode.includes("Duos") || s.gameMode.includes("Trios") || s.gameMode.includes("Squads") || s.gameMode.includes("Wars")) global.filters.gamemodeFilters.squads.push(s);
-
-        // TDM
-        if (s.gameMode.includes("TDM")) global.filters.gamemodeFilters.tdm.push(s);
+        global.filters.gamemodes.all.push(s);
 
         // Sandbox
-        if (s.gameMode.includes("Sandbox")) global.filters.gamemodeFilters.sandbox.push(s);
+        if (s.gameMode.includes("Sandbox")) global.filters.gamemodes.sandbox.push(s);
+
+        // FFA
+        if (s.gameMode.includes("FFA") || s.gameMode === "Maze") global.filters.gamemodes.ffa.push(s);
+
+        // Squads
+        if (s.gameMode.includes("Duos") || s.gameMode.includes("Trios") || s.gameMode.includes("Squads") || s.gameMode.includes("Wars")) global.filters.gamemodes.squads.push(s);
+
+        // TDM
+        if (s.gameMode.includes("TDM")) global.filters.gamemodes.tdm.push(s);
 
         // Minigames
         if (
-            !global.filters.gamemodeFilters.ffa.includes(s) &&
-            !global.filters.gamemodeFilters.squads.includes(s) &&
-            !global.filters.gamemodeFilters.tdm.includes(s) &&
-            !global.filters.gamemodeFilters.sandbox.includes(s)
-        ) {
-            global.filters.gamemodeFilters.minigames.push(s);
-        }
+            !global.filters.gamemodes.ffa.includes(s) &&
+            !global.filters.gamemodes.squads.includes(s) &&
+            !global.filters.gamemodes.tdm.includes(s) &&
+            !global.filters.gamemodes.sandbox.includes(s)
+        ) global.filters.gamemodes.minigames.push(s);
+
+        // Normal
+        if ((
+            !s.gameMode.includes("Arms Race") &&
+            !s.gameMode.toLowerCase().includes("growth")
+        ) && (
+            s.gameMode.includes("FFA") ||
+            s.gameMode === "Maze" ||
+            s.gameMode.includes("Duos") ||
+            s.gameMode.includes("Trios") ||
+            s.gameMode.includes("Squads") ||
+            s.gameMode.includes("Wars") ||
+            s.gameMode.includes("TDM") ||
+            s.gameMode.includes("Nexus") ||
+            s.gameMode.includes("Labyrinth")
+        )) global.filters.gamemodes.normal.push(s);
+
+        // Growth
+        if (s.gameMode.toLowerCase().includes("growth") || s.gameMode.includes("Old Dreadnoughts")) global.filters.gamemodes.growth.push(s);
+
+        // Arms Race
+        if (s.gameMode.includes("Arms Race")) global.filters.gamemodes.armsRace.push(s);
+
+        // Other
+        if (
+            !global.filters.gamemodes.normal.includes(s) &&
+            !global.filters.gamemodes.growth.includes(s) &&
+            !global.filters.gamemodes.armsRace.includes(s) &&
+            !global.filters.gamemodes.sandbox.includes(s)
+        ) global.filters.gamemodes.other.push(s);
+
     };
     let l = [];
     let createFilter = (type, data) => {
         let r = l.length;
         l.push(data[0].filter);
         let e = document.getElementsByClassName("serverSelector");
-        global.fixedServerSelectorHeight = "103px"
+        global.mobile ? global.fixedServerSelectorHeight = "62px" : global.fixedServerSelectorHeight = "100px"
         if (!global.uncappedMenu) e[0].style.height = global.fixedServerSelectorHeight;
         let v = null;
         for (let { name: textContent, filter: y } of data) {
@@ -227,7 +260,10 @@ let initializeFilter = () => {
         return check;
     }
     createFilter(svFilterRegionDoc, [
-        { name: "All", filter: () => true },
+        { name: "All", filter: (h) => {
+            let e = checkFilter(h, global.filters.regions.all);
+            return e;
+        } },
         { name: "USA", filter: (h) => {
             let e = checkFilter(h, global.filters.regions.america);
             return e;
@@ -244,31 +280,46 @@ let initializeFilter = () => {
             let e = checkFilter(h, global.filters.regions.oceania);
             return e;
         } },
-        { name: "Other", filter: (h) => {
-            let e = checkFilter(h, global.filters.regions.other);
-            return e;
-        } },
     ]);
     createFilter(svFilterModeDoc, [
-        { name: "All", filter: () => true },
+        { name: "All", filter: (h) => {
+            let e = checkFilter(h, global.filters.gamemodes.all);
+            return e;
+        } },
         { name: "FFA", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodeFilters.ffa);
+            let e = checkFilter(h, global.filters.gamemodes.ffa);
             return e;
         } },
         { name: "Squads", filter: (h) => { 
-            let e = checkFilter(h, global.filters.gamemodeFilters.squads);
+            let e = checkFilter(h, global.filters.gamemodes.squads);
             return e;
         } },
         { name: "TDM", filter: (h) => { 
-            let e = checkFilter(h, global.filters.gamemodeFilters.tdm);
+            let e = checkFilter(h, global.filters.gamemodes.tdm);
             return e;
         } },
         { name: "Minigames", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodeFilters.minigames);
+            let e = checkFilter(h, global.filters.gamemodes.minigames);
+            return e;
+        } },/*
+        { name: "Normal", filter: (h) => {
+            let e = checkFilter(h, global.filters.gamemodes.normal);
             return e;
         } },
+        { name: "Growth", filter: (h) => {
+            let e = checkFilter(h, global.filters.gamemodes.growth);
+            return e;
+        } },
+        { name: "Arms Race", filter: (h) => {
+            let e = checkFilter(h, global.filters.gamemodes.armsRace);
+            return e;
+        } },
+        { name: "Other", filter: (h) => {
+            let e = checkFilter(h, global.filters.gamemodes.other);
+            return e;
+        } },*/
         { name: "Sandbox", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodeFilters.sandbox);
+            let e = checkFilter(h, global.filters.gamemodes.sandbox);
             return e;
         } },
     ]);

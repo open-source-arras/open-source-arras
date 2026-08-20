@@ -413,12 +413,12 @@ exports.makeAuto = (type, name = -1, options = {}) => {
     if (type.GUNS) {
         output.GUNS = type.GUNS;
     }
-    if (!type.TURRETS || options.clearTurrets == true) {
+    if (!type.TURRETS || options.clearTurrets) {
         output.TURRETS = [...autogun];
     } else {
         output.TURRETS = [...type.TURRETS, ...autogun];
     }
-    if (!type.PROPS || options.clearProps == true) {
+    if (!type.PROPS || options.clearProps) {
         output.PROPS = [];
     } else {
         output.PROPS = [...type.PROPS];

@@ -6,6 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 let { socketManager } = require("./game/network/sockets.js");
+let { Editor } = require("./game/network/editor.js");
 let { LagLogger } = require("./game/debug/lagLogger.js");
 let { speedcheckloop } = require("./game/debug/speedLoop.js");
 let { gameHandler } = require("./game/index.js");
@@ -63,7 +64,6 @@ const getName = (name, gamemodeData) => {
         nexus: "Nexus",
 
     // Miscellaneous
-        private: "Private",
         tartarus: "Tartarus",
 
     // Modifiers
@@ -98,7 +98,7 @@ const getName = (name, gamemodeData) => {
 
 // Here is our actual game server
 class gameServer {
-    constructor(host, port, gamemode, region, webProperties, serverProperties, isfeatured, parentPort, loaderGlobal) {
+    constructor(host, port, gamemode, region, serverHost, location, webProperties, serverProperties, isfeatured, isUnlisted, isPrivate, parentPort, loaderGlobal) {
         // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
@@ -108,10 +108,14 @@ class gameServer {
         this.port = port;
         this.gamemode = gamemode;
         this.region = region;
+        this.serverhost = serverHost;
+        this.location = location;
         this.webProperties = webProperties;
         this.serverProperties = serverProperties;
         this.name = "Unknown";
         this.featured = isfeatured;
+        this.unlisted = isUnlisted;
+        this.private = isPrivate;
         this.parentPort = parentPort;
         this.definitionsCombiner = new definitionCombiner(
             {
@@ -135,6 +139,7 @@ class gameServer {
         this.showConsoleLoggings = true;
         this.lagLogger = new LagLogger();
         this.socketManager = new socketManager(this);
+        this.editor = new Editor(this);
         this.gameHandler = new gameHandler(this);
         this.gameSpeedCheckHandler = new speedcheckloop(this);
 
@@ -164,7 +169,11 @@ class gameServer {
             maxPlayers: this.webProperties.maxPlayers,
             id: this.webProperties.id,
             featured: this.featured,
+            unlisted: this.unlisted,
+            private: this.private,
             region: this.region,
+            serverhost: this.serverhost,
+            location: this.location,
             gameMode: this.name,
             gameManager: includegameManager ? this : false,
         }
@@ -230,7 +239,10 @@ class gameServer {
         }).listen(this.port);
         // Reroute all the upgrade messages to our socket
         this.httpServer.on("upgrade", (req, socket, head) => {
-            this.wsServer.handleUpgrade(req, socket, head, ws => socketManager.connect(ws, req))
+            this.wsServer.handleUpgrade(req, socket, head, ws => {
+                if (req.url.startsWith("/api/editor")) this.editor.connect(ws, req);
+                else socketManager.connect(ws, req);
+            })
         });
     }
 

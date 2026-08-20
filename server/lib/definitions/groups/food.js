@@ -777,12 +777,12 @@ Class.presentBW = makePresent("blue", "white")
 // Relics
 for (let [gemColor, name] of [
     [undefined, ""],
-    ["powerGem", "Power"],
-    ["spaceGem", "Space"],
-    ["realityGem", "Reality"],
-    ["soulGem", "Soul"],
-    ["timeGem", "Time"],
-    ["mindGem", "Mind"]
+    ["#a913cf", "Power"],
+    ["#226ef6", "Space"],
+    ["#ff1000", "Reality"],
+    ["#ff9000", "Soul"],
+    ["#00e00b", "Time"],
+    ["#ffd300", "Mind"]
 ]) {
     let gem;
     if (gemColor) {

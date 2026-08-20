@@ -12,7 +12,7 @@ class Canvas {
         this.socket = global.socket;
         this.directions = [];
         this.chatListener = function(id, event) {
-            if (![global.KEY_ENTER, global.KEY_ESC].includes(event.code)) return;
+            if (!["Enter", "Escape"].includes(event.code)) return;
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
@@ -20,7 +20,7 @@ class Canvas {
                 if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
             }, 50)
             if (!this[id].value) return;
-            if (event.code === global.KEY_ENTER) this.socket.talk('M', this[id].value);
+            if (event.code === "Enter") this.socket.talk('M', this[id].value);
             this[id].value = "";
         }
 
@@ -88,10 +88,10 @@ class Canvas {
     }
     keyPress(event) {
         switch (event.code) {
-            case global.KEY_ZOOM_OUT:
+            case "Minus":
                 if (!global.died && global.showTree) global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
                 break;
-            case global.KEY_ZOOM_IN:
+            case "Equal":
                 if (!global.died && global.showTree) global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
                 break;
         }
@@ -167,18 +167,18 @@ class Canvas {
                 this.tankTreeProps.searchQuery += event.key;
                 global.searchTankByName(this.tankTreeProps.searchQuery);
                 return;
-            } else if (event.code === 8) { // Backspace
+            } else if (event.code === "Backspace") {
                 event.preventDefault();
                 this.tankTreeProps.searchQuery = this.tankTreeProps.searchQuery.slice(0, -1);
                 global.searchTankByName(this.tankTreeProps.searchQuery);
                 return;
-            } else if (event.code === 27) { // Escape
+            } else if (event.code === "Escape") {
                 event.preventDefault();
                 this.tankTreeProps.searchQuery = '';
                 global.searchTankByName('');
                 global.searchBarActive = false;
                 return;
-            } else if (event.code === global.KEY_ENTER) {
+            } else if (event.code === "Enter") {
                 event.preventDefault();
                 global.searchBarActive = false;
                 return;
@@ -186,12 +186,13 @@ class Canvas {
         }
 
         switch (event.code) {
-            case global.KEY_SHIFT:
+            case "ShiftLeft":
+            case "ShiftRight":
                 if (global.showTree) this.treeScrollSpeedMultiplier = 5;
                 else this.socket.cmd.set(6, true);
                 break;
 
-            case global.KEY_ENTER:
+            case "Enter":
                 // Enter to respawn
                 if (global.died && !global.cannotRespawn) {
                     this.respawn();
@@ -206,22 +207,22 @@ class Canvas {
                 }
                 break;
 
-            case global.KEY_UP_ARROW:
+            case "ArrowUp":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_UP:
                 this.socket.cmd.set(0, true);
                 break;
-            case global.KEY_DOWN_ARROW:
+            case "ArrowDown":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, true);
                 break;
-            case global.KEY_LEFT_ARROW:
+            case "ArrowLeft":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, true);
                 break;
-            case global.KEY_RIGHT_ARROW:
+            case "ArrowRight":
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
@@ -238,14 +239,11 @@ class Canvas {
             case global.KEY_LEVEL_UP:
                 this.socket.talk('L');
                 break;
-            case global.KEY_BECOME:
+            case global.KEY_ABILITY:
                 this.socket.talk('H');
                 break;
-            case global.KEY_MAX_STAT:
+            case global.KEY_SKILL_MAX:
                 global.statMaxing = true;
-                break;
-            case global.KEY_BECOME:
-                this.socket.talk("H");
                 break;
             case global.KEY_SUICIDE:
                 this.socket.talk('1');
@@ -265,7 +263,7 @@ class Canvas {
                 case global.KEY_AUTO_FIRE:
                     this.socket.talk("t", 1, true);
                     break;
-                case global.KEY_OVER_RIDE:
+                case global.KEY_OVERRIDE:
                     this.socket.talk("t", 2, true);
                     break;
                 case global.KEY_AUTO_ALT:
@@ -283,7 +281,7 @@ class Canvas {
                     this.reverseDirection = !this.reverseDirection;
                     global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
                     break;
-                case global.KEY_DEBUG:
+                case global.KEY_PING:
                     global.showDebug = !global.showDebug;
                     break;
                 case global.KEY_CLASS_TREE:
@@ -299,10 +297,16 @@ class Canvas {
             }
             if (global.canSkill) {
                 let skill = [
-                    global.KEY_SKILL_1, global.KEY_SKILL_2, global.KEY_SKILL_3,
-                    global.KEY_SKILL_4, global.KEY_SKILL_5, global.KEY_SKILL_6,
-                    global.KEY_SKILL_7, global.KEY_SKILL_8, global.KEY_SKILL_9,
-                    global.KEY_SKILL_0
+                    global.KEY_SKILL_1,
+                    global.KEY_SKILL_2,
+                    global.KEY_SKILL_3,
+                    global.KEY_SKILL_4,
+                    global.KEY_SKILL_5,
+                    global.KEY_SKILL_6,
+                    global.KEY_SKILL_7,
+                    global.KEY_SKILL_8,
+                    global.KEY_SKILL_9,
+                    global.KEY_SKILL_10
                 ].indexOf(event.code);
                 if (skill >= 0) this.socket.talk('x', skill, 1 * global.statMaxing);
             }
@@ -330,29 +334,30 @@ class Canvas {
                 global.specialPressed = false;
                 global.specialKeysPressed = [];
                 break;
-            case global.KEY_SHIFT:
+            case "ShiftLeft":
+            case "ShiftRight":
                 if (global.showTree) this.treeScrollSpeedMultiplier = 1;
                 else this.socket.cmd.set(6, false);
                 break;
-            case global.KEY_UP_ARROW:
+            case "ArrowUp":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_UP:
                 this.socket.cmd.set(0, false);
                 break;
-            case global.KEY_DOWN_ARROW:
+            case "ArrowDown":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, false);
                 break;
-            case global.KEY_LEFT_ARROW:
+            case "ArrowLeft":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, false);
                 break;
-            case global.KEY_RIGHT_ARROW:
+            case "ArrowRight":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
             case global.KEY_RIGHT:
@@ -367,7 +372,7 @@ class Canvas {
             case global.KEY_MOUSE_2:
                 this.socket.cmd.set(6, false);
                 break;
-            case global.KEY_MAX_STAT:
+            case global.KEY_SKILL_MAX:
                 global.statMaxing = false;
                 break;
         }

@@ -166,7 +166,7 @@ class socketManager {
             util.log("[INFO]: " + (player.body ? `User ${player.body.name == "" ? "A unnamed player" : player.body.name}` : "A user without an entity") + " disconnected!");
             util.remove(this.players, index);
         } else {
-            util.log("[INFO]: A player disconnected before entering the game.");
+            util.log("[INFO]: A player disconnected before entering the game!");
         }
         // Free the view
         util.remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
@@ -220,6 +220,10 @@ class socketManager {
             } break;
             case 's': { // spawn request
                 if (!socket.status.deceased) { socket.kick('Trying to spawn while already alive.'); return 1; }
+                if (global.gameManager.private && !socket.permissions) return (
+                    socket.talk("message", "This server is private."),
+                    socket.kick("Tried to join private server without valid token.")
+                )
                 if (!global.gameManager.webProperties.maxPlayers < 1 && this.clients.length > global.gameManager.webProperties.maxPlayers) return (
                     socket.talk("message", "This server is full, please rejoin later."),
                     socket.kick("Server full.")
@@ -290,7 +294,7 @@ class socketManager {
                             active: Config.blackout,
                             color: Config.blackout_fog,
                         }),
-                        Config.arena_shape,
+                        Config.round_arena,
                     );
                     return;
                 }
@@ -444,7 +448,7 @@ class socketManager {
                 let branchId = m[1];
                 // Verify the request
                 if (typeof upgrade != "number" || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
-                    if (!upgrade.isDailyUpgrade) { // Atleast allow the daily upgrade request, else get out.
+                    if (!upgrade?.isDailyUpgrade) { // Atleast allow the daily upgrade request, else get out.
                         socket.kick("Bad upgrade request.");
                         return 1;
                     }
@@ -623,15 +627,15 @@ class socketManager {
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the visitor.");
                     player.body.sendMessage("Press F to relinquish control of the visitor.");
-                } else {
+                }/* else {
                     player.body.sendMessage("There are no special tanks in this mode that you can control.");
-                }
+                }*/
             } break;
             case "M": {
                 if (player.body == null) return 1;
                 let abort, message = m[0], original = m[0];
     
-                if ("string" !==  typeof message) {
+                if ("string" !== typeof message) {
                     socket.kick("Non-string chat message.");
                     return 1;
                 }

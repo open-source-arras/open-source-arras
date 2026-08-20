@@ -256,6 +256,7 @@ Class.shottrapTurret = makeTurret({
 }, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
 Class.machineTripleTurret = {
     PARENT: 'genericTank',
+    LABEL: "Snowstorm",
     FACING_TYPE: ["spin", {speed: 0.06}],
     INDEPENDENT: true,
     COLOR: -1,

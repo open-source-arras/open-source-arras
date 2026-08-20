@@ -9,8 +9,8 @@
         <meta property="og:image:width" content="54">
         <meta property="og:image:height" content="54">
         <title>Custom Shape Builder - Open Source Arras</title>
-	    <link rel="stylesheet" href="../../font.css"/>
-	    <link rel="stylesheet" href="../../style.css"/>
+	    <link rel="stylesheet" href="/font.css"/>
+	    <link rel="stylesheet" href="/style.css"/>
         <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
         <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
         <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
@@ -46,6 +46,10 @@
 				width: 350px;
 				height: 350px;
 			}
+			body.mobile #calculator {
+				width: 300px;
+				height: 300px;
+			}
 			#add:active {
 				background: rgba(0, 0, 0, 0.3);
 			}
@@ -76,6 +80,7 @@
 				</div>
 			</div>
 		</div>
+        <script type="module" src="../../client/app.js"></script>
 		<script>
 		let calculatorElement = document.getElementById('calculator')
 		let addElement = document.getElementById('add')

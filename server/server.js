@@ -84,7 +84,7 @@ server = http.createServer((req, res) => {
     let readString = ""; // Response content for API endpoints
     let ok = true; // Flag to indicate whether we use default API response
     let serversIP = [];
-    let clientHeaders = ["/ext/custom-shape"];
+    let clientHeaders = ["/ext/custom-shape", "/ext/editor"];
     let selectedHeader = null;
 
     // Set CORS headers if enabled in the configuration or allow only the children servers.
@@ -112,7 +112,11 @@ server = http.createServer((req, res) => {
                 maxPlayers: server.maxPlayers,
                 id: server.id,
                 featured: server.featured,
+                unlisted: server.unlisted,
+                private: server.private,
                 region: server.region,
+                serverhost: server.serverhost,
+                location: server.location,
                 gameMode: server.gameMode,
             })));
         } break;
@@ -226,7 +230,7 @@ server = http.createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, port, gamemode, region, webProperties, properties, isFeatured) {
+function loadGameServer(loadViaMain = false, host, port, gamemode, region, serverHost, location, webProperties, properties, isFeatured, isUnlisted, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
     if (!loadViaMain) {
         let index = global.servers.length;
@@ -239,9 +243,13 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
                 port: port, // Increment port for each server
                 gamemode,
                 region,
+                serverHost,
+                location,
                 webProperties,
                 properties,
                 isFeatured,
+                isUnlisted,
+                isPrivate,
                 index,
             }
         });
@@ -272,7 +280,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, webPr
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, webProperties, properties, isFeatured, false);
+            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, serverHost, location, webProperties, properties, isFeatured, isUnlisted, isPrivate, false);
         }, 10)
     }
 }
@@ -285,9 +293,9 @@ global.onServerLoaded = () => {
     if (loadedServers >= global.servers.length) {
         util.saveToLog("Servers up", "All servers booted up.", 0x37F554);
         if (Config.startup_logs) {
-            util.log("Dumping endpoint -> gamemode routing table");
+            util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
-                console.log("> " + `${Config.host}/#${game.id}`.padEnd(40, " ") + " -> " + game.gameMode);
+                console.log(`> ${Config.host}/#${game.id}`.padEnd(30, " ") + ` -> ${game.region.padEnd(10, " ")} (${game.serverhost.padEnd(8, " ")} - ${game.location.padEnd(10, " ")} - ${game.gameMode})`)
             }
             console.log("\n");
         }
@@ -307,9 +315,13 @@ server.listen(Config.port, () => {
             server.port,
             server.gamemode,
             server.region,
+            server.serverhost,
+            server.location,
             { id: server.id, maxPlayers: server.player_cap },
             server.properties,
-            server.featured
+            server.featured,
+            server.unlisted,
+            server.private
         );
     })
 });

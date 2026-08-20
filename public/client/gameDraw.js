@@ -180,25 +180,24 @@ var gameDraw = {
     reanimateColors: () => {
         let now = Date.now(),
 
-            //six_gradient = Math.floor((now / 200) % 6),
-            five_bars = Math.floor((now % 2000) / 400),
-            three_bars = Math.floor((now % 2000) * 3 / 2000),
-            blinker = 150 > now % 300,
+        five_bars = Math.floor((now % 2000) / 400),
+        three_bars = Math.floor((now % 2000) * 3 / 2000),
+        blinker = 150 > now % 300,
 
-            lesbian_magenta = "#a50062",
-            lesbian_oredange = "#d62900",
-            lesbian_white = "#ffffff",
-            lesbian_useSecondSet = five_bars < 2,
+        lesbian_magenta = "#a50062",
+        lesbian_oredange = "#d62900",
+        lesbian_white = "#ffffff",
+        lesbian_useSecondSet = five_bars < 2,
 
-            gay_transition = (now / 2000) % 1,
+        gay_transition = (now / 2000) % 1,
 
-            ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
-            light_purple = { h: 258 / 360, s: 1, l: 0.84 },
-            purple = { h: 265 / 360, s: 0.69, l: 0.47 },
+        ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
+        light_purple = { h: 258 / 360, s: 1, l: 0.84 },
+        purple = { h: 265 / 360, s: 0.69, l: 0.47 },
 
-            trans_pink = "#f7a8b8",
-            trans_blue = "#55cdfc",
-            trans_white = "#ffffff";
+        trans_pink = "#f7a8b8",
+        trans_blue = "#55cdfc",
+        trans_white = "#ffffff";
 
         gameDraw.animatedColor.lesbian = gameDraw.getRainbow(lesbian_useSecondSet ? lesbian_oredange : lesbian_white, lesbian_useSecondSet ? lesbian_white : lesbian_magenta, (lesbian_useSecondSet ? five_bars : five_bars - 3) / 2);
         gameDraw.animatedColor.gay = gameDraw.hslToRgb(gay_transition, 0.75, 0.5);
@@ -237,7 +236,6 @@ var gameDraw = {
         flashGrayRed: true,
 
         // lesbian
-        29: true,
         lesbian: true,
 
         // rainbow
@@ -250,7 +248,6 @@ var gameDraw = {
         trueTrans: true,
 
         // bi
-        38: true,
         bi: true,
 
         // magenta
@@ -432,40 +429,8 @@ var gameDraw = {
             case "turquoise":
                 return gameDraw.color.cyan;
 
-            case 29:
             case "lesbian":
-            case "animatedLesbian":
                 return gameDraw.animatedColor.lesbian;
-
-            case 30:
-            case "powerGem":
-            case "powerStone":
-                return "#a913cf";
-
-            case 31:
-            case "spaceGem":
-            case "spaceStone":
-                return "#226ef6";
-
-            case 32:
-            case "realityGem":
-            case "realityStone":
-                return "#ff1000";
-
-            case 33:
-            case "soulGem":
-            case "soulStone":
-                return "#ff9000";
-
-            case 34:
-            case "timeGem":
-            case "timeStone":
-                return "#00e00b";
-
-            case 35:
-            case "mindGem":
-            case "mindStone":
-                return "#ffd300";
 
             case 36:
             case "gay":
@@ -479,9 +444,7 @@ var gameDraw = {
             case "trueTrans":
                 return gameDraw.animatedColor.trueTrans;
 
-            case 38:
             case "bi":
-            case "animatedBi":
                 return gameDraw.animatedColor.bi;
 
             case 42:

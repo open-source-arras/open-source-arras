@@ -509,6 +509,7 @@ const util = (function() {
                     turrets: image.turrets,
                     mirrorMasterAngle: true,
                     isImage: true,
+                    isProp: true
                 }
             } else return image;
         }

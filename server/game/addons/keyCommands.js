@@ -909,8 +909,7 @@ function init() {
             }
         },
         {
-            name: "Operator access",
-            description: "Gives player operator access.",
+            name: "Promote user",
             keys: [[["KEY_SPECIAL_PROMOTE", ";"]]],
             level: 1,
             operatorAccess: true,
@@ -919,7 +918,35 @@ function init() {
                     if (o.isPlayer && o.socket) {
                         if (o.hasOperator) {
                             if (o.socket.permissions && o.socket.permissions.level > 1) {
-                                player.body.sendMessage("This player is already an operator!");
+                                player.body.sendMessage("You do not have sufficient permission to promote this player!");
+                            } else {
+                                o.hasOperator = false;
+                                o.socket.talk("m", 8_000, "You are no longer an operator.");
+                                player.body.sendMessage(
+                                    "Operator access removed to " + `${o.name === "" ? "A unnamed Player" : o.name}` + "."
+                                );
+                            }
+                            return 1;
+                        }
+                        o.hasOperator = true;
+                        o.socket.status.hasOperator = true;
+                        o.socket.talk("m", 8_000, "You are now an operator.");
+                        player.body.sendMessage("Operator access given to " + `${o.name === "" ? "A unnamed Player" : o.name}` + ".");
+                    }
+                });
+            },
+        },
+        {
+            name: "Demote user",
+            keys: [[["KEY_SPECIAL_DEMOTE", "'"]]],
+            level: 1,
+            operatorAccess: true,
+            run: ({ player }) => {
+                selectedEntities(player, (o) => {
+                    if (o.isPlayer && o.socket) {
+                        if (o.hasOperator) {
+                            if (o.socket.permissions && o.socket.permissions.level > 1) {
+                                player.body.sendMessage("You do not have sufficient permission to demote this player!");
                             } else {
                                 o.hasOperator = false;
                                 o.socket.talk("m", 8_000, "You are no longer an operator.");

@@ -202,7 +202,7 @@ Class.whirlwind_bent = {
                 ANGLE: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, {reload: 5/3}]),
                 TYPE: 'satelliteBullet',
                 INDEPENDENT_MASTER: true,
             }
@@ -576,7 +576,7 @@ Class.hurricane_bent = {
             ANGLE: 45
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin]),
+            SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.flankGuard, {reload: 5/3}]),
             TYPE: 'satelliteBullet',
             INDEPENDENT_MASTER: true,
         }
@@ -642,7 +642,7 @@ Class.maelstrom_bent = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, {reload: 5/3}]),
                 TYPE: 'satelliteBullet',
                 INDEPENDENT_MASTER: true,
             }
@@ -745,7 +745,7 @@ Class.monsoon_bent = {
                 ANGLE: 30
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap]),
+                SHOOT_SETTINGS: combineStats([g.trap, {reload: 5/3}]),
                 TYPE: "satelliteTrap",
                 STAT_CALCULATOR: 'trap',
                 INDEPENDENT_MASTER: true
@@ -981,7 +981,7 @@ Class.tempest_bent = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { size: 0.92 }]), // guess, if it turns out to use satelliteDrones i'll change it
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { size: 0.92 }, {reload: 5/3}]), // guess, if it turns out to use satelliteDrones i'll change it
                 TYPE: 'satelliteBullet',
                 INDEPENDENT_MASTER: true,
             }
@@ -1090,7 +1090,7 @@ Class.typhoon_bent = {
                 WIDTH: 12,
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, {reload: 5/3}]),
                 TYPE: 'satelliteBullet',
                 INDEPENDENT_MASTER: true,
             }
@@ -2333,7 +2333,7 @@ Class.dreadnought_old = {
                 X: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, { size: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([g.swarm, { reload: 0.5, damage: 2, size: 0.5 }]),
                 TYPE: 'swarm',
                 STAT_CALCULATOR: 'swarm'
             }

@@ -846,30 +846,9 @@ Class.literallyATank = {
         },
     ]
 }
-Class.fat456 = {
-    PARENT: 'genericTank',
-    SIZE: 30,
-    LABEL: "Fat456",
-    COLOR: "pureBlack", // should be pureblack but just the outline
-    FACING_TYPE: "spin",
-    BODY: {
-        SPEED: base.SPEED * 4
-    },
-    TURRETS: [
-        {
-            POSITION: [12, 8, 0, 0, 190, 0],
-            TYPE: "architectGun",
-        },
-        {
-            POSITION: [12, 8, 0, 120, 190, 0],
-            TYPE: "architectGun",
-        },
-        {
-            POSITION: [12, 8, 0, 240, 190, 0],
-            TYPE: "architectGun",
-        },
-    ],
-}
+Class.fat456 = makeRadialAuto('architectGun', {isTurret: true, danger: 7, size: 12, label: "Fat456", body: {FOV: base.FOV * 1.15, SPEED: base.SPEED * 4}});
+Class.fat456.COLOR = 'brown';
+Class.fat456.SIZE = 30;
 Class.wifeBeater = {
     PARENT: "overlord",
     LABEL: 'Wife Beater',

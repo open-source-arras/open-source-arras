@@ -64,21 +64,18 @@
                             </a>
                         </div>
                         <div class="bottomHolder">
-                            <a style="background: #7289da;" href="https://discord.gg/arras">
+                            <a style="width: 40px; background: #7289da;" href="https://discord.gg/arras">
                                 <img src="img/discord.svg" alt="Discord" width="24" height="24">
                             </a>
-                            <a style="background: #282038;" href="https://stt.gg/S4tqfeAK">
+                            <a style="width: 40px; background: #282038;" href="https://stt.gg/S4tqfeAK">
                                 <img src="img/stoat.svg" alt="Stoat" width="24" height="24">
                             </a>
-                            <a style="background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
+                            <a style="width: 40px; background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
                                 <img src="img/youtube.svg" alt="YouTube" width="24" height="24">
                             </a>
-                            <a style="background: #00b0e0;" href="/ext/custom-shape">
-                                <img src="img/custom-shape.svg" alt="Custom Shape Editor" width="24" height="24">
-                            </a>
-                            <a style="width: 157px; background: #00b0e0;" href="https://github.com/open-source-arras/open-source-arras">
+                            <a style="width: 204px; background: #00b0e0;" href="https://github.com/open-source-arras/open-source-arras">
                                 <img src="img/source.svg" alt="Source Code" width="24" height="24">
-                                <span class="extraText">Source Code</span>
+                                <span class="text">Source Code</span>
                             </a>
                         </div>
                     </div>
@@ -86,14 +83,20 @@
                         <div class="sliderHolder">
                             <div class="slider startMenuSlidingContent">
                                 <div class="header">
-                                    <a href="/" class="icon" tabindex="-1"><img src="/favicon/base.svg" alt="OSA icon"></a>
+                                    <a href="/" class="icon" tabindex="-1">
+                                        <img src="/favicon/base.svg" alt="OSA icon">
+                                    </a>
                                     <h1>arras.io</h1>
                                 </div>
                                 <div>
                                     <div class="horizontalSelector" id="serverFilterRegion" style="display: none;"></div>
                                     <div class="horizontalSelector" id="serverFilterMode" style="display: none;"></div>
                                 </div>
-                                <div class="serverSelector shadowScroll"><table><tbody id="serverSelector"></tbody></table></div>
+                                <div class="serverSelector shadowScroll">
+                                    <table>
+                                        <tbody id="serverSelector"/>
+                                    </table>
+                                </div>
                                 <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
                             </div>
                             <div class="slider" id="startMenuSlidingTrigger">
@@ -103,7 +106,7 @@
                                 <div class="horizontalSelector" id="optionMenuTabs">
                                     <span class="active">Appearance</span>
                                     <span>Options</span>
-                                    <span class="desktopControlTab">Controls</span>
+                                    <span class="mobile-hide">Controls</span>
                                     <span>Links</span>
                                     <span style="display: none;">Addons</span>
                                 </div>
@@ -150,20 +153,24 @@
                                     <input style="display: none;" placeholder="Insert Custom Theme" id="optCustom" />
                                     <table>
                                         <tr>
-                                            <td><div><label class="container"><input id="optColoredNest" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Colored Nest</label></div></td>
-                                            <td><div><label class="container"><input id="optSharpEdges" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Sharp Polygons</label></div></td>
+                                            <td><div><label class="container"><input id="optColoredNest" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Colored Nest</label></div></td>
+                                            <td><div><label class="container"><input id="optSharpEdges" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Polygons</label></div></td>
                                         </tr>
                                         <tr>
-                                            <td><div><label class="container"><input id="optNoGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Hide Grid</label></div></td>
-                                            <td><div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Sharp Traps</label></div></td>
+                                            <td><div><label class="container"><input id="optNoGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hide Grid</label></div></td>
+                                            <td><div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Traps</label></div></td>
                                         </tr>
                                         <tr>
                                             <td><div><label class="container"><input id="separatedHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Separate Shield Bar</label></div></td>
-                                            <td><div><label class="container"><input id="optCurvyTraps" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Curvy Traps</label></div></td>
+                                            <td><div><label class="container"><input id="optCurvyTraps" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Curvy Traps</label></div></td>
                                         </tr>
                                         <tr>
                                             <td><div><label class="container"><input id="coloredHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Colored Health Bars</label></div></td>
-                                            <td><div><label class="container"><input id="optPredictive" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Disable Hyperactivity</label></div></td>
+                                            <td><div><label class="container"><input id="optPredictive" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Disable Hyperactivity</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optHexaGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Hexagonal Grid</label></div></td>
+                                            <td><div></div></td>
                                         </tr>
                                     </table>
                                     <div class="optionsHeader">UI Elements</div>
@@ -216,7 +223,7 @@
                                 </div>
                                 <div id="tabOptions" class="shadowScroll" style="height: 88.5%;">
                                     <div class="optionsHeader">Performance</div>
-                                    <select id="placeholderOptRenderer" tabindex="-1">
+                                    <select id="optCanvas" tabindex="-1">
                                         <option value="auto">Auto (Recommended)</option>
                                         <option value="high">High (WebGL + MSAA)</option>
                                         <option value="mid">Medium (WebGL + MSAA)</option>
@@ -243,7 +250,7 @@
                                         </tr>
                                     </table>
                                     <div class="optionsHeader">Miscellaneous</div>
-                                    <select id="placeholderOptFilter" tabindex="-1">
+                                    <select id="optNames" tabindex="-1">
                                         <option value="none">No Filter</option>
                                         <option value="offense">Filter Offensive Words Only</option>
                                         <option value="swear">Filter Swear Words</option>
@@ -281,7 +288,7 @@
                                                     <tr>
                                                         <td><div><b data-key="KEY_AUTO_FIRE">E</b><span> - </span>auto-fire</div></td>
                                                         <td><div><b data-key="KEY_AUTO_SPIN">C</b><span> - </span>auto-spin</div></td>
-                                                        <td><div><b data-key="KEY_OVER_RIDE">R</b><span> - </span>disable AI</div></td>
+                                                        <td><div><b data-key="KEY_OVERRIDE">R</b><span> - </span>disable AI</div></td>
                                                     </tr>
                                                     <tr>
                                                         <td><div><b data-key="KEY_LEVEL_UP">N</b><span> - </span>level up</div></td>
@@ -290,22 +297,22 @@
                                                     </tr>
                                                     <tr>
                                                         <td><div><b data-key="KEY_SCREENSHOT">Q</b><span> - </span>screenshot</div></td>
-                                                        <td><div><b data-key="KEY_MAX_STAT">M</b><span> - </span>maximize stat</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_MAX">M</b><span> - </span>maximize stat</div></td>
                                                         <td><div><b data-key="KEY_CLASS_TREE">T</b><span> - </span>show class tree</div></td>
                                                     </tr>
                                                     <tr>
                                                         <td><div><b data-key="KEY_RECORD">Z</b><span> - </span>record video</div></td>
                                                         <td><div><b data-key="KEY_SUICIDE">O</b><span> - </span>self-destruct</div></td>
-                                                        <td><div><b data-key="KEY_DEBUG">L</b><span> - </span>debug info</div></td>
+                                                        <td><div><b data-key="KEY_PING">L</b><span> - </span>debug info</div></td>
                                                     </tr>
                                                     <tr>
-                                                        <td><div><b data-key="KEY_AUTO_ALT">G</b><span> - </span>auto-alt</div></td>
-                                                        <td><div><b data-key="KEY_BECOME">F</b><span> - </span>use action</div></td>
+                                                        <td><div><b data-key="KEY_SPIN_LOCK">G</b><span> - </span>spin lock</div></td>
+                                                        <td><div><b data-key="KEY_ABILITY">F</b><span> - </span>use action</div></td>
                                                         <td><div><b data-key="KEY_SPECIAL">`</b><span> - </span>sandbox</div></td>
                                                     </tr>
                                                     <tr>
                                                         <td><div></div></td>
-                                                        <td><div><b data-key="KEY_SPIN_LOCK">X</b><span> - </span>spin lock</div></td>
+                                                        <td><div><b data-key="KEY_AUTO_ALT">X</b><span> - </span>auto-alt</div></td>
                                                         <td><div></div></td>
                                                     </tr>
                                                     <tr>
@@ -345,7 +352,7 @@
                                                     </tr>
                                                     <tr>
                                                         <td><div></div></td>
-                                                        <td><div><b data-key="KEY_SKILL_0">0</b><span> - </span>skill 0</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_10">0</b><span> - </span>skill 10</div></td>
                                                         <td><div></div></td>
                                                     </tr>
                                                 </tbody>
@@ -511,7 +518,6 @@
                 </div>
             </div>
         </div>
-        <script src="//code.jquery.com/jquery-2.2.0.min.js"></script>
         <script type="module" src="./client/app.js"></script>
         <script type="module" src="./client/config.js"></script>
         <script type="module" src="./client/gameDraw.js"></script>

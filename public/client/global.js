@@ -100,42 +100,33 @@ let gameDraw;
 
 const global = {
     // Keys and other mathematical constants.
-    KEY_ESC: 'Escape',
-    KEY_ENTER: 'Enter',
-    KEY_SHIFT: 'ShiftLeft',
-    KEY_BECOME: 'KeyF',
-    KEY_CHAT: 'Enter',
-    KEY_FIREFOOD: 'F8',
-    KEY_SPLIT: 'Space',
-
-    KEY_LEFT: 'KeyA',
-    KEY_UP: 'KeyW',
-    KEY_RIGHT: 'KeyD',
-    KEY_DOWN: 'KeyS',
-    KEY_LEFT_ARROW: 'ArrowLeft',
-    KEY_UP_ARROW: 'ArrowUp',
-    KEY_RIGHT_ARROW: 'ArrowRight',
-    KEY_DOWN_ARROW: 'ArrowDown',
-
-    KEY_AUTO_SPIN: 'KeyC',
     KEY_AUTO_FIRE: 'KeyE',
-    KEY_AUTO_ALT: 'KeyG',
-    KEY_OVER_RIDE: 'KeyR',
+    KEY_AUTO_ALT: 'KeyX',
+    KEY_AUTO_SPIN: 'KeyC',
+    KEY_SPIN_LOCK: 'KeyG',
+    KEY_OVERRIDE: 'KeyR',
+    KEY_LEVEL_UP: 'KeyN',
+    KEY_ABILITY: 'KeyF',
+    //KEY_PAUSE: 'KeyG',
     KEY_REVERSE_TANK: 'KeyV',
     KEY_REVERSE_MOUSE: 'KeyB',
-    KEY_SPIN_LOCK: 'KeyX',
-
-    KEY_LEVEL_UP: 'KeyN',
-    KEY_TOKEN: 'KeyP',
-    KEY_CLASS_TREE: 'KeyT',
-    KEY_MAX_STAT: 'KeyM',
-    KEY_SUICIDE: 'KeyO',
-    KEY_ZOOM_OUT: 'Minus',
-    KEY_ZOOM_IN: 'Equal',
-    KEY_DEBUG: 'KeyL',
-
     KEY_SCREENSHOT: 'KeyQ',
+    KEY_SKILL_MAX: 'KeyM',
+    KEY_CLASS_TREE: 'KeyT',
     KEY_RECORD: 'KeyZ',
+    KEY_PING: 'KeyL',
+
+    KEY_UP: 'KeyW',
+    KEY_LEFT: 'KeyA',
+    KEY_DOWN: 'KeyS',
+    KEY_RIGHT: 'KeyD',
+
+    KEY_UPGRADE_1: 'KeyY',
+    KEY_UPGRADE_2: 'KeyU',
+    KEY_UPGRADE_3: 'KeyI',
+    KEY_UPGRADE_4: 'KeyH',
+    KEY_UPGRADE_5: 'KeyJ',
+    KEY_UPGRADE_6: 'KeyK',
 
     KEY_SKILL_1: 'Digit1',
     KEY_SKILL_2: 'Digit2',
@@ -146,18 +137,12 @@ const global = {
     KEY_SKILL_7: 'Digit7',
     KEY_SKILL_8: 'Digit8',
     KEY_SKILL_9: 'Digit9',
-    KEY_SKILL_0: 'Digit0',
+    KEY_SKILL_10: 'Digit0',
 
     KEY_MOUSE_0: 'Space',
-    KEY_MOUSE_1: 'KeyV',
     KEY_MOUSE_2: 'ShiftLeft',
 
-    KEY_UPGRADE_1: 'KeyY',
-    KEY_UPGRADE_2: 'KeyU',
-    KEY_UPGRADE_3: 'KeyI',
-    KEY_UPGRADE_4: 'KeyH',
-    KEY_UPGRADE_5: 'KeyJ',
-    KEY_UPGRADE_6: 'KeyK',
+    KEY_SUICIDE: 'KeyO',
 
     KEY_SPECIAL: 'Backquote',
     KEY_SPECIAL_HELP: 'Slash',
@@ -226,6 +211,7 @@ const global = {
     showTree: false,
     scrollX: 0,
     realScrollX: 0,
+
     // Canvas
     screenWidth: window.innerWidth,
     screenHeight: window.innerHeight,
@@ -328,7 +314,8 @@ const global = {
         mspt: 0,
     },
     advanced: {
-        roundMap: false,
+        arenaShape: 'rect',
+        roundArena: false,
         blackout: {
             active: false,
             color: "#000000"
