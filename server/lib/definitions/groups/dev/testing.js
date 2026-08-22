@@ -887,7 +887,7 @@ Class.airblast = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { size: 0.92 }]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
                 TYPE: "airblastBullet"
             }
         },

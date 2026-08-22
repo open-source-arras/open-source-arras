@@ -106,7 +106,7 @@ Class.machineGun = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, {size: 0.92}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
                 TYPE: 'bullet'
             }
         }
@@ -295,10 +295,10 @@ Class.blaster = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 8,
-                ASPECT: 1.9,
-                X: 4
+                LENGTH: 7.5,
+                WIDTH: 12,
+                ASPECT: 1.2,
+                X: 8
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster]),
@@ -385,7 +385,6 @@ Class.doubleFlail = {
     DANGER: 6,
     TURRETS: weaponArray(Class.flail.TURRETS, 2)
 };
-Class.doubleMachine = makeFlank('machineGun', 2, "Double Machine", {extraStats: [g.doubleTwin]});
 Class.doubleTwin = makeFlank('twin', 2, "Double Twin", {extraStats: [g.doubleTwin]});
 Class.flangle = {
     PARENT: 'genericFlail',
@@ -415,10 +414,9 @@ Class.gatlingGun = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 14,
-                WIDTH: 9.5,
-                ASPECT: 1.25,
-                X: 8
+                LENGTH: 24,
+                WIDTH: 10,
+                ASPECT: 1.4
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
@@ -629,6 +627,7 @@ Class.mace = {
         }]
     }]
 };
+Class.machineFlank = makeFlank('machineGun', 2, "Machine Flank", {extraStats: [g.doubleTwin]});
 Class.maelstrom_bent = {
     PARENT: 'genericTank',
     LABEL: "Maelstrom",
@@ -981,7 +980,7 @@ Class.tempest_bent = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { size: 0.92 }, {reload: 5/3}]), // guess, if it turns out to use satelliteDrones i'll change it
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, {reload: 5/3}]), // guess, if it turns out to use satelliteDrones i'll change it
                 TYPE: 'satelliteBullet',
                 INDEPENDENT_MASTER: true,
             }
@@ -1189,18 +1188,17 @@ Class.accurator = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 8,
-                WIDTH: 8,
-                ASPECT: 0.1,
-                X: 18
+                LENGTH: 3,
+                WIDTH: 0.1,
+                ASPECT: -10,
+                X: 24
             }
         },
         {
             POSITION: {
-                LENGTH: 14,
-                WIDTH: 9.5,
-                ASPECT: 1.25,
-                X: 8
+                LENGTH: 24,
+                WIDTH: 10,
+                ASPECT: 1.4
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
@@ -2722,33 +2720,6 @@ Class.flace = {
     TURRETS: Class.mace.TURRETS,
     SKILL_CAP: [dfltskl, dfltskl, dfltskl, dfltskl, dfltskl, dfltskl, dfltskl, dfltskl, dfltskl, dfltskl],
 };
-Class.flamethrower = {
-    PARENT: 'genericTank',
-    LABEL: "Flamethrower",
-    DANGER: 7,
-    GUNS: [
-        {
-            POSITION: {
-                LENGTH: 3,
-                WIDTH: 20,
-                ASPECT: 0.95,
-                X: 13
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.flamethrower]),
-                TYPE: 'growBullet'
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 9,
-                WIDTH: 12,
-                ASPECT: 2,
-                X: 4
-            }
-        }
-    ]
-};
 Class.flooster = {
     PARENT: 'genericFlail',
     LABEL: "Flooster",
@@ -2925,26 +2896,25 @@ Class.halfNHalf = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 8,
-                ASPECT: 1.9,
-                X: 4
+                LENGTH: 24,
+                WIDTH: 10,
+                ASPECT: 1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.doubleTwin]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
                 TYPE: 'bullet'
             }
         },
         {
             POSITION: {
-                LENGTH: 14,
-                WIDTH: 9.5,
-                ASPECT: 1.25,
+                LENGTH: 12,
+                WIDTH: 10,
+                ASPECT: 1.4,
                 X: 8,
                 ANGLE: 180
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.doubleTwin]),
                 TYPE: 'bullet'
             }
         }
@@ -3145,6 +3115,7 @@ Class.machineGunner = {
         }
     ]
 };
+Class.machineTriple = makeFlank('machineGun', 3, "Machine Triple", {extraStats: [g.doubleTwin, g.tripleTwin], danger: 7});
 Class.maelstrom = makeAuto('whirlwind_old', "Maelstrom");
 Class.manager = {
     PARENT: 'genericTank',
@@ -4917,7 +4888,7 @@ Class.splasher = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 20,
+                LENGTH: 21,
                 WIDTH: 7,
             },
             PROPERTIES: {
@@ -4927,13 +4898,45 @@ Class.splasher = {
         },
         {
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 8,
-                ASPECT: 1.9,
-                X: 4
+                LENGTH: 10,
+                WIDTH: 10,
+                ASPECT: 1.4,
+                X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, { size: 0.92 }, g.blaster]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster]),
+                TYPE: 'bullet'
+            }
+        }
+    ]
+};
+Class.sprayer_RG = {
+    PARENT: 'genericTank',
+    LABEL: "Sprayer",
+    DANGER: 7,
+    BODY: Class.gatlingGun.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 22.5,
+                WIDTH: 8.5,
+                ASPECT: 1.4,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.lowPower, g.pelleter, { recoil: 1.15 }]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 10,
+                ASPECT: 1.4,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
                 TYPE: 'bullet'
             }
         }
@@ -5210,12 +5213,11 @@ Class.triBlaster = {
     GUNS: [
         ...weaponMirror({
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 8,
-                ASPECT: 1.7,
-                X: 4,
-                Y: 2,
-                ANGLE: 15,
+                LENGTH: 5,
+                WIDTH: 12,
+                ASPECT: 1.2,
+                X: 8,
+                ANGLE: 25,
                 DELAY: 0.5
             },
             PROPERTIES: {
@@ -5225,10 +5227,10 @@ Class.triBlaster = {
         }),
         {
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 8,
-                ASPECT: 1.9,
-                X: 6
+                LENGTH: 7.5,
+                WIDTH: 12,
+                ASPECT: 1.2,
+                X: 8
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, { recoil: 0.5 }]),
@@ -5244,7 +5246,6 @@ Class.tripleFlail = {
     DANGER: 7,
     TURRETS: weaponArray(Class.flail.TURRETS, 3)
 };
-Class.tripleMachine = makeFlank('machineGun', 3, "Triple Machine", {extraStats: [g.doubleTwin, g.tripleTwin], danger: 7});
 Class.tripleTwin = makeFlank('twin', 3, "Triple Twin", {extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 7});
 Class.triplet = {
     PARENT: 'genericTank',
@@ -5529,6 +5530,59 @@ Class.quintuplet = {
 };
 Class.ransacker = makeGuard('rifle', "Ransacker")
 Class.sniper3 = makeRadialAuto('sniper3gun', {isTurret: true, danger: 7, size: 13, label: "Sniper-3", body: {SPEED: 11/15 * base.SPEED, FOV: 1.25 * base.FOV}})
+Class.tornado_AR = {
+    PARENT: 'genericTank',
+    LABEL: "Tornado",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 5.5,
+                ANGLE: 90,
+                DELAY: 0.75
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 5.5,
+                ANGLE: 30,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 5.5,
+                ANGLE: 60,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        }
+    ], 3)
+};
 Class.vulcan = {
     PARENT: 'genericTank',
     LABEL: "Vulcan",
@@ -5963,15 +6017,16 @@ addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director
         addUpgrades('minigun', 3, ['streamliner', 'nailgun', 'cropDuster', 'barricade', 'vulture']);
         addUpgrades('rifle', 3, ['musket', 'crossbow', 'armsman', 'revolver']);
         addUpgrades('marksman', 3, ['deadeye', 'nimrod', 'revolver', 'fork']);
+        addUpgrades('gatlingGun', 3, ['sprayer_RG', 'accurator', 'halfNHalf']);
 
     addUpgrades('machineGun', 2, ['artillery', 'minigun', 'gunner', 'sprayer']);
         addUpgrades('artillery', 3, ['mortar', 'ordnance', 'beekeeper', 'fieldGun']);
         //addUpgrades('minigun', 3, []);
         //addUpgrades('gunner', 3, []);
         addUpgrades('sprayer', 3, ['redistributor', 'phoenix', 'atomizer', 'focal']);
-        addUpgrades('blaster', 3, ['triBlaster', 'splasher', 'flamethrower', 'halfNHalf', 'subverter']);
-        addUpgrades('gatlingGun', 3, ['focal', 'accurator', 'halfNHalf']);
-        addUpgrades('doubleMachine', 3, ['tripleMachine', 'halfNHalf']);
+        addUpgrades('blaster', 3, ['triBlaster', 'splasher']);
+        //addUpgrades('gatlingGun', 3, []);
+        addUpgrades('machineFlank', 3, ['machineTriple', 'halfNHalf']);
 
     addUpgrades('flankGuard', 2, ['hexaTank', 'triAngle', 'auto3', 'trapGuard', 'triTrapper']);
         addUpgrades('flankGuard', 3, ['tripleTwin', 'quadruplex']);
@@ -6019,22 +6074,43 @@ addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director
         addUpgrades('tornado', 3, ['megaTornado', 'tempest', 'thunderbolt']);
         addUpgrades('hurricane', 3, ['typhoon', 'blizzard']);
 
+if (Config.retrograde) {
+    addUpgrades('machineGun', 2, ['blaster', 'gatlingGun', 'machineFlank']);
+    addUpgrades('sniper', 2, ['gatlingGun']);
+
+    addUpgrades('hexaTank', 3, ['tornado_AR']);
+    addUpgrades('tripleShot', 3, ['triBlaster']);
+};
+
 if (Config.arms_race || Config.retrograde) {
     addUpgrades('assassin', 3, ['buttbuttin']);
     addUpgrades('destroyer', 3, ['blower']);
-    addUpgrades('gunner', 3, ['battery', 'buttbuttin', 'blower']);
+    addUpgrades('gunner', 3, ['battery']);
     addUpgrades('hexaTank', 3, ['deathStar']);
     addUpgrades('minigun', 3, ['subverter']);
-    addUpgrades('pounder', 3, ['subverter', 'deathStar']);
     addUpgrades('smasher', 3, ['bonker']);
 };
 
-if (Config.retrograde) {
-    addUpgrades('machineGun', 2, ['blaster', 'gatlingGun', 'doubleMachine']);
+if (Config.arms_race) {
+    removeUpgrades('basic', 1, ['desmos']);
 
-    addUpgrades('flankGuard', 3, ['tripleMachine']);
-    addUpgrades('sprayer', 3, ['splasher']);
-    addUpgrades('tripleShot', 3, ['triBlaster']);
+    removeUpgrades('machineGun', 2, ['sprayer']);
+    removeUpgrades('sniper', 2, ['marksman']);
+    removeUpgrades('twin', 2, ['helix']);
+
+    removeUpgrades('assassin', 3, ['single', 'deadeye']);
+    addUpgrades('basic', 3, ['single']);
+    removeUpgrades('builder', 3, ['assembler']);
+    removeUpgrades('flankGuard', 3, ['quadruplex']);
+    addUpgrades('gunner', 3, ['buttbuttin', 'blower']);
+    removeUpgrades('hunter', 3, ['xHunter', 'nimrod']);
+    addUpgrades('machineGun', 3, ['sprayer']);
+    removeUpgrades('minigun', 3, ['vulture']);
+    addUpgrades('pounder', 3, ['subverter']);
+    removeUpgrades('rifle', 3, ['revolver']);
+    removeUpgrades('sprayer', 3, Class.sprayer.UPGRADES_TIER_3);
+    removeUpgrades('triAngle', 3, ['phoenix', 'vulture']);
+    removeUpgrades('tripleShot', 3, ['triplex']);
 };
 
 if (Config.teams == 1) {
