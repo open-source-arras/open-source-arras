@@ -51,9 +51,8 @@ Class.developer = {
     UPGRADES_TIER_0: [
         'menu_tanks',
         'menu2_bosses',
-        'menu_addons',
-        'spectator',
         'eggGen',
+        'menu_addons',
     ]
 }
 
