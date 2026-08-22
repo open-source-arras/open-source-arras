@@ -680,16 +680,20 @@ Class.arenaCloser = {
 
 // ARRAS POLICE
 Class.arrasPolice = {
-    PARENT: "booster",
+    PARENT: 'genericTank',
     LABEL: "ARRAS POLICE",
+    SIZE: 60,
+    COLOR: 16,
     UPGRADE_COLOR: 20,
     UPGRADE_TOOLTIP: "WOOP WOOP! That's the sound of da police!",
+    BODY: Class.booster.BODY,
+    GUNS: Class.booster.GUNS,
     PROPS: [
         {
             TYPE: ['hexagonHat', {COLOR: 21}],
             POSITION: {
                 SIZE: 6,
-                Y: 8,
+                Y: 7.45,
                 LAYER: 1
             }
         },
@@ -697,23 +701,23 @@ Class.arrasPolice = {
             TYPE: ['hexagonHat', {COLOR: 24}],
             POSITION: {
                 SIZE: 6,
-                Y: -8,
+                Y: -7.45,
                 LAYER: 1
             }
         },
         {
             TYPE: ['squareHat', {COLOR: 22}],
             POSITION: {
-                SIZE: 6,
-                Y: 3,
+                SIZE: 6.35,
+                Y: 2.85,
                 LAYER: 1
             }
         },
         {
             TYPE: ['squareHat', {COLOR: 23}],
             POSITION: {
-                SIZE: 6,
-                Y: -3,
+                SIZE: 6.35,
+                Y: -2.85,
                 LAYER: 1
             }
         }

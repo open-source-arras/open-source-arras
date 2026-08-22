@@ -663,13 +663,13 @@ function init() {
             keys: [[["KEY_SPECIAL_POLICE", "P"]]],
             level: 1,
             run: ({ player, gameManager }) => {
-                player.body.define({RESET_UPGRADES: true});
-                player.body.define("arrasPolice");
+                player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
+                player.body.define('arrasPolice');
                 player.body.name = "ARRAS POLICE";
-                let skills = Array(10).fill(15);
-                player.body.skill.setCaps(skills);
-                player.body.skill.set(skills);
-                player.body.FOV = 2;
+                player.body.skill.set(player.body.skill.caps);
+                player.body.syncTurrets();
+                player.body.refreshBodyAttributes();
+                player.body.FOV = 500;
                 gameManager.socketManager.broadcast("WOOP WOOP! That's the sound of da police!");
             }
         },
