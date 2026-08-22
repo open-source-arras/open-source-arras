@@ -50,7 +50,7 @@ Class.developer = {
     ],
     UPGRADES_TIER_0: [
         'menu_tanks',
-        'menu_bosses',
+        'menu2_bosses',
         'menu_addons',
         'spectator',
         'eggGen',
@@ -279,4 +279,4 @@ Class.menu_fun = makeMenu("Fun", {upgrades: [
     "wifeBeater",
     "worstTank",
 ], tooltip: "Tanks that, let's be honest, aren't used for a good reason.\n" + "DISCLAIMER: Some of the content in here may be in poor taste. Blame the arras.io devs, not us."})
-Class.menu2_bosses = makeMenu("Bosses", {upgrades: ["sentries", "elites", "mysticals", "nesters", "rogues", "rammers", "terrestrials", "celestials", "eternals", "devBosses"].map(x => "menu_" + x), rerootTree: "menu_bosses"})
+Class.menu2_bosses = makeMenu("Bosses", {upgrades: ["sentries", "elites", "mysticals", "nesters", "rogues", "rammers", "terrestrials", "celestials", "eternals", "devBosses"].map(x => "menu_" + x), rerootTree: "menu2_bosses"})
