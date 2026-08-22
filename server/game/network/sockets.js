@@ -8,7 +8,7 @@ global.chatID = 0;
 
 class socketManager {
     constructor(parent) {
-        this.permissionsDict = {};
+        this.permissionsDict = Object.create(null);
         this.clients = parent.clients;
         this.gamemode = parent.gamemode;
         this.players = [];
@@ -17,7 +17,9 @@ class socketManager {
         this.bans = [];
         // Import permissions
         for (let entry of require("../permissions.js")) {
-            this.permissionsDict[entry.key] = entry;
+            if (entry.key != null) {
+                this.permissionsDict[entry.key] = entry;
+            }
         }
     };
 
@@ -203,7 +205,8 @@ class socketManager {
                 socket.talk('w', true);
                 if (m.length === 1) {
                     let key = m[0].toString().trim();
-                    socket.permissions = this.permissionsDict[key];
+                    // Use hasOwnProperty to avoid prototype chain lookup
+                    socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
                     if (socket.permissions) {
                         util.log(`[INFO]: A socket was verified with the token: ${key}`);
                     } else {

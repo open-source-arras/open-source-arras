@@ -41,8 +41,10 @@ class Editor {
         this.gameServer = gameServer;
     }
     connect(ws, req) {
-        const token = req.url.slice(req.url.indexOf("?") + 1);
-        ws.verified = Config.editor && this.gameServer.socketManager.permissionsDict[token]?.administrator;
+        const queryIndex = req.url.indexOf("?");
+        const token = queryIndex >= 0 ? req.url.slice(queryIndex + 1) : "";
+        
+        ws.verified = Config.editor && token && this.gameServer.socketManager.permissionsDict[token]?.administrator === true;
 
         ws.on("message", message => this.incoming(ws, message));
     }
