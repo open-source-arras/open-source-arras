@@ -5,31 +5,18 @@ const preset = require('../../presets.js')
 
 // Menus
 Class.addonMenu_legacy = makeMenu("Legacy Arras", {upgrades: [
-    'addonMenu_legacy_tanks',
-]})
-Class.menu_addons.UPGRADES_TIER_0.push('addonMenu_legacy')
-
-Class.addonMenu_legacy_tanks = makeMenu("Legacy Arras (Tanks)", {upgrades: [
-    '1',
-    '2',
-    '3',
-].map(x => 'addonMenu_legacy_tanks_T' + x), boxLabel: "Tanks"})
-Class.addonMenu_legacy_tanks_T1 = makeMenu("Legacy Arras (Tanks, Tier 1)", {upgrades: [
-], boxLabel: "Tier 1 (Lv.15)"})
-Class.addonMenu_legacy_tanks_T2 = makeMenu("Legacy Arras (Tanks, Tier 2)", {upgrades: [
-    'rifle_old',
-], boxLabel: "Tier 2 (Lv.30)"})
-Class.addonMenu_legacy_tanks_T3 = makeMenu("Legacy Arras (Tanks, Tier 3)", {upgrades: [
-    'boomer_old',
-    'commander_old',
-    'deathStar_old',
-    'bulwark_old',
-    'auto4_old',
-    'septaTrapper_old',
-    'spike_old',
-    'sprayer_old',
-    'spreadshot_old',
-], boxLabel: "Tier 3 (Lv.45)"})
+    'boomer',
+    'commander',
+    'deathStar',
+    'bulwark',
+    'auto4',
+    'rifle',
+    'septaTrapper',
+    'spike',
+    'sprayer',
+    'spreadshot',
+].map(x => x + '_old')});
+Class.menu_addons.UPGRADES_TIER_0.push('addonMenu_legacy');
 
 // Tier 3
 Class.auto4_old = makeRadialAuto('auto4gun', {isTurret: true, danger: 7, size: 13, x: 6, label: "Gunner-3", count: 3})
