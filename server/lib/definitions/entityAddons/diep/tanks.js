@@ -18,9 +18,9 @@ const tenth_birthday = false // Adds extra tanks from the 10th Birthday event.
 const havre_tanks = false // Adds tanks from havre.io to the class tree.
 
 // Menu/Generics
-Class.arrasMenu_diep.UPGRADES_TIER_0.push("tank_diep")
-Class.menu_addons.UPGRADES_TIER_0.push("menu_diep")
-Class.menu_diep = makeMenu("Diep", {upgrades: ["tank_diep", "id53_diep", "guardian_diep", "defender_diep"]})
+Class.menu_diep.UPGRADES_TIER_0.push("tank_diep")
+Class.menu_addons.UPGRADES_TIER_0.push("menu_diepAddon")
+Class.menu_diepAddon = makeMenu("Diep", {upgrades: ["tank_diep", "id53_diep", "guardian_diep", "defender_diep"]})
 Class.diep = {PARENT: 'genericTank', REROOT_UPGRADE_TREE: "tank_diep"}
 Class.diepSmasher = {PARENT: "genericSmasher", REROOT_UPGRADE_TREE: "tank_diep"}
 if (Config.diep) {Config.spawn_class = "tank_diep"}

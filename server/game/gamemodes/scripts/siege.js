@@ -72,19 +72,12 @@ class Siege {
             [  5, "eliteTrapGuard"],
             [  5, "eliteSpinner"],
             [  5, "eliteSkimmer"],
-            //[  8, "sprayerLegion"], //why is this here
 
             //nesters
             [  4, "nestKeeper"],
             [  4, "nestWarden"],
             [  4, "nestGuardian"],
-/*
-            //deltas
-            [  7, "deltaSprayer"],
-            [  7, "deltaBattleship"],
-            [  7, "deltaGunner"],
-            [  7, "deltaDestroyer"],
-*/
+
             //terrestrials
             [ 25, "ares"],
             [ 25, "gersemi"],

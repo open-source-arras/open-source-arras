@@ -10,21 +10,21 @@ module.exports = [
     {
         key: process.env.BETA_TESTER,
         level: 1,
-        class: "arrasMenu_betaTester",
+        class: "menu_betaTester",
         nameColor: "#ffffff",
         note: "note here"
     },
     {
         key: process.env.SHINY,
         level: 2,
-        class: "arrasMenu_shinyMember",
+        class: "menu_shinyMember",
         nameColor: "#ffffff",
         note: "note here"
     },
     {
         key: process.env.YOUTUBER,
         level: 2,
-        class: "arrasMenu_youtuber",
+        class: "menu_youtuber",
         nameColor: "#ffffff",
         note: "note here"
     },
