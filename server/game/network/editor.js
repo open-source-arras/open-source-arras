@@ -83,7 +83,7 @@ class Editor {
                         };
                         const code = `${request.data.replaceAll("export default Class", "")}\nClass;`;
                         const definitions = vm.runInNewContext(code, context);
-                        
+
                         delete Array.prototype.remove;
                         gameManager.gameHandler.stop();
 
@@ -130,37 +130,37 @@ class Editor {
                                 entity.refreshBodyAttributes();
                                 entity.color.interpret(entityColor);
                             }
-                        } catch(e) {
+                        } catch (e) {
                             console.error("Failed to update definitions:", e);
                             response.ok = false;
                         }
 
                         mockupData = [];
                         mockupMap = {};
-                        
+
                         if (Config.load_all_mockups) global.loadAllMockups(false);
 
-                        setTimeout(() => {
-                            try {
-                                gameManager.clients.forEach(socket => {
-                                    socket.status.mockupData = socket.initMockupList();
-                                    socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
-                                    socket.status.selectedLeaderboard = "stop";
-                                    socket.talk("RE");
-                                    if (Config.load_all_mockups) for (let i = 0; i < mockupData.length; i++) {
-                                        socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
-                                    }
-                                    socket.status.selectedLeaderboard = socket.status.selectedLeaderboard2;
-                                    delete socket.status.selectedLeaderboard2;
-                                    socket.talk("CC");
-                                });
-                            } catch(e) {
-                                console.error("Failed to update definitions:", e);
-                                response.ok = false;
-                            }
-                            gameManager.gameHandler.run();
-                        }, 1000)
-                    } catch(e) {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+
+                        try {
+                            gameManager.clients.forEach(socket => {
+                                socket.status.mockupData = socket.initMockupList();
+                                socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
+                                socket.status.selectedLeaderboard = "stop";
+                                socket.talk("RE");
+                                if (Config.load_all_mockups) for (let i = 0; i < mockupData.length; i++) {
+                                    socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
+                                }
+                                socket.status.selectedLeaderboard = socket.status.selectedLeaderboard2;
+                                delete socket.status.selectedLeaderboard2;
+                                socket.talk("CC");
+                            });
+                        } catch (e) {
+                            console.error("Failed to update definitions:", e);
+                            response.ok = false;
+                        }
+                        gameManager.gameHandler.run();
+                    } catch (e) {
                         console.error("Definitions parsing error:", e);
                         response.ok = false;
                     }
