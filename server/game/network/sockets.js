@@ -2028,10 +2028,9 @@ class socketManager {
         if (!socket.player?.body || socket.status.transferred) return;
         socket.status.transferred = true;
         let id = Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, "0");
-        fetch(`${server}/api/sendPlayer`, {
+        fetch(`${server}/api/sendPlayer?api_key=${process.env.API_KEY}`, {
             method: "POST",
             body: JSON.stringify({
-                key: process.env.API_KEY,
                 id: id,
                 name: socket.player.body.name,
                 definition: socket.player.body.defs.map(d => Object.keys(Class).find(k => Class[k] === d) || d),

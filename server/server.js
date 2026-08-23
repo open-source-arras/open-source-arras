@@ -142,6 +142,11 @@ server = http.createServer((req, res) => {
 
         case "/api/sendPlayer": {
             ok = false;
+            if (query.api_key !== process.env.API_KEY) {
+                res.writeHead(403);
+                res.end("Access Denied");
+                return;
+            }
             let body = "";
             req.on("data", c => body += c);
             req.on("end", () => {
@@ -150,15 +155,10 @@ server = http.createServer((req, res) => {
                     json = JSON.parse(body);
               } catch { }
                   if (json) {
-                      if (json.key === process.env.API_KEY) {
-                            let { id, name, definition, score, level, skillcap, skill, points, killCount } = json;
-                            global.travellingPlayers.push({ id, name, definition, score, level, skillcap, skill, points, killCount });
-                            res.writeHead(200);
-                            res.end("OK");
-                        } else {
-                            res.writeHead(403);
-                            res.end("Access Denied");
-                        }
+                        let { id, name, definition, score, level, skillcap, skill, points, killCount } = json;
+                        global.travellingPlayers.push({ id, name, definition, score, level, skillcap, skill, points, killCount });
+                        res.writeHead(200);
+                        res.end("OK");
                     } else {
                         res.writeHead(400);
                         res.end("Invalid JSON body");

@@ -4,6 +4,7 @@ const http = require("http");
 const ws = require("ws");
 const fs = require("fs");
 const path = require("path");
+const url = require("url");
 
 let { socketManager } = require("./game/network/sockets.js");
 let { Editor } = require("./game/network/editor.js");
@@ -188,8 +189,14 @@ class gameServer {
             res.setHeader('Access-Control-Allow-Origin', '*');
             res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
             res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-            switch (req.url) {
+            const { pathname, query } = url.parse(req.url, true);
+            switch (pathname) {
                 case "/api/sendPlayer": {
+                    if (query.api_key !== process.env.API_KEY) {
+                        res.writeHead(403);
+                        res.end("Access Denied");
+                        return;
+                    }
                     let body = "";
                     req.on("data", c => body += c);
                     req.on("end", () => {
@@ -198,15 +205,10 @@ class gameServer {
                             json = JSON.parse(body);
                     } catch { }
                         if (json) {
-                            if (json.key === process.env.API_KEY) {
-                                let { id, name, definition, score, level, skillcap, skill, points, killCount } = json;
-                                global.travellingPlayers.push({ id, name, definition, score, level, skillcap, skill, points, killCount });
-                                res.writeHead(200);
-                                res.end("OK");
-                            } else {
-                                res.writeHead(403);
-                                res.end("Access Denied");
-                            }
+                            let { id, name, definition, score, level, skillcap, skill, points, killCount } = json;
+                            global.travellingPlayers.push({ id, name, definition, score, level, skillcap, skill, points, killCount });
+                            res.writeHead(200);
+                            res.end("OK");
                         } else {
                             res.writeHead(400);
                             res.end("Invalid JSON body");
