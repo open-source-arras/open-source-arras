@@ -1,4 +1,5 @@
 const util = require("util");
+const vm = require("vm");
 
 function isLegalName(str) {
     return str.match(/^[$_\p{ID_Start}][$\p{ID_Continue}]*$/u);
@@ -72,7 +73,16 @@ class Editor {
                     break;
                 case "setDefinitions":
                     try {
-                        const definitions = (await import(`data:text/javascript;charset=utf-8,${encodeURIComponent(request.data)}`)).default;
+                        const context = {
+                            console,
+                            Config,
+                            ...require("../../lib/definitions/constants"),
+                            ...require("../../lib/definitions/facilitators"),
+                            g: require("../../lib/definitions/gunvals"),
+                            preset: require("../../lib/definitions/presets")
+                        };
+                        const code = `${request.data.replaceAll("export default Class", "")}\nClass;`;
+                        const definitions = vm.runInNewContext(code, context);
                         
                         delete Array.prototype.remove;
                         gameManager.gameHandler.stop();
