@@ -1,4 +1,5 @@
 const util = require("util");
+const vm = require("vm");
 
 function isLegalName(str) {
     return str.match(/^[$_\p{ID_Start}][$\p{ID_Continue}]*$/u);
@@ -72,8 +73,17 @@ class Editor {
                     break;
                 case "setDefinitions":
                     try {
-                        const definitions = (await import(`data:text/javascript;charset=utf-8,${encodeURIComponent(request.data)}`)).default;
-                        
+                        const context = {
+                            console,
+                            Config,
+                            ...require("../../lib/definitions/constants"),
+                            ...require("../../lib/definitions/facilitators"),
+                            g: require("../../lib/definitions/gunvals"),
+                            preset: require("../../lib/definitions/presets")
+                        };
+                        const code = `${request.data.replaceAll("export default Class", "")}\nClass;`;
+                        const definitions = vm.runInNewContext(code, context);
+
                         delete Array.prototype.remove;
                         gameManager.gameHandler.stop();
 
@@ -120,37 +130,38 @@ class Editor {
                                 entity.refreshBodyAttributes();
                                 entity.color.interpret(entityColor);
                             }
-                        } catch(e) {
-                            util.error("Failed to update definitions:", e);
+                        } catch (e) {
+                            console.error("Failed to update definitions:", e);
                             response.ok = false;
                         }
 
                         mockupData = [];
                         mockupMap = {};
-                        
+
                         if (Config.load_all_mockups) global.loadAllMockups(false);
 
-                        setTimeout(() => {
-                            try {
-                                gameManager.clients.forEach(socket => {
-                                    socket.status.mockupData = socket.initMockupList();
-                                    socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
-                                    socket.status.selectedLeaderboard = "stop";
-                                    socket.talk("RE");
-                                    if (Config.load_all_mockups) for (let i = 0; i < mockupData.length; i++) {
-                                        socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
-                                    }
-                                    socket.status.selectedLeaderboard = socket.status.selectedLeaderboard2;
-                                    delete socket.status.selectedLeaderboard2;
-                                    socket.talk("CC");
-                                });
-                            } catch(e) {
-                                util.error("Failed to update definitions:", e);
-                                response.ok = false;
-                            }
-                            gameManager.gameHandler.run();
-                        }, 1000)
-                    } catch {
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+
+                        try {
+                            gameManager.clients.forEach(socket => {
+                                socket.status.mockupData = socket.initMockupList();
+                                socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
+                                socket.status.selectedLeaderboard = "stop";
+                                socket.talk("RE");
+                                if (Config.load_all_mockups) for (let i = 0; i < mockupData.length; i++) {
+                                    socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
+                                }
+                                socket.status.selectedLeaderboard = socket.status.selectedLeaderboard2;
+                                delete socket.status.selectedLeaderboard2;
+                                socket.talk("CC");
+                            });
+                        } catch (e) {
+                            console.error("Failed to update definitions:", e);
+                            response.ok = false;
+                        }
+                        gameManager.gameHandler.run();
+                    } catch (e) {
+                        console.error("Definitions parsing error:", e);
                         response.ok = false;
                     }
                     break;
