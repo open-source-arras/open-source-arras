@@ -131,7 +131,7 @@ class Editor {
                                 entity.color.interpret(entityColor);
                             }
                         } catch(e) {
-                            util.error("Failed to update definitions:", e);
+                            console.error("Failed to update definitions:", e);
                             response.ok = false;
                         }
 
@@ -155,12 +155,13 @@ class Editor {
                                     socket.talk("CC");
                                 });
                             } catch(e) {
-                                util.error("Failed to update definitions:", e);
+                                console.error("Failed to update definitions:", e);
                                 response.ok = false;
                             }
                             gameManager.gameHandler.run();
                         }, 1000)
-                    } catch {
+                    } catch(e) {
+                        console.error("Definitions parsing error:", e);
                         response.ok = false;
                     }
                     break;
