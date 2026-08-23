@@ -8,6 +8,7 @@ Class.menu_devBosses = makeMenu("Developers", {upgrades: [
     "dogeiscutBoss",
     "tgsBoss",
     "toothlessBoss",
+    "zyrafaqBoss",
     "menu_retiredDevBosses"
 ], color: "lime", boxColor: "rainbow", shape: 4})
 
@@ -1975,5 +1976,61 @@ Class.helenaBoss = {
                 if (endGame) new Entity(body, body, body.gameManager).define("legionaryCrasher")
             },
         }
+    ]
+}
+
+// ZyraFAQ
+Class.zyrafaqBossAura = makeAura(2.5, 1.2, 0.3, "#226ef6");
+Class.zyrafaqBossMiniAura = makeAura(1.2, 0.5, 0.3, "#226ef6");
+Class.zyrafaqBossHexagon = {
+    PARENT: "genericTank",
+    SHAPE: 6,
+    COLOR: "mirror",
+    MIRROR_MASTER_ANGLE: true,
+    CONTROLLERS: [["spin", {speed: 0.04, independent: true}]],
+}
+Class.zyrafaqBossTurret = {
+    PARENT: "genericTank",
+    COLOR: "#fff",
+    BORDERLESS: true,
+    CONTROLLERS: [["spin", {speed: 0.04, independent: true}]],
+    GUNS: [{
+        POSITION: [20, 7, 1, 0, 0, 0, 0],
+        PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.op]), TYPE: "developerBullet"},
+    }]
+}
+Class.zyrafaqBossDrone = {
+    PARENT: "drone",
+    SHAPE: [[-1,-1],[1,-1],[2,0],[1,1],[-1,1]],
+    COLOR: "#226ef6",
+    BODY: {FOV: 1.5, SPEED: 2.5 * base.SPEED},
+    TURRETS: [{POSITION: [13, 0, 0, 0, 360, 1], TYPE: "zyrafaqBossMiniAura"}],
+}
+Class.zyrafaqBoss = {
+    PARENT: "miniboss",
+    LABEL: "Developer",
+    NAME: "ZyraFAQ",
+    DANGER: 12,
+    SHAPE: [[-1,-0.8],[-0.8,-1],[0.8,-1],[1,-0.8],[0.2,0],[1,0.8],[0.8,1],[-0.8,1],[-1,0.8]],
+    COLOR: "#226ef6",
+    UPGRADE_COLOR: "#226ef6",
+    SIZE: 50,
+    FACING_TYPE: "smoothToTarget",
+    VALUE: 25e6,
+    UPGRADE_TOOLTIP: "Works on my machine.",
+    BODY: {SPEED: 0.55*base.SPEED, HEALTH: 18*base.HEALTH, SHIELD: 8*base.SHIELD, REGEN: 3*base.REGEN, DAMAGE: 3.5*base.DAMAGE, FOV: 1.5*base.FOV, RESIST: 1.2*base.RESIST},
+    GUNS: [
+        {POSITION: [26,14,-1.4,0,0,0,0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic,g.sniper,g.destroyer,g.op]), TYPE: "developerBullet"}},
+        ...weaponArray({POSITION: [16,5,1.2,12,0,0,0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic,g.twin,g.machineGun,g.op,{reload:2}]), TYPE: "developerBullet"}}, 3),
+        {POSITION: [6,12,1.2,8,0,180,0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.drone,g.summoner,g.pounder,{speed:1.5,maxSpeed:1.5}]), TYPE: "zyrafaqBossDrone", MAX_CHILDREN: 3, AUTOFIRE: true, SYNCS_SKILLS: true, STAT_CALCULATOR: "drone", WAIT_TO_CYCLE: true, NO_LIMITATIONS: true}},
+        ...weaponMirror({POSITION: [6,12,1.2,8,0,90,0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.drone,g.summoner,g.pounder,{speed:1.5,maxSpeed:1.5}]), TYPE: "zyrafaqBossDrone", MAX_CHILDREN: 3, AUTOFIRE: true, SYNCS_SKILLS: true, STAT_CALCULATOR: "drone", WAIT_TO_CYCLE: true, NO_LIMITATIONS: true}}),
+    ],
+    TURRETS: [
+        {POSITION: [28,0,0,0,360,0], TYPE: "zyrafaqBossHexagon", INDEPENDENT: true},
+        {POSITION: [21,0,0,0,360,1], TYPE: "zyrafaqBossTurret", INDEPENDENT: true},
+        {POSITION: [21,0,0,180,360,1], TYPE: "zyrafaqBossTurret", INDEPENDENT: true},
+        {POSITION: [12,0,0,0,360,0], TYPE: "zyrafaqBossAura"},
+        {POSITION: [18,0,0,0,360,0], TYPE: "zyrafaqBossAura"},
+        {POSITION: [24,0,0,0,360,0], TYPE: "zyrafaqBossAura"},
     ]
 }
