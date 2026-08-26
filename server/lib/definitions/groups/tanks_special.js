@@ -1,5 +1,5 @@
-const {combineStats, skillSet, weaponArray} = require('../facilitators.js')
-const {base, statnames} = require('../constants.js')
+const { combineStats, skillSet, weaponArray, weaponMirror } = require('../facilitators.js')
+const { base, statnames } = require('../constants.js')
 const g = require('../gunvals.js')
 
 // Base Protector
@@ -687,7 +687,47 @@ Class.arrasPolice = {
     UPGRADE_COLOR: 20,
     UPGRADE_TOOLTIP: "WOOP WOOP! That's the sound of da police!",
     BODY: Class.booster.BODY,
-    GUNS: Class.booster.GUNS,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.triAngleFront, { recoil: 4 }]),
+                TYPE: 'bullet',
+                LABEL: "Front"
+            }
+        },
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 14,
+                    WIDTH: 8,
+                    ANGLE: 135,
+                    DELAY: 0.6
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: 4 }]),
+                    TYPE: 'bullet',
+                    LABEL: "Thruster"
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 16,
+                    WIDTH: 8,
+                    ANGLE: 150,
+                    DELAY: 0.1
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: 4 }]),
+                    TYPE: 'bullet',
+                    LABEL: "Thruster"
+                }
+            }
+        ])
+    ],
     PROPS: [
         {
             TYPE: ['hexagonHat', {COLOR: 21}],

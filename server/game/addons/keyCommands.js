@@ -669,7 +669,7 @@ function init() {
                 player.body.skill.set(player.body.skill.caps);
                 player.body.syncTurrets();
                 player.body.refreshBodyAttributes();
-                player.body.FOV = 100000;
+                player.body.FOV = 10000;
                 gameManager.socketManager.broadcast("WOOP WOOP! That's the sound of da police!");
             }
         },

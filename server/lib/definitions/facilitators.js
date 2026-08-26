@@ -1444,7 +1444,7 @@ exports.removeUpgrades = (type, tier, upgrades = []) => {
             typeUpgrades.splice(i, 1)
         }
     }
-}
+};
 
 exports.makeSnake = (type, count = 2, name = -1, options = {}) => {
     type = ensureIsClass(type);
