@@ -6,6 +6,7 @@ const { Mothership } = require("./gamemodes/scripts/mothership.js");
 const { Sandbox } = require("./gamemodes/scripts/sandbox.js");
 const { Train } = require("./gamemodes/scripts/trainwars.js");
 const { Maze } = require("./gamemodes/scripts/maze.js");
+const { Labyrinth } = require("./gamemodes/scripts/labyrinth.js");
 const { Outbreak } = require("./gamemodes/scripts/outbreak.js");
 const { ClanWars } = require("./gamemodes/scripts/clan_wars.js");
 const { GroupHandler } = require("./gamemodes/scripts/groups.js");
@@ -19,6 +20,7 @@ class gamemodeManager {
         this.gameMothership = new Mothership(global.gameManager);
         this.gameSandbox = new Sandbox(global.gameManager);
         this.gameMaze = new Maze(global.gameManager, null);
+        this.gameLabyrinth = new Labyrinth(global.gameManager, null);
         this.gameTrain = new Train();
         this.gameOutbreak = new Outbreak(global.gameManager);
         this.gameClanwars = new ClanWars(global.gameManager);
@@ -33,6 +35,7 @@ class gamemodeManager {
             if (Config.domination) this.gameDomination.start();
             if (Config.mothership) this.gameMothership.start();
             if (Config.maze && Config.maze_type !== undefined && !Config.siege) this.gameMaze.generate();
+            if (Config.labyrinth) this.gameLabyrinth.generate();
             if (Config.outbreak) this.gameOutbreak.start();
         }
         if (type == "loop") {
@@ -68,6 +71,7 @@ class gamemodeManager {
         this.gameTag.redefine(theshit);
         this.gameSandbox.redefine(theshit);
         this.gameMaze.redefine(Config.maze_type);
+        this.gameLabyrinth.redefine(4);
         this.gameClanwars.redefine(theshit);
         this.gameGroups.redefine(theshit);
     }
