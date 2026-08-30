@@ -67,7 +67,7 @@ module.exports = {
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ['ffa'],
+            gamemode: ['arms_race', 'ffa'],
             player_cap: 80,
 
             featured: false,

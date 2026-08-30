@@ -1176,6 +1176,37 @@ Class.volute = {
         })
     ]
 };
+Class.wark = {
+    PARENT: 'genericTank',
+    LABEL: "Wark",
+    STAT_NAMES: statnames.trap,
+    DANGER: 6,
+    GUNS: weaponMirror([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 8,
+                Y: 5.5,
+                ANGLE: 5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3.25,
+                WIDTH: 8,
+                ASPECT: 1.7,
+                X: 14,
+                Y: 5.5,
+                ANGLE: 5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.twin]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ], {delayIncrement: 0.5})
+};
 Class.whirlwind_old = makeWhirlwind('genericTank', {hat: 'circleHat', hatSize: 24, hatLayer: 0, satellites: 6, satelliteType: 'satellite_old', label: "Whirlwind"});
 Class.whirlwind_old.UPGRADE_LABEL = "Old Whirlwind";
 Class.whirlwind_old.UPGRADES_TIER_3 = ['monsoon', 'maelstrom', 'tornado_old', 'typhoon_old', 'vortex_old'];
@@ -1342,16 +1373,23 @@ Class.atomizer = {
 };
 Class.auto4 = makeRadialAuto('auto4gun', {isTurret: true, danger: 7, size: 13, x: 6, angle: 45, label: "Auto-4", count: 4});
 Class.auto5 = makeRadialAuto('autoTankGun', {isTurret: true, danger: 7, label: "Auto-5", count: 5});
+Class.autoArtillery = makeAuto('artillery');
 Class.autoAssassin = makeAuto('assassin');
 Class.autoBuilder = makeAuto('builder');
 Class.autoCruiser = makeAuto('cruiser');
 Class.autoDouble = makeAuto('doubleTwin', "Auto-Double");
 Class.autoGunner = makeAuto('gunner');
+Class.autoHexaTank = makeAuto('hexaTank');
+Class.autoHunter = makeAuto('hunter');
+Class.autoMinigun = makeAuto('minigun');
 Class.autoOverseer = makeAuto('overseer');
+Class.autoRifle = makeAuto('rifle');
 Class.autoSmasher = makeAuto('smasher', "Auto-Smasher", {type: 'autoSmasherTurret', size: 11});
 Class.autoSmasher.SKILL_CAP = Array(10).fill(smshskl);
 Class.autoSpawner = makeAuto('spawner');
 Class.autoTriAngle = makeAuto('triAngle');
+Class.autoTripleShot = makeAuto('tripleShot');
+Class.autoWark = makeAuto('wark');
 Class.banshee = makeRadialAuto('bansheegun', {isTurret: true, danger: 7, size: 10, arc: 80, label: "Banshee", body: {FOV: base.FOV * 1.1}});
 Class.banshee.GUNS = weaponArray({
     POSITION: {
@@ -1890,6 +1928,7 @@ Class.carrier = {
         }
     ]
 };
+Class.coalesce = makeOver('wark', "Coalesce", preset.makeOver.hybrid);
 Class.cocci = makeSnake('smasher', 5, "Cocci");
 Class.coil = {
     PARENT: 'genericTank',
@@ -2284,6 +2323,7 @@ Class.deathStar = {
         }
     ], 3)
 };
+Class.defect = makeBird('tripleShot', "Defect");
 Class.doctor = {
     PARENT: "genericHealer",
     LABEL: "Doctor",
@@ -2300,6 +2340,7 @@ Class.doctor = {
         }
     ]
 };
+Class.doubleGunner = makeFlank('gunner', 2, "Double Gunner", {extraStats: [g.doubleTwin]});
 Class.dreadnought_old = {
     PARENT: 'genericTank',
     LABEL: "Dreadnought",
@@ -2785,6 +2826,7 @@ Class.focal = {
         }
     ]
 };
+Class.force = makeOver('artillery', "Force", preset.makeOver.hybrid);
 Class.fork = {
     PARENT: 'genericTank',
     LABEL: "Fork",
@@ -2952,6 +2994,7 @@ Class.hewnDouble = {
 };
 Class.hexaTrapper = makeAuto(makeFlank('trapper', 6, "", {extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6}), "Hexa-Trapper");
 Class.hexaWhirl = makeWhirlwind('hexaTank', {label: "Hexa Whirl"});
+Class.hitman = makeOver('assassin', "Hitman", preset.makeOver.hybrid);
 Class.hybrid = makeOver('destroyer', "Hybrid", preset.makeOver.hybrid);
 Class.infestor = {
     PARENT: 'genericTank',
@@ -4794,7 +4837,7 @@ Class.single = {
             }
         }
     ]
-}
+};
 Class.skimmer = {
     PARENT: 'genericTank',
     LABEL: "Skimmer",
@@ -5414,6 +5457,7 @@ Class.vulture = makeBird({
         }
     ]
 }, "Vulture");
+Class.warkwark = makeFlank('wark', 2, "Warkwark", {extraStats: [g.doubleTwin]});
 Class.whirlGuard = makeWhirlwind('trapGuard', {label: "Whirl Guard"});
 Class.whirl3 = makeWhirlwind("auto3", {label: "Whirl-3"});
 Class.wrangler = {
@@ -6092,25 +6136,51 @@ if (Config.arms_race || Config.retrograde) {
 };
 
 if (Config.arms_race) {
-    removeUpgrades('basic', 1, ['desmos']);
+    // Set the below variable to false to allow branches that are otherwise inaccessible in Arms Race.
+    // Arms Race is mostly incomplete and many tanks are missing or do not function correctly.
+    const classic_arms_race = true;
 
-    removeUpgrades('machineGun', 2, ['sprayer']);
-    removeUpgrades('sniper', 2, ['marksman']);
-    removeUpgrades('twin', 2, ['helix']);
+    let tier4 = 4;
+    if (classic_arms_race) {
+        tier4 = 3
+    };
 
-    removeUpgrades('assassin', 3, ['single', 'deadeye']);
-    addUpgrades('basic', 3, ['single']);
-    removeUpgrades('builder', 3, ['assembler']);
-    removeUpgrades('flankGuard', 3, ['quadruplex']);
-    addUpgrades('gunner', 3, ['buttbuttin', 'blower']);
-    removeUpgrades('hunter', 3, ['xHunter', 'nimrod']);
-    addUpgrades('machineGun', 3, ['sprayer']);
-    removeUpgrades('minigun', 3, ['vulture']);
+    addUpgrades('trapper', 2, [/*'pen', 'mech', 'machineTrapper', */'wark']);
+    addUpgrades('twin', 2, ['wark']);
+
+    addUpgrades('artillery', 3, [/*'queller', 'forger', */'force', 'autoArtillery'/*, 'foctillery', 'discharger'*/]);
+    addUpgrades('assassin', 3, ['hitman', 'sniper3'/*, 'enforcer', 'courser'*/]);
+    addUpgrades('doubleTwin', 3, [/*'doubleFlankTwin', */'doubleGunner', 'warkwark']);
+    addUpgrades('gunner', 3, ['buttbuttin', 'blower', 'rimfire'/*, 'volley'*/, 'doubleGunner'/*, 'bentGunner', 'equalizer'*/]);
+    addUpgrades('hexaTank', 3, ['autoHexaTank'/*, 'mingler', 'combo'*/]);
+    addUpgrades('hunter', 3, ['autoHunter'/*, 'megaHunter', 'prober', 'courser'*/]);
+    addUpgrades('minigun', 3, [/*'taser', 'zipper', 'bentMinigun', */'autoMinigun'/*, 'widget'*/]);
     addUpgrades('pounder', 3, ['subverter']);
-    removeUpgrades('rifle', 3, ['revolver']);
-    removeUpgrades('sprayer', 3, Class.sprayer.UPGRADES_TIER_3);
-    removeUpgrades('triAngle', 3, ['phoenix', 'vulture']);
-    removeUpgrades('tripleShot', 3, ['triplex']);
+    addUpgrades('rifle', 3, ['autoRifle'/*, 'enforcer', 'courser'*/]);
+    addUpgrades('sniper', 3, ['railgun']);
+    addUpgrades('tripleShot', 3, [/*'splitShot', */'autoTripleShot'/*, 'bentGunner', 'bentMinigun'*/, 'defect'/*, 'waarrk'*/]);
+    removeUpgrades('twin', 3, ['bulwark']);
+    addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
+
+    if (classic_arms_race) {
+        removeUpgrades('basic', 1, ['desmos']);
+
+        removeUpgrades('machineGun', 2, ['sprayer']);
+        removeUpgrades('sniper', 2, ['marksman']);
+        removeUpgrades('twin', 2, ['helix']);
+
+        removeUpgrades('assassin', 3, ['single', 'deadeye']);
+        addUpgrades('basic', 3, ['single']);
+        removeUpgrades('builder', 3, ['assembler']);
+        removeUpgrades('flankGuard', 3, ['quadruplex']);
+        removeUpgrades('hunter', 3, ['xHunter', 'nimrod']);
+        addUpgrades('machineGun', 3, ['sprayer']);
+        removeUpgrades('minigun', 3, ['vulture']);
+        removeUpgrades('rifle', 3, ['revolver']);
+        removeUpgrades('sprayer', 3, Class.sprayer.UPGRADES_TIER_3);
+        removeUpgrades('triAngle', 3, ['phoenix', 'vulture']);
+        removeUpgrades('tripleShot', 3, ['triplex']);
+    };
 };
 
 if (Config.teams == 1) {
