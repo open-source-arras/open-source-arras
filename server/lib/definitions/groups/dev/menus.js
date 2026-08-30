@@ -276,7 +276,7 @@ Class.menu_diepBosses = makeMenu("Diep Bosses Menu", {
 Class.menu_nostalgia = makeMenu("Nostalgia Menu", {
     upgrades: [
         'spreadshot_old',
-        'boomer_old',
+        'bentBoomer_old',
         'quadBuilder',
         'quintuplet',
         'vulcan',

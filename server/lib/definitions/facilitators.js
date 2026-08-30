@@ -336,10 +336,10 @@ exports.makeGunner = (type, name = -1, options  = {}) => {
     let gunner = [
         ...exports.weaponMirror({
             POSITION: {
-                LENGTH: options.length ?? 19,
+                LENGTH: options.gunLength ?? 19,
                 WIDTH: 2,
                 Y: -2.5,
-                ANGLE: options.rear ? 180 : 0
+                ANGLE: 180
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: exports.combineStats([g.basic, g.pelleter, g.power, g.twin, {recoil: 4}, {recoil: 1.8}]),
@@ -352,7 +352,7 @@ exports.makeGunner = (type, name = -1, options  = {}) => {
             POSITION: {
                 LENGTH: 12,
                 WIDTH: 11,
-                ANGLE: options.rear ? 180 : 0
+                ANGLE: 180
             }
         }
     )}

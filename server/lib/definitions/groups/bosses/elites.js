@@ -297,38 +297,6 @@ Class.eliteSpinner = {
 }
 
 // Deltas (moving to Arms Race addon later)
-Class.scatterer_AR = {
-    PARENT: 'genericTank',
-    LABEL: "Scatterer",
-    DANGER: 8,
-    GUNS: [
-        {
-            POSITION: {
-                LENGTH: 12,
-                WIDTH: 10,
-                ASPECT: 1.4,
-                X: 11
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 12,
-                WIDTH: 10,
-                ASPECT: 1.4,
-                X: 8,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
-                TYPE: "bullet"
-            }
-        }
-    ]
-}
 Class.delta = {
     PARENT: 'elite',
     LABEL: "Delta Crasher",
@@ -435,7 +403,7 @@ Class.deltaSprayer = {
                 TYPE: ["sprayer", { COLOR: "grey" }],
             }, {
                 POSITION: [9, 6, 0, 60, 130, 0],
-                TYPE: ["scatterer_AR", { COLOR: "grey" }],
+                TYPE: ["scatterer", { COLOR: "grey" }],
             },
         ], 3)
     ],
