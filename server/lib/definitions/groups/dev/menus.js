@@ -5,8 +5,6 @@ let dreadnoughts = 'dreadnought_dreadsV2';
 if (Config.classic_food) {
     dreadnoughts = 'dreadnought_dreadsV1';
 };
-require('./tanks.js')
-require('./testing.js')
 
 // Set the below variable to true to enable the Retrograde menu in Retrograde gamemodes.
 // This will replace the Daily Tank if one is set!
@@ -168,7 +166,8 @@ Class.menu_bosses = makeMenu("Bosses Menu", {
         'mystical',
         'terrestrial',
         'celestial',
-        'diep'
+        'diep',
+        'dev'
     ].map(x => `menu_${x}Bosses`)
 });
 Class.menu_eliteBosses = makeMenu("Elite Bosses Menu", {
@@ -182,7 +181,12 @@ Class.menu_eliteBosses = makeMenu("Elite Bosses Menu", {
         'eliteTrapGuard',
         'eliteSpinner',
         'eliteSkimmer',
-        'legionaryCrasher'
+        'legionaryCrasher',
+        'destroyerLegion',
+        'gunnerLegion',
+        'sprayerLegion',
+        'battleshipLegion',
+        'spawnerLegion'
     ]
 });
 Class.menu_nesterBosses = makeMenu("Nester Bosses Menu", {
@@ -270,6 +274,30 @@ Class.menu_diepBosses = makeMenu("Diep Bosses Menu", {
         //'fallenBooster',
         //'fallenOverlord'
     ].map(x => x + '_diep')
+});
+Class.menu_devBosses = makeMenu("Dev Bosses Menu", {
+    color: 'lime',
+    shape: 4,
+    upgrades: [
+        'AEMKShipBoss',
+        'dogeiscutBoss',
+        'tgsBoss',
+        'toothlessBoss',
+        'zyrafaqBoss',
+        'menu_retiredDevBosses'
+    ]
+});
+Class.menu_retiredDevBosses = makeMenu("Retired Dev Bosses Menu", {
+    boxLabel: "Retired",
+    boxColor: "pureBlack",
+    color: "pureBlack",
+    shape: 4,
+    upgrades: [
+        'frostBoss',
+        'helenaBoss',
+        'taureonBoss',
+        'trplnrBoss',
+    ]
 });
 
 // Nostalgia/Scrapped Menus

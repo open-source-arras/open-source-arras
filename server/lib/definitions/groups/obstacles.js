@@ -75,6 +75,11 @@ Class.wall = {
     WALL_TYPE: 1,
     VARIES_IN_SIZE: false
 };
+Class.labyrinthWall = {
+    PARENT: 'wall',
+    COLOR: 'black',
+    ALPHA: 0.5
+};
 Class.deadlyWall = {
     PARENT: 'wall',
     LABEL: "Deadly Wall",
@@ -254,10 +259,4 @@ Class.checkpointWall = {
     PARENT: 'wall',
     LABEL: "Checkpoint Wall",
     COLOR: 'green'
-};
-
-Class.labyrinthWall = {
-    PARENT: 'wall',
-    COLOR: 'black',
-    ALPHA: 0.5
 };

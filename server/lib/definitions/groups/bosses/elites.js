@@ -19,36 +19,6 @@ Class.elite = {
     },
 }
 
-// Dev Menus
-Class.menu_elites = makeMenu("Elites", {upgrades: [
-    "eliteDestroyer",
-    "eliteGunner",
-    "eliteSprayer",
-    "eliteBattleship",
-    "eliteSpawner",
-    "eliteTrapGuard",
-    "eliteSpinner",
-    "eliteSkimmer",
-    "menu_legions",
-    "menu_deltas",
-], color: 'pink', boxColor: 'pink', shape: 3.5})
-
-Class.menu_legions = makeMenu("Crasher Legions", {upgrades: [
-    "destroyerLegion",
-    "gunnerLegion",
-    "sprayerLegion",
-    "battleshipLegion",
-    "spawnerLegion",
-    "legionaryCrasher",
-], color: 'pink', boxColor: 'pink', boxLabel: "Legions", shape: 3.5})
-
-Class.menu_deltas = makeMenu("Delta Crashers", {upgrades: [
-    "deltaDestroyer",
-    "deltaGunner",
-    "deltaSprayer",
-    "deltaBattleship",
-], color: 'pink', boxColor: 'pink', boxLabel: "Deltas", shape: 3.5})
-
 // Elite Crashers
 Class.eliteDestroyer = {
     PARENT: 'elite',
