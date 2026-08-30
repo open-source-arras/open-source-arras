@@ -263,6 +263,10 @@ Class.assemblerEffect = {
     },
     ALPHA: 0.8
 }
+Class.cxATMGBullet = {
+    PARENT: "bullet",
+    SHAPE: Class.cube.SHAPE
+}
 
 // Missiles
 Class.missile = {

@@ -846,32 +846,6 @@ Class.literallyATank = {
         },
     ]
 }
-Class.fat456 = makeRadialAuto('architectGun', {isTurret: true, danger: 7, size: 12, label: "Fat456", body: {FOV: base.FOV * 1.15, SPEED: base.SPEED * 4}});
-Class.fat456.COLOR = 'brown';
-Class.fat456.SIZE = 30;
-Class.wifeBeater = {
-    PARENT: "overlord",
-    LABEL: 'Wife Beater',
-    DANGER: 8,
-    STAT_NAMES: statnames.drone,
-    BODY: {
-        ACCELERATION: base.ACCEL * 0.75,
-        SPEED: base.SPEED * 0.8,
-        FOV: base.FOV * 1.1,
-    },
-    MAX_CHILDREN: 16,
-    GUNS: weaponArray({
-        POSITION: [6, 12, 1.2, 8, 0, 0, 0],
-        PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.op]),
-            TYPE: "drone",
-            AUTOFIRE: true,
-            SYNCS_SKILLS: true,
-            STAT_CALCULATOR: "drone",
-            WAIT_TO_CYCLE: true
-        }
-    }, 4)
-}
 
 // airblast testing
 Class.airblastBullet = {PARENT: "bullet", ALPHA: 0.5, BODY: {KNOCKBACK: 30}}

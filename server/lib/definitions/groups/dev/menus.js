@@ -265,8 +265,8 @@ Class.menu_celestialBosses = makeMenu("Celestial Bosses Menu", {
 Class.menu_diepBosses = makeMenu("Diep Bosses Menu", {
     color: 'flashBlueRed',
     upgrades: [
-        'defender',
-        'guardian',
+        //'defender',
+        //'guardian',
         //'fallenBooster',
         //'fallenOverlord'
     ].map(x => x + '_diep')
