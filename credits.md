@@ -16,8 +16,8 @@ Developers who used to be active but have either quit or stopped developing.
 # Notable Contributors
 People who have submitted code to the project but are not official developers.
 - `Anguisj`: Oroboros\
-- `ArrasLynx`: Team Walls, Labyrinth\
 - `DenisC!!!`: Hexagonal Grid, Growth Curve, 3D and 4D shapes\
+- `Dolan the Protogen`: Arms Race content, Team Walls, Labyrinth\
 - `DRGNBOY`: Segmented 3D/4D shape colours\
 - `Excel`: Clan Wars\
 - `funny0_0`: More Maze Generations, Shiny Tanks, SVG Shapes, Kill Bars\

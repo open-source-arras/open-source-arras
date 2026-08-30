@@ -4,6 +4,21 @@ module.exports = {
 		menu_lag: "WARNING: There are a lot of entities in here and having this menu open may cause noticeable frame drops!"
 	},
 
+	// Tanks
+	gun: {},
+	prop: {},
+	turret: {
+		driveHat: [
+			{
+	            TYPE: ['squareHat', {COLOR: 'grey'}],
+	            POSITION: {
+	                SIZE: 9,
+	                LAYER: 1
+	            }
+	        }
+	    ]
+	},
+
 	// Regular Functions
 	makeAuto: {
 		mega: {
