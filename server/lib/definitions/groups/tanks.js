@@ -7392,7 +7392,6 @@ if (Config.arms_race) {
 
     addUpgrades('buttbuttin', tier4, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
     addUpgrades('sprayer', tier4, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
-
 };
 
 if (Config.teams == 1) {

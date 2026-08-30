@@ -1,6 +1,6 @@
-const {combineStats, makeAuto, makeTurret, weaponArray, weaponMirror} = require('../facilitators.js')
-const {base} = require('../constants.js')
-const g = require('../gunvals.js')
+const { combineStats, makeAuto, makeTurret, weaponArray, weaponMirror } = require('../facilitators.js');
+const base = require('../constants.js');
+const g = require('../gunvals.js');
 
 // Radial Auto Guns
 Class.autoTankGun = makeTurret({

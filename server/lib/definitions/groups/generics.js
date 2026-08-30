@@ -1,6 +1,9 @@
-const {combineStats, skillSet} = require('../facilitators.js')
-const {base, dfltskl, smshskl, statnames} = require('../constants.js')
+const { combineStats, skillSet, makePolyhedron } = require('../facilitators.js')
+const { base, dfltskl, smshskl, statnames } = require('../constants.js')
 const g = require('../gunvals.js')
+
+// Set the below variable to true to enable the flat ball from arras.io.
+const classic_ball = false;
 
 // Entities
 Class.genericEntity = {
@@ -91,7 +94,7 @@ Class.genericEntity = {
     FOOD: {
         LEVEL: -1
     }
-}
+};
 
 // Tanks
 Class.genericTank = {
@@ -139,7 +142,7 @@ Class.genericTank = {
     TURRETS: [],
     PROPS: [],
     ON: [],
-}
+};
 Class.genericFlail = {
     PARENT: 'genericTank',
     STAT_NAMES: statnames.flail,
@@ -156,7 +159,7 @@ Class.genericFlail = {
         SHIELD_REGENERATION: dfltskl,
         SHIELD_CAPACITY: dfltskl
     },
-}
+};
 Class.genericHealer = {
     PARENT: 'genericTank',
     HEALING_TANK: true, // Mainly for bots to recognize the tank
@@ -170,7 +173,7 @@ Class.genericHealer = {
             }
         }
     ]
-}
+};
 Class.genericSmasher = {
     PARENT: 'genericTank',
     DANGER: 7,
@@ -193,9 +196,23 @@ Class.genericSmasher = {
         SPEED: 1.125 * base.SPEED,
         DENSITY: 2 * base.DENSITY
     }
-}
+};
 
 // Map Objects
+Class.flag = {
+    LABEL: "Flag",
+    SIZE: 20,
+    COLOR: 3,
+    TURRETS: [
+        {
+            TYPE: 'flagHat',
+            POSITION: {
+                SIZE: 20,
+                LAYER: 1
+            }
+        }
+    ]
+};
 Class.food = {
     TYPE: "food",
     DAMAGE_CLASS: 1,
@@ -213,7 +230,7 @@ Class.food = {
     DAMAGE_EFFECTS: false,
     RATEFFECTS: false,
     HEALTH_WITH_LEVEL: false,
-}
+};
 Class.genericObstacle = {
     TYPE: "wall",
     DAMAGE_CLASS: 1,
@@ -232,7 +249,143 @@ Class.genericObstacle = {
     COLOR: "lightGray",
     ACCEPTS_SCORE: false,
     VARIES_IN_SIZE: true
-}
+};
+
+// Colour each face by its vertex count: a truncated icosahedron (football) has 12 PENTAGONS
+// (5 verts → black) and 20 HEXAGONS (6 verts → white). Reading it from the geometry means the
+// right faces are always coloured, regardless of face order — no hand-made list to get wrong.
+let ballShape = makePolyhedron({
+    VERTEXES: [
+        [0.742344, 0.28355, -0.350487],
+        [0.850651, 0, -0.175244],
+        [0.742344, -0.28355, -0.350487],
+        [0.5671, -0.175244, -0.634038],
+        [0.5671, 0.175244, -0.634038],
+        [-0.5671, 0.175244, -0.634038],
+        [-0.5671, -0.175244, -0.634038],
+        [-0.742344, -0.28355, -0.350487],
+        [-0.850651, 0, -0.175244],
+        [-0.742344, 0.28355, -0.350487],
+        [0.5671, 0.175244, 0.634038],
+        [0.5671, -0.175244, 0.634038],
+        [0.742344, -0.28355, 0.350487],
+        [0.850651, 0, 0.175244],
+        [0.742344, 0.28355, 0.350487],
+        [-0.742344, 0.28355, 0.350487],
+        [-0.850651, 0, 0.175244],
+        [-0.742344, -0.28355, 0.350487],
+        [-0.5671, -0.175244, 0.634038],
+        [-0.5671, 0.175244, 0.634038],
+        [0.350487, 0.742344, -0.28355],
+        [0.175244, 0.850651, 0],
+        [0.350487, 0.742344, 0.28355],
+        [0.634038, 0.5671, 0.175244],
+        [0.634038, 0.5671, -0.175244],
+        [0.634038, -0.5671, -0.175244],
+        [0.634038, -0.5671, 0.175244],
+        [0.350487, -0.742344, 0.28355],
+        [0.175244, -0.850651, 0],
+        [0.350487, -0.742344, -0.28355],
+        [-0.634038, 0.5671, -0.175244],
+        [-0.634038, 0.5671, 0.175244],
+        [-0.350487, 0.742344, 0.28355],
+        [-0.175244, 0.850651, 0],
+        [-0.350487, 0.742344, -0.28355],
+        [-0.350487, -0.742344, -0.28355],
+        [-0.175244, -0.850651, 0],
+        [-0.350487, -0.742344, 0.28355],
+        [-0.634038, -0.5671, 0.175244],
+        [-0.634038, -0.5671, -0.175244],
+        [0.28355, 0.350487, -0.742344],
+        [0, 0.175244, -0.850651],
+        [-0.28355, 0.350487, -0.742344],
+        [-0.175244, 0.634038, -0.5671],
+        [0.175244, 0.634038, -0.5671],
+        [0.175244, 0.634038, 0.5671],
+        [-0.175244, 0.634038, 0.5671],
+        [-0.28355, 0.350487, 0.742344],
+        [0, 0.175244, 0.850651],
+        [0.28355, 0.350487, 0.742344],
+        [0.175244, -0.634038, -0.5671],
+        [-0.175244, -0.634038, -0.5671],
+        [-0.28355, -0.350487, -0.742344],
+        [0, -0.175244, -0.850651],
+        [0.28355, -0.350487, -0.742344],
+        [0.28355, -0.350487, 0.742344],
+        [0, -0.175244, 0.850651],
+        [-0.28355, -0.350487, 0.742344],
+        [-0.175244, -0.634038, 0.5671],
+        [0.175244, -0.634038, 0.5671]
+    ],
+    FACES: [
+        [41, 42, 5, 6, 52, 53],
+        [44, 20, 21, 33, 34, 43],
+        [41, 40, 44, 43, 42],
+        [42, 43, 34, 30, 9, 5],
+        [32, 31, 30, 34, 33],
+        [19, 15, 31, 32, 46, 47],
+        [47, 48, 56, 57, 18, 19],
+        [48, 49, 10, 11, 55, 56],
+        [11, 10, 14, 13, 12],
+        [2, 25, 26, 12, 13, 1],
+        [1, 0, 4, 3, 2],
+        [21, 20, 24, 23, 22],
+        [32, 33, 21, 22, 45, 46],
+        [46, 45, 49, 48, 47],
+        [10, 49, 45, 22, 23, 14],
+        [14, 23, 24, 0, 1, 13],
+        [44, 40, 4, 0, 24, 20],
+        [41, 53, 54, 3, 4, 40],
+        [39, 7, 8, 16, 17, 38],
+        [9, 30, 31, 15, 16, 8],
+        [15, 19, 18, 17, 16],
+        [50, 29, 28, 36, 35, 51],
+        [53, 52, 51, 50, 54],
+        [25, 2, 3, 54, 50, 29],
+        [26, 25, 29, 28, 27],
+        [6, 5, 9, 8, 7],
+        [52, 6, 7, 39, 35, 51],
+        [39, 38, 37, 36, 35],
+        [58, 57, 56, 55, 59],
+        [18, 57, 58, 37, 38, 17],
+        [11, 12, 26, 27, 59, 55],
+        [28, 27, 59, 58, 37, 36]
+    ],
+    SCALE: 12,
+    VERTEXES_SCALE: 0.1
+});
+Class.ball = {
+    PARENT: 'food',
+    LABEL: "Ball",
+    VALUE: 2e7,
+    SIZE: 30,
+    COLOR: 'veryLightGrey',
+    SHAPE: ballShape + '/' + ballShape.split("/")[1].split(";").map(face => face.split(",").length === 5 ? "black" : "veryLightGrey").join(","),
+    BODY: {
+        DAMAGE: 4.8,
+        DENSITY: 20,
+        HEALTH: 40,
+        RESIST: 1.25,
+        PENETRATION: 17.5,
+        ACCELERATION: 0.002
+    },
+    DRAW_HEALTH: false,
+    INTANGIBLE: false,
+    GIVE_KILL_MESSAGE: true
+};
+if (classic_ball) {
+    Class.ball.SHAPE = 0
+    Class.ball.COLOR = 'black'
+    Class.ball.PROPS = [
+        {
+            TYPE: 'ballHat',
+            POSITION: {
+                SIZE: 20,
+                LAYER: 1
+            }
+        }
+    ]
+};
 
 // Projectiles
 Class.bullet = {
@@ -252,7 +405,7 @@ Class.bullet = {
     CAN_GO_OUTSIDE_ROOM: true,
     HITS_OWN_TYPE: "never",
     DIE_AT_RANGE: true,
-}
+};
 Class.drone = {
     LABEL: "Drone",
     TYPE: "drone",
@@ -287,7 +440,7 @@ Class.drone = {
     DRAW_HEALTH: false,
     CLEAR_ON_MASTER_UPGRADE: true,
     BUFF_VS_FOOD: true,
-}
+};
 Class.satellite = { 
     LABEL: "Satellite",
     TYPE: "satellite",
@@ -313,7 +466,7 @@ Class.satellite = {
     CLEAR_ON_MASTER_UPGRADE: true,
     BUFF_VS_FOOD: true,
     MOTION_TYPE: 'motor'
-}
+};
 Class.swarm = {
     LABEL: "Swarm Drone",
     TYPE: "swarm",
@@ -337,7 +490,7 @@ Class.swarm = {
     },
     DIE_AT_RANGE: true,
     BUFF_VS_FOOD: true,
-}
+};
 Class.trap = {
     LABEL: "Thrown Trap",
     TYPE: "trap",
@@ -355,7 +508,7 @@ Class.trap = {
         RESIST: 2.5,
         SPEED: 0,
     },
-}
+};
 
 // Bosses
 Class.genericBoss = {
@@ -380,13 +533,13 @@ Class.genericBoss = {
     HITS_OWN_TYPE: "hardOnlyBosses",
     BROADCAST_MESSAGE: "A visitor has left!",
     BODY: { PUSHABILITY: 0.05 }
-}
+};
 Class.miniboss = {
     PARENT: "genericBoss",
     RENDER_ON_LEADERBOARD: true,
     CONTROLLERS: ["nearestDifferentMaster", ["minion", {turnwiserange: 360}], "canRepel"],
     AI: { NO_LEAD: true },
-}
+};
 
 // Aura Components
 Class.auraBase = {
@@ -409,7 +562,7 @@ Class.auraBase = {
         SPEED: 0,
         PUSHABILITY: 0,
     }
-}
+};
 Class.aura = {
     PARENT: "auraBase",
     LABEL: "Aura",
@@ -417,7 +570,7 @@ Class.aura = {
     BODY: {
         DAMAGE: 0.4,
     },
-}
+};
 Class.healAura = {
     PARENT: "auraBase",
     LABEL: "Heal Aura",
@@ -426,14 +579,14 @@ Class.healAura = {
     BODY: {
         DAMAGE: 0.4 / 3,
     },
-}
+};
 Class.auraSymbol = {
     PARENT: 'genericTank',
     CONTROLLERS: [["spin", {speed: -0.04}]],
     INDEPENDENT: true,
     COLOR: "teal",
     SHAPE: [[-0.598,-0.7796],[-0.3817,-0.9053],[0.9688,-0.1275],[0.97,0.125],[-0.3732,0.9116],[-0.593,0.785]]
-}
+};
 
 // Server Travel Portal
 Class.portalAura = {
@@ -464,7 +617,7 @@ Class.portalAura = {
             }
         },
     ],
-}
+};
 Class.serverPortal = {
     PARENT: 'genericTank',
     LABEL: "Travel Portal",
@@ -537,7 +690,7 @@ Class.serverPortal = {
             }
         }
     ]
-}
+};
 for (let i = 0; i < 60; i++) {
     let spawnDelay = Math.random() * 252;
     if (spawnDelay < 20) spawnDelay = Math.random() * 4;
@@ -571,7 +724,7 @@ for (let i = 0; i < 60; i++) {
             ],
         },
     });
-}
+};
 for (let i = 0; i < 2; i++) {
     if (i & 1) i++;
     Class.serverPortal.GUNS.push({
@@ -585,7 +738,7 @@ for (let i = 0; i < 2; i++) {
             MAX_CHILDREN: 1,
         },
     });
-}
+};
 
 // Technical
 Class.bot = {
@@ -599,15 +752,15 @@ Class.bot = {
         ["wanderAroundMap", {replicatePlayerMovement: true, lookAtGoal: true}]
     ],
     AI: {IGNORE_SHAPES: true}
-}
+};
 Class.hp = { // HP for mothership or your custom gamemodes
     SHAPE: [],
     LABEL: "##% HP"
-}
+};
 Class.selectionOrb = {
     COLOR: 'white'
 };
 Class.tagMode = {
     SHAPE: "",
     LABEL: "Players"
-}
+};

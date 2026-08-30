@@ -1,5 +1,5 @@
-const {combineStats, makeAuto, weaponArray, weaponMirror} = require('../facilitators.js')
-const g = require('../gunvals.js')
+const { combineStats, makeAuto, weaponArray, weaponMirror } = require('../facilitators.js');
+const g = require('../gunvals.js');
 
 // Bullets
 Class.casing = {
