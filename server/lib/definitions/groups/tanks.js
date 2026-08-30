@@ -3678,36 +3678,7 @@ Class.nimrod = {
         }
     ]
 };
-Class.octoTank = {
-    PARENT: 'genericTank',
-    LABEL: "Octo Tank",
-    DANGER: 7,
-    GUNS: weaponArray([
-        // Must be kept like this to preserve visual layering
-        {
-            POSITION: {
-                LENGTH: 18,
-                WIDTH: 8,
-                ANGLE: 45,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
-                TYPE: 'bullet'
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 18,
-                WIDTH: 8
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
-                TYPE: 'bullet'
-            }
-        }
-    ], 4)
-};
+Class.octoTank = makeFlank('basic', 8, "Octo Tank", {extraStats: [g.flankGuard, g.flankGuard, g.spam], delayIncrement: 0.5, danger: 7, visualLayering: true});
 Class.ordnance = {
     PARENT: 'genericTank',
     LABEL: "Ordnance",
