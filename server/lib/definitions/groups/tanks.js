@@ -6026,7 +6026,9 @@ Class.xHunter = {
 
 // Tier 4 (Level 60)
 const autoTanksT4 = [
-    'buttbuttin'
+    'bentDouble',
+    'buttbuttin',
+    'hewnDouble'
 ];
 for (let i = 0; i < autoTanksT4.length; i++) {
     let type = autoTanksT4[i];
@@ -6034,12 +6036,14 @@ for (let i = 0; i < autoTanksT4.length; i++) {
 };
 
 Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
+Class.autoTriple = makeAuto('tripleTwin', "Auto-Triple");
 Class.harpy = makeGunner('falcon', "Harpy", { gunLength: 20, noDeco: true, renderBehind: true });
 Class.marine = makeGunner('ranger', "Marine");
 Class.megaAutoDirectordrive = makeAuto('directordrive', "Mega Auto-Directordrive", preset.makeAuto.driveMega);
 Class.megaAutoDouble = makeAuto('doubleTwin', "Mega Auto-Double", preset.makeAuto.mega);
 Class.megaHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
 Class.mercenary = makeOver('buttbuttin', "Mercenary", preset.makeOver.hybrid);
+Class.overdoubleTwin = makeOver('doubleTwin', "Overdouble Twin", { angle: 90, renderBehind: true });
 Class.protector = {
     PARENT: 'genericTank',
     LABEL: "Protector",
@@ -7649,7 +7653,7 @@ if (Config.arms_race) {
     addUpgrades('autoCruiser', tier4_AR, []);
     addUpgrades('autoDestroyer', tier4_AR, []);
     addUpgrades('autoDirectordrive', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDirectordrive`)]);
-    addUpgrades('autoDouble', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDouble`)]);
+    addUpgrades('autoDouble', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDouble`), 'autoTriple', 'autoBentDouble', 'autoHewnDouble']);
     addUpgrades('autoGunner', tier4_AR, []);
     addUpgrades('autoHexaTank', tier4_AR, []);
     addUpgrades('autoHunter', tier4_AR, []);
@@ -7664,6 +7668,7 @@ if (Config.arms_race) {
     addUpgrades('autoUnderseer', tier4_AR, []);
     addUpgrades('autoWark', tier4_AR, []);
     addUpgrades('buttbuttin', tier4_AR, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
+    addUpgrades('doubleTwin', tier4_AR, ['overdoubleTwin'])
     addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
     addUpgrades('megaAutoTrapper', tier4_AR, ['AutoBuilder', 'HexaTrapper', 'AutoTrapGuard'/*, 'AutoPen', 'AutoMech', 'AutoMachineTrapper'*/, 'AutoWark'].map(x => `mega${x}`));
     addUpgrades('sprayer', tier4_AR, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
