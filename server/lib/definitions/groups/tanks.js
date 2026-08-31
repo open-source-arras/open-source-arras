@@ -3,6 +3,14 @@ const { base, dfltskl, smshskl, statnames } = require('../constants.js');
 const g = require('../gunvals.js');
 const preset = require('../presets.js');
 
+// Set the below variable to false to allow branches that are otherwise inaccessible in Arms Race.
+const classic_arms_race = true;
+
+let tier4_AR = 4;
+if (classic_arms_race) {
+    tier4_AR = 3
+};
+
 // Basic Tank
 Class.basic = {
     PARENT: 'genericTank',
@@ -260,6 +268,16 @@ for (let i = 0; i < autoTanksT2.length; i++) {
     Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type);
     Class[`megaAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Mega Auto-${Class[type].LABEL}`, preset.makeAuto.mega);
     Class[`tripleAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Triple Auto-${Class[type].LABEL}`, preset.makeAuto.triple);
+
+    Class[`ultraAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Ultra Auto-${Class[type].LABEL}`, preset.makeAuto.ultra);
+    Class[`tripleMegaAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Triple Mega Auto-${Class[type].LABEL}`, preset.makeAuto.tripleMega);
+    Class[`pentaAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Penta Auto-${Class[type].LABEL}`, preset.makeAuto.penta);
+
+    addUpgrades(`auto${type.charAt(0).toUpperCase() + type.slice(1)}`, 3, [...['mega', 'triple'].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`)]);
+    if (Config.arms_race) {
+        addUpgrades(`megaAuto${type.charAt(0).toUpperCase() + type.slice(1)}`, tier4_AR, [...['ultra', 'tripleMega'].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`)]);
+        addUpgrades(`tripleAuto${type.charAt(0).toUpperCase() + type.slice(1)}`, tier4_AR, [...['tripleMega', 'penta'].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`)]);
+    };
 };
 
 Class.artillery = {
@@ -1304,6 +1322,10 @@ for (let i = 0; i < autoTanksT3.length; i++) {
     Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type);
     Class[`megaAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Mega Auto-${Class[type].LABEL}`, preset.makeAuto.mega);
     Class[`tripleAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Triple Auto-${Class[type].LABEL}`, preset.makeAuto.triple);
+
+    if (Config.arms_race) {
+        addUpgrades(`auto${type.charAt(0).toUpperCase() + type.slice(1)}`, tier4_AR, [...['mega', 'triple'].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`)]);
+    };
 };
 
 Class.accurator = {
@@ -7526,7 +7548,7 @@ addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director
         //addUpgrades('builder', 3, []);
         //addUpgrades('triTrapper', 3, []);
         //addUpgrades('trapGuard', 3, []);
-        addUpgrades('autoTrapper', 3, ['megaAutoTrapper', 'tripleAutoTrapper', 'autoBuilder', 'hexaTrapper', 'autoTrapGuard']);
+        addUpgrades('autoTrapper', 3, ['autoBuilder', 'hexaTrapper', 'autoTrapGuard']);
 
     addUpgrades('desmos', 2, ['helix']);
         addUpgrades('volute', 3, ['sidewinder']);
@@ -7563,13 +7585,8 @@ if (Config.arms_race || Config.retrograde) {
 };
 
 if (Config.arms_race) {
-    // Set the below variable to false to allow branches that are otherwise inaccessible in Arms Race.
-    // If the Better Arms Race addon is disabled, they will not receive new branches.
-    const classic_arms_race = true;
-
-    let tier4 = 4;
     if (classic_arms_race) {
-        tier4 = 3
+        tier4_AR = 3
 
         removeUpgrades('basic', 1, ['desmos']);
 
@@ -7599,6 +7616,7 @@ if (Config.arms_race) {
     addUpgrades('artillery', 3, [/*'queller', 'forger', */'force', 'autoArtillery'/*, 'foctillery', 'discharger'*/]);
     addUpgrades('assassin', 3, ['hitman', 'sniper3'/*, 'enforcer', 'courser'*/]);
     addUpgrades('auto3', 3, ['sniper3', 'crowbar', 'autoAuto3'/*, 'combo'*/]);
+    addUpgrades('autoTrapper', 3, [/*'autoPen', 'autoMech', 'autoMachineTrapper', */'autoWark']);
     addUpgrades('builder', 3, [/*'forger', 'stall', */'fashioner'/*, 'charger'*/]);
     addUpgrades('cruiser', 3, [/*'productionist', 'cruiserdrive', 'hangar', 'zipper', 'baltimore', 'mosey'*/]);
     addUpgrades('destroyer', 3, [/*'megaTrapper', 'queller', */'autoDestroyer'/*, 'hurler', 'slinker'*/]);
@@ -7624,30 +7642,32 @@ if (Config.arms_race) {
     addUpgrades('underseer', 3, ['autoUnderseer', 'underdrive'/*, 'pentaseer'*/]);
     addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
 
-    addUpgrades('autoArtillery', tier4, [...['mega', 'triple'].map(x => `${x}AutoArtillery`)]);
-    addUpgrades('autoAssassin', tier4, [...['mega', 'triple'].map(x => `${x}AutoAssassin`)]);
-    addUpgrades('autoAuto3', tier4, [...['mega', 'triple'].map(x => `${x}AutoAuto3`)]);
-    addUpgrades('autoBuilder', tier4, [...['mega', 'triple'].map(x => `${x}AutoBuilder`)]);
-    addUpgrades('autoCruiser', tier4, [...['mega', 'triple'].map(x => `${x}AutoCruiser`)]);
-    addUpgrades('autoDestroyer', tier4, [...['mega', 'triple'].map(x => `${x}AutoDestroyer`)]);
-    addUpgrades('autoDirectordrive', tier4, [...['mega', 'triple'].map(x => `${x}AutoDirectordrive`)]);
-    addUpgrades('autoDouble', tier4, [...['mega', 'triple'].map(x => `${x}AutoDouble`)]);
-    addUpgrades('autoGunner', tier4, [...['mega', 'triple'].map(x => `${x}AutoGunner`)]);
-    addUpgrades('autoHexaTank', tier4, [...['mega', 'triple'].map(x => `${x}AutoHexaTank`)]);
-    addUpgrades('autoHunter', tier4, [...['mega', 'triple'].map(x => `${x}AutoHunter`)]);
-    addUpgrades('autoLauncher', tier4, [...['mega', 'triple'].map(x => `${x}AutoLauncher`)]);
-    addUpgrades('autoMinigun', tier4, [...['mega', 'triple'].map(x => `${x}AutoMinigun`)]);
-    addUpgrades('autoOverseer', tier4, [...['mega', 'triple'].map(x => `${x}AutoOverseer`)]);
-    addUpgrades('autoRifle', tier4, [...['mega', 'triple'].map(x => `${x}AutoRifle`)]);
-    addUpgrades('autoSpawner', tier4, [...['mega', 'triple'].map(x => `${x}AutoSpawner`)]);
-    addUpgrades('autoTrapGuard', tier4, [...['mega', 'triple'].map(x => `${x}AutoTrapGuard`)]);
-    addUpgrades('autoTriAngle', tier4, [...['mega', 'triple'].map(x => `${x}AutoTriAngle`)]);
-    addUpgrades('autoTripleShot', tier4, [...['mega', 'triple'].map(x => `${x}AutoTripleShot`)]);
-    addUpgrades('autoUnderseer', tier4, [...['mega', 'triple'].map(x => `${x}AutoUnderseer`)]);
-    addUpgrades('autoWark', tier4, [...['mega', 'triple'].map(x => `${x}AutoWark`)]);
-    addUpgrades('buttbuttin', tier4, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
-    addUpgrades('hexaTrapper', tier4, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
-    addUpgrades('sprayer', tier4, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
+    addUpgrades('autoArtillery', tier4_AR, []);
+    addUpgrades('autoAssassin', tier4_AR, []);
+    addUpgrades('autoAuto3', tier4_AR, []);
+    addUpgrades('autoBuilder', tier4_AR, []);
+    addUpgrades('autoCruiser', tier4_AR, []);
+    addUpgrades('autoDestroyer', tier4_AR, []);
+    addUpgrades('autoDirectordrive', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDirectordrive`)]);
+    addUpgrades('autoDouble', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDouble`)]);
+    addUpgrades('autoGunner', tier4_AR, []);
+    addUpgrades('autoHexaTank', tier4_AR, []);
+    addUpgrades('autoHunter', tier4_AR, []);
+    addUpgrades('autoLauncher', tier4_AR, []);
+    addUpgrades('autoMinigun', tier4_AR, []);
+    addUpgrades('autoOverseer', tier4_AR, []);
+    addUpgrades('autoRifle', tier4_AR, []);
+    addUpgrades('autoSpawner', tier4_AR, []);
+    addUpgrades('autoTrapGuard', tier4_AR, []);
+    addUpgrades('autoTriAngle', tier4_AR, []);
+    addUpgrades('autoTripleShot', tier4_AR, []);
+    addUpgrades('autoUnderseer', tier4_AR, []);
+    addUpgrades('autoWark', tier4_AR, []);
+    addUpgrades('buttbuttin', tier4_AR, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
+    addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
+    addUpgrades('megaAutoTrapper', tier4_AR, ['AutoBuilder', 'HexaTrapper', 'AutoTrapGuard'/*, 'AutoPen', 'AutoMech', 'AutoMachineTrapper'*/, 'AutoWark'].map(x => `mega${x}`));
+    addUpgrades('sprayer', tier4_AR, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
+    addUpgrades('tripleAutoTrapper', tier4_AR, ['tripleAutoBuilder', 'autoHexaTrapper', 'tripleAutoTrapGuard'/*, 'tripleAutoPen', 'tripleAutoMech', 'tripleAutoMachineTrapper'*/, 'tripleAutoWark']);
 };
 
 if (Config.teams == 1) {
