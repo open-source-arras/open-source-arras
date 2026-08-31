@@ -91,7 +91,7 @@ module.exports = {
 	},
 	makeOver: {
 		hybrid: {
-			count: 1, independent: true, cycle: false
+			count: 1, width: 12, independent: true, cycle: false
 		}
 	},
 
