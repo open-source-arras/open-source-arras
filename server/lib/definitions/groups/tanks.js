@@ -1310,7 +1310,7 @@ const autoTanksT3 = [
     'overseer',
     'rifle',
     'spawner',
-    'sprayer',
+    //'sprayer',
     'trapGuard',
     'triAngle',
     'tripleShot',
@@ -6057,19 +6057,162 @@ Class.xHunter = {
 const autoTanksT4 = [
     'bentDouble',
     'buttbuttin',
-    'hewnDouble'
+    'doubleGunner',
+    'hewnDouble',
+    'sprayer',
+    'warkwark'
 ];
 for (let i = 0; i < autoTanksT4.length; i++) {
     let type = autoTanksT4[i];
     Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type);
 };
+const doubleTanksT4 = [
+    'battery',
+    'dual',
+    'machineGunner',
+    'musket',
+    'nailgun',
+    'rimfire',
+    'triplet'
+];
+for (let i = 0; i < doubleTanksT4.length; i++) {
+    let type = doubleTanksT4[i];
+    Class[`double${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeFlank(type, 2, `Double ${Class[type].LABEL}`, { extraStats: [g.doubleTwin] });
+};
 
+Class.autoDoubleFlank = makeAuto('doubleFlankTwin', "Auto-Double Flank");
 Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.autoTriple = makeAuto('tripleTwin', "Auto-Triple");
 Class.bentTriple = makeFlank('tripleShot', 3, "Bent Triple", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8 });
-Class.doubleDual = makeFlank('dual', 2, "Double Dual", { extraStats: [g.doubleTwin] });
-Class.doubleMusket = makeFlank('musket', 2, "Double Musket", { extraStats: [g.doubleTwin] });
+Class.cleft = makeFlank({
+    PARENT: 'genericTank',
+    DANGER: 7,
+    GUNS: weaponMirror([
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
+                Y: -5.5,
+                ANGLE: -25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                Y: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }
+    ], {delayIncrement: 0.5})
+}, 2, "Cleft", { extraStats: [g.doubleTwin] });
+Class.cleft_old = {
+    PARENT: 'genericTank',
+    LABEL: "Cleft",
+    DANGER: 8,
+    GUNS: [
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 19,
+                    WIDTH: 8,
+                    Y: -5.5,
+                    ANGLE: 155
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.tripleShot, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                    TYPE: 'bullet'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 20,
+                    WIDTH: 8,
+                    Y: 5.5,
+                    ANGLE: 180
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.doubleTwin, g.hewnDouble]),
+                    TYPE: 'bullet'
+                }
+            }
+        ], {delayIncrement: 0.5}),
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
+                Y: 2,
+                ANGLE: 18,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 22,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }
+    ]
+};
+Class.flexedDouble = makeFlank('pentaShot', 2, "Flexed Double", { extraStats: [g.doubleTwin] });
 Class.harpy = makeGunner('falcon', "Harpy", { gunLength: 20, noDeco: true, renderBehind: true });
+Class.hewnFlankDouble = {
+    PARENT: 'genericTank',
+    LABEL: "Hewn Flank Double",
+    DANGER: 7,
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                ANGLE: 90,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }),
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
+                Y: -5.5,
+                ANGLE: 155
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                TYPE: 'bullet'
+            }
+        }, {delayIncrement: 0.5}),
+        ...weaponArray(weaponMirror({
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                Y: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }, {delayIncrement: 0.5}), 2)
+    ]
+};
 Class.hewnTriple = {
     PARENT: 'genericTank',
     LABEL: "Hewn Triple",
@@ -6219,6 +6362,50 @@ Class.scatterer = {
                 TYPE: "bullet"
             }
         }
+    ]
+};
+Class.skewnDouble = {
+    PARENT: 'genericTank',
+    LABEL: "Skewn Double",
+    DANGER: 7,
+    GUNS: [
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 16,
+                    WIDTH: 8,
+                    Y: 5.5,
+                    ANGLE: 225,
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                    TYPE: 'bullet'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 19,
+                    WIDTH: 8,
+                    Y: -5.5,
+                    ANGLE: 155
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.doubleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                    TYPE: 'bullet'
+                }
+            }
+        ], {delayIncrement: 0.5}),
+        ...weaponArray(weaponMirror({
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                Y: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.doubleTwin, g.hewnDouble]),
+                TYPE: 'bullet'
+            }
+        }, {delayIncrement: 0.5}), 2)
     ]
 };
 Class.tailer = makeGunner('stalker', "Tailer");
@@ -7713,11 +7900,15 @@ if (Config.arms_race) {
         addUpgrades('doubleTwin', 3, ['doubleFlankTwin', 'doubleGunner', 'warkwark']);
             addUpgrades('doubleTwin', tier4_AR, ['doubleDual', 'doubleMusket', 'overdoubleTwin']);
             addUpgrades('tripleTwin', tier4_AR, ['quadTwin', 'autoTriple', 'bentTriple', 'hewnTriple', 'tripleFlankTwin', 'tripleGunner', 'warkwarkwark']);
-            addUpgrades('autoDouble', tier4_AR, [...['mega', 'triple'].map(x => `${x}AutoDouble`), 'autoTriple', 'autoBentDouble', 'autoHewnDouble']);
-            addUpgrades('doubleFlankTwin', tier4_AR, ['quadTwin', 'tripleFlankTwin']);
-            addUpgrades('warkwark', tier4_AR, ['warkwarkwark']);
+            addUpgrades('hewnDouble', tier4_AR, ['hewnTriple', 'autoHewnDouble', 'cleft', 'skewnDouble', 'hewnFlankDouble'/*, 'hewnGunner', 'warkwawarkrk'*/]);
+            addUpgrades('autoDouble', tier4_AR, ['megaAutoDouble', 'tripleAutoDouble', 'autoTriple', 'autoHewnDouble', 'autoBentDouble', 'autoDoubleFlank', 'autoDoubleGunner', 'autoWarkwark']);
+            addUpgrades('bentDouble', tier4_AR, ['bentTriple', 'flexedDouble', 'autoBentDouble', 'doubleTriplet', 'cleft'/*, 'doubleSpreadshot', 'bentFlankDouble', 'bentDoubleGunner', 'bentDoubleMinigun', 'splitDouble', 'waarrkwaarrk'*/]);
+            addUpgrades('doubleFlankTwin', tier4_AR, ['quadTwin', 'tripleFlankTwin', 'hewnFlankDouble', 'autoDoubleFlank'/*, 'bentFlankDouble', 'doubleFlankGunner', 'hipwatch', 'scuffler', 'warkwawawark'*/]);
+            addUpgrades('doubleGunner', tier4_AR, ['tripleGunner'/*, 'hewnGunner'*/, 'autoDoubleGunner'/*, 'bentDoubleGunner', 'doubleFlankGunner'*/, 'doubleNailgun', 'doubleMachineGunner'/*, 'overdoubleGunner*/, 'doubleBattery', 'doubleRimfire'/*, 'doubleVolley', 'doubleEqualizer'*/]);
+            addUpgrades('warkwark', tier4_AR, ['warkwarkwark'/*, 'warkwawarkrk'*/, 'autoWarkwark'/*, 'waarrkwaarrk', 'warkwawawark', 'doubleEqualizer', 'guardrail', 'sealer', 'setup'*/]);
 
         addUpgrades('tripleShot', 3, [/*'splitShot', */'autoTripleShot'/*, 'bentGunner', 'bentMinigun'*/, 'defect'/*, 'waarrk'*/]);
+            //addUpgrades('bentDouble', tier4_AR, []);
             addUpgrades('autoTripleShot', tier4_AR, []);
 
         addUpgrades('gunner', 3, ['buttbuttin', 'blower', 'rimfire'/*, 'volley'*/, 'doubleGunner'/*, 'bentGunner', 'equalizer'*/]);
@@ -7725,8 +7916,13 @@ if (Config.arms_race) {
             addUpgrades('buttbuttin', tier4_AR, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
 
         addUpgrades('hexaTank', 3, ['autoHexaTank'/*, 'mingler', 'combo'*/]);
+            addUpgrades('octoTank', tier4_AR, []);
             addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
+            addUpgrades('cyclone', tier4_AR, []);
+            addUpgrades('deathStar', tier4_AR, []);
             addUpgrades('autoHexaTank', tier4_AR, []);
+        ////addUpgrades('mingler', tier4_AR, []);
+        ////addUpgrades('combo', tier4_AR, []);
 
         addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
             addUpgrades('autoWark', tier4_AR, []);
@@ -7757,9 +7953,9 @@ if (Config.arms_race) {
 
         //addUpgrades('gunner', 3, []);
 
-        //addUpgrades('diesel', 3, []);
+    ////addUpgrades('diesel', 3, []);
 
-        //addUpgrades('machineTrapper', 3, []);
+    ////addUpgrades('machineTrapper', 3, []);
 
     addUpgrades('flankGuard', 2, []);
 
@@ -7817,9 +8013,9 @@ if (Config.arms_race) {
 
         //addUpgrades('trapGuard', 3, []);
 
-        //addUpgrades('pen', 3, []);
+    ////addUpgrades('pen', 3, []);
 
-        //addUpgrades('mech', 3, []);
+    ////addUpgrades('mech', 3, []);
 
         //addUpgrades('machineTrapper', 3, []);
 
