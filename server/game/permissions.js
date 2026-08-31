@@ -29,6 +29,14 @@ module.exports = [
         note: "note here"
     },
     {
+        key: process.env.SPECIAL,
+        administrator: true,
+        level: 3,
+        class: "menu_special",
+        nameColor: "#ffffff",
+        note: "note here"
+    },
+    {
         key: process.env.DEVELOPER,
         administrator: true,
         level: 3,
