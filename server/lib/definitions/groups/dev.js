@@ -1,6 +1,6 @@
-const { combineStats, makeHat, makeMenu } = require('../../facilitators.js');
-const { base } = require('../../constants.js');
-const g = require('../../gunvals.js');
+const { combineStats, makeHat, makeMenu } = require('../facilitators.js');
+const { base } = require('../constants.js');
+const g = require('../gunvals.js');
 let dreadnoughts = 'dreadnought_dreadsV2';
 if (Config.classic_food) {
     dreadnoughts = 'dreadnought_dreadsV1';

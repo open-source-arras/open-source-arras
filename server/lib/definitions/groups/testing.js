@@ -1,6 +1,6 @@
-const {combineStats, LayeredBoss, makeAura, makeAuto, makeMenu, makePolyhedron, makeRadialAuto, makeTurret, weaponArray, weaponMirror, weaponStack} = require('../../facilitators.js')
-const {base, basePolygonDamage, basePolygonHealth, dfltskl, statnames} = require('../../constants.js')
-const g = require('../../gunvals.js')
+const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require('../facilitators.js');
+const { base, statnames } = require('../constants.js');
+const g = require('../gunvals.js');
 
 Class.menu_testing = makeMenu("Testing", {upgrades: [
     'upgradeMenuStressTest',

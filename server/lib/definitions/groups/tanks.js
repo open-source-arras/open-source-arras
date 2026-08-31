@@ -438,6 +438,7 @@ Class.gatlingGun = {
     PARENT: 'genericTank',
     LABEL: "Gatling Gun",
     DANGER: 6,
+    BODY: Class.sniper.BODY,
     GUNS: [
         {
             POSITION: {
@@ -1273,6 +1274,7 @@ Class.accurator = {
     PARENT: 'genericTank',
     LABEL: "Accurator",
     DANGER: 7,
+    BODY: Class.gatlingGun.BODY,
     GUNS: [
         {
             POSITION: {
@@ -3157,6 +3159,7 @@ Class.halfNHalf = {
     LABEL: "Half 'n Half",
     DANGER: 7,
     HAS_NO_RECOIL: true,
+    BODY: Class.gatlingGun.BODY,
     GUNS: [
         {
             POSITION: {
@@ -6624,6 +6627,151 @@ Class.turkey = {
     ],
 };
 
+// Special Tanks (Spectators)
+Class.spectator = {
+    PARENT: 'genericTank',
+    LABEL: "Spectator",
+    ALPHA: 0,
+    CAN_BE_ON_LEADERBOARD: false,
+    ACCEPTS_SCORE: false,
+    DRAW_HEALTH: false,
+    HITS_OWN_TYPE: "never",
+    IGNORED_BY_AI: true,
+    ARENA_CLOSER: true,
+    IS_IMMUNE_TO_TILES: true,
+    FULL_INVISIBLE: true,
+    CAN_SEE_INVISIBLE_ENTITIES: true,
+    BODY: {
+        PUSHABILITY: 0,
+        SPEED: 5,
+        FOV: 2.5,
+        DAMAGE: 0,
+        HEALTH: 1e100,
+        SHIELD: 1e100,
+        REGEN: 1e100,
+    },
+    GUNS: [{
+        POSITION: [0,0,0,0,0,0,0],
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
+            TYPE: "bullet",
+            ALPHA: 0
+        }
+    }, {
+        POSITION: [0, 0, 0, 0, 0, 0, 0],
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.25 }, g.fake]),
+            TYPE: "bullet",
+            ALPHA: 0,
+            ALT_FIRE: true,
+        }
+    }],
+    ON: [{
+        event: "altFire",
+        handler: ({ body }) => {
+            body.x = body.x + body.control.target.x
+            body.y = body.y + body.control.target.y
+        }
+    }]
+};
+Class.guillotine = {
+    PARENT: "spectator",
+    LABEL: "Guillotine",
+    CAN_GO_OUTSIDE_ROOM: true,
+    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to kill the selected entity.",
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 8,
+                WIDTH: 12,
+                X: 31
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 10,
+                WIDTH: 10,
+                ASPECT: 1.6,
+                X: -5,
+                Y: -8,
+                ANGLE: 90
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 40,
+                WIDTH: 2,
+                Y: 7
+            }
+        })
+    ],
+    TURRETS: [
+        {
+            POSITION: {
+                SIZE: 2,
+                X: 35,
+                LAYER: 1
+            },
+            TYPE: ["circleHat", {COLOR: "grey"}]
+        }
+    ]
+};
+Class.banHammer = {
+    PARENT: 'genericTank',
+    LABEL: "Ban Hammer",
+    ALPHA: 0,
+    CAN_BE_ON_LEADERBOARD: false,
+    CAN_GO_OUTSIDE_ROOM: true,
+    ACCEPTS_SCORE: false,
+    DRAW_HEALTH: false,
+    HITS_OWN_TYPE: "never",
+    IGNORED_BY_AI: true,
+    ARENA_CLOSER: true,
+    IS_IMMUNE_TO_TILES: true,
+    CAN_SEE_INVISIBLE_ENTITIES: true,
+    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to ban the selected player.",
+    BODY: {
+        PUSHABILITY: 0,
+        SPEED: 5,
+        FOV: 2.5,
+        DAMAGE: 0,
+        HEALTH: 1e100,
+        SHIELD: 1e100,
+        REGEN: 1e100,
+    },
+    GUNS: [
+        {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
+        {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},
+        {POSITION: [3, 11, 0.75, 7.5, 36, -90, 0]},
+        {POSITION: [11, 14, 1, 30.5, 0, 0, 0]},
+        {POSITION: [13, 10.5, -1.2, 0, 0, 0, 0]},
+        /*{
+            POSITION: [0,0,0,0,0,0,0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.25}, g.fake]),
+                TYPE: "bullet",
+                ALPHA: 0
+            }
+        },*/
+        {
+            POSITION: [0, 0, 0, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
+                TYPE: "bullet",
+                ALPHA: 0,
+                ALT_FIRE: true
+            }
+        }
+    ],
+    ON: [{
+        event: "altFire",
+        handler: ({ body }) => {
+            body.x = body.x + body.control.target.x
+            body.y = body.y + body.control.target.y
+        }
+    }]
+};
+
 // Special Tanks (Other)
 Class.antiTankMachineGun = {
     PARENT: "dominator",
@@ -7005,7 +7153,62 @@ Class.damoclone = {
         }
     }, 24, {delayIncrement: 1/24})
 };
-//Class.developer
+Class.developer = {
+    PARENT: 'genericTank',
+    LABEL: "Developer",
+    BODY: {
+        SHIELD: 1000,
+        REGEN: 10,
+        HEALTH: 100,
+        DAMAGE: 10,
+        DENSITY: 20,
+        FOV: 2,
+    },
+    //COLOR: "mirror", // todo: make sure mirror colour doesnt grey out your leaderboard
+    SKILL_CAP: Array(10).fill(dfltskl),
+    IGNORED_BY_AI: true,
+    RESET_CHILDREN: true,
+    ACCEPTS_SCORE: true,
+    CAN_BE_ON_LEADERBOARD: true,
+    CAN_GO_OUTSIDE_ROOM: false,
+    IS_IMMUNE_TO_TILES: false,
+    DRAW_HEALTH: true,
+    ARENA_CLOSER: true,
+    INVISIBLE: [0, 0],
+    ALPHA: [0, 1],
+    HITS_OWN_TYPE: 'hardOnlyTanks',
+    NECRO: false,
+    SHAPE: [
+        [-1, -0.8],
+        [-0.8, -1],
+        [0.8, -1],
+        [1, -0.8],
+        [0.2, 0],
+        [1, 0.8],
+        [0.8, 1],
+        [-0.8, 1],
+        [-1, 0.8],
+    ],
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 10,
+                ASPECT: -1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.op]),
+                TYPE: 'developerBullet'
+            }
+        }
+    ],
+    UPGRADES_TIER_0: [
+        'menu_tanks',
+        'menu2_bosses',
+        'eggGen',
+        'menu_addons',
+    ]
+};
 Class.fat456 = makeRadialAuto('architectGun', { isTurret: true, danger: 7, size: 12, label: "Fat456", body: { FOV: base.FOV * 1.15, SPEED: base.SPEED * 4 } });
 Class.fat456.COLOR = 'brown';
 Class.fat456.SIZE = 30;
