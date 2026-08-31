@@ -7673,6 +7673,7 @@ if (Config.arms_race) {
     addUpgrades('megaAutoTrapper', tier4_AR, ['AutoBuilder', 'HexaTrapper', 'AutoTrapGuard'/*, 'AutoPen', 'AutoMech', 'AutoMachineTrapper'*/, 'AutoWark'].map(x => `mega${x}`));
     addUpgrades('sprayer', tier4_AR, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
     addUpgrades('tripleAutoTrapper', tier4_AR, ['tripleAutoBuilder', 'autoHexaTrapper', 'tripleAutoTrapGuard'/*, 'tripleAutoPen', 'tripleAutoMech', 'tripleAutoMachineTrapper'*/, 'tripleAutoWark']);
+    addUpgrades('tripleTwin', tier4_AR, ['quadTwin', 'autoTriple']);
 };
 
 if (Config.teams == 1) {
