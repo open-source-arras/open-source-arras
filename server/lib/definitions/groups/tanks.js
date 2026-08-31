@@ -7496,6 +7496,7 @@ addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director
         //addUpgrades('builder', 3, []);
         //addUpgrades('triTrapper', 3, []);
         //addUpgrades('trapGuard', 3, []);
+        addUpgrades('autoTrapper', 3, ['autoBuilder', 'hexaTrapper', 'autoTrapGuard']);
 
     addUpgrades('desmos', 2, ['helix']);
         addUpgrades('volute', 3, ['sidewinder']);

@@ -30,11 +30,29 @@ module.exports = {
 		triple: {
 			size: 6.5, x: 5.2, angle: 0, total: 3
 		},
+		tripleMega: {
+			type: 'megaAutoTurret', size: 7.5, x: 5.5, angle: 0, total: 3
+		},
+		tripleUltra: {
+			type: 'ultraAutoTurret', size: 8.5, x: 5.8, angle: 0, total: 3
+		},
 		penta: {
 			size: 5.2, x: 6.5, angle: 0, total: 5
 		},
+		pentaMega: {
+			type: 'megaAutoTurret', size: 5.7, x: 6.9, angle: 0, total: 5
+		},
+		pentaUltra: {
+			type: 'ultraAutoTurret', size: 6.2, x: 7.3, angle: 0, total: 5
+		},
 		hepta: {
 			size: 4, x: 6.5, angle: 0, total: 7
+		},
+		heptaMega: {
+			type: 'megaAutoTurret', size: 4.25, x: 7, angle: 0, total: 7
+		},
+		heptaUltra: {
+			type: 'ultraAutoTurret', size: 4.5, x: 7.5, angle: 0, total: 7
 		}
 	},
 	makeDrive: {
