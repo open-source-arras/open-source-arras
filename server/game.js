@@ -298,6 +298,10 @@ class gameServer {
                     }
                 }
             };
+            // Re-sync the cached speed values, since the gamemode config may have overridden them (issue #54)
+            this.roomSpeed = Config.game_speed;
+            this.runSpeed = Config.run_speed;
+
             // Update the server gamemode name
             this.name = this.gamemode.map(x => getName(x, Config) || (x[0].toUpperCase() + x.slice(1))).join(' ');
 
