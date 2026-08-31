@@ -142,6 +142,9 @@ class Skill {
         return this.LSPF ? this.LSPF(this.level) : Config.defineLevelSkillPoints(this.level);
     }
     cap(skill, real = false) {
+        if (!real && this.level < Config.skill_cap_soft) {
+            return Math.round(this.caps[skcnv[skill]] * Config.soft_max_skill);
+        } 
         return this.caps[skcnv[skill]];
     }
     upgrade(stat) {
