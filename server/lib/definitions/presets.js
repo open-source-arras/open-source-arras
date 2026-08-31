@@ -53,6 +53,15 @@ module.exports = {
 		},
 		heptaUltra: {
 			type: 'ultraAutoTurret', size: 4.5, x: 7.5, angle: 0, total: 7
+		},
+		drive: {
+			type: 'driveAutoTurret', clearTurrets: true, size: 9
+		},
+		driveMega: {
+			type: 'driveMegaAutoTurret', clearTurrets: true, size: 11
+		},
+		driveTriple: {
+			type: 'driveAutoTurret', clearTurrets: true, size: 6.5, x: 5.2, angle: 0, total: 3
 		}
 	},
 	makeDrive: {

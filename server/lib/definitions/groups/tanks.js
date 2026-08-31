@@ -1439,6 +1439,7 @@ Class.autoAuto3 = makeAuto('auto3');
 Class.autoBuilder = makeAuto('builder');
 Class.autoCruiser = makeAuto('cruiser');
 Class.autoDestroyer = makeAuto('destroyer');
+Class.autoDirectordrive = makeAuto('directordrive', "Auto-Directordrive", preset.makeAuto.drive);
 Class.autoDouble = makeAuto('doubleTwin', "Auto-Double");
 Class.autoGunner = makeAuto('gunner');
 Class.autoHexaTank = makeAuto('hexaTank');
@@ -5987,8 +5988,32 @@ Class.xHunter = {
 
 // Tier 4 (Level 60)
 Class.autoButtbuttin = makeAuto('buttbuttin');
+Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.harpy = makeGunner('falcon', "Harpy", { gunLength: 20, noDeco: true, renderBehind: true });
 Class.marine = makeGunner('ranger', "Marine");
+Class.megaAutoArtillery = makeAuto('artillery', "Mega Auto-Artillery", preset.makeAuto.mega);
+Class.megaAutoAssassin = makeAuto('assassin', "Mega Auto-Assassin", preset.makeAuto.mega);
+Class.megaAutoAuto3 = makeAuto('auto3', "Mega Auto-Auto-3", preset.makeAuto.mega);
+Class.megaAutoBuilder = makeAuto('builder', "Mega Auto-Builder", preset.makeAuto.mega);
+Class.megaAutoCruiser = makeAuto('cruiser', "Mega Auto-Cruiser", preset.makeAuto.mega);
+Class.megaAutoDestroyer = makeAuto('destroyer', "Mega Auto-Destroyer", preset.makeAuto.mega);
+Class.megaAutoDirectordrive = makeAuto('directordrive', "Mega Auto-Directordrive", preset.makeAuto.driveMega);
+Class.megaAutoDouble = makeAuto('doubleTwin', "Mega Auto-Double", preset.makeAuto.mega);
+Class.megaAutoGunner = makeAuto('gunner', "Mega Auto-Gunner", preset.makeAuto.mega);
+Class.megaAutoHexaTank = makeAuto('hexaTank', "Mega Auto-Hexa Tank", preset.makeAuto.mega);
+Class.megaAutoHunter = makeAuto('hunter', "Mega Auto-Hunter", preset.makeAuto.mega);
+Class.megaAutoLauncher = makeAuto('launcher', "Mega Auto-Launcher", preset.makeAuto.mega);
+Class.megaAutoMinigun = makeAuto('minigun', "Mega Auto-Minigun", preset.makeAuto.mega);
+Class.megaAutoOverseer = makeAuto('overseer', "Mega Auto-Overseer", preset.makeAuto.mega);
+Class.megaAutoRifle = makeAuto('rifle', "Mega Auto-Rifle", preset.makeAuto.mega);
+Class.megaAutoSpawner = makeAuto('spawner', "Mega Auto-Spawner", preset.makeAuto.mega);
+Class.megaAutoSprayer = makeAuto('sprayer', "Mega Auto-Sprayer", preset.makeAuto.mega);
+Class.megaAutoTrapGuard = makeAuto('trapGuard', "Mega Auto-Trap Guard", preset.makeAuto.mega);
+Class.megaAutoTriAngle = makeAuto('triAngle', "Mega Auto-Tri-Angle", preset.makeAuto.mega);
+Class.megaAutoTripleShot = makeAuto('tripleShot', "Mega Auto-Triple Shot", preset.makeAuto.mega);
+Class.megaAutoUnderseer = makeAuto('underseer', "Mega Auto-Underseer", preset.makeAuto.mega);
+Class.megaAutoWark = makeAuto('wark', "Mega Auto-Wark", preset.makeAuto.mega);
+Class.megaHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
 Class.mercenary = makeOver('buttbuttin', "Mercenary", preset.makeOver.hybrid);
 Class.protector = {
     PARENT: 'genericTank',
@@ -6159,6 +6184,28 @@ Class.tornado_AR = {
         }
     ], 3)
 };
+Class.tripleAutoArtillery = makeAuto('artillery', "Triple Auto-Artillery", preset.makeAuto.triple);
+Class.tripleAutoAssassin = makeAuto('assassin', "Triple Auto-Assassin", preset.makeAuto.triple);
+Class.tripleAutoAuto3 = makeAuto('auto3', "Triple Auto-Auto-3", preset.makeAuto.triple);
+Class.tripleAutoBuilder = makeAuto('builder', "Triple Auto-Builder", preset.makeAuto.triple);
+Class.tripleAutoCruiser = makeAuto('cruiser', "Triple Auto-Cruiser", preset.makeAuto.triple);
+Class.tripleAutoDestroyer = makeAuto('destroyer', "Triple Auto-Destroyer", preset.makeAuto.triple);
+Class.tripleAutoDirectordrive = makeAuto('directordrive', "Triple Auto-Directordrive", preset.makeAuto.driveTriple);
+Class.tripleAutoDouble = makeAuto('doubleTwin', "Triple Auto-Double", preset.makeAuto.triple);
+Class.tripleAutoGunner = makeAuto('gunner', "Triple Auto-Gunner", preset.makeAuto.triple);
+Class.tripleAutoHexaTank = makeAuto('hexaTank', "Triple Auto-Hexa Tank", preset.makeAuto.triple);
+Class.tripleAutoHunter = makeAuto('hunter', "Triple Auto-Hunter", preset.makeAuto.triple);
+Class.tripleAutoLauncher = makeAuto('launcher', "Triple Auto-Launcher", preset.makeAuto.triple);
+Class.tripleAutoMinigun = makeAuto('minigun', "Triple Auto-Minigun", preset.makeAuto.triple);
+Class.tripleAutoOverseer = makeAuto('overseer', "Triple Auto-Overseer", preset.makeAuto.triple);
+Class.tripleAutoRifle = makeAuto('rifle', "Triple Auto-Rifle", preset.makeAuto.triple);
+Class.tripleAutoSpawner = makeAuto('spawner', "Triple Auto-Spawner", preset.makeAuto.triple);
+Class.tripleAutoSprayer = makeAuto('sprayer', "Triple Auto-Sprayer", preset.makeAuto.triple);
+Class.tripleAutoTrapGuard = makeAuto('trapGuard', "Triple Auto-Trap Guard", preset.makeAuto.triple);
+Class.tripleAutoTriAngle = makeAuto('triAngle', "Triple Auto-Tri-Angle", preset.makeAuto.triple);
+Class.tripleAutoTripleShot = makeAuto('tripleShot', "Triple Auto-Triple Shot", preset.makeAuto.triple);
+Class.tripleAutoUnderseer = makeAuto('underseer', "Triple Auto-Underseer", preset.makeAuto.triple);
+Class.tripleAutoWark = makeAuto('wark', "Triple Auto-Wark", preset.makeAuto.triple);
 Class.vulcan = {
     PARENT: 'genericTank',
     LABEL: "Vulcan",
@@ -7573,7 +7620,7 @@ if (Config.arms_race) {
     addUpgrades('cruiser', 3, [/*'productionist', 'cruiserdrive', 'hangar', 'zipper', 'baltimore', 'mosey'*/]);
     addUpgrades('destroyer', 3, [/*'megaTrapper', 'queller', */'autoDestroyer'/*, 'hurler', 'slinker'*/]);
     removeUpgrades('director', 3, ['bigCheese']);
-    addUpgrades('directordrive', 3, [/*'directorstorm', */'overdrive'/*, 'cruiserdrive'*/, 'underdrive', 'spawnerdrive'/*, 'autoDirectordrive', 'honchodrive', 'doperdrive'*/])
+    addUpgrades('directordrive', 3, [/*'directorstorm', */'overdrive'/*, 'cruiserdrive'*/, 'underdrive', 'spawnerdrive', 'autoDirectordrive'/*, 'honchodrive', 'doperdrive'*/])
     addUpgrades('doubleTwin', 3, [/*'doubleFlankTwin', */'doubleGunner', 'warkwark']);
     addUpgrades('gunner', 3, ['buttbuttin', 'blower', 'rimfire'/*, 'volley'*/, 'doubleGunner'/*, 'bentGunner', 'equalizer'*/]);
     addUpgrades('hexaTank', 3, ['autoHexaTank'/*, 'mingler', 'combo'*/]);
@@ -7594,7 +7641,29 @@ if (Config.arms_race) {
     addUpgrades('underseer', 3, ['autoUnderseer', 'underdrive'/*, 'pentaseer'*/]);
     addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
 
+    addUpgrades('autoArtillery', tier4, [...['mega', 'triple'].map(x => `${x}AutoArtillery`)]);
+    addUpgrades('autoAssassin', tier4, [...['mega', 'triple'].map(x => `${x}AutoAssassin`)]);
+    addUpgrades('autoAuto3', tier4, [...['mega', 'triple'].map(x => `${x}AutoAuto3`)]);
+    addUpgrades('autoBuilder', tier4, [...['mega', 'triple'].map(x => `${x}AutoBuilder`)]);
+    addUpgrades('autoCruiser', tier4, [...['mega', 'triple'].map(x => `${x}AutoCruiser`)]);
+    addUpgrades('autoDestroyer', tier4, [...['mega', 'triple'].map(x => `${x}AutoDestroyer`)]);
+    addUpgrades('autoDirectordrive', tier4, [...['mega', 'triple'].map(x => `${x}AutoDirectordrive`)]);
+    addUpgrades('autoDouble', tier4, [...['mega', 'triple'].map(x => `${x}AutoDouble`)]);
+    addUpgrades('autoGunner', tier4, [...['mega', 'triple'].map(x => `${x}AutoGunner`)]);
+    addUpgrades('autoHexaTank', tier4, [...['mega', 'triple'].map(x => `${x}AutoHexaTank`)]);
+    addUpgrades('autoHunter', tier4, [...['mega', 'triple'].map(x => `${x}AutoHunter`)]);
+    addUpgrades('autoLauncher', tier4, [...['mega', 'triple'].map(x => `${x}AutoLauncher`)]);
+    addUpgrades('autoMinigun', tier4, [...['mega', 'triple'].map(x => `${x}AutoMinigun`)]);
+    addUpgrades('autoOverseer', tier4, [...['mega', 'triple'].map(x => `${x}AutoOverseer`)]);
+    addUpgrades('autoRifle', tier4, [...['mega', 'triple'].map(x => `${x}AutoRifle`)]);
+    addUpgrades('autoSpawner', tier4, [...['mega', 'triple'].map(x => `${x}AutoSpawner`)]);
+    addUpgrades('autoTrapGuard', tier4, [...['mega', 'triple'].map(x => `${x}AutoTrapGuard`)]);
+    addUpgrades('autoTriAngle', tier4, [...['mega', 'triple'].map(x => `${x}AutoTriAngle`)]);
+    addUpgrades('autoTripleShot', tier4, [...['mega', 'triple'].map(x => `${x}AutoTripleShot`)]);
+    addUpgrades('autoUnderseer', tier4, [...['mega', 'triple'].map(x => `${x}AutoUnderseer`)]);
+    addUpgrades('autoWark', tier4, [...['mega', 'triple'].map(x => `${x}AutoWark`)]);
     addUpgrades('buttbuttin', tier4, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
+    addUpgrades('hexaTrapper', tier4, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
     addUpgrades('sprayer', tier4, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
 };
 
