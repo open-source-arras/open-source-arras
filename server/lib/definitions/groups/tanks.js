@@ -1328,6 +1328,34 @@ for (let i = 0; i < autoTanksT3.length; i++) {
     };
 };
 
+const hybridTanksT3 = [
+    ['artillery', "Force"],
+    ['assassin', "Hitman"],
+    ['builder', "Fashioner"],
+    ['destroyer', "Hybrid"],
+    ['hunter', "Poacher"],
+    ['launcher', "Heaver"],
+    ['minigun', "Crop Duster"],
+    ['tripleShot', "Bent Hybrid", "Overshot"],
+    ['rifle', "Armsman"],
+    ['wark', "Coalesce"],
+];
+for (let i = 0; i < hybridTanksT3.length; i++) {
+    let type = hybridTanksT3[i][0];
+    let name = hybridTanksT3[i][1];
+    let overname = hybridTanksT3[i][2] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
+
+    let hybridLabel = name.charAt(0).toLowerCase() + name.slice(1).replace(/[\s-]+/g, '');
+    let overLabel = overname.charAt(0).toLowerCase() + overname.slice(1).replace(/[\s-]+/g, '');
+
+    Class[hybridLabel] = makeOver(type, name, preset.makeOver.hybrid);
+    Class[overLabel] = makeOver(type, overname);
+
+    if (Config.arms_race) {
+        addUpgrades(hybridLabel, tier4_AR, [overLabel]);
+    };
+};
+
 Class.accurator = {
     PARENT: 'genericTank',
     LABEL: "Accurator",
@@ -1415,7 +1443,6 @@ Class.annihilator = {
         }
     ]
 };
-Class.armsman = makeOver('rifle', "Armsman", preset.makeOver.hybrid);
 Class.architect = makeRadialAuto('architectGun', { isTurret: true, danger: 7, size: 12, label: "Architect", body: { FOV: base.FOV * 1.15, SPEED: base.SPEED * 1.125 } });
 Class.assembler = {
     PARENT: 'genericTank',
@@ -1692,7 +1719,6 @@ Class.bender = {
     ]
 };
 Class.bentDouble = makeFlank('tripleShot', 2, "Bent Double", { extraStats: [g.doubleTwin] });
-Class.bentHybrid = makeOver('tripleShot', "Bent Hybrid", preset.makeOver.hybrid);
 Class.bigCheese = {
     PARENT: 'genericTank',
     LABEL: "Big Cheese",
@@ -2097,7 +2123,6 @@ Class.carrier = {
         }
     ]
 };
-Class.coalesce = makeOver('wark', "Coalesce", preset.makeOver.hybrid);
 Class.cocci = makeSnake('smasher', 5, "Cocci");
 Class.coil = {
     PARENT: 'genericTank',
@@ -2314,7 +2339,6 @@ Class.construct = { // it's "construct" and not "constructor" because "construct
         }
     ]
 };
-Class.cropDuster = makeOver('minigun', "Crop Duster", preset.makeOver.hybrid);
 Class.crowbar = {
     PARENT: 'genericTank',
     LABEL: "Crowbar",
@@ -2925,7 +2949,6 @@ Class.factory = {
     ]
 };
 Class.falcon = makeBird('assassin', "Falcon");
-Class.fashioner = makeOver('builder', "Fashioner", preset.makeOver.hybrid);
 Class.fieldGun = {
     PARENT: 'genericTank',
     LABEL: "Field Gun",
@@ -3101,7 +3124,6 @@ Class.focal = {
         }
     ]
 };
-Class.force = makeOver('artillery', "Force", preset.makeOver.hybrid);
 Class.fork = {
     PARENT: 'genericTank',
     LABEL: "Fork",
@@ -3255,7 +3277,6 @@ Class.halfNHalf = {
         }
     ]
 };
-Class.heaver = makeOver('launcher', "Heaver", preset.makeOver.hybrid);
 Class.hewnDouble = {
     PARENT: 'genericTank',
     LABEL: "Hewn Double",
@@ -3288,8 +3309,6 @@ Class.hewnDouble = {
 };
 Class.hexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Hexa-Trapper");
 Class.hexaWhirl = makeWhirlwind('hexaTank', { label: "Hexa Whirl" });
-Class.hitman = makeOver('assassin', "Hitman", preset.makeOver.hybrid);
-Class.hybrid = makeOver('destroyer', "Hybrid", preset.makeOver.hybrid);
 Class.infestor = {
     PARENT: 'genericTank',
     LABEL: "Infestor",
@@ -4317,7 +4336,6 @@ Class.physician = {
         }
     ]
 };
-Class.poacher = makeOver('hunter', "Poacher", preset.makeOver.hybrid);
 Class.predator = {
     PARENT: 'genericTank',
     LABEL: "Predator",
@@ -5080,7 +5098,6 @@ Class.shotgun = {
         }
     ]
 };
-Class.shower = makeOver('sprayer', "Shower", preset.makeOver.hybrid);
 Class.sidewinder = {
     PARENT: 'genericTank',
     LABEL: "Sidewinder",
@@ -6066,6 +6083,7 @@ for (let i = 0; i < autoTanksT4.length; i++) {
     let type = autoTanksT4[i];
     Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type);
 };
+
 const doubleTanksT4 = [
     'battery',
     'dual',
@@ -6078,6 +6096,20 @@ const doubleTanksT4 = [
 for (let i = 0; i < doubleTanksT4.length; i++) {
     let type = doubleTanksT4[i];
     Class[`double${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeFlank(type, 2, `Double ${Class[type].LABEL}`, { extraStats: [g.doubleTwin] });
+};
+
+const hybridTanksT4 = [
+    ['buttbuttin', "Mercenary"],
+    ['sprayer', "Shower"],
+    ['triplet', "Triprid"],
+];
+for (let i = 0; i < hybridTanksT4.length; i++) {
+    let type = hybridTanksT4[i][0];
+    let name = hybridTanksT4[i][1];
+
+    let hybridLabel = name.charAt(0).toLowerCase() + name.slice(1).replace(/[\s-]+/g, '');
+
+    Class[hybridLabel] = makeOver(type, name, preset.makeOver.hybrid);
 };
 
 Class.autoDoubleFlank = makeAuto('doubleFlankTwin', "Auto-Double Flank");
@@ -6247,7 +6279,6 @@ Class.marine = makeGunner('ranger', "Marine");
 Class.megaAutoDirectordrive = makeAuto('directordrive', "Mega Auto-Directordrive", preset.makeAuto.driveMega);
 Class.megaAutoDouble = makeAuto('doubleTwin', "Mega Auto-Double", preset.makeAuto.mega);
 Class.megaHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
-Class.mercenary = makeOver('buttbuttin', "Mercenary", preset.makeOver.hybrid);
 Class.overdoubleTwin = makeOver('doubleTwin', "Overdouble Twin", { angle: 90, renderBehind: true });
 Class.protector = {
     PARENT: 'genericTank',
