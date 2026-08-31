@@ -48,6 +48,20 @@ module.exports = {
 			projectileType: 'swarm', hatType: 'triangleHat', hatSize: 8, hatAngle: 180
 		}
 	},
+	makeHat: {
+		spin: {
+			rotationSpeed: 0.16
+		},
+		spinFast: {
+			rotationSpeed: 0.2
+		},
+		spinFaster: {
+			rotationSpeed: 0.32
+		},
+		spinReverse: {
+			rotationSpeed: -0.16
+		}
+	},
 	makeOver: {
 		hybrid: {
 			count: 1, independent: true, cycle: false
