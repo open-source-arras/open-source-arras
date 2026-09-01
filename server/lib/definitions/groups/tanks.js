@@ -1358,17 +1358,17 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     //let typeEnactor = typeify(enactor);
     //let typeCrossbreed = typeify(crossbreed);
     let typeOver = typeify(over);
-    //let typeHybriddrive = typeify(hybriddrive);
+    let typeHybriddrive = typeify(hybriddrive);
 
     Class[typeHybrid] = makeOver(type, hybrid, preset.makeOver.hybrid);
     Class[typeSynthesis] = makeBattle(type, synthesis, preset.makeBattle.synthesis);
     //Class[typeEnactor] = makeCap(type, enactor, preset.makeCap.enactor);
     //Class[typeCrossbreed] = makeFore(type, crossbreed, preset.makeFore.crossbreed);
     Class[typeOver] = makeOver(type, over);
-    //Class[typeHybriddrive] = makeOverdrive(type, hybriddrive, preset.makeOverdrive.hybrid);
+    Class[typeHybriddrive] = makeOver(type, hybriddrive, { ...preset.makeOver.hybrid, drive: true });
 
     if (Config.arms_race) {
-        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis]);
+        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis, typeHybriddrive]);
     };
 };
 

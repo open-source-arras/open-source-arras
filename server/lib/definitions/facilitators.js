@@ -120,13 +120,23 @@ exports.makeOver = (type, name = -1, options = {}) => {
     let cycle = options.cycle ?? true
     let maxChildren = options.maxDrones ?? 3
     let stats = options.extraStats ?? []
+    let droneType = options.drive == true ? 'autoDrone' : 'drone'
 
     options.renderBehind ??= false
 
+    let driveHat = [
+        {
+            TYPE: ['squareHat', {COLOR: 'grey'}],
+            POSITION: {
+                SIZE: 9,
+                LAYER: 1
+            }
+        }
+    ];
     let spawners = [];
     let spawnerProperties = {
         SHOOT_SETTINGS: exports.combineStats([g.drone, g.overseer, ...stats]),
-        TYPE: ['drone', {INDEPENDENT: independent}],
+        TYPE: [droneType, {INDEPENDENT: independent}],
         AUTOFIRE: true,
         SYNCS_SKILLS: true,
         STAT_CALCULATOR: 'drone',
@@ -162,7 +172,10 @@ exports.makeOver = (type, name = -1, options = {}) => {
     } else {
         output.GUNS = type.GUNS == null ? spawners : type.GUNS.concat(spawners)
     }
-    output.LABEL = name == -1 ? "Over" + type.LABEL.toLowerCase() : name
+    if (options.drive) {
+        output.TURRETS = type.TURRETS == null ? driveHat : type.TURRETS.concat(driveHat)
+    }
+    output.LABEL = name == -1 ? "Over" + type.LABEL.toLowerCase() + (options.drive ? "drive" : "") : name
     if (type.UPGRADE_LABEL !== undefined) {
         output.UPGRADE_LABEL = output.LABEL;
     }
