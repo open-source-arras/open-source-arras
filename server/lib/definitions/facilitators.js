@@ -168,6 +168,82 @@ exports.makeOver = (type, name = -1, options = {}) => {
     }
     return output
 }
+exports.makeBattle = (type, name = -1, options = {}) => {
+    type = ensureIsClass(type);
+    let output = exports.dereference(type);
+
+    let angle = 180 - (options.angle ?? 125)
+    let count = options.count ?? 2
+    let independent = options.independent ?? false
+    let cycle = options.cycle ?? true
+    let maxChildren = options.maxDrones ?? 3
+    let stats = options.extraStats ?? []
+
+    options.renderBehind ??= false
+
+    let spawners = [];
+    let guidedSpawnerProperties = {
+        SHOOT_SETTINGS: exports.combineStats([g.swarm, g.battleship, ...stats]),
+        TYPE: ['swarm', {INDEPENDENT: independent}],
+        STAT_CALCULATOR: 'swarm',
+        LABEL: "Guided"
+    }
+    let autoSpawnerProperties = {
+        SHOOT_SETTINGS: exports.combineStats([g.swarm, ...stats]),
+        TYPE: 'autoswarm',
+        STAT_CALCULATOR: 'swarm',
+        LABEL: "Autonomous"
+    }
+    if (count % 2 == 1) {
+        spawners.push(...exports.weaponMirror({
+            POSITION: {
+                LENGTH: options.length ?? 9,
+                WIDTH: options.width ?? 7.2,
+                ASPECT: 0.6,
+                X: 5,
+                Y: 4,
+                ANGLE: 180,
+            },
+            PROPERTIES: autoSpawnerProperties,
+        }, {delayIncrement: 0.5}))
+    }
+    for (let i = 2; i <= (count - count % 2); i += 2) {
+        spawners.push(
+            ...exports.weaponMirror({
+                POSITION: {
+                    LENGTH: options.length ?? 9,
+                    WIDTH: options.width ?? 7.2,
+                    ASPECT: 0.6,
+                    X: 5,
+                    Y: 4,
+                    ANGLE: 180 - angle * i / 2,
+                },
+                PROPERTIES: guidedSpawnerProperties,
+            }, {delayIncrement: 0.5}),
+            ...exports.weaponMirror({
+                POSITION: {
+                    LENGTH: options.length ?? 9,
+                    WIDTH: options.width ?? 7.2,
+                    ASPECT: 0.6,
+                    X: 5,
+                    Y: 4,
+                    ANGLE: 180 + angle * i / 2,
+                },
+                PROPERTIES: autoSpawnerProperties,
+            }, {delayIncrement: 0.5})
+        )
+    }
+    if (options.renderBehind) {
+        output.GUNS = type.GUNS == null ? spawners : spawners.concat(type.GUNS)
+    } else {
+        output.GUNS = type.GUNS == null ? spawners : type.GUNS.concat(spawners)
+    }
+    output.LABEL = name == -1 ? "Battle" + type.LABEL.toLowerCase() : name
+    if (type.UPGRADE_LABEL !== undefined) {
+        output.UPGRADE_LABEL = output.LABEL;
+    }
+    return output
+}
 
 // gun functions
 exports.makeBird = (type, name = -1, options = {}) => {

@@ -1,4 +1,4 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBird, makeDrive, makeFlank, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require('../facilitators.js');
+const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeFlank, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require('../facilitators.js');
 const { base, dfltskl, smshskl, statnames } = require('../constants.js');
 const g = require('../gunvals.js');
 const preset = require('../presets.js');
@@ -1329,30 +1329,46 @@ for (let i = 0; i < autoTanksT3.length; i++) {
 };
 
 const hybridTanksT3 = [
-    ['artillery', "Force"],
-    ['assassin', "Hitman"],
-    ['builder', "Fashioner"],
-    ['destroyer', "Hybrid"],
-    ['hunter', "Poacher"],
-    ['launcher', "Heaver"],
-    ['minigun', "Crop Duster"],
-    ['tripleShot', "Bent Hybrid", "Overshot"],
-    ['rifle', "Armsman"],
-    ['wark', "Coalesce"],
+    ['artillery', "Force", "Mixer", "Generator", "Energizer"],
+    ['assassin', "Hitman", "Gunman", "Formulator", "Contractor"],
+    ['builder', "Fashioner", "Stylist", "Experimenter", "Methodist"],
+    ['destroyer', "Hybrid", "Synthesis", "Enactor", "Crossbreed"],
+    ['hunter', "Poacher", "Plunderer", "Maker", "Nabber"],
+    ['launcher', "Heaver", "Lobber", "Duper", "Emitter"],
+    ['minigun', "Crop Duster", "Trimmer", "Shearer", "Sweeper"],
+    ['tripleShot', "Bent Hybrid", "Bent Synthesis", "Hatcher", "Bent Crossbreed", "Overshot"],
+    ['rifle', "Armsman", "Partisan", "Copier", "Vendor"],
+    ['wark', "Coalesce", "Affiliator", "Converger", "Commix", undefined, "Warkdrive"],
 ];
 for (let i = 0; i < hybridTanksT3.length; i++) {
     let type = hybridTanksT3[i][0];
-    let name = hybridTanksT3[i][1];
-    let overname = hybridTanksT3[i][2] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
 
-    let hybridLabel = name.charAt(0).toLowerCase() + name.slice(1).replace(/[\s-]+/g, '');
-    let overLabel = overname.charAt(0).toLowerCase() + overname.slice(1).replace(/[\s-]+/g, '');
+    let hybrid      = hybridTanksT3[i][1];
+    let synthesis   = hybridTanksT3[i][2];
+    let enactor     = hybridTanksT3[i][3];
+    let crossbreed  = hybridTanksT3[i][4];
+    let over        = hybridTanksT3[i][5] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
+    let hybriddrive = hybridTanksT3[i][6] ??= `${hybrid}drive`;
 
-    Class[hybridLabel] = makeOver(type, name, preset.makeOver.hybrid);
-    Class[overLabel] = makeOver(type, overname);
+    function typeify(x) {
+        return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, '');
+    };
+    let typeHybrid = typeify(hybrid);
+    let typeSynthesis = typeify(synthesis);
+    //let typeEnactor = typeify(enactor);
+    //let typeCrossbreed = typeify(crossbreed);
+    let typeOver = typeify(over);
+    //let typeHybriddrive = typeify(hybriddrive);
+
+    Class[typeHybrid] = makeOver(type, hybrid, preset.makeOver.hybrid);
+    Class[typeSynthesis] = makeBattle(type, synthesis, preset.makeBattle.synthesis);
+    //Class[typeEnactor] = makeCap(type, enactor, preset.makeCap.enactor);
+    //Class[typeCrossbreed] = makeFore(type, crossbreed, preset.makeFore.crossbreed);
+    Class[typeOver] = makeOver(type, over);
+    //Class[typeHybriddrive] = makeOverdrive(type, hybriddrive, preset.makeOverdrive.hybrid);
 
     if (Config.arms_race) {
-        addUpgrades(hybridLabel, tier4_AR, [overLabel]);
+        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis]);
     };
 };
 
@@ -6075,7 +6091,9 @@ const autoTanksT4 = [
     'bentDouble',
     'buttbuttin',
     'doubleGunner',
+    'dual',
     'hewnDouble',
+    'musket',
     'sprayer',
     'warkwark'
 ];
@@ -6100,7 +6118,9 @@ for (let i = 0; i < doubleTanksT4.length; i++) {
 
 const hybridTanksT4 = [
     ['buttbuttin', "Mercenary"],
+    ['pentaShot', "Flexed Hybrid"],
     ['sprayer', "Shower"],
+    ['spreadshot', "Smearer"],
     ['triplet', "Triprid"],
 ];
 for (let i = 0; i < hybridTanksT4.length; i++) {

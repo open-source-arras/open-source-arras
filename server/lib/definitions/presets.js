@@ -64,15 +64,9 @@ module.exports = {
 			type: 'driveAutoTurret', clearTurrets: true, size: 6.5, x: 5.2, angle: 0, total: 3
 		}
 	},
-	makeDrive: {
-		minion: {
-			projectileType: 'minion'
-		},
-		sunchip: {
-			projectileType: 'sunchip'
-		},
-		swarm: {
-			projectileType: 'swarm', hatType: 'triangleHat', hatSize: 8, hatAngle: 180
+	makeBattle: {
+		synthesis: {
+			count: 1, width: 8.2, independent: true, cycle: false
 		}
 	},
 	makeHat: {
