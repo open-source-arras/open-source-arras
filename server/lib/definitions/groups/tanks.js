@@ -6119,19 +6119,24 @@ for (let i = 0; i < doubleTanksT4.length; i++) {
 };
 
 const hybridTanksT4 = [
-    ['buttbuttin', "Mercenary"],
-    ['pentaShot', "Flexed Hybrid"],
-    ['sprayer', "Shower"],
-    ['spreadshot', "Smearer"],
-    ['triplet', "Triprid"],
+    // Base Tank    //Director
+    ['buttbuttin',  "Mercenary"],
+    ['pentaShot',   "Flexed Hybrid"],
+    ['sprayer',     "Shower"],
+    ['spreadshot',  "Smearer"],
+    ['triplet',     "Triprid"],
 ];
 for (let i = 0; i < hybridTanksT4.length; i++) {
     let type = hybridTanksT4[i][0];
-    let name = hybridTanksT4[i][1];
 
-    let hybridLabel = name.charAt(0).toLowerCase() + name.slice(1).replace(/[\s-]+/g, '');
+    let director = hybridTanksT4[i][1];
 
-    Class[hybridLabel] = makeOver(type, name, preset.hybrid);
+    function typeify(x) {
+        return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, '');
+    };
+    let typeDirector = typeify(director);
+
+    Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
 Class.autoDoubleFlank = makeAuto('doubleFlankTwin', "Auto-Double Flank");
