@@ -1329,46 +1329,48 @@ for (let i = 0; i < autoTanksT3.length; i++) {
 };
 
 const hybridTanksT3 = [
-    ['artillery',   "Force",        "Mixer",            "Generator",    "Energizer"],
-    ['assassin',    "Hitman",       "Gunman",           "Formulator",   "Contractor"],
-    ['builder',     "Fashioner",    "Stylist",          "Experimenter", "Methodist"],
-    ['destroyer',   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed"],
-    ['hunter',      "Poacher",      "Plunderer",        "Maker",        "Nabber"],
-    ['launcher',    "Heaver",       "Lobber",           "Duper",        "Emitter"],
-    ['minigun',     "Crop Duster",  "Trimmer",          "Shearer",      "Sweeper"],
-    ['tripleShot',  "Bent Hybrid",  "Bent Synthesis",   "Hatcher",      "Bent Crossbreed", "Overshot"],
-    ['rifle',       "Armsman",      "Partisan",         "Copier",       "Vendor"],
-    ['wark',        "Coalesce",     "Affiliator",       "Converger",    "Commix",           undefined, "Warkdrive"],
+    // Base Tank    //Director      //Cruiser           //Spawner       //Honcho            //Over      // Directordrive
+    ['artillery',   "Force",        "Mixer",            "Generator",    "Energizer"         ],
+    ['assassin',    "Hitman",       "Gunman",           "Formulator",   "Contractor"        ],
+    ['builder',     "Fashioner",    "Stylist",          "Experimenter", "Methodist"         ],
+    ['destroyer',   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed"        ],
+    ['hunter',      "Poacher",      "Plunderer",        "Maker",        "Nabber"            ],
+    ['launcher',    "Heaver",       "Lobber",           "Duper",        "Emitter"           ],
+    ['minigun',     "Crop Duster",  "Trimmer",          "Shearer",      "Sweeper"           ],
+    ['tripleShot',  "Bent Hybrid",  "Bent Synthesis",   "Hatcher",      "Bent Crossbreed",  "Overshot"  ],
+    ['rifle',       "Armsman",      "Partisan",         "Copier",       "Vendor"            ],
+    ['wark',        "Coalesce",     "Affiliator",       "Converger",    "Commix",           undefined,  "Warkdrive"],
+    // The last two are optional and will be filled out automatically so long as the Base Tank and Director are defined.
 ];
 for (let i = 0; i < hybridTanksT3.length; i++) {
     let type = hybridTanksT3[i][0];
 
-    let hybrid      = hybridTanksT3[i][1];
-    let synthesis   = hybridTanksT3[i][2];
-    let enactor     = hybridTanksT3[i][3];
-    let crossbreed  = hybridTanksT3[i][4];
-    let over        = hybridTanksT3[i][5] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
-    let hybriddrive = hybridTanksT3[i][6] ??= `${hybrid}drive`;
+    let director      = hybridTanksT3[i][1];
+    let cruiser       = hybridTanksT3[i][2];
+    let spawner       = hybridTanksT3[i][3];
+    let honcho        = hybridTanksT3[i][4];
+    let overseer      = hybridTanksT3[i][5] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
+    let directordrive = hybridTanksT3[i][6] ??= `${director}drive`;
 
     function typeify(x) {
         return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, '');
     };
-    let typeHybrid = typeify(hybrid);
-    let typeSynthesis = typeify(synthesis);
-    let typeEnactor = typeify(enactor);
-    //let typeCrossbreed = typeify(crossbreed);
-    let typeOver = typeify(over);
-    let typeHybriddrive = typeify(hybriddrive);
+    let typeDirector = typeify(director);
+    let typeOverseer = typeify(overseer);
+    let typeCruiser = typeify(cruiser);
+    let typeSpawner = typeify(spawner);
+    //let typeHoncho = typeify(honcho);
+    let typeDirectordrive = typeify(directordrive);
 
-    Class[typeHybrid] = makeOver(type, hybrid, preset.hybrid);
-    Class[typeSynthesis] = makeBattle(type, synthesis, preset.hybrid);
-    Class[typeEnactor] = makeCap(type, enactor, preset.hybrid);
-    //Class[typeCrossbreed] = makeFore(type, crossbreed, preset.makeFore.crossbreed);
-    Class[typeOver] = makeOver(type, over);
-    Class[typeHybriddrive] = makeOver(type, hybriddrive, { ...preset.hybrid, drive: true });
+    Class[typeDirector] = makeOver(type, director, preset.hybrid);
+    Class[typeOverseer] = makeOver(type, overseer);
+    Class[typeCruiser] = makeBattle(type, cruiser, preset.hybrid);
+    Class[typeSpawner] = makeCap(type, spawner, preset.hybrid);
+    //Class[typeHoncho] = makeFore(type, honcho, preset.hybrid);
+    Class[typeDirectordrive] = makeOver(type, directordrive, { ...preset.hybrid, drive: true });
 
     if (Config.arms_race) {
-        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis, typeEnactor, typeHybriddrive]);
+        addUpgrades(typeDirector, tier4_AR, [typeOverseer, typeCruiser, typeSpawner, typeDirectordrive/*, typeHoncho*/]);
     };
 };
 

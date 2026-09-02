@@ -24,7 +24,7 @@ module.exports = {
         count: 1, widthOffset: 1, independent: true, cycle: false
     },
 
-    // Regular Functions
+    // Function-Specific Presets
     makeAuto: {
         mega: {
             type: 'megaAutoTurret', size: 12
