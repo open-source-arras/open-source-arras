@@ -401,7 +401,7 @@ Class.menu_misc = makeMenu("Misc", {
         'worstTank',
         //'genericEntity',
         //'quadCyclone',
-        //'beeman',
+        'beeman',
         'heptaAutoBasic',
         'alas'
     ]
