@@ -1329,7 +1329,7 @@ for (let i = 0; i < autoTanksT3.length; i++) {
 };
 
 const hybridTanksT3 = [
-    // Base Tank    //Director      //Cruiser           //Spawner       //Honcho            //Over      // Directordrive
+    // Base Tank    //Director      //Cruiser           //Spawner       //Honcho            //Overseer  //Directordrive
     ['artillery',   "Force",        "Mixer",            "Generator",    "Energizer"         ],
     ['assassin',    "Hitman",       "Gunman",           "Formulator",   "Contractor"        ],
     ['builder',     "Fashioner",    "Stylist",          "Experimenter", "Methodist"         ],
