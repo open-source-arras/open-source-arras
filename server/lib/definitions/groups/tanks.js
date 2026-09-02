@@ -6240,6 +6240,7 @@ Class.xHunter = {
 // Tier 4 (Level 60)
 const autoTanksT4 = [
     'bentDouble',
+    'bentHybrid',
     'buttbuttin',
     'doubleGunner',
     'dual',
@@ -8198,39 +8199,110 @@ if (Config.arms_race) {
             addUpgrades('warkwark', tier4_AR, ['warkwarkwark'/*, 'warkwawarkrk'*/, 'autoWarkwark'/*, 'waarrkwaarrk', 'warkwawawark', 'doubleEqualizer', 'guardrail', 'sealer', 'setup'*/]);
 
         addUpgrades('tripleShot', 3, [/*'splitShot', */'autoTripleShot'/*, 'bentGunner', 'bentMinigun'*/, 'defect'/*, 'waarrk'*/]);
-            //addUpgrades('bentDouble', tier4_AR, []);
+            addUpgrades('tripleShot', tier4_AR, []);
+            addUpgrades('pentaShot', tier4_AR, []);
+            addUpgrades('spreadshot', tier4_AR, []);
+            addUpgrades('bentHybrid', tier4_AR, ['flexedHybrid', 'smearer'/*, 'splitHybrid'*/, 'autoBentHybrid'/*, 'spambrid', 'junker'*/, 'triprid'/*, 'bentCatcher'*/]);
+            //addUpgrades('bentDouble', tier4_AR);
+            addUpgrades('triplet', tier4_AR, []);
+        ////addUpgrades('splitShot', tier4_AR, []);
             addUpgrades('autoTripleShot', tier4_AR, []);
+        ////addUpgrades('bentGunner', tier4_AR, []);
+        ////addUpgrades('bentMinigun', tier4_AR, []);
+            addUpgrades('defect', tier4_AR, []);
+        ////addUpgrades('waarrk', tier4_AR, []);
 
         addUpgrades('gunner', 3, ['buttbuttin', 'blower', 'rimfire'/*, 'volley'*/, 'doubleGunner'/*, 'bentGunner', 'equalizer'*/]);
+            addUpgrades('gunner', tier4_AR, [/*'dam'*/]);
             addUpgrades('autoGunner', tier4_AR, []);
+            addUpgrades('nailgun', tier4_AR, []);
+            addUpgrades('auto4', tier4_AR, []);
+            addUpgrades('machineGunner', tier4_AR, []);
+            addUpgrades('gunnerTrapper', tier4_AR, []);
+            addUpgrades('cyclone', tier4_AR, []);
+            addUpgrades('overgunner', tier4_AR, []);
+            addUpgrades('battery', tier4_AR, []);
             addUpgrades('buttbuttin', tier4_AR, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
+            addUpgrades('blower', tier4_AR, []);
+            addUpgrades('rimfire', tier4_AR, []);
+        ////addUpgrades('volley', tier4_AR, []);
+            //addUpgrades('doubleGunner', tier4_AR);
+        ////addUpgrades('bentGunner', tier4_AR, []);
+        ////addUpgrades('equalizer', tier4_AR, []);
 
         addUpgrades('hexaTank', 3, ['autoHexaTank'/*, 'mingler', 'combo'*/]);
+            addUpgrades('hexaTank', tier4_AR, ['tripleFlankTwin']);
             addUpgrades('octoTank', tier4_AR, []);
             addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
-            addUpgrades('cyclone', tier4_AR, []);
+            //addUpgrades('cyclone', tier4_AR);
             addUpgrades('deathStar', tier4_AR, []);
             addUpgrades('autoHexaTank', tier4_AR, []);
         ////addUpgrades('mingler', tier4_AR, []);
         ////addUpgrades('combo', tier4_AR, []);
 
         addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
+            addUpgrades('wark', tier4_AR, []);
+            //addUpgrades('warkwark', tier4_AR);
+            //addUpgrades('waarrk', tier4_AR);
+            //addUpgrades('equalizer', tier4_AR);
+            //addUpgrades('hexaTrapper', tier4_AR);
+        ////addUpgrades('hutch', tier4_AR, []);
+        ////addUpgrades('cog', tier4_AR, []);
+        ////addUpgrades('expeller', tier4_AR, []);
+            addUpgrades('bulwark', tier4_AR, []);
+            addUpgrades('coalesce', tier4_AR, []);
             addUpgrades('autoWark', tier4_AR, []);
 
     addUpgrades('sniper', 2, []);
         addUpgrades('sniper', 3, ['railgun']);
+            addUpgrades('sniper', tier4_AR, []);
+            addUpgrades('bushwhacker', tier4_AR, []);
+            addUpgrades('railgun', tier4_AR, []);
 
         addUpgrades('assassin', 3, ['hitman', 'sniper3'/*, 'enforcer', 'courser'*/]);
+            addUpgrades('assassin', tier4_AR, [/*'executor', 'finger'*/]);
+            addUpgrades('ranger', tier4_AR, []);
+            addUpgrades('falcon', tier4_AR, []);
+            addUpgrades('stalker', tier4_AR, []);
             addUpgrades('autoAssassin', tier4_AR, []);
+            //addUpgrades('buttbuttin', tier4_AR);
+            addUpgrades('hitman', tier4_AR, []);
+            addUpgrades('sniper3', tier4_AR, []);
+        ////addUpgrades('enforcer', tier4_AR, []);
+        ////addUpgrades('courser', tier4_AR, []);
 
         addUpgrades('hunter', 3, ['autoHunter'/*, 'megaHunter', 'prober', 'courser'*/]);
+            addUpgrades('hunter', tier4_AR, [/*'butcher', 'reverberator'*/]);
+            addUpgrades('predator', tier4_AR, []);
+            addUpgrades('poacher', tier4_AR, []);
+            addUpgrades('ordnance', tier4_AR, []);
+            addUpgrades('dual', tier4_AR, []);
             addUpgrades('autoHunter', tier4_AR, []);
+        ////addUpgrades('megaHunter', tier4_AR, []);
+        ////addUpgrades('prober', tier4_AR, []);
+            //addUpgrades('courser', tier4_AR);
 
         addUpgrades('minigun', 3, [/*'taser', 'zipper', 'bentMinigun', */'autoMinigun'/*, 'widget'*/]);
+            addUpgrades('minigun', tier4_AR, [/*'tommy', 'machgun'*/]);
+            addUpgrades('streamliner', tier4_AR, []);
+            addUpgrades('nailgun', tier4_AR, []);
+            addUpgrades('cropDuster', tier4_AR, []);
+            addUpgrades('barricade', tier4_AR, []);
+            addUpgrades('subverter', tier4_AR, []);
+        ////addUpgrades('taser', tier4_AR, []);
+        ////addUpgrades('zipper', tier4_AR, []);
+        ////addUpgrades('bentMinigun', tier4_AR, []);
             addUpgrades('autoMinigun', tier4_AR, []);
+        ////addUpgrades('widget', tier4_AR, []);
 
         addUpgrades('rifle', 3, ['autoRifle'/*, 'enforcer', 'courser'*/]);
+            addUpgrades('rifle', tier4_AR, ['ransacker'/*, 'thunderclap'*/]);
+            addUpgrades('musket', tier4_AR, []);
+            addUpgrades('crossbow', tier4_AR, []);
+            addUpgrades('armsman', tier4_AR, []);
             addUpgrades('autoRifle', tier4_AR, []);
+            //addUpgrades('enforcer', tier4_AR);
+            //addUpgrades('courser', tier4_AR);
 
     addUpgrades('machineGun', 2, [/*'diesel', 'machineTrapper'*/]);
         addUpgrades('machineGun', 3, []);
