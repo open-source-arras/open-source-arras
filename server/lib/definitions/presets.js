@@ -16,6 +16,16 @@ module.exports = {
                     LAYER: 1
                 }
             }
+        ],
+        swarmdriveHat: [
+            {
+                TYPE: ['triangleHat', {COLOR: 'grey'}],
+                POSITION: {
+                    SIZE: 8,
+                    ANGLE: 180,
+                    LAYER: 1
+                }
+            }
         ]
     },
 
@@ -67,6 +77,11 @@ module.exports = {
         },
         driveTriple: {
             type: 'driveAutoTurret', clearTurrets: true, size: 6.5, x: 5.2, angle: 0, total: 3
+        }
+    },
+    makeFore: {
+        hybrid: {
+            count: 1, heightOffset: -1, independent: true, extraStats: [{ size: 0.9 }]
         }
     },
     makeHat: {

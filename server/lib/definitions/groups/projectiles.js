@@ -1179,5 +1179,6 @@ Class.superSplitterBullet = {
 
 // -Drive projectiles
 Class.autoDrone = makeAuto('drone', "Auto-Drone", {type: 'droneAutoTurret'});
-Class.autoMinion = makeAuto('minion', "Auto-Minion", {type: 'droneAutoTurret'});
+Class.autoSwarm = makeAuto('swarm', "Auto-Swarm Drone", {type: 'droneAutoTurret'});
 Class.autoSunchip = makeAuto('sunchip', "Auto-Drone", {type: 'droneAutoTurret'});
+Class.autoMinion = makeAuto('minion', "Auto-Minion", {type: 'droneAutoTurret'});

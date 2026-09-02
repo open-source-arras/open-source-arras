@@ -523,11 +523,17 @@ module.exports = {
         range: 0.75,
         spray: 2
     },
+    honcho: {
+        reload: 5/3,
+        size: 1.5,
+        health: 1.5,
+        speed: 2/3
+    },
     bigCheese: {
-        reload: 1.5,
-        size: 1.8,
-        health: 2.5,
-        speed: 1.25
+        //reload: 1.5,
+        size: 4/3,
+        //health: 4/3,
+        speed: 2/3
     },
     mothership: {
         reload: 1.25,

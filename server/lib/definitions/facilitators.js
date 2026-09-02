@@ -347,6 +347,93 @@ exports.makeCap = (type, name = -1, options = {}) => {
     }
     return output
 };
+exports.makeFore = (type, name = -1, options = {}) => {
+    type = ensureIsClass(type);
+    let output = exports.dereference(type);
+
+    let heightOffset = options.heightOffset ?? 0;
+    let widthOffset = options.widthOffset ?? 0;
+    let angle = 180 - (options.angle ?? 125);
+
+    let count = options.count ?? 2
+    let independent = options.independent ?? false
+    let cycle = options.cycle ?? true
+    let maxChildren = options.maxDrones ?? 1
+    let stats = options.extraStats ?? []
+    let droneType = options.drive == true ? 'autoDrone' : 'drone'
+
+    options.renderBehind ??= false
+
+    let driveHat = [
+        {
+            TYPE: ['squareHat', {COLOR: 'grey'}],
+            POSITION: {
+                SIZE: 9,
+                LAYER: 1
+            }
+        }
+    ];
+    let spawners = [];
+    let spawnerProperties = {
+        SHOOT_SETTINGS: exports.combineStats([g.drone, g.honcho, ...stats]),
+        TYPE: [droneType, {INDEPENDENT: independent}],
+        AUTOFIRE: true,
+        SYNCS_SKILLS: true,
+        STAT_CALCULATOR: 'drone',
+        WAIT_TO_CYCLE: cycle,
+        MAX_CHILDREN: maxChildren,
+    }
+    if (count % 2 == 1) {
+        spawners.push({
+            POSITION: {
+                LENGTH: 12 + heightOffset,
+                WIDTH: 14 + widthOffset,
+                ASPECT: 1.3,
+                X: 2,
+                ANGLE: 180
+            },
+            PROPERTIES: spawnerProperties,
+        })
+    }
+    for (let i = 2; i <= (count - count % 2); i += 2) {
+        spawners.push({
+            POSITION: {
+                LENGTH: 12 + heightOffset,
+                WIDTH: 14 + widthOffset,
+                ASPECT: 1.3,
+                X: 2,
+                ANGLE: 180 - angle * i / 2
+            },
+            PROPERTIES: {
+                ...spawnerProperties,
+                MAX_CHILDREN: maxChildren + 1
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12 + heightOffset,
+                WIDTH: 14 + widthOffset,
+                ASPECT: 1.3,
+                X: 2,
+                ANGLE: 180 + angle * i / 2
+            },
+            PROPERTIES: spawnerProperties
+        })
+    }
+    if (options.renderBehind) {
+        output.GUNS = type.GUNS == null ? spawners : spawners.concat(type.GUNS)
+    } else {
+        output.GUNS = type.GUNS == null ? spawners : type.GUNS.concat(spawners)
+    }
+    if (options.drive) {
+        output.TURRETS = type.TURRETS == null ? driveHat : type.TURRETS.concat(driveHat)
+    }
+    output.LABEL = name == -1 ? "Fore" + type.LABEL.toLowerCase() + (options.drive ? "drive" : "") : name
+    if (type.UPGRADE_LABEL !== undefined) {
+        output.UPGRADE_LABEL = output.LABEL;
+    }
+    return output
+};
 
 // gun functions
 exports.makeBird = (type, name = -1, options = {}) => {
