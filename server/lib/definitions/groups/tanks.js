@@ -1,4 +1,4 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeFlank, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require('../facilitators.js');
+const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require('../facilitators.js');
 const { base, dfltskl, smshskl, statnames } = require('../constants.js');
 const g = require('../gunvals.js');
 const preset = require('../presets.js');
@@ -1329,16 +1329,16 @@ for (let i = 0; i < autoTanksT3.length; i++) {
 };
 
 const hybridTanksT3 = [
-    ['artillery', "Force", "Mixer", "Generator", "Energizer"],
-    ['assassin', "Hitman", "Gunman", "Formulator", "Contractor"],
-    ['builder', "Fashioner", "Stylist", "Experimenter", "Methodist"],
-    ['destroyer', "Hybrid", "Synthesis", "Enactor", "Crossbreed"],
-    ['hunter', "Poacher", "Plunderer", "Maker", "Nabber"],
-    ['launcher', "Heaver", "Lobber", "Duper", "Emitter"],
-    ['minigun', "Crop Duster", "Trimmer", "Shearer", "Sweeper"],
-    ['tripleShot', "Bent Hybrid", "Bent Synthesis", "Hatcher", "Bent Crossbreed", "Overshot"],
-    ['rifle', "Armsman", "Partisan", "Copier", "Vendor"],
-    ['wark', "Coalesce", "Affiliator", "Converger", "Commix", undefined, "Warkdrive"],
+    ['artillery',   "Force",        "Mixer",            "Generator",    "Energizer"],
+    ['assassin',    "Hitman",       "Gunman",           "Formulator",   "Contractor"],
+    ['builder',     "Fashioner",    "Stylist",          "Experimenter", "Methodist"],
+    ['destroyer',   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed"],
+    ['hunter',      "Poacher",      "Plunderer",        "Maker",        "Nabber"],
+    ['launcher',    "Heaver",       "Lobber",           "Duper",        "Emitter"],
+    ['minigun',     "Crop Duster",  "Trimmer",          "Shearer",      "Sweeper"],
+    ['tripleShot',  "Bent Hybrid",  "Bent Synthesis",   "Hatcher",      "Bent Crossbreed", "Overshot"],
+    ['rifle',       "Armsman",      "Partisan",         "Copier",       "Vendor"],
+    ['wark',        "Coalesce",     "Affiliator",       "Converger",    "Commix",           undefined, "Warkdrive"],
 ];
 for (let i = 0; i < hybridTanksT3.length; i++) {
     let type = hybridTanksT3[i][0];
@@ -1355,20 +1355,20 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     };
     let typeHybrid = typeify(hybrid);
     let typeSynthesis = typeify(synthesis);
-    //let typeEnactor = typeify(enactor);
+    let typeEnactor = typeify(enactor);
     //let typeCrossbreed = typeify(crossbreed);
     let typeOver = typeify(over);
     let typeHybriddrive = typeify(hybriddrive);
 
-    Class[typeHybrid] = makeOver(type, hybrid, preset.makeOver.hybrid);
-    Class[typeSynthesis] = makeBattle(type, synthesis, preset.makeBattle.synthesis);
-    //Class[typeEnactor] = makeCap(type, enactor, preset.makeCap.enactor);
+    Class[typeHybrid] = makeOver(type, hybrid, preset.hybrid);
+    Class[typeSynthesis] = makeBattle(type, synthesis, preset.hybrid);
+    Class[typeEnactor] = makeCap(type, enactor, preset.hybrid);
     //Class[typeCrossbreed] = makeFore(type, crossbreed, preset.makeFore.crossbreed);
     Class[typeOver] = makeOver(type, over);
-    Class[typeHybriddrive] = makeOver(type, hybriddrive, { ...preset.makeOver.hybrid, drive: true });
+    Class[typeHybriddrive] = makeOver(type, hybriddrive, { ...preset.hybrid, drive: true });
 
     if (Config.arms_race) {
-        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis, typeHybriddrive]);
+        addUpgrades(typeHybrid, tier4_AR, [typeOver, typeSynthesis, typeEnactor, typeHybriddrive]);
     };
 };
 
@@ -3355,7 +3355,7 @@ Class.infestor = {
         }
     }), 2)
 };
-Class.integrator = makeOver('triAngle', "Integrator", { ...preset.makeOver.hybrid, renderBehind: true });
+Class.integrator = makeOver('triAngle', "Integrator", { ...preset.hybrid, renderBehind: true });
 Class.itHurtsDontTouchIt = {
     PARENT: 'genericFlail',
     LABEL: "It hurts dont touch it",
@@ -6129,13 +6129,75 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
 
     let hybridLabel = name.charAt(0).toLowerCase() + name.slice(1).replace(/[\s-]+/g, '');
 
-    Class[hybridLabel] = makeOver(type, name, preset.makeOver.hybrid);
+    Class[hybridLabel] = makeOver(type, name, preset.hybrid);
 };
 
 Class.autoDoubleFlank = makeAuto('doubleFlankTwin', "Auto-Double Flank");
 Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.autoTriple = makeAuto('tripleTwin', "Auto-Triple");
+Class.battletrapper = makeBattle({
+    PARENT: 'genericTank',
+    LABEL: "Trapper",
+    DANGER: 6,
+    STAT_NAMES: statnames.mixed,
+    BODY: {
+        FOV: base.FOV * 1.2,
+        SPEED: base.SPEED * 14/15
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 8
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 8,
+                ASPECT: 1.5,
+                X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ]
+});
 Class.bentTriple = makeFlank('tripleShot', 3, "Bent Triple", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.captrapper = makeCap({
+    PARENT: 'genericTank',
+    LABEL: "Trapper",
+    DANGER: 6,
+    STAT_NAMES: statnames.mixed,
+    BODY: {
+        FOV: base.FOV * 1.2,
+        SPEED: base.SPEED * 14/15
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 8
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 8,
+                ASPECT: 1.5,
+                X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ]
+});
 Class.cleft = makeFlank({
     PARENT: 'genericTank',
     DANGER: 7,
@@ -8073,6 +8135,7 @@ if (Config.arms_race) {
 
     addUpgrades('trapper', 2, [/*'pen', 'mech', 'machineTrapper', */'wark']);
         addUpgrades('trapper', 3, [/*'megaTrapper'*/]);
+            addUpgrades('overtrapper', tier4_AR, ['battletrapper', 'captrapper'])
 
         //addUpgrades('builder', 3, []);
 

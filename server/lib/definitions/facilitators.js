@@ -114,7 +114,9 @@ exports.makeOver = (type, name = -1, options = {}) => {
     type = ensureIsClass(type);
     let output = exports.dereference(type);
 
-    let angle = 180 - (options.angle ?? 125)
+    let widthOffset = options.widthOffset ?? 0;
+    let angle = 180 - (options.angle ?? 125);
+
     let count = options.count ?? 2
     let independent = options.independent ?? false
     let cycle = options.cycle ?? true
@@ -146,8 +148,8 @@ exports.makeOver = (type, name = -1, options = {}) => {
     if (count % 2 == 1) {
         spawners.push({
             POSITION: {
-                LENGTH: options.length ?? 6,
-                WIDTH: options.width ?? 11,
+                LENGTH: 6,
+                WIDTH: 11 + widthOffset,
                 ASPECT: 1.2,
                 X: 8,
                 ANGLE: 180
@@ -158,8 +160,8 @@ exports.makeOver = (type, name = -1, options = {}) => {
     for (let i = 2; i <= (count - count % 2); i += 2) {
         spawners.push(...exports.weaponMirror({
             POSITION: {
-                LENGTH: options.length ?? 6,
-                WIDTH: options.width ?? 11,
+                LENGTH: 6,
+                WIDTH: 11 + widthOffset,
                 ASPECT: 1.2,
                 X: 8,
                 ANGLE: 180 - angle * i / 2
@@ -180,15 +182,16 @@ exports.makeOver = (type, name = -1, options = {}) => {
         output.UPGRADE_LABEL = output.LABEL;
     }
     return output
-}
+};
 exports.makeBattle = (type, name = -1, options = {}) => {
     type = ensureIsClass(type);
     let output = exports.dereference(type);
 
-    let angle = 180 - (options.angle ?? 125)
+    let widthOffset = options.widthOffset ?? 0;
+    let angle = 180 - (options.angle ?? 125);
+
     let count = options.count ?? 2
     let independent = options.independent ?? false
-    let cycle = options.cycle ?? true
     let maxChildren = options.maxDrones ?? 3
     let stats = options.extraStats ?? []
 
@@ -210,8 +213,8 @@ exports.makeBattle = (type, name = -1, options = {}) => {
     if (count % 2 == 1) {
         spawners.push(...exports.weaponMirror({
             POSITION: {
-                LENGTH: options.length ?? 9,
-                WIDTH: options.width ?? 7.2,
+                LENGTH: 9,
+                WIDTH: 7.2 + widthOffset,
                 ASPECT: 0.6,
                 X: 5,
                 Y: 4,
@@ -224,8 +227,8 @@ exports.makeBattle = (type, name = -1, options = {}) => {
         spawners.push(
             ...exports.weaponMirror({
                 POSITION: {
-                    LENGTH: options.length ?? 9,
-                    WIDTH: options.width ?? 7.2,
+                    LENGTH: 9,
+                    WIDTH: 7.2 + widthOffset,
                     ASPECT: 0.6,
                     X: 5,
                     Y: 4,
@@ -235,8 +238,8 @@ exports.makeBattle = (type, name = -1, options = {}) => {
             }, {delayIncrement: 0.5}),
             ...exports.weaponMirror({
                 POSITION: {
-                    LENGTH: options.length ?? 9,
-                    WIDTH: options.width ?? 7.2,
+                    LENGTH: 9,
+                    WIDTH: 7.2 + widthOffset,
                     ASPECT: 0.6,
                     X: 5,
                     Y: 4,
@@ -256,7 +259,94 @@ exports.makeBattle = (type, name = -1, options = {}) => {
         output.UPGRADE_LABEL = output.LABEL;
     }
     return output
-}
+};
+exports.makeCap = (type, name = -1, options = {}) => {
+    type = ensureIsClass(type);
+    let output = exports.dereference(type);
+
+    let widthOffset = options.widthOffset ?? 0;
+    let angle = 180 - (options.angle ?? 125);
+
+    let count = options.count ?? 2
+    let independent = options.independent ?? false
+    let cycle = options.cycle ?? true
+    let maxChildren = options.maxDrones ?? 3
+    let stats = options.extraStats ?? []
+
+    options.renderBehind ??= false
+
+    let spawners = [];
+    let spawnerProperties = {
+        SHOOT_SETTINGS: exports.combineStats([g.minion, g.spawner]),
+        TYPE: ['minion', {INDEPENDENT: independent}],
+        STAT_CALCULATOR: 'drone',
+        AUTOFIRE: true,
+        SYNCS_SKILLS: true,
+        MAX_CHILDREN: maxChildren,
+    }
+    if (count % 2 == 1) {
+        spawners.push({
+            POSITION: {
+                LENGTH: 4.5,
+                WIDTH: 9 + widthOffset,
+                X: 10.5,
+                ANGLE: 180
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 11 + widthOffset,
+                X: 15,
+                ANGLE: 180
+            },
+            PROPERTIES: spawnerProperties,
+        },
+        {
+            POSITION: {
+                LENGTH: 11.5,
+                WIDTH: 11 + widthOffset,
+                ANGLE: 180
+            }
+        })
+    }
+    for (let i = 2; i <= (count - count % 2); i += 2) {
+        spawners.push(...exports.weaponMirror([{
+            POSITION: {
+                LENGTH: 4.5,
+                WIDTH: 9 + widthOffset,
+                X: 10.5,
+                ANGLE: 180 - angle * i / 2
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 11 + widthOffset,
+                X: 15,
+                ANGLE: 180 - angle * i / 2
+            },
+            PROPERTIES: spawnerProperties,
+        },
+        {
+            POSITION: {
+                LENGTH: 11.5,
+                WIDTH: 11 + widthOffset,
+                ANGLE: 180 - angle * i / 2
+            }
+        }]));
+    };
+    if (options.renderBehind) {
+        output.GUNS = type.GUNS == null ? spawners : spawners.concat(type.GUNS)
+    } else {
+        output.GUNS = type.GUNS == null ? spawners : type.GUNS.concat(spawners)
+    }
+    output.LABEL = name == -1 ? "Cap" + type.LABEL.toLowerCase() : name
+    if (type.UPGRADE_LABEL !== undefined) {
+        output.UPGRADE_LABEL = output.LABEL;
+    }
+    return output
+};
 
 // gun functions
 exports.makeBird = (type, name = -1, options = {}) => {
