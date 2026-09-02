@@ -259,7 +259,7 @@ Class.menu_fun = makeMenu("Fun", {upgrades: [
     "arrasPolice",
     //"average4tdmScore",
     //"averageL39Hunt",
-    //"beeman",
+    "beeman",
     "bigBalls",
     "cxATMG",
     "damoclone",

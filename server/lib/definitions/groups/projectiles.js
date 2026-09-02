@@ -997,6 +997,20 @@ Class.oroborosTrap = {
     ]
 }
 
+Class.beemanTrap = {
+  PARENT: "setTrap",
+  SHAPE: 9,
+  INDEPENDENT: true,
+  GUNS: weaponArray({
+    POSITION: {LENGTH: 1, WIDTH: 10},
+    PROPERTIES: {
+      SHOOT_SETTINGS: combineStats([g.swarm, g.bee]),
+      TYPE: "bee",
+      SHOOT_ON_DEATH: true,
+    }
+  }, 60)
+}
+
 // Pillboxes
 Class.pillbox = {
     PARENT: "setTrap",

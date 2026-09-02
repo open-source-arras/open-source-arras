@@ -5681,6 +5681,22 @@ Class.worstTank = {
         }
     ]
 };
+Class.beeman = {
+    PARENT: "genericTank",
+    LABEL: "Beeman",
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, {range: 0.5}]),
+                TYPE: 'beemanTrap'
+            }
+        }
+    ]
+}
 
 // Class Tree
 addUpgrades('basic', 1, ['twin', 'sniper', 'machineGun', 'flankGuard', 'director', 'pounder', 'trapper', 'desmos']);

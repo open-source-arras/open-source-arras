@@ -75,7 +75,7 @@ Class.arrasMenu_special = makeMenu("Special Menu", {upgrades: [Config.spawn_clas
         Class.arrasMenu_diep = makeMenu("Diep Tanks", {upgrades: ["arrasMenu_diep2"]})
             Class.arrasMenu_diep2 = makeMenu("Diep2 Menu", {upgrades: ["blaster", "gatlingGun", "doubleMachine", "rifle_old", "buttbuttin", "blower"/*, "quadTwin_AR", "tornado_AR"*/, "subverter", "battery", "deathStar", "bonker", "protector", "bulwark_old"]})
         Class.arrasMenu_adminTanks = makeMenu("Admin Tanks", {upgrades: ["developer", "cxATMG", "damoclone", "machineShot", "fat456", "wifeBeater"]})
-        Class.arrasMenu_misc = makeMenu("Misc", {upgrades: [/*"theAmalgamation", "theConglomerate", "schoolShooter", "average4tdmScore", "averageL39Hunt", */"tracker3", "meOnMyWayToDoYourMom", "meDoingYourMom", "rapture", "bigBalls", "tetraGunner", "worstTank"/*, "genericEntity", "quadCyclone", "beeman"*/, "heptaAutoBasic", "alas"]})
+        Class.arrasMenu_misc = makeMenu("Misc", {upgrades: [/*"theAmalgamation", "theConglomerate", "schoolShooter", "average4tdmScore", "averageL39Hunt", */"tracker3", "meOnMyWayToDoYourMom", "meDoingYourMom", "rapture", "bigBalls", "tetraGunner", "worstTank", /*, "genericEntity", "quadCyclone",*/ "beeman", "heptaAutoBasic", "alas"]})
         Class.arrasMenu_digdig = makeMenu("DigDig", {upgrades: ["digDigSmile", "digDigSmile_kirk", "digDigFrown", "digDigFrown_kirk"]})
     Class.arrasMenu_shinyMember = makeMenu("Shiny Member Menu", {upgrades: ["eggGen", "arrasMenu_specialTanks", "arrasMenu_bosses", "arrasMenu_nostalgia", "arrasMenu_scrapped", "arrasMenu_diep", dreadnoughts, "tracker3", "meOnMyWayToDoYourMom", "meDoingYourMom", "rapture", "bigBalls", "tetraGunner", "worstTank", "machineShot"]})
 
