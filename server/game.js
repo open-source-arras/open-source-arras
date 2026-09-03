@@ -16,7 +16,6 @@ let { gamemodeManager } = require("./game/gamemodeManager.js");
 // Gamemode names
 const getName = (name, gamemodeData) => {
     const nameMap = { // commented-out gamemodes haven't been implemented yet
-
     // FFA
         ffa: "FFA",
         halloween: "Halloween",
@@ -92,7 +91,6 @@ const getName = (name, gamemodeData) => {
         retrograde: "Retrograde",
         //skinwalkers: "Skinwalkers",
         space: "Space",
-
     };
     return nameMap[name];
 }

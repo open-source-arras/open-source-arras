@@ -6849,6 +6849,64 @@ Class.cozen = makeAuto(makeFlank({
         ...Class.trapper.GUNS
     ]
 }, 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Cozen");
+Class.dam = {
+    PARENT: 'genericTank',
+    LABEL: "Dam",
+    STAT_NAMES: statnames.mixed,
+    DANGER: 8,
+    GUNS: [
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 12,
+                    WIDTH: 3.5,
+                    Y: 7.25,
+                    DELAY: 0.5
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.twin, g.gunner, {speed: 1.2}]),
+                    TYPE: 'bullet'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 16,
+                    WIDTH: 3.5,
+                    Y: 3.75
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.twin, g.gunner, {speed: 1.2}]),
+                    TYPE: 'bullet'
+                }
+            }
+        ], {delayIncrement: 0.25}),
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 15,
+                    WIDTH: 8,
+                    Y: 5.5,
+                    ANGLE: 185
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 3.25,
+                    WIDTH: 8,
+                    ASPECT: 1.7,
+                    X: 14,
+                    Y: 5.5,
+                    ANGLE: 185
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.twin]),
+                    TYPE: 'trap',
+                    STAT_CALCULATOR: 'trap'
+                }
+            }
+        ], {delayIncrement: 0.5})
+    ]
+};
 Class.decaTank = {
     PARENT: 'genericTank',
     LABEL: "Deca Tank",
@@ -9685,7 +9743,7 @@ if (Config.arms_race) {
             ////addUpgrades('waarrk', tier4_AR, []);
 
             addUpgrades('gunner', 3, ['buttbuttin', 'blower', 'rimfire'/*, 'volley'*/, 'doubleGunner'/*, 'bentGunner', 'equalizer'*/]);
-                addUpgrades('gunner', tier4_AR, [/*'dam'*/]);
+                addUpgrades('gunner', tier4_AR, ['dam']);
                 addUpgrades('autoGunner', tier4_AR, []);
                 addUpgrades('nailgun', tier4_AR, []);
                 addUpgrades('auto4', tier4_AR, []);
