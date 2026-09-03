@@ -24,5 +24,6 @@ People who have submitted code to the project but are not official developers.
 - `Greninja9257`: Fixing the mockup sizes\
 - `kuoworic`: Precise Visual Tank Definitions\
 - `LA3T`: Custom Wall Collisions\
+- `Overlord K`: Beeman\
 - `pr2000`: Fireworks, Multiple GameServer instances via `worker_threads`, Editor\
 - `Wait What!?`: Snake code for Cocci/Rocket and Spiral branch bullets

@@ -31,7 +31,6 @@ Class.menu_nesters = makeMenu("Nesters", {upgrades: [
 Class.nestKeeper = {
     PARENT: "nester",
     LABEL: "Nest Keeper",
-    NAME: "Nest Keeper",
     MAX_CHILDREN: 15,
     GUNS: weaponArray({
         POSITION: [3.5, 6.65, 1.2, 8, 0, 36, 0],
@@ -57,7 +56,6 @@ Class.nestKeeper = {
 Class.nestWarden = {
     PARENT: "nester",
     LABEL: "Nest Warden",
-    NAME: "Nest Warden",
     GUNS: weaponArray([
         {
             POSITION: [10.7, 8, 1, 0, 0, 36, 0],
@@ -84,7 +82,6 @@ Class.nestWarden = {
 Class.nestGuardian = {
     PARENT: "nester",
     LABEL: "Nest Guardian",
-    NAME: "Nest Guardian",
     GUNS: weaponArray({
         POSITION: [5.5, 7, 1, 6, 0, 36, 0],
         PROPERTIES: {
@@ -117,7 +114,6 @@ Class.nester_AR = {
 Class.nestCurator = {
     PARENT: "nester_AR",
     LABEL: "Nest Curator",
-    NAME: "Nest Curator",
     MAX_CHILDREN: 15,
     GUNS: weaponArray([{
             POSITION: [ 4.5, 1.5, -1.4, 8, 3.75, 180, 0],
@@ -161,7 +157,6 @@ Class.nestCurator = {
 Class.nestDeacon = {
     PARENT: "nester_AR",
     LABEL: "Nest Deacon",
-    NAME: "Nest Deacon",
     GUNS: weaponArray([
         {
             POSITION: [10.7, 8, 1, 0, 0, 36, 0],
@@ -188,7 +183,6 @@ Class.nestDeacon = {
 Class.nestChampion = {
     PARENT: "nester_AR",
     LABEL: "Nest Champion",
-    NAME: "Nest Champion",
     GUNS: weaponArray({
         POSITION: [5.5, 7, 1, 6, 0, 36, 0],
         PROPERTIES: {
