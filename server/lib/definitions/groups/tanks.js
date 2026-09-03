@@ -397,6 +397,25 @@ Class.destroyer = {
         }
     ]
 };
+Class.diesel = {
+    PARENT: 'genericTank',
+    LABEL: "Diesel",
+    DANGER: 6,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 12,
+                ASPECT: 1.6,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel]),
+                TYPE: 'bullet'
+            }
+        }
+    ]
+};
 Class.directordrive = {
     PARENT: 'genericTank',
     LABEL: "Directordrive",
@@ -1386,6 +1405,7 @@ const autoTanksT3 = [
     'builder',
     'cruiser',
     'destroyer',
+    'diesel',
     'gunner',
     'hexaTank',
     'honcho',
@@ -1420,6 +1440,7 @@ const hybridTanksT3 = [
     ['artillery',   "Force",        "Mixer",            "Generator",    "Energizer"         ],
     ['assassin',    "Hitman",       "Gunman",           "Formulator",   "Contractor"        ],
     ['builder',     "Fashioner",    "Stylist",          "Experimenter", "Methodist"         ],
+    ['diesel',      "Polluter",     "Depraver",         "Tainter",      "Befouler"          ],
     ['destroyer',   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed"        ],
     ['hunter',      "Poacher",      "Plunderer",        "Maker",        "Nabber"            ],
     ['launcher',    "Heaver",       "Lobber",           "Duper",        "Emitter"           ],
@@ -3601,6 +3622,25 @@ Class.iterator = {
         {
             POSITION: [3.75, 10, 2.125, -1.5, 5.25, -50, 0]
         }])
+    ]
+};
+Class.jalopy = {
+    PARENT: 'genericTank',
+    LABEL: "Jalopy",
+    DANGER: 7,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 12,
+                ASPECT: 1.8,
+                X: 6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel, { reload: 1/3, recoil: 0.5, spray: 5/3 }]),
+                TYPE: 'bullet'
+            }
+        }
     ]
 };
 Class.jumpSmasher = {
@@ -6306,6 +6346,7 @@ const autoTanksT4 = [
     'doubleGunner',
     'dual',
     'hewnDouble',
+    'jalopy',
     'musket',
     'sprayer',
     'warkwark'
@@ -6333,6 +6374,7 @@ const hybridTanksT4 = [
     // Base Tank    //Director
     ['buttbuttin',  "Mercenary"],
     ['dual',        "Ravisher"],
+    ['jalopy',      "Contaminator"],
     ['musket',      "Matchlock"],
     ['pentaShot',   "Flexed Hybrid"],
     ['sprayer',     "Shower"],
@@ -8414,7 +8456,7 @@ if (Config.arms_race) {
                 //addUpgrades('enforcer', tier4_AR);
                 //addUpgrades('courser', tier4_AR);
 
-        addUpgrades('machineGun', 2, [/*'diesel', 'machineTrapper'*/]);
+        addUpgrades('machineGun', 2, ['diesel'/*, 'machineTrapper'*/]);
             addUpgrades('machineGun', 3, ['sprayer']);
                 addUpgrades('machineGun', tier4_AR, [/*'gadgetGun'*/]);
                 addUpgrades('sprayer', tier4_AR, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
@@ -8436,13 +8478,13 @@ if (Config.arms_race) {
 
             //addUpgrades('gunner', 3);
 
-        ////addUpgrades('diesel', 3, [/*'jalopy', */'machineGunner'/*, 'dieselTrapper', 'polluter', 'autoDiesel'*/]);
-            ////addUpgrades('diesel', tier4_AR, [/*'foamer', 'gizmo'*/]);
-            ////addUpgrades('jalopy', tier4_AR, []);
+            addUpgrades('diesel', 3, ['jalopy', 'machineGunner'/*, 'dieselTrapper'*/, 'polluter', 'autoDiesel']);
+                addUpgrades('diesel', tier4_AR, [/*'foamer', 'gizmo'*/]);
+                addUpgrades('jalopy', tier4_AR, [/*'lorry', */'contaminator'/*, 'jalopyTrapper'*/, 'autoJalopy'/*, 'clunker'*/]);
                 //addUpgrades('machineGunner', tier4_AR);
             ////addUpgrades('dieselTrapper', tier4_AR, []);
-            ////addUpgrades('polluter', tier4_AR, []);
-            ////addUpgrades('autoDiesel', tier4_AR, []);
+                addUpgrades('polluter', tier4_AR, []);
+                addUpgrades('autoDiesel', tier4_AR, []);
 
         ////addUpgrades('machineTrapper', 3, [/*'dieselTrapper', */'barricade'/*, 'equalizer', 'machineGuard', 'encircler', 'machineMech', 'triMachine', 'expeller', 'autoMachineTrapper', 'deviation'*/]);
             ////addUpgrades('machineTrapper', tier4_AR, [/*'frother', 'machineMegaTrapper'*/]);

@@ -255,13 +255,19 @@ module.exports = {
     // Machine guns
     machineGun: {
         reload: 0.5,
-        recoil: 0.8,
         shudder: 1.7,
-        size: 0.92,
+        size: 0.8,
         health: 0.7,
         damage: 0.7,
         maxSpeed: 0.8,
         spray: 2.5
+    },
+    diesel: {
+        reload: 0.5,
+        recoil: 0.5,
+        size: 0.8,
+        range: 0.8,
+        spray: 2
     },
     minigun: {
         reload: 1.25,
