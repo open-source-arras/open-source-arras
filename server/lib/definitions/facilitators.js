@@ -518,7 +518,7 @@ exports.makeFlank = (type, count, name = -1, options = {}) => {
             }
         }
     }
-    output.GUNS = exports.weaponArray(output.GUNS, count ??= 3, {delayIncrement: options.delayIncrement ?? 0, delayOverflow: options.delayOverflow ?? false, startAngle: options.startAngle ?? 0, visualLayering: options.visualLayering ?? false})
+    output.GUNS = exports.weaponArray(output.GUNS, count ??= 3, {delayIncrement: options.delayIncrement ?? 0, delayOverflow: options.delayOverflow ?? false, startAngle: options.startAngle ?? 0})
     output.LABEL = name == -1 ? type.LABEL : name
     output.DANGER = options.danger ??= 6;
     output.HAS_NO_RECOIL = options.noRecoil ??= false
@@ -1031,7 +1031,6 @@ exports.weaponArray = (weapons, count, options = {}) => {
     let isTurret = weapons[0].TYPE != undefined;
     let angleKey = isTurret ? 3 : 5;
     let delayKey = 6;
-    let layerKey = 7;
     let angleIncrement = options.startAngle ?? 0
     let delayIncrement = options.delayIncrement ?? 0
 
@@ -1045,7 +1044,6 @@ exports.weaponArray = (weapons, count, options = {}) => {
             if (!Array.isArray(newWeapon.POSITION)) {
                 angleKey = "ANGLE";
                 delayKey = "DELAY";
-                layerKey = "LAYER";
             }
 
             newWeapon.POSITION[angleKey] = (newWeapon.POSITION[angleKey] ?? 0) + angle;
@@ -1053,9 +1051,6 @@ exports.weaponArray = (weapons, count, options = {}) => {
                 newWeapon.POSITION[delayKey] = (newWeapon.POSITION[delayKey] ?? 0) + delay;
                 if (!options.delayOverflow) {
                     newWeapon.POSITION[delayKey] %= 1;
-                }
-                if (options.visualLayering && !(i % 2 === 0)) {
-                    newWeapon.POSITION[layerKey] = (newWeapon.POSITION[layerKey] ?? 0) - 1
                 }
             }
             output.push(newWeapon);

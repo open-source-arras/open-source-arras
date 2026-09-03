@@ -719,6 +719,34 @@ Class.mace = {
     }]
 };
 Class.machineFlank = makeFlank('machineGun', 2, "Machine Flank", { extraStats: [g.doubleTwin] });
+Class.machineTrapper = {
+    PARENT: 'genericTank',
+    LABEL: "Machine Trapper",
+    DANGER: 6,
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9,
+                ASPECT: 1.4
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 13,
+                ASPECT: 1.3,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { size: 2/3, spray: 5 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ]
+};
 Class.maelstrom_bent = {
     PARENT: 'genericTank',
     LABEL: "Maelstrom",
@@ -2350,6 +2378,30 @@ Class.coil = {
         })
     ]
 };
+Class.combo = {
+    PARENT: 'genericTank',
+    LABEL: "Combo",
+    DANGER: 7,
+    GUNS: weaponArray({
+        POSITION: {
+            LENGTH: 18,
+            WIDTH: 8
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard]),
+            TYPE: 'bullet'
+        }
+    }, 3),
+    TURRETS: weaponArray({
+        TYPE: ['autoTankGun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
+};
 Class.commander = {
     PARENT: 'genericTank',
     LABEL: "Commander",
@@ -2659,7 +2711,7 @@ Class.cyclone = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 30,
-                DELAY: 0.25
+                DELAY: 0.5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -2671,7 +2723,7 @@ Class.cyclone = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 60,
-                DELAY: 0.5
+                DELAY: 0.25
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -3378,8 +3430,7 @@ Class.fortress = {
     STAT_NAMES: statnames.mixed,
     BODY: Class.cruiser.BODY,
     GUNS: [
-        ...weaponArray(
-        {
+        ...weaponArray({
             POSITION: {
                 LENGTH: 9,
                 WIDTH: 8.2,
@@ -4065,6 +4116,35 @@ Class.mender = {
         }
     ]
 };
+Class.mingler = {
+    PARENT: 'genericTank',
+    LABEL: "Mingler",
+    DANGER: 7,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 30,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 6, {delayIncrement: 0.5})
+};
 Class.monsoon = makeWhirlwind({
     PARENT: 'genericTank',
     TURRETS: [
@@ -4262,7 +4342,36 @@ Class.nimrod = {
         }
     ]
 };
-Class.octoTank = makeFlank('basic', 8, "Octo Tank", { extraStats: [g.flankGuard, g.flankGuard, g.spam], delayIncrement: 0.5, danger: 7, visualLayering: true });
+Class.octoTank = {
+    PARENT: 'genericTank',
+    LABEL: "Octo Tank",
+    DANGER: 7,
+    GUNS: weaponArray([
+        // Must be kept like this to preserve visual layering
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8,
+                ANGLE: 45,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 4)
+};
 Class.ordnance = {
     PARENT: 'genericTank',
     LABEL: "Ordnance",
@@ -6343,11 +6452,16 @@ const autoTanksT4 = [
     'bentDouble',
     'bentHybrid',
     'buttbuttin',
+    'combo',
+    'cyclone',
+    'deathStar',
     'doubleGunner',
     'dual',
     'hewnDouble',
     'jalopy',
+    'mingler',
     'musket',
+    'octoTank',
     'sprayer',
     'warkwark'
 ];
@@ -6394,9 +6508,96 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
     Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
+Class.alloy = {
+    PARENT: 'genericTank',
+    LABEL: "Alloy",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                ANGLE: 25,
+                DELAY: 1/3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                ANGLE: -25,
+                DELAY: 2/3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 3),
+    TURRETS: weaponArray({
+        TYPE: ['sniper3gun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 13,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
+};
 Class.autoDoubleFlank = makeAuto('doubleFlankTwin', "Auto-Double Flank");
-Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
+Class.autoHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.autoTriple = makeAuto('tripleTwin', "Auto-Triple");
+Class.band = makeAuto({
+    PARENT: 'genericTank',
+    DANGER: 7,
+    STAT_NAMES: statnames.mixed,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ], 3),
+    TURRETS: weaponArray({
+        TYPE: ['autoTankGun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
+}, "Band");
 Class.battletrapper = makeBattle({
     PARENT: 'genericTank',
     LABEL: "Trapper",
@@ -6545,6 +6746,384 @@ Class.cleft_old = {
         }
     ]
 };
+Class.consolidation = {
+    PARENT: 'genericTank',
+    LABEL: "Consolidation",
+    DANGER: 8,
+    GUNS: weaponArray({
+        POSITION: {
+            LENGTH: 18,
+            WIDTH: 8
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+            TYPE: 'bullet'
+        }
+    }, 4),
+    TURRETS: weaponArray({
+        TYPE: ['autoTankGun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 8,
+            ANGLE: 45,
+            ARC: 190
+        }
+    }, 4)
+};
+Class.coop = makeAuto({
+    PARENT: 'genericTank',
+    LABEL: "Pen",
+    DANGER: 7,
+    STAT_NAMES: statnames.trap,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 8,
+                ANGLE: 180
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 8,
+                ASPECT: 1.7,
+                X: 13,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 8,
+                ASPECT: 1.7,
+                X: 13
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ], 3)
+}, "Coop");
+Class.cozen = makeAuto(makeFlank({
+    PARENT: 'genericTank',
+    STAT_NAMES: statnames.mixed,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 5,
+                WIDTH: 5,
+                X: 8,
+                ANGLE: 30
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone, { size: 0.65 }]),
+                TYPE: 'bullet'
+            }
+        },
+        ...Class.trapper.GUNS
+    ]
+}, 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Cozen");
+Class.decaTank = {
+    PARENT: 'genericTank',
+    LABEL: "Deca Tank",
+    DANGER: 8,
+    GUNS: weaponArray([
+        // Must be kept like this to preserve visual layering
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8,
+                ANGLE: 36,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 5)
+};
+Class.demise = {
+    PARENT: 'genericTank',
+    LABEL: "Demise",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 12,
+                ANGLE: 45,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 12
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 4)
+};
+Class.designer = makeAuto({
+    // Must be defined manually to preserve visual layering
+    PARENT: 'genericTank',
+    DANGER: 8,
+    FACING_TYPE: ['spin', { speed: 0.02 }],
+    BODY: {
+        FOV: base.FOV * 1.15,
+        SPEED: base.SPEED * 1.125 // 4.7X
+    },
+    TURRETS: weaponArray([
+        {
+            TYPE: 'architectGun',
+            POSITION: {
+                SIZE: 12,
+                X: 8,
+                ANGLE: 180,
+                ARC: 190
+            }
+        },
+        {
+            TYPE: 'architectGun',
+            POSITION: {
+                SIZE: 12,
+                X: 8,
+                ARC: 190
+            }
+        }
+    ], 3)
+}, "Designer");
+Class.dustStorm = {
+    PARENT: 'genericTank',
+    LABEL: "Dust Storm",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 51
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 77,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 102,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 128
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 154
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 205,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 231
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 257
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 282,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 308,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 334
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ['bee', { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: 'drone',
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        }
+    ]
+};
 Class.flexedDouble = makeFlank('pentaShot', 2, "Flexed Double", { extraStats: [g.doubleTwin] });
 Class.foretrapper = makeFore({
     PARENT: 'genericTank',
@@ -6577,6 +7156,58 @@ Class.foretrapper = makeFore({
         }
     ]
 });
+Class.gale = {
+    PARENT: 'genericTank',
+    LABEL: "Gale",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8,
+                ANGLE: 45,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.spam]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 30,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 60
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+    ], 4)
+};
 Class.harpy = makeGunner('falcon', "Harpy", { gunLength: 20, noDeco: true, renderBehind: true });
 Class.hewnFlankDouble = {
     PARENT: 'genericTank',
@@ -6650,10 +7281,217 @@ Class.hewnTriple = {
         }, {delayIncrement: 0.5}), 3)
     ]
 };
+Class.hexaMachine = makeAuto(makeFlank({
+    PARENT: 'genericTank',
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7,
+                ASPECT: 1.4
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 10,
+                ASPECT: 1.3,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { spray: 5 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ]
+}, 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Hexa-Machine");
+Class.hexaMech = makeAuto(makeFlank({
+    PARENT: 'genericTank',
+    STAT_NAMES: statnames.trap,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 8,
+                ANGLE: 180,
+                DELAY: 0.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 11,
+                ANGLE: 180,
+                DELAY: 0.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 15,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap]),
+                TYPE: 'autoTrap',
+                STAT_CALCULATOR: 'trap'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 8
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 11
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap]),
+                TYPE: 'autoTrap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ]
+}, 3, "", { extraStats: [g.hexaTrapper], danger: 7 }), "Hexa-Mech");
+Class.hexaTrapGuard = makeAuto({
+    PARENT: 'genericTank',
+    DANGER: 7,
+    STAT_NAMES: statnames.mixed,
+    HAS_NO_RECOIL: true,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic]),
+                TYPE: 'bullet'
+            }
+        },
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 15,
+                    WIDTH: 7,
+                    ANGLE: 360/7,
+                    DELAY: 1/3
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 3,
+                    WIDTH: 7,
+                    ASPECT: 1.7,
+                    X: 15,
+                    ANGLE: 360/7,
+                    DELAY: 1/3
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                    TYPE: 'trap',
+                    STAT_CALCULATOR: 'trap'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 15,
+                    WIDTH: 7,
+                    ANGLE: 360/7 * 2,
+                    DELAY: 2/3
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 3,
+                    WIDTH: 7,
+                    ASPECT: 1.7,
+                    X: 15,
+                    ANGLE: 360/7 * 2,
+                    DELAY: 2/3
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                    TYPE: 'trap',
+                    STAT_CALCULATOR: 'trap'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 15,
+                    WIDTH: 7,
+                    ANGLE: 360/7 * 3,
+                    DELAY: 1
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 3,
+                    WIDTH: 7,
+                    ASPECT: 1.7,
+                    X: 15,
+                    ANGLE: 360/7 * 3,
+                    DELAY: 1
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                    TYPE: 'trap',
+                    STAT_CALCULATOR: 'trap'
+                }
+            }
+        ], {delayOverflow: true})
+    ]
+}, "Hexa-Trap Guard");
 Class.marine = makeGunner('ranger', "Marine");
 Class.megaAutoDirectordrive = makeAuto('directordrive', "Mega Auto-Directordrive", preset.makeAuto.driveMega);
 Class.megaAutoDouble = makeAuto('doubleTwin', "Mega Auto-Double", preset.makeAuto.mega);
-Class.megaHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 6 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
+Class.megaHexaTrapper = makeAuto(makeFlank('trapper', 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
+Class.octoTrapper = makeAuto(makeFlank('trapper', 8, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Octo-Trapper");
+Class.orbitalStrike = {
+    PARENT: 'genericTank',
+    LABEL: "Orbital Strike",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 14,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.flankGuard, g.flankGuard]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.flankGuard, g.flankGuard]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 3)
+};
 Class.overdoubleTwin = makeOver('doubleTwin', "Overdouble Twin", { angle: 90, renderBehind: true });
 Class.protector = {
     PARENT: 'genericTank',
@@ -6738,6 +7576,49 @@ Class.quintuplet = {
 };
 Class.ransacker = makeGuard('rifle', "Ransacker");
 Class.ransacker_old = makeGuard('rifle_old');
+Class.refuge = makeAuto({
+    PARENT: 'genericTank',
+    DANGER: 7,
+    STAT_NAMES: statnames.mixed,
+    BODY: Class.cruiser.BODY,
+    GUNS: [
+        ...weaponArray([
+            {
+                POSITION: {
+                    LENGTH: 14,
+                    WIDTH: 9
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 9,
+                    ASPECT: 1.5,
+                    X: 14
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper, { range: 0.5, speed: 0.7, maxSpeed: 0.7 }]),
+                    TYPE: 'trap',
+                    STAT_CALCULATOR: 'trap'
+                }
+            }
+        ], 6, {delayIncrement: 0.5}),
+        ...weaponArray({
+            POSITION: {
+                LENGTH: 7.75,
+                WIDTH: 8.2,
+                ASPECT: 0.6,
+                X: 5,
+                ANGLE: 180
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm]),
+                TYPE: 'swarm',
+                STAT_CALCULATOR: 'swarm'
+            }
+        }, 3, {delayIncrement: 1/3})
+    ],
+}, "Refuge");
 Class.scatterer = {
     PARENT: 'genericTank',
     LABEL: "Scatterer",
@@ -6769,6 +7650,30 @@ Class.scatterer = {
             }
         }
     ]
+};
+Class.sequence = {
+    PARENT: 'genericTank',
+    LABEL: "Sequence",
+    DANGER: 8,
+    GUNS: weaponArray({
+        POSITION: {
+            LENGTH: 20.5,
+            WIDTH: 12
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard]),
+            TYPE: 'bullet'
+        }
+    }, 3),
+    TURRETS: weaponArray({
+        TYPE: ['megaAutoTankGun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 14,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
 };
 Class.skewnDouble = {
     PARENT: 'genericTank',
@@ -6815,6 +7720,50 @@ Class.skewnDouble = {
     ]
 };
 Class.tailer = makeGunner('stalker', "Tailer");
+Class.tempest_AR = {
+    PARENT: 'genericTank',
+    LABEL: "Tempest",
+    DANGER: 8,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 2.5,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 2.5,
+                X: 8,
+                ANGLE: 20,
+                DELAY: 2/3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 2.5,
+                X: 8,
+                ANGLE: 40,
+                DELAY: 1/3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        }
+    ], 6)
+};
 Class.tornado_AR = {
     PARENT: 'genericTank',
     LABEL: "Tornado",
@@ -6837,7 +7786,7 @@ Class.tornado_AR = {
                 LENGTH: 16,
                 WIDTH: 5.5,
                 ANGLE: 30,
-                DELAY: 0.25
+                DELAY: 0.5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -6849,7 +7798,7 @@ Class.tornado_AR = {
                 LENGTH: 16,
                 WIDTH: 5.5,
                 ANGLE: 60,
-                DELAY: 0.5
+                DELAY: 0.25
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -6900,6 +7849,175 @@ Class.tripleFlankTwin = makeFlank({
     ]
 }, 3, "Triple Flank Twin", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin] });
 Class.tripleGunner = makeFlank('gunner', 3, "Triple Gunner", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.trove = {
+    PARENT: 'genericTank',
+    LABEL: "Trove",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: 1,
+                ANGLE: 10,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: -1,
+                ANGLE: 80,
+                DELAY: 0.75
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: 1,
+                ANGLE: 100
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: -1,
+                ANGLE: 170,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: 1,
+                ANGLE: -170,
+                DELAY: 0.75
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: -1,
+                ANGLE: -100,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: 1,
+                ANGLE: -80,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 3.5,
+                X: 8,
+                Y: -1,
+                ANGLE: -10
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        }
+    ],
+    TURRETS: weaponArray({
+        TYPE: ['auto4gun', { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 13,
+            X: 6,
+            ANGLE: 45,
+            ARC: 190
+        }
+    }, 4)
+};
+Class.unity = {
+    PARENT: 'genericTank',
+    LABEL: "Unity",
+    DANGER: 8,
+    GUNS: [
+        ...weaponArray({
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 3.5,
+                ANGLE: 30,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: 'bullet'
+            }
+        }, 6, {delayIncrement: 0.5}),
+        ...weaponArray([
+            {
+                POSITION: {
+                    LENGTH: 20.5,
+                    WIDTH: 12,
+                    ANGLE: 180,
+                    DELAY: 0.5
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard]),
+                    TYPE: 'bullet'
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 20.5,
+                    WIDTH: 12
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard]),
+                    TYPE: 'bullet'
+                }
+            }
+        ], 3)
+    ]
+};
 Class.vulcan = {
     PARENT: 'genericTank',
     LABEL: "Vulcan",
@@ -6959,6 +8077,98 @@ Class.vulcan = {
     ]
 };
 Class.warkwarkwark = makeFlank('wark', 3, "Warkwarkwark", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.whirlwind_AR = /*makeAuto(*/{
+    PARENT: 'genericTank',
+    LABEL: "Whirlwind",
+    DANGER: 8, //7,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 3.5,
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 2.2,
+                WIDTH: 3.5,
+                ASPECT: 1.7,
+                X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.flankGuard, g.flankGuard, g.cyclone, { size: 1.25 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 3.5,
+                ANGLE: 30
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 2.2,
+                WIDTH: 3.5,
+                ASPECT: 1.7,
+                X: 14,
+                ANGLE: 30,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.flankGuard, g.flankGuard, g.cyclone, { size: 1.25 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 3.5,
+                ANGLE: 60
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 2.2,
+                WIDTH: 3.5,
+                ASPECT: 1.7,
+                X: 14,
+                ANGLE: 60,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.flankGuard, g.flankGuard, g.cyclone, { size: 1.25 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 3.5,
+                ANGLE: 90
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 2.2,
+                WIDTH: 3.5,
+                ASPECT: 1.7,
+                X: 14,
+                ANGLE: 90,
+                DELAY: 0.75
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.flankGuard, g.flankGuard, g.cyclone, { size: 1.25 }]),
+                TYPE: 'trap',
+                STAT_CALCULATOR: 'trap'
+            }
+        }
+    ], 3)
+};//, "Whirlwind");
 
 // Special Tanks (Dominators)
 Class.dominator = {
@@ -8371,7 +9581,7 @@ if (Config.arms_race) {
                 addUpgrades('auto4', tier4_AR, []);
                 addUpgrades('machineGunner', tier4_AR, []);
                 addUpgrades('gunnerTrapper', tier4_AR, []);
-                addUpgrades('cyclone', tier4_AR, []);
+                addUpgrades('cyclone', tier4_AR, ['tornado_AR', 'dustStorm', 'autoCyclone', 'tempest_AR', 'gale', 'whirlwind_AR', 'trove']);
                 addUpgrades('overgunner', tier4_AR, []);
                 addUpgrades('battery', tier4_AR, []);
                 addUpgrades('buttbuttin', tier4_AR, [/*'baton', */'marine', 'harpy', 'tailer'/*, 'fang', 'barber'*/, 'mercenary', 'autoButtbuttin'/*, 'armament', 'sifter'*/]);
@@ -8382,15 +9592,15 @@ if (Config.arms_race) {
             ////addUpgrades('bentGunner', tier4_AR, []);
             ////addUpgrades('equalizer', tier4_AR, []);
 
-            addUpgrades('hexaTank', 3, ['autoHexaTank'/*, 'mingler', 'combo'*/]);
+            addUpgrades('hexaTank', 3, ['autoHexaTank', 'mingler', 'combo']);
                 addUpgrades('hexaTank', tier4_AR, ['tripleFlankTwin']);
-                addUpgrades('octoTank', tier4_AR, []);
-                addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`)]);
+                addUpgrades('octoTank', tier4_AR, ['decaTank', 'tempest_AR', 'gale', 'octoTrapper', 'demise', 'autoOctoTank', 'consolidation']);
+                addUpgrades('hexaTrapper', tier4_AR, [...['mega', 'auto'].map(x => `${x}HexaTrapper`), 'hexaMachine', 'octoTrapper', 'designer', 'cozen', 'refuge', 'coop', 'hexaMech', 'hexaTrapGuard', 'band']);
                 //addUpgrades('cyclone', tier4_AR);
-                addUpgrades('deathStar', tier4_AR, []);
-                addUpgrades('autoHexaTank', tier4_AR, []);
-            ////addUpgrades('mingler', tier4_AR, []);
-            ////addUpgrades('combo', tier4_AR, []);
+                addUpgrades('deathStar', tier4_AR, ['demise', 'designer', 'orbitalStrike', 'autoDeathStar', 'unity', 'sequence']);
+                addUpgrades('autoHexaTank', tier4_AR, ['OctoTank', 'Cyclone', 'DeathStar', 'Mingler', 'Combo'].map(x => `auto${x}`));
+                addUpgrades('mingler', tier4_AR, ['unity', 'alloy', 'gale', 'cozen', 'autoMingler']);
+                addUpgrades('combo', tier4_AR, ['consolidation', 'sequence', 'trove', 'alloy', 'autoCombo', 'band']);
 
             addUpgrades('wark', 3, ['warkwark'/*, 'waarrk', 'equalizer'*/, 'hexaTrapper'/*, 'hutch', 'cog', 'expeller'*/, 'bulwark', 'coalesce', 'autoWark']);
                 addUpgrades('wark', tier4_AR, []);
@@ -8456,7 +9666,7 @@ if (Config.arms_race) {
                 //addUpgrades('enforcer', tier4_AR);
                 //addUpgrades('courser', tier4_AR);
 
-        addUpgrades('machineGun', 2, ['diesel'/*, 'machineTrapper'*/]);
+        addUpgrades('machineGun', 2, ['diesel', 'machineTrapper']);
             addUpgrades('machineGun', 3, ['sprayer']);
                 addUpgrades('machineGun', tier4_AR, [/*'gadgetGun'*/]);
                 addUpgrades('sprayer', tier4_AR, [/*'duster', 'frother', */'scatterer'/*, 'foamer'*/, 'shower', 'autoSprayer', 'phoenix']);
@@ -8486,8 +9696,8 @@ if (Config.arms_race) {
                 addUpgrades('polluter', tier4_AR, []);
                 addUpgrades('autoDiesel', tier4_AR, []);
 
-        ////addUpgrades('machineTrapper', 3, [/*'dieselTrapper', */'barricade'/*, 'equalizer', 'machineGuard', 'encircler', 'machineMech', 'triMachine', 'expeller', 'autoMachineTrapper', 'deviation'*/]);
-            ////addUpgrades('machineTrapper', tier4_AR, [/*'frother', 'machineMegaTrapper'*/]);
+            addUpgrades('machineTrapper', 3, [/*'dieselTrapper', */'barricade'/*, 'equalizer', 'machineGuard', 'encircler', 'machineMech', 'triMachine', 'expeller', 'autoMachineTrapper', 'deviation'*/]);
+                addUpgrades('machineTrapper', tier4_AR, [/*'frother', 'machineMegaTrapper'*/]);
                 //addUpgrades('dieselTrapper', tier4_AR, []);
                 //addUpgrades('barricade', tier4_AR);
                 //addUpgrades('equalizer', tier4_AR);
@@ -8521,7 +9731,7 @@ if (Config.arms_race) {
                 addUpgrades('defect', tier4_AR, []);
             ////addUpgrades('quadAngle', tier4_AR, []);
 
-            addUpgrades('auto3', 3, ['sniper3', 'crowbar', 'autoAuto3'/*, 'combo'*/]);
+            addUpgrades('auto3', 3, ['sniper3', 'crowbar', 'autoAuto3', 'combo']);
                 addUpgrades('auto5', tier4_AR, []);
                 addUpgrades('mega3', tier4_AR, []);
                 addUpgrades('auto4', tier4_AR, []);
@@ -8690,7 +9900,7 @@ if (Config.arms_race) {
             ////addUpgrades('hurler', tier4_AR, []);
             ////addUpgrades('inception', tier4_AR, []);
 
-        addUpgrades('trapper', 2, ['pen', 'mech'/*, 'machineTrapper'*/, 'wark']);
+        addUpgrades('trapper', 2, ['pen', 'mech', 'machineTrapper', 'wark']);
             addUpgrades('trapper', 3, [/*'megaTrapper'*/]);
                 addUpgrades('trapper', tier4_AR, [/*'tricker'*/]);
                 //addUpgrades('barricade', tier4_AR);

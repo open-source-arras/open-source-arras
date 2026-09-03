@@ -57,6 +57,14 @@ module.exports = {
         resist: 3,
         spray: 0
     },
+    trapSpray: {
+        reload: 23,
+        shudder: 0.25,
+        size: 0.7,
+        damage: 0.75,
+        speed: 3.25,
+        resist: 3
+    },
 
     // Spammers
     single: {
@@ -493,6 +501,13 @@ module.exports = {
         speed: 1.5,
         maxSpeed: 1.5,
         density: 0.25
+    },
+    dustStorm: {
+        reload: 1/3,
+        size: 1.35,
+        damage: 1/3,
+        speed: 0.75,
+        maxSpeed: 0.75
     },
     sunchip: {
         reload: 4,
