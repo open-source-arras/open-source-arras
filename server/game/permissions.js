@@ -10,29 +10,21 @@ module.exports = [
     {
         key: process.env.BETA_TESTER,
         level: 1,
-        class: "menu_betaTester",
+        class: 'menu_betaTester',
         nameColor: "#ffffff",
         note: "note here"
     },
     {
         key: process.env.SHINY,
         level: 2,
-        class: "menu_shinyMember",
+        class: 'menu_shinyMember',
         nameColor: "#ffffff",
         note: "note here"
     },
     {
         key: process.env.YOUTUBER,
         level: 2,
-        class: "menu_youtuber",
-        nameColor: "#ffffff",
-        note: "note here"
-    },
-    {
-        key: process.env.SPECIAL,
-        administrator: true,
-        level: 3,
-        class: "menu_special",
+        class: 'menu_youtuber',
         nameColor: "#ffffff",
         note: "note here"
     },
@@ -40,7 +32,7 @@ module.exports = [
         key: process.env.DEVELOPER,
         administrator: true,
         level: 3,
-        class: "developer",
+        class: 'menu_special',
         nameColor: "#ffffff",
         note: "note here"
     },

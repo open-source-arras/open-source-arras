@@ -61,25 +61,28 @@ Class.menu_betaTester = makeMenu("Beta Tester Menu", {
 Class.menu_tankChanges = makeMenu("Tank Changes Menu", {
     upgrades: [
         'menu_betaTester',
-        Config.spawn_class
+        Config.spawn_class,
+        'bender',
+        'repeater',
+        'spiral',
     ]
 });
 
 // Special Tanks Menu
 Class.menu_specialTanks = makeMenu("Special Tanks Menu", {
     upgrades: [
-        //'menu_special',
-        //'menu_healers',
+        'menu_healers',
         'menu_dominators',
         'menu_sanctuaries',
         'arenaCloser',
         'bacteria',
         'literallyAMachineGun',
+        'literallyATank',
         //'manager_special',
         'mothership',
-        //'flagship',
+        'flagship',
         'turkey',
-        //'developer',
+        'nemesis',
         'arrasPolice'
     ]
 });
@@ -170,6 +173,7 @@ Class.menu_bosses = makeMenu("Bosses Menu", {
         'dev'
     ].map(x => `menu_${x}Bosses`)
 });
+Class.menu_bosses.UPGRADES_TIER_0.push('bob')
 Class.menu_eliteBosses = makeMenu("Elite Bosses Menu", {
     color: 'pink',
     upgrades: [
@@ -211,7 +215,8 @@ Class.menu_mysticalBosses = makeMenu("Mystical Bosses Menu", {
         'summoner',
         'enchantress',
         'exorcistor',
-        'shaman'
+        'shaman',
+        'witch'
     ]
 });
 Class.menu_terrestrialBosses = makeMenu("Terrestrial Bosses Menu", {
@@ -303,43 +308,34 @@ Class.menu_retiredDevBosses = makeMenu("Retired Dev Bosses Menu", {
 // Nostalgia/Scrapped Menus
 Class.menu_nostalgia = makeMenu("Nostalgia Menu", {
     upgrades: [
-        'spreadshot_old',
         'bentBoomer_old',
-        'quadBuilder',
-        'quintuplet',
-        'vulcan',
-        'sniper3',
-        'spike_old',
-        'master',
-        'commander_old',
         'blunderbuss',
+        'commander_old',
+        'jumpSmasher',
+        'master',
+        'quadBuilder',
         'rimfire_old',
-        'ransacker'
+        'septaTrapper_old',
+        'spike_old',
+        'spreadshot_old',
+        'undertow',
+        'whirlwind',
+        'whirlwind_old'
     ]
 });
 Class.menu_scrapped = makeMenu("Scrapped Menu", {
     upgrades: [
-        'menu_scrapped2',
-        'rocketeer',
-        'crowbar',
-        'peashooter',
         'autoTrapper',
-        'megaTrapper',
-        'railgun',
-        'megaSpawner',
-        'dreadnought_old'
-    ]
-});
-Class.menu_scrapped2 = makeMenu("Scrapped Menu 2", {
-    upgrades: [
-        'menu_gameMod',
-        'menu_scrapped',
+        'cocci',
+        'dreadnought_old',
+        'flail',
         'mender',
+        'oroboros',
         'prodigy',
-        'spawnerdrive',
-        'rimfire',
-        'productionist',
-        'vulture'
+        'rocket',
+        'volute',
+        'whirlwind_bent',
+        'wrangler',
     ]
 });
 
@@ -403,7 +399,9 @@ Class.menu_misc = makeMenu("Misc", {
         //'quadCyclone',
         'beeman',
         'heptaAutoBasic',
-        'alas'
+        'alas',
+        'riptide',
+        'smasher3'
     ]
 });
 Class.menu_digdig = makeMenu("DigDig", {

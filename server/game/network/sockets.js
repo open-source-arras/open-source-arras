@@ -1162,12 +1162,6 @@ class socketManager {
             body.protect();
             body.isPlayer = true;
             body.define(Config.spawn_class);
-            if (Class.menu_tanks) {
-                let string = Class.menu_tanks.UPGRADES_TIER_0[0];
-                if (string !== "basic") {
-                    Class.menu_addons.UPGRADES_TIER_0.push("basic")
-                }
-            }
             body.name = name;
             body.incognito = socket.status.incognito ?? false;
             if (socket.permissions && socket.permissions.nameColor) {

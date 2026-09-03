@@ -1430,7 +1430,7 @@ import * as socketStuff from "./socketinit.js";
             Tab: "↹",
         };
         return map[key];
-    }
+    };
     function getKeybind(keybind) {
         const key = global[keybind];
 

@@ -2084,7 +2084,7 @@ Class.boomer = {
 Class.bentBoomer_old = {
     PARENT: 'genericTank',
     LABEL: "Boomer",
-    UPGRADE_LABEL: "Bent Boomer",
+    UPGRADE_LABEL: "Old Bent Boomer",
     DANGER: 7,
     STAT_NAMES: statnames.trap,
     BODY: {
@@ -6449,19 +6449,25 @@ Class.xHunter = {
 
 // Tier 4 (Level 60)
 const autoTanksT4 = [
+    'auto4',
+    'auto5',
+    'banshee',
     'bentDouble',
     'bentHybrid',
     'buttbuttin',
     'combo',
+    'crowbar',
     'cyclone',
     'deathStar',
     'doubleGunner',
     'dual',
     'hewnDouble',
     'jalopy',
+    'mega3',
     'mingler',
     'musket',
     'octoTank',
+    'sniper3',
     'sprayer',
     'warkwark'
 ];
@@ -6487,6 +6493,7 @@ for (let i = 0; i < doubleTanksT4.length; i++) {
 const hybridTanksT4 = [
     // Base Tank    //Director
     ['buttbuttin',  "Mercenary"],
+    ['crowbar',     "Spindle"],
     ['dual',        "Ravisher"],
     ['jalopy',      "Contaminator"],
     ['musket',      "Matchlock"],
@@ -6930,6 +6937,63 @@ Class.designer = makeAuto({
         }
     ], 3)
 }, "Designer");
+Class.dualbar = {
+    PARENT: 'genericTank',
+    LABEL: "Dualbar",
+    DANGER: 8,
+    BODY: {
+        FOV: 1.25 * base.FOV
+    },
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 40,
+                WIDTH: 7,
+                ANGLE: 90
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9,
+                ASPECT: -2,
+                ANGLE: 90
+            }
+        }
+    ], 2),
+    TURRETS: weaponArray([
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 19.5,
+                ANGLE: 90,
+                ARC: 180,
+                LAYER: 1
+            }
+        },
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 29.75,
+                ANGLE: 90,
+                ARC: 180,
+                LAYER: 1
+            }
+        },
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 40,
+                ANGLE: 90,
+                ARC: 180,
+                LAYER: 1
+            }
+        }
+    ], 2)
+};
 Class.dustStorm = {
     PARENT: 'genericTank',
     LABEL: "Dust Storm",
@@ -8169,6 +8233,58 @@ Class.whirlwind_AR = /*makeAuto(*/{
         }
     ], 3)
 };//, "Whirlwind");
+Class.wrench = {
+    PARENT: 'genericTank',
+    LABEL: "Wrench",
+    DANGER: 8,
+    BODY: {
+        FOV: 1.25 * base.FOV
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 40,
+                WIDTH: 7
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9,
+                ASPECT: -2
+            }
+        }
+    ],
+    TURRETS: [
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 19.5,
+                ARC: 180,
+                LAYER: 1
+            }
+        },
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 29.75,
+                ARC: 180,
+                LAYER: 1
+            }
+        },
+        {
+            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: 6,
+                X: 40,
+                ARC: 180,
+                LAYER: 1
+            }
+        }
+    ]
+};
 
 // Special Tanks (Dominators)
 Class.dominator = {
@@ -9169,12 +9285,6 @@ Class.developer = {
                 TYPE: 'developerBullet'
             }
         }
-    ],
-    UPGRADES_TIER_0: [
-        'menu_tanks',
-        'menu2_bosses',
-        'eggGen',
-        'menu_addons',
     ]
 };
 Class.fat456 = makeRadialAuto('architectGun', { isTurret: true, danger: 7, size: 12, label: "Fat456", body: { FOV: base.FOV * 1.15, SPEED: base.SPEED * 4 } });
@@ -9732,13 +9842,13 @@ if (Config.arms_race) {
             ////addUpgrades('quadAngle', tier4_AR, []);
 
             addUpgrades('auto3', 3, ['sniper3', 'crowbar', 'autoAuto3', 'combo']);
-                addUpgrades('auto5', tier4_AR, []);
-                addUpgrades('mega3', tier4_AR, []);
-                addUpgrades('auto4', tier4_AR, []);
-                addUpgrades('banshee', tier4_AR, []);
-                addUpgrades('sniper3', tier4_AR, []);
-                addUpgrades('crowbar', tier4_AR, []);
-                addUpgrades('autoAuto3', tier4_AR, []);
+                addUpgrades('auto5', tier4_AR, [/*'auto7', 'mega5', 'auto6', 'spectre', 'sniper5', 'pryer', */'autoAuto5']);
+                addUpgrades('mega3', tier4_AR, [/*'ultra3', 'queller3', 'hurler3', 'slinker3', 'mega5', 'volley4', 'spirit', 'crank', */'autoMega3', 'sequence']);
+                addUpgrades('auto4', tier4_AR, [/*'auto6', 'batter4', */'autoAuto4'/*, 'wraith', 'volley4', 'chisel'*/, 'trove']);
+                addUpgrades('banshee', tier4_AR, [/*'spectre', 'spirit', 'wraith', 'phantom', */'autoBanshee'/*, 'revenant', 'bansheedrive', 'shade'*/]);
+                addUpgrades('sniper3', tier4_AR, [/*'assassin3', 'creeper', 'sniper5', 'phantom', 'lever', */'autoSniper3', 'alloy'/*, 'rifle3', 'hunter3'*/]);
+                addUpgrades('crowbar', tier4_AR, [/*'pryer', 'crank', 'chisel', 'lever', */'spindle', 'autoCrowbar', 'dualbar'/*, 'spanner'*/, 'wrench']);
+                addUpgrades('autoAuto3', tier4_AR, ['Auto5', 'Mega3', 'Auto4', 'Banshee', 'Sniper3', 'Crowbar', 'Combo'].map(x => `auto${x}`));
                 //addUpgrades('combo', tier4_AR);
 
             addUpgrades('trapGuard', 3, ['peashooter'/*, 'incarcerator', 'mechGuard'*/, 'autoTrapGuard'/*, 'machineGuard', 'triTrapGuard'*/]);

@@ -6,11 +6,6 @@ Class.ramMiniboss = {
     CONTROLLERS: ["nearestDifferentMaster", "canRepel", "mapTargetToGoal"],
 }
 
-Class.menu_rammers = makeMenu("Rammers", {upgrades: [
-    "bob",
-    "nemesis",
-], color: "aqua", boxColor: "aqua", props: [{TYPE: "dominationBody", POSITION: {SIZE: 21.5, ARC: 360 }}]})
-
 Class.bob = {
     PARENT: "ramMiniboss",
     LABEL: "Bob",

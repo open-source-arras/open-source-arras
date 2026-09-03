@@ -274,18 +274,8 @@ Class.witch = {
     }, {delayIncrement: 0.5}), 3)
 }
 
-Class.menu_mysticals = makeMenu("Mysticals", {upgrades: [
-    'sorcerer',
-    'summoner',
-    'enchantress',
-    'exorcistor',
-    'shaman',
-    'witch',
-], color: "gold", boxColor: "gold", shape: 4})
-
-
 if (Config.classic_food) {
-    Class.menu_mysticals.UPGRADES_TIER_0.splice(5, 0, 'sangoma', 'preacher', 'herbalist')
+    Class.menu_mysticalBosses.UPGRADES_TIER_0.splice(5, 0, 'sangoma', 'preacher', 'herbalist')
     Class.shaman.COLOR = "magenta"
     Class.shaman.UPGRADE_COLOR = "magenta"
 }
