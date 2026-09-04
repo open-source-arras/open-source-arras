@@ -743,6 +743,14 @@ module.exports = {
     },
 
     // Traps and blocks
+    pen: {
+        recoil: 0.75,
+        health: 1.02,
+        damage: 0.81,
+        pen: 0.9,
+        maxSpeed: 0.85,
+        density: 1.2
+    },
     megaTrap: {
         reload: 2,
         damage: 2,
