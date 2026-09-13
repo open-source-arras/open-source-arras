@@ -11171,137 +11171,105 @@ Class.theConglomerate = {
     PARENT: "genericTank",
     LABEL: "The Conglomerate",
     DANGER: 13,
-    STAT_NAMES: statnames.mixed,
     BODY: {
         SPEED: base.SPEED * 0.85,
-        FOV: base.FOV * 1.1
+        FOV: base.FOV * 1.2
     },
     GUNS: [
         {
-            POSITION: [17, 10, 1, 0, 0, 180, 0]
-        },
-        {
-            POSITION: [5, 18, 1, -19, 0, 0, 0], // todo: work out cooldown time
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([
-                    g.basic,
-                    g.pounder,
-                    g.destroyer,
-                    g.healer
-                    //[2, 0, 1, 1, 1, -1, 1, 1, 1, 0.1, 1, 1, 1],
-                ]),
-                TYPE: "healerBullet",
-                ALT_FIRE: true
-            }
-        },
-        {
-            POSITION: [28, 2, 1, 0, 4, 180, 0],
+            POSITION: [30, 2, 1, 0, 4, 180, 0],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [30, 7, 1, 0, 0, 0, 0]
+            POSITION: [40, 7, 1, 0, 0, 0, 0]
         },
         {
-            POSITION: [15, 9, -2, 0, 0, 0, 0]
-        },
-        {
-            POSITION: [28, 2, 1, 0, -4, 180, 0.8],
+            POSITION: [30, 2, 1, 0, -4, 180, 0.8],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [28, 2, 1, 0, 2.25, 180, 0.2],
+            POSITION: [30, 2, 1, 0, 2.25, 180, 0.2],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [28, 2, 1, 0, -2.25, 180, 0.6],
+            POSITION: [30, 2, 1, 0, -2.25, 180, 0.6],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [28, 2, 1, 0, 0, 180, 0.4],
+            POSITION: [30, 2, 1, 0, 0, 180, 0.4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
-        },
-        {
-            POSITION: [5, 13, 1, 7, 0, 180, 0]
         },
         {
             POSITION: [5, 13, 1, 20, 0, 180, 0]
         },
+        ...weaponMirror([
+            {
+                POSITION: [14, 8, 1, 0, 1, -140, 0.6],
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    TYPE: "bullet",
+                    LABEL: "thruster"
+                }
+            },
+            {
+                POSITION: [16, 8, 1, 0, 0, -150, 0.1],
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    TYPE: "bullet",
+                    LABEL: "thruster"
+                }
+            }
+        ]),
         {
-            POSITION: [14, 8, 1, 0, -1, 140, 0.6],
+            POSITION: [20, 20, 1, 0, 0, 180, 0]
+        },
+        {
+            POSITION: [20, 8, 1, 0, 0, 180, 0]
+        },
+        {
+            POSITION: [24, 5, 1, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
-                TYPE: "bullet",
-                LABEL: "thruster"
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {speed: 2, reload: 2}]), // not sure about damage/penetration/health stats
+                TYPE: "bullet"
             }
         },
         {
-            POSITION: [16, 8, 1, 0, 0, 150, 0.1],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
-                TYPE: "bullet",
-                LABEL: "thruster"
-            }
-        },
-        {
-            POSITION: [14, 8, 1, 0, 1, -140, 0.6],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
-                TYPE: "bullet",
-                LABEL: "thruster"
-            }
-        },
-        {
-            POSITION: [16, 8, 1, 0, 0, -150, 0.1],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
-                TYPE: "bullet",
-                LABEL: "thruster"
-            }
-        },
-        {
-            POSITION: [18, 16, 1, 0, 0, 180, 0],
+            POSITION: [20, 16, 1, 0, 0, 180, 0],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic]),
                 TYPE: "masterBullet",
                 MAX_CHILDREN: 4,
-                DESTROY_OLDEST_CHILD: true
+                DESTROY_OLDEST_CHILD: true,
+                ALPHA: 0
             }
         },
-        {
-            POSITION: [14, 6, 1, 0, 0, 45, 0]
-        },
-        {
-            POSITION: [2, 6, 1.1, 14, 0, 45, 0],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.weak]),
-                TYPE: "setTrap"
+        ...weaponMirror([
+            {
+                POSITION: [15, 7, 1, 0, 0, -60, 0]
+            },
+            {
+                POSITION: [2, 7, 1.1, 15, 0, -60, 0],
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.weak]),
+                    TYPE: "setTrap"
+                }
             }
-        },
-        {
-            POSITION: [14, 6, 1, 0, 0, -45, 0]
-        },
-        {
-            POSITION: [2, 6, 1.1, 14, 0, -45, 0],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.weak]),
-                TYPE: "setTrap"
-            }
-        },
+        ]),
         {
             POSITION: [16, 16, 1.4, 0, 0, 180, 0],
             PROPERTIES: {
@@ -11341,6 +11309,13 @@ Class.theConglomerate = {
                 TYPE: "bullet"
             }
         },
+        ...weaponMirror({
+            POSITION: [12, 5, 1, 0, -6, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin]),
+                TYPE: "bullet"
+            }
+        }, {delayIncrement: 0.5}),
         {
             POSITION: [22, 10, 1, 0, 0, 0, 0],
             PROPERTIES: {
@@ -11380,30 +11355,26 @@ Class.theConglomerate = {
     ],
     TURRETS: [
         {
-            POSITION: [6, 32, 0, 0, 180, 1],
+            POSITION: [6, 40, 0, 0, 180, 1],
             TYPE: [
                 "crowbarTurretTank",
                 { INDEPENDENT: true }
             ]
         },
         {
-            POSITION: [6, 22, 0, 0, 180, 1],
+            POSITION: [6, 30, 0, 0, 180, 1],
             TYPE: [
                 "crowbarTurretTank",
                 { INDEPENDENT: true }
             ]
         },
-        {
+        ...weaponMirror({
             POSITION: [13, 8, 0, -90, 190, 0],
-            TYPE: "sniper3gun"
-        },
-        {
-            POSITION: [13, 8, 0, 90, 190, 0],
-            TYPE: "sniper3gun"
-        },
+            TYPE: ["sniper3gun", {INDEPENDENT: true}]
+        }),
         {
             TYPE: ["triangleHat", {COLOR: "grey"}],
-            POSITION: { SIZE: 7, LAYER: 1 }
+            POSITION: { SIZE: 6, LAYER: 1 }
         }
     ]
 };
