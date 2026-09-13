@@ -1319,7 +1319,7 @@ class LayeredBoss {
             SHAPE: this.shape,
             COLOR: -1,
             INDEPENDENT: true,
-            FACING_TYPE: ["spin", { speed: 0.05 / 1.5 * (this.layerID % 2 ? -1 : 1) }],
+            FACING_TYPE: ["spin", { speed: 0.1 / 1.5 * (this.layerID % 2 ? -1 : 1) }],
             MAX_CHILDREN, 
             GUNS: [],
             TURRETS: []

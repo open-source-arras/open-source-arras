@@ -1205,7 +1205,7 @@ const averageMinionStats = {
 };
 Class.average4tdmScoreOctoTank = {
     PARENT: "genericTank",
-    NAME: "",
+    NAME: "- (◉) 🛧 ĐZY ツ 〜 ⛵︎", // couldn't find the original plane and ship symbols
     DANGER: 7,
     ...averageMinionStats,
     FACING_TYPE: "spin",
@@ -1257,7 +1257,7 @@ Class.average4tdmScoreCyclone = {
     PARENT: "genericTank",
     LABEL: "Cyclone",
     DANGER: 7,
-    NAME: "",
+    NAME: "[APS] Protect",
     ...averageMinionStats,
     FACING_TYPE: "spin",
     GUNS: weaponArray([
@@ -1318,6 +1318,7 @@ Class.average4tdmScorePentaShot = {
     LABEL: "Penta Shot",
     DANGER: 7,
     ...averageMinionStats,
+    NAME: "<!k>",
     GUNS: [
         ...weaponMirror([{
             POSITION: {
