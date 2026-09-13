@@ -29,7 +29,7 @@ const getName = (name, gamemodeData) => {
 
         // TDM
         tdm: `${gamemodeData.teams}TDM`,
-        open_tdm: `Open ${gamemodeData.teams}TDM`,
+            open_tdm: `Open ${gamemodeData.teams}TDM`,
         tetromino: `${gamemodeData.teams} Team Tetromino`,
 
         // Minigames
@@ -59,7 +59,7 @@ const getName = (name, gamemodeData) => {
 
         // Lobbies
         //forge: "Forge",
-        //old_forge: "Old Forge",
+            //old_forge: "Old Forge",
         limbo: "Limbo",
         nexus: "Nexus",
 
@@ -72,17 +72,17 @@ const getName = (name, gamemodeData) => {
         classic: "Classic",
         diep: "Diep",
         //dreadnoughts: "Dreadnoughts",
-        old_dreadnoughts: "Old Dreadnoughts",
+            old_dreadnoughts: "Old Dreadnoughts",
         fast: "Fast",
         growth: "Growth",
-        //old_growth: "Old Growth",
-        //overgrowth: "Overgrowth",
+            //old_growth: "Old Growth",
+            //overgrowth: "Overgrowth",
         //half: "Half",
         //manhunt: "Manhunt",
         march_madness: "March Madness",
         maze: "Maze",
         //labyrinth: "Labyrinth",
-        //old_labyrinth: "Old Labyrinth",
+            //old_labyrinth: "Old Labyrinth",
         //magic_maze: "Magic Maze",
         rock: "Rock",
         //pumpkin_patch: "Pumpkin Patch",
