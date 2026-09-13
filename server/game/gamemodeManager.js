@@ -10,6 +10,7 @@ const { Labyrinth } = require("./gamemodes/scripts/labyrinth.js");
 const { Outbreak } = require("./gamemodes/scripts/outbreak.js");
 const { ClanWars } = require("./gamemodes/scripts/clan_wars.js");
 const { GroupHandler } = require("./gamemodes/scripts/groups.js");
+const { HyperionBossRush } = require("./gamemodes/scripts/hyperion_boss_rush.js")
 
 class gamemodeManager {
     constructor() {
@@ -25,6 +26,7 @@ class gamemodeManager {
         this.gameOutbreak = new Outbreak(global.gameManager);
         this.gameClanwars = new ClanWars(global.gameManager);
         this.gameGroups = new GroupHandler(global.gameManager);
+        this.gameHyperionBossrush = new HyperionBossRush(global.gameManager);
     }
 
     request(type) {
@@ -37,11 +39,13 @@ class gamemodeManager {
             if (Config.maze && Config.maze_type !== undefined && !Config.siege) this.gameMaze.generate();
             if (Config.labyrinth) this.gameLabyrinth.generate();
             if (Config.outbreak) this.gameOutbreak.start();
+            if (Config.hyperion_boss_rush) this.gameHyperionBossrush.start();
         }
         if (type == "loop") {
             global.gameManager.lagLogger.set();
             if (Config.siege) this.gameSiege.loop();
             if (Config.mothership) this.gameMothership.loop();
+            if (Config.hyperion_boss_rush) this.gameHyperionBossrush.loop();
             global.gameManager.lagLogger.mark();
             if (global.gameManager.lagLogger.totalTime > 100) {
                 console.log("Gamemode loop is taking a long time!");
@@ -63,6 +67,7 @@ class gamemodeManager {
         if (Config.domination) this.gameDomination.reset();
         if (Config.mothership) this.gameMothership.reset();
         if (Config.clan_wars) this.gameClanwars.reset();
+        if (Config.hyperion_boss_rush) this.gameHyperionBossrush.reset();
     }
 
     redefine(theshit) {
@@ -74,6 +79,7 @@ class gamemodeManager {
         this.gameLabyrinth.redefine(4);
         this.gameClanwars.redefine(theshit);
         this.gameGroups.redefine(theshit);
+        this.gameHyperionBossrush.redefine(theshit);
     }
 }
 

@@ -3,8 +3,8 @@ module.exports = {
     dev_build: false, // Whether this version is unstable and should be clearly marked as such.
 
     // Client
-    main_menu: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:3000", // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    main_menu: 'index.html', // Where the main menu is located (in the /public folder).
+    host: 'localhost:3000', // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
     port: 3000, // Which port to run the web server on.
 
     // Server
@@ -15,39 +15,39 @@ module.exports = {
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
-    share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
-    - Only one server at a time can have this enabled.
-    - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
+        share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
+        - Only one server at a time can have this enabled.
+        - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
 
-    host        - Server host location.
-    port        - The port on the server.
-    id          - (<host>/#<id>)
+        host        - Server host location.
+        port        - The port on the server.
+        id          - (<host>/#<id>)
 
-    region      - The region tab the server is sorted into on the main menu.
-    serverhost  - The host of the server in the server list tooltip.
-    location    - The location of the server in the server list tooltip.
+        region      - The region tab the server is sorted into on the main menu.
+        serverhost  - The host of the server in the server list tooltip.
+        location    - The location of the server in the server list tooltip.
 
-    gamemode    - The selected gamemode.
-    player_cap  - Not including bots. Set to 0 to disable.
+        gamemode    - The selected gamemode.
+        player_cap  - Not including bots. Set to 0 to disable.
 
-    featured    - Whether the server is featured or not.
-    unlisted    - Whether the server shows up in the server list (if its id isn't in the url).
-    private     - Whether the server requires a privileged token to join (except through server travel).
+        featured    - Whether the server is featured or not.
+        unlisted    - Whether the server shows up in the server list (if its id isn't in the url).
+        private     - Whether the server requires a privileged token to join (except through server travel).
 
-    properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
-  */
+        properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
+    */
 
     servers: [
         {
             share_client_server: false,
-            host: "localhost:4000",
+            host: 'localhost:4000',
             port: 4000,
-            id: "c",
+            id: 'c',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["tdm"],
+            gamemode: ['tdm'],
             player_cap: 80,
 
             featured: false,
@@ -60,14 +60,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:5050",
+            host: 'localhost:5050',
             port: 5050,
-            id: "x",
+            id: 'x',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["arms_race", "ffa"],
+            gamemode: ['arms_race', 'ffa'],
             player_cap: 80,
 
             featured: false,
@@ -80,14 +80,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3001",
+            host: 'localhost:3001',
             port: 3001,
-            id: "la",
+            id: 'la',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["ffa"],
+            gamemode: ['ffa'],
             player_cap: 80,
 
             featured: false,
@@ -97,16 +97,16 @@ module.exports = {
             properties: {
                 bot_cap: 20,
                 daily_tank: {
-                    tank: "whirlwind",
+                    tank: 'whirlwind',
                     tier: 3,
                     ads: true,
                     ad_sources: [
                         {
-                            file: "example_video_ad.mp4",
+                            file: 'example_video_ad.mp4',
                             use_regular_ad_size: true
                         },
                         {
-                            file: "example_image_ad.png",
+                            file: 'example_image_ad.png',
                             use_regular_ad_size: true
                         }
                     ]
@@ -115,14 +115,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3002",
+            host: 'localhost:3002',
             port: 3002,
-            id: "lb",
+            id: 'lb',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["maze"],
+            gamemode: ['maze'],
             player_cap: 80,
 
             featured: false,
@@ -135,14 +135,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3003",
+            host: 'localhost:3003',
             port: 3003,
-            id: "lc",
+            id: 'lc',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["tdm"],
+            gamemode: ['tdm'],
             player_cap: 80,
 
             featured: false,
@@ -154,14 +154,14 @@ module.exports = {
                 bot_cap: 40,
                 server_travel_properties: {
                     loop_interval: 10_000, // how often the portal loop executes in seconds
-                    portals: 1 // amount of portals to spawn
+                    portals: 1, // amount of portals to spawn
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3002", // destination server host, don't add "https://" or any slashes to it
+                        ip: 'localhost:3002', // destination server host, don't add "https://" or any slashes to it
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "red" // portal color
+                            color: 'red', // portal color
                         }
                     }
                 ]
@@ -169,14 +169,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3004",
+            host: 'localhost:3004',
             port: 3004,
-            id: "ld",
+            id: 'ld',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["mothership"],
+            gamemode: ['mothership'],
             player_cap: 80,
 
             featured: false,
@@ -191,14 +191,14 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3099",
+            host: 'localhost:3099',
             port: 3099,
-            id: "lz",
+            id: 'lz',
 
             region: "Local",
             serverhost: "Local",
             location: "Localhost",
-            gamemode: ["sandbox"],
+            gamemode: ['sandbox'],
             player_cap: 80,
 
             featured: false,
@@ -207,6 +207,26 @@ module.exports = {
 
             properties: {
 
+            }
+        },
+        {
+            share_client_server: false,
+            host: 'localhost:3005',
+            port: 3005,
+            id: 'hbr',
+
+            region: "Local",
+            serverhost: "Local",
+            location: "Localhost",
+            gamemode: ['hyperion_boss_rush'],
+            player_cap: 80,
+
+            featured: false,
+            unlisted: false,
+            private: false,
+
+            properties: {
+                bot_cap: 10
             }
         }
     ],
@@ -245,7 +265,7 @@ module.exports = {
     damage_multiplier: 1, // General damage multiplier everytime damage is dealt.
     knockback_multiplier: 1.1, // General knockback multiplier everytime knockback is applied.
     glass_health_factor: 2, // TODO: Figure out how the math behind this works.
-    room_bound_force: 0.01, // How strong the force is that confines entities to the map and portals apply to entities.
+    room_bound_force: 0.01,// How strong the force is that confines entities to the map and portals apply to entities.
     soft_max_skill: 0.59, // TODO: Find out what the intention behind the implementation of this configuration is.
 
     mothership_time_limit: 0, // How long (in milliseconds) a player can have in control of their team's mothership. Set to 0 to disable.
@@ -274,7 +294,7 @@ module.exports = {
     bot_name_prefix: "[AI] ", // This is prefixed before the bot's randomly chosen name.
 
     // The class that players and bots spawn as.
-    spawn_class: "basic",
+    spawn_class: 'basic',
 
     // How every entity regenerates their health.
     regenerate_tick: 100,
@@ -288,7 +308,7 @@ module.exports = {
 
     // Tiered Food
     food_types: Array(3).fill().map((_, i, a) => [ // Possible food types outside the nest
-    // Chance of spawning in exponents of 4
+        // Chance of spawning in exponents of 4
         4 ** (a.length - i),
         // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
         Array(3).fill().map((_, j, b) => [
@@ -303,13 +323,13 @@ module.exports = {
                 // laby_${poly}_${tier}_${shiny}_${rank}
                 [
                     [24, `laby_${i}_${j}_${k}_0`],
-                    [1, `laby_${i}_${j}_${k}_1`] // uncomment to enable crashers outside nest
+                    //[1, `laby_${i}_${j}_${k}_1`] // uncomment to enable crashers outside nest
                 ]
             ])
         ])
     ]),
     food_types_nest: Array(2).fill().map((_, i, a) => [ // Possible food types in the nest
-    // Chance of spawning in exponents of 4
+        // Chance of spawning in exponents of 4
         4 ** (a.length - i),
         // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
         Array(3).fill().map((_, j, b) => [
@@ -324,7 +344,7 @@ module.exports = {
                 // laby_${poly}_${tier}_${shiny}_${rank}
                 [
                     [24, `laby_${i + 3}_${j}_${k}_0`],
-                    [1, `laby_${i + 3}_${j}_${k}_1`] // uncomment to enable crashers in nest
+                    //[1, `laby_${i + 3}_${j}_${k}_1`] // uncomment to enable crashers in nest
                 ]
             ])
         ])
@@ -334,26 +354,26 @@ module.exports = {
     classic_food: false, // Enables classic (Old Dreadnoughts) food types.
     classic_food_types: [ // Possible classic food types outside the nest
         [1, [
-            [65, "egg"], [64, "triangle"], [45, "square"], [7, "pentagon"]//, [1, "hexagon"]
+            [65, 'egg'], [64, 'triangle'], [45, 'square'], [7, 'pentagon']//, [1, 'hexagon']
         ]],
         [1/50000, [
-            [625, "gem"], [125, "shinyTriangle"], [25, "shinySquare"], [5, "shinyPentagon"]//, [1, "shinyHexagon"]
+            [625, 'gem'], [125, 'shinyTriangle'], [25, 'shinySquare'], [5, 'shinyPentagon']//, [1, 'shinyHexagon']
         ]],
         [1/1000000, [
-            [1296, "jewel"], [216, "legendaryTriangle"], [36, "legendarySquare"], [6, "legendaryPentagon"]//, [1, "legendaryHexagon"]
+            [1296, 'jewel'], [216, 'legendaryTriangle'], [36, 'legendarySquare'], [6, 'legendaryPentagon']//, [1, 'legendaryHexagon']
         ]]
     ],
     classic_food_types_nest: [ // Possible classic food types in the nest
         [1, [
-            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]/*, [16, "presentRY"], [16, "presentRP"], [16, "presentRW"], [16, "presentGY"], [16, "presentGP"], [16, "presentGW"], [16, "presentBY"], [16, "presentBP"], [16, "presentBW"],*/
+            [16, 'pentagon'], [4, 'betaPentagon'], [1, 'alphaPentagon']/*, [16, 'presentRY'], [16, 'presentRP'], [16, 'presentRW'], [16, 'presentGY'], [16, 'presentGP'], [16, 'presentGW'], [16, 'presentBY'], [16, 'presentBP'], [16, 'presentBW'],*/
         ]]
     ],
     classic_enemy_types_nest: [ // Possible classic enemy food types in the nest
         [1, [
-            [1, "crasher"]
+            [1, 'crasher']
         ]],
         [1/20, [
-            [1, "sentryGun"], [1, "sentrySwarm"], [1, "sentryTrap"]
+            [1, 'sentryGun'], [1, 'sentrySwarm'], [1, 'sentryTrap']
         ]]
     ],
 
@@ -364,29 +384,29 @@ module.exports = {
     boss_spawn_delay: 6, // The delay (in seconds) between the boss spawn being announced and the boss(es) actually spawning.
     boss_types: [
         {
-            bosses: ["eliteDestroyer", "eliteGunner", "eliteSprayer", "eliteBattleship", "eliteSpawner"],
-            amount: [5, 5, 4, 2, 1], chance: 2, nameType: "a"
+            bosses: ['eliteDestroyer', 'eliteGunner', 'eliteSprayer', 'eliteBattleship', 'eliteSpawner'],
+            amount: [5, 5, 4, 2, 1], chance: 2, nameType: 'a',
         },
         {
-            bosses: ["roguePalisade"],
-            amount: [4, 1], chance: 1, nameType: "castle",
-            message: "A strange trembling..."
+            bosses: ['roguePalisade'],
+            amount: [4, 1], chance: 1, nameType: 'castle',
+            message: 'A strange trembling...',
         },
         {
-            bosses: ["summoner", "eliteSkimmer", "nestKeeper"],
-            amount: [2, 2, 1], chance: 1, nameType: "a",
-            message: "A strange trembling..."
-        }
-    /*{
-      bosses: ["paladin", "freyja", "zaphkiel", "nyx", "theia"],
-      amount: [1], chance: 0.01,
-      message: "The world tremors as the celestials are reborn anew!",
-    },
-    {
-      bosses: ["julius", "genghis", "napoleon"],
-      amount: [1], chance: 0.1,
-      message: "The darkness arrives as the realms are torn apart!",
-    }*/
+            bosses: ['summoner', 'eliteSkimmer', 'nestKeeper'],
+            amount: [2, 2, 1], chance: 1, nameType: 'a',
+            message: 'A strange trembling...',
+        },
+        /*{
+            bosses: ['paladin', 'freyja', 'zaphkiel', 'nyx', 'theia'],
+            amount: [1], chance: 0.01,
+            message: 'The world tremors as the celestials are reborn anew!',
+        },
+        {
+            bosses: ['julius', 'genghis', 'napoleon'],
+            amount: [1], chance: 0.1,
+            message: 'The darkness arrives as the realms are torn apart!',
+        }*/
     ],
 
     // How many members a team can have in comparison to an unweighed team.
@@ -399,7 +419,7 @@ module.exports = {
     random_body_colors: false,
 
     // Room setup (don't change these unless you know what you're doing)
-    room_setup: ["room_default"],
+    room_setup: ['room_default'],
     round_arena: false,
-    mode: "ffa"
+    mode: 'ffa',
 }

@@ -23,7 +23,8 @@ Class.menu_special = makeMenu("Special Menu", {
         "menu_memes",
         dreadnoughts,
         "menu_shinyMember",
-        "menu_addons"
+        "menu_addons",
+        'menu_hyperions'
     ]
 });
 

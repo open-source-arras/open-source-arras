@@ -551,7 +551,7 @@ module.exports = {
         speed: 2/3
     },
     bigCheese: {
-    //reload: 1.5,
+        //reload: 1.5,
         size: 4/3,
         //health: 4/3,
         speed: 2/3
@@ -889,7 +889,7 @@ module.exports = {
 
     // Shiny menu
     worstTank: {
-        reload: 3,
+        reload: 15,
         damage: 0.01,
         health: 0.01,
         pen: 0.01
@@ -911,5 +911,8 @@ module.exports = {
         speed: 4.5,
         maxSpeed: 5.9,
         spray: 19
+    },
+    noRecoil: {
+        recoil: 0
     }
 };

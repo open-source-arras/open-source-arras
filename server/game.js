@@ -1,4 +1,4 @@
-const { workerData } = require("worker_threads");
+const { workerData } = require('worker_threads');
 
 const http = require("http");
 const ws = require("ws");
@@ -16,23 +16,23 @@ let { gamemodeManager } = require("./game/gamemodeManager.js");
 // Gamemode names
 const getName = (name, gamemodeData) => {
     const nameMap = { // commented-out gamemodes haven't been implemented yet
-        // FFA
+    // FFA
         ffa: "FFA",
         halloween: "Halloween",
 
-        // Squads
+    // Squads
         clan_wars: "Clan Wars",
         duos: "Duos",
         squads: "Squads",
         train_wars: "Train Wars",
         trios: "Trios",
 
-        // TDM
+    // TDM
         tdm: `${gamemodeData.teams}TDM`,
-        open_tdm: `Open ${gamemodeData.teams}TDM`,
+            open_tdm: `Open ${gamemodeData.teams}TDM`,
         tetromino: `${gamemodeData.teams} Team Tetromino`,
 
-        // Minigames
+    // Minigames
         assault_acropolis: "Assault Acropolis",
         assault_booster: "Assault Booster",
         assault_bunker: "Assault Bunker",
@@ -53,44 +53,45 @@ const getName = (name, gamemodeData) => {
         siege_fortress: "Siege Fortress",
         //soccer: "Soccer",
         tag: `${gamemodeData.teams} Team Tag`,
+        hyperion_boss_rush: "Hyperion Boss Rush",
 
-        // Sandbox
+    // Sandbox
         sandbox: "Sandbox",
 
-        // Lobbies
+    // Lobbies
         //forge: "Forge",
-        //old_forge: "Old Forge",
+            //old_forge: "Old Forge",
         limbo: "Limbo",
         nexus: "Nexus",
 
-        // Miscellaneous
+    // Miscellaneous
         tartarus: "Tartarus",
 
-        // Modifiers
+    // Modifiers
         arms_race: "Arms Race",
         blackout: "Blackout",
         classic: "Classic",
         diep: "Diep",
         //dreadnoughts: "Dreadnoughts",
-        old_dreadnoughts: "Old Dreadnoughts",
+            old_dreadnoughts: "Old Dreadnoughts",
         fast: "Fast",
         growth: "Growth",
-        //old_growth: "Old Growth",
-        //overgrowth: "Overgrowth",
+            //old_growth: "Old Growth",
+            //overgrowth: "Overgrowth",
         //half: "Half",
         //manhunt: "Manhunt",
         march_madness: "March Madness",
         maze: "Maze",
-        //labyrinth: "Labyrinth",
-        //old_labyrinth: "Old Labyrinth",
-        //magic_maze: "Magic Maze",
-        rock: "Rock",
-        //pumpkin_patch: "Pumpkin Patch",
+            //labyrinth: "Labyrinth",
+                //old_labyrinth: "Old Labyrinth",
+            //magic_maze: "Magic Maze",
+            rock: "Rock",
+                //pumpkin_patch: "Pumpkin Patch",
         outbreak: "Outbreak",
         portal: "Portal",
         retrograde: "Retrograde",
         //skinwalkers: "Skinwalkers",
-        space: "Space"
+        space: "Space",
     };
     return nameMap[name];
 }
@@ -98,7 +99,7 @@ const getName = (name, gamemodeData) => {
 // Here is our actual game server
 class gameServer {
     constructor(host, port, gamemode, region, serverHost, location, webProperties, serverProperties, isfeatured, isUnlisted, isPrivate, parentPort, loaderGlobal) {
-    // Override the default settings in Config.js.
+        // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
         })
@@ -118,8 +119,8 @@ class gameServer {
         this.parentPort = parentPort;
         this.definitionsCombiner = new definitionCombiner(
             {
-                groups: path.join(__dirname, "./lib/definitions/groups"),
-                addonsFolder: path.join(__dirname, "./lib/definitions/entityAddons")
+                groups: path.join(__dirname, './lib/definitions/groups'),
+                addonsFolder: path.join(__dirname, './lib/definitions/entityAddons')
             }
         );
         this.loaderGlobal = loaderGlobal;
@@ -174,19 +175,19 @@ class gameServer {
             serverhost: this.serverhost,
             location: this.location,
             gameMode: this.name,
-            gameManager: includegameManager ? this : false
+            gameManager: includegameManager ? this : false,
         }
     }
 
     // Create a new web server class to handle incoming requests
     startWebServer(socketManager) {
-    // Create the socket
+        // Create the socket
         this.wsServer = new ws.WebSocketServer({ noServer: true });
         // Create the http server
         this.httpServer = http.createServer((req, res) => {
-            res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-            res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
             const { pathname, query } = url.parse(req.url, true);
             switch (pathname) {
                 case "/api/sendPlayer": {
@@ -201,7 +202,7 @@ class gameServer {
                         let json = null;
                         try {
                             json = JSON.parse(body);
-                        } catch { }
+                    } catch { }
                         if (json) {
                             let { id, name, definition, score, level, skillcap, skill, points, killCount } = json;
                             global.travellingPlayers.push({ id, name, definition, score, level, skillcap, skill, points, killCount });
@@ -219,7 +220,7 @@ class gameServer {
                         res.end(JSON.stringify([{
                             ip: this.host,
                             players: this.socketManager.clients.length,
-                            gameMode: this.name
+                            gameMode: this.name,
                         }]));
                     } else {
                         res.writeHead(404);
@@ -248,7 +249,7 @@ class gameServer {
 
     // Start our server
     startServer() {
-    // This code is for loading through the main server only!
+        // This code is for loading through the main server only!
         if (!this.parentPort) {
             // Start the server
             this.start();
@@ -280,7 +281,7 @@ class gameServer {
 
     // Start our game
     start(softStart = false) {
-    // Are we starting for the first time?
+        // Are we starting for the first time?
         if (!softStart) {
             let overrideRoom = true;
             // Get gamemode
@@ -301,7 +302,7 @@ class gameServer {
             this.runSpeed = Config.run_speed;
 
             // Update the server gamemode name
-            this.name = this.gamemode.map(x => getName(x, Config) || (x[0].toUpperCase() + x.slice(1))).join(" ");
+            this.name = this.gamemode.map(x => getName(x, Config) || (x[0].toUpperCase() + x.slice(1))).join(' ');
 
             this.showConsoleLoggings = false; // We do not like duplicate messages that uses console.log();
 
@@ -353,7 +354,7 @@ class gameServer {
             // Redefine the room
             this.defineRoom();
             // Log that we are running again
-            util.log("New game instance is now running");
+            util.log(`New game instance is now running`);
 
             // Init every tile
             for (let y = 0; y < this.room.setup.length; y++) {
@@ -393,7 +394,7 @@ class gameServer {
                 sandbox: {
                     do_not_change_arena_size: false
                 }
-            }
+            },
         };
         if (!this.wallGrid) {
             this.room.wallGrid = {
@@ -424,7 +425,7 @@ class gameServer {
         };
 
         // Are we near the circle?
-        this.room.near = function(position, radius) {
+        this.room.near = function (position, radius) {
             let point = ran.pointInUnitCircle();
             return {
                 x: Math.round(position.x + radius * point.x),
@@ -447,7 +448,7 @@ class gameServer {
                 let a = Math.floor((location.y + this.room.height / 2) / this.room.tileWidth);
                 let b = Math.floor((location.x + this.room.width / 2) / this.room.tileHeight);
                 return this.room.setup[a][b];
-            } catch(e) {
+            } catch (e) {
                 return undefined;
             }
         };
@@ -467,12 +468,15 @@ class gameServer {
 
     // Define room properties
     setRoomProperties() {
+        // It's size
         Object.defineProperties(this.room, {
             tileWidth: { get: () => Config.map_tile_width, set: v => Config.map_tile_width = v },
             tileHeight: { get: () => Config.map_tile_height, set: v => Config.map_tile_height = v },
             width: { get: () => this.room.xgrid * Config.map_tile_width, set: v => Config.map_tile_width = v / this.room.xgrid },
             height: { get: () => this.room.ygrid * Config.map_tile_height, set: v => Config.map_tile_height = v / this.room.ygrid }
         });
+
+        // And center
         Object.defineProperties(this.room.center, {
             x: { get: () => this.room.xgrid * Config.map_tile_width / 2 - this.room.width / 2, set: v => Config.map_tile_width = v * 2 / this.room.xgrid - this.room.width / 2 },
             y: { get: () => this.room.ygrid * Config.map_tile_height / 2 - this.room.height / 2, set: v => Config.map_tile_height = v * 2 / this.room.ygrid - this.room.height / 2 }
@@ -481,7 +485,7 @@ class gameServer {
 
     // Set up the room
     setRoom() {
-    // Get the room setup(s)
+        // Get the room setup(s)
         for (let filename of Config.room_setup) {
             // ... get the current setup
             this.currentRoom = require(`./game/roomSetup/rooms/${filename}.js`);
@@ -515,7 +519,7 @@ class gameServer {
 
     // Room living loop
     roomLoop() {
-    // Update all the entities
+        // Update all the entities
         for (let entity of entities.values()) {
             let tile = this.room.getAt(entity);
             if (tile && !entity.godmode && !entity.bond && !entity.immuneToTiles) tile.entities.push(entity);
@@ -540,11 +544,11 @@ class gameServer {
 
     // Arena closers here we come
     closeArena() {
-    // Check if the arena is closed
+        // Check if the arena is closed
         if (this.arenaClosed) return;
         // Log this
         util.saveToLog("Game Instance Ending", "Game running " + this.gamemode + " at `" + this.gamemode + "` is now closing.", 0xEE4132);
-        util.log("Arena Closing initiated");
+        util.log(`Arena Closing initiated`);
         // And broadcast it
         this.socketManager.broadcast("Arena closed: No players may join!");
         this.arenaClosed = true;
@@ -556,11 +560,11 @@ class gameServer {
                 // Spawn the entity
                 let o = new Entity({
                     x: (this.room.width / 2 * this.room.xgrid / this.room.width) + (this.room.width / 0.7) * Math.cos(angle),
-                    y: (this.room.width / 2 * this.room.xgrid / this.room.width) + (this.room.width / 0.7) * Math.sin(angle)
+                    y: (this.room.width / 2 * this.room.xgrid / this.room.width) + (this.room.width / 0.7) * Math.sin(angle),
                 });
 
                 // Define it as arena closer
-                o.define("arenaCloser");
+                o.define('arenaCloser');
                 o.define({
                     COLOR: "yellow",
                     SIZE: 68,
@@ -569,12 +573,12 @@ class gameServer {
                         FULL_VIEW: true,
                         SKYNET: true,
                         BLIND: true,
-                        CHASE: true
+                        CHASE: true,
                     },
                     CAN_BE_ON_LEADERBOARD: false,
                     CAN_GO_OUTSIDE_ROOM: true,
                     CONTROLLERS: [["nearestDifferentMaster", { lockThroughWalls: true }], "mapTargetToGoal"],
-                    SKILL: Array(10).fill(9)
+                    SKILL: Array(10).fill(9),
                 });
                 // Set it's team, name and minimap color
                 o.team = TEAM_ENEMIES;
@@ -608,7 +612,7 @@ class gameServer {
 
     // For sandbox mainly
     updateBounds(width, height) {
-    // Get room size
+        // Get room size
         const widthSize = parseInt(width);
         const heightSize = parseInt(height);
         // Update the value
@@ -619,8 +623,8 @@ class gameServer {
     }
 
     close(spawnTimeout) {
-    // Log that we are closing
-        util.log("Ending Game instance");
+        // Log that we are closing
+        util.log(`Ending Game instance`);
         // Clear the timeout if the arena closers did not spawn yet
         if (spawnTimeout) clearTimeout(spawnTimeout);
         // Now broadcast it
@@ -654,8 +658,8 @@ class gameServer {
     }
 
     onEnd() {
-    // Log that we are restarting
-        util.log("Game instance is now over. Soft restarting the server.");
+        // Log that we are restarting
+        util.log(`Game instance is now over. Soft restarting the server.`);
         // Set this to true to run the softstart code
         this.start(true);
     }
