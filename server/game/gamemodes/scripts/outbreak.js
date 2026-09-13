@@ -17,6 +17,7 @@ class Outbreak {
             return;
         }
         if (liveEntity.defs[0] == "bot") liveEntity.defs = liveEntity.defs[1];
+        const zombieColor = "green"; //"#267524";
         let zombieEntity = new Entity({ x: liveEntity.x, y: liveEntity.y });
         zombieEntity.define(liveEntity.defs);
         zombieEntity.define({ AI: { CHASE: true }, FACING_TYPE: ["manual", {angle: liveEntity.facing}] });
@@ -28,14 +29,14 @@ class Outbreak {
         zombieEntity.refreshBodyAttributes();
         zombieEntity.refreshSkills();
         zombieEntity.team = -45;
-        zombieEntity.minimapColor = "green";
+        zombieEntity.minimapColor = zombieColor;
         zombieEntity.zombified = true;
         setTimeout(() => {
             let Class = ensureIsClass(liveEntity.defs[0]);
             zombieEntity.controllers.push(new ioTypes.nearestDifferentMaster(zombieEntity, {}, global.gameManager), new ioTypes.mapTargetToGoal(zombieEntity, {}, global.gameManager));
             zombieEntity.godmode = false;
             zombieEntity.invuln = false;
-            zombieEntity.color.base = "green";
+            zombieEntity.color.base = zombieColor;
             zombieEntity.define({ FACING_TYPE: Class.FACING_TYPE != null ? Class.FACING_TYPE : "looseToTarget" });
         }, 1000)
     }
