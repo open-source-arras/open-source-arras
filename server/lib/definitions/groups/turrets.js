@@ -309,7 +309,7 @@ Class.kronosSkimmerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 10, independent: true, extraStats: []})
+}, {canRepel: true, limitFov: true, fov: 10, independent: true, color: "mirror", extraStats: []})
 Class.autoSmasherLauncherTurret = makeTurret({
     GUNS: [
         {
@@ -715,7 +715,7 @@ Class.kronosTripletTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
 Class.napoleonUpperTurretBullet = makeAuto("bullet", "Auto-Bullet", {type: "bulletAutoTurret", size: 14, color: "veryLightGrey", angle: 0});
 Class.napoleonUpperTurret = makeTurret({
     GUNS: [

@@ -234,7 +234,7 @@ Class.eliteSpinner = {
     UPGRADE_LABEL: "Elite Spinner",
     UPGRADE_COLOR: "pink",
     AI: { STRAFE: false },
-    FACING_TYPE: ["spin", {speed: 0.08}],
+    FACING_TYPE: ["spin", {speed: 0.16}],
     GUNS: weaponArray([
         {
             POSITION: [9.5, 2, 1, -1.5, 11.5, 10, 2/3],

@@ -535,7 +535,7 @@ Class.genericBoss = {
     }),
     LEVEL: 45,
     CONTROLLERS: [["nearestDifferentMaster", { lockThroughWalls: true }], "canRepel"],
-    FACING_TYPE: ["spin", {speed: 0.02}],
+    FACING_TYPE: ["spin", {speed: 0.04}],
     HITS_OWN_TYPE: "hardOnlyBosses",
     BROADCAST_MESSAGE: "A visitor has left!",
     BODY: { PUSHABILITY: 0.05 }

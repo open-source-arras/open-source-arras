@@ -49,11 +49,11 @@ Class.nestWarden = {
     LABEL: "Nest Warden",
     GUNS: weaponArray([
         {
-            POSITION: [10.7, 8, 1, 0, 0, 36, 0]
+            POSITION: [10.7, 7, 1, 0, 0, 36, 0]
         }, {
-            POSITION: [1.5, 8, 1.2, 10.7, 0, 36, 0],
+            POSITION: [1.5, 7, 1.2, 10.7, 0, 36, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, { speed: 1.2 }, g.setTrap, g.constructor]),
+                SHOOT_SETTINGS: combineStats([g.trap, { speed: 1.2 }, g.setTrap, g.constructor, {size: 0.7}]),
                 TYPE: "unsetTrap",
                 STAT_CALCULATOR: "block"
             }

@@ -11058,7 +11058,7 @@ Class.theAmalgamation = makeAuto({
     DANGER: 12,
     STAT_NAMES: statnames.mixed,
     BODY: {
-        FOV: base.FOV * 1.1
+        FOV: base.FOV * 1.3
     },
     GUNS: [
         {
@@ -11173,7 +11173,7 @@ Class.theConglomerate = {
     DANGER: 13,
     BODY: {
         SPEED: base.SPEED * 0.85,
-        FOV: base.FOV * 1.2
+        FOV: base.FOV * 1.3
     },
     GUNS: [
         {

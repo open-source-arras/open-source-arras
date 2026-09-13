@@ -105,5 +105,5 @@ selene.addLayer({gun: {
 }}, true, null, 18)
 selene.addLayer({turret: {
     POSITION: [10, 7.5, 0, null, 160, 0],
-    TYPE: ["hyperTwisterTurret", { INDEPENDENT: true }]
+    TYPE: ["hyperTwisterTurret", { COLOR: "grey", INDEPENDENT: true }]
 }}, true, 6.5)

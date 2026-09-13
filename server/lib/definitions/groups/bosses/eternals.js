@@ -27,7 +27,7 @@ odin.addLayer({gun: {
     POSITION: [2.25, 3.25, -1.6, 9, 0, null, 0],
     PROPERTIES: {
         SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.pounder, g.destroyer, {speed: 1.25, maxSpeed: 1.25}]),
-        TYPE: ["shamanDrone", {INDEPENDENT: true, DRAW_HEALTH: true, COLOR: "teal"}],
+        TYPE: ["shamanDrone", {FACING_TYPE: ["spin", {speed: 0.2}], INDEPENDENT: true, DRAW_HEALTH: true, COLOR: "teal"}],
         AUTOFIRE: true,
         SYNCS_SKILLS: true
     }
@@ -48,7 +48,7 @@ kronos.addLayer({turret: {
 }})
 kronos.addLayer({turret: {
     POSITION: [6.5, 9, 0, null, 160, 0],
-    TYPE: ["carrierTurret", {GUN_STAT_SCALE: g.battleship}]
+    TYPE: ["carrierTurret", {GUN_STAT_SCALE: g.battleship, COLOR: "mirror"}]
 }}, true, 4)
 kronos.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 160, 0],

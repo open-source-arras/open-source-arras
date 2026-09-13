@@ -106,7 +106,7 @@ theia.addLayer({gun: {
 }}, true, null, 35);
 theia.addLayer({turret: {
     POSITION: [10, 7.5, 0, null, 160, 0],
-    TYPE: ["twisterTurret", {INDEPENDENT: true, COLOR: "grey", GUN_STAT_SCALE: {health: 1.3, damage: 1.1, resist: 1.2, speed: 1.1, maxSpeed: 0.8}}]
+    TYPE: ["hyperTwisterTurret", {INDEPENDENT: true, COLOR: "grey", GUN_STAT_SCALE: {health: 1.3, damage: 1.1, resist: 1.2, speed: 1.1, maxSpeed: 0.8}}]
 }}, true, 6);
 
 let atlas = new LayeredBoss(null, "Atlas", "celestial", 9, "#EDB854", "baseTrapTurret", 6.5, 5.5);
