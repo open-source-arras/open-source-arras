@@ -217,7 +217,7 @@ class gameHandler {
                     instance.settings.no_collisions = true;
                     instance.alpha = 0;
                     instance.takeSelfie();
-                    Config.OURBREAK_FUNCTIONS.zombify(instance);
+                    Config.outbreak_functions.zombify(instance);
                 } else instance.destroy();
                 continue;
             }

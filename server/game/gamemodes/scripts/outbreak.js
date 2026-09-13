@@ -1,7 +1,7 @@
 class Outbreak {
     constructor() {
         this.gameActive = false;
-        Config.OURBREAK_FUNCTIONS = {
+        Config.outbreak_functions = {
             zombify: (o) => {
                 this.zombify(o);
             }
