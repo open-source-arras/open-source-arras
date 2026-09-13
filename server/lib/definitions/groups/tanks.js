@@ -11202,7 +11202,7 @@ Class.theConglomerate = {
             }
         },
         {
-            POSITION: [40, 7, 1, 0, 0, 0, 0]
+            POSITION: [30, 7, 1, 0, 0, 0, 0]
         },
         {
             POSITION: [15, 9, -2, 0, 0, 0, 0]
@@ -11379,13 +11379,6 @@ Class.theConglomerate = {
         }
     ],
     TURRETS: [
-        {
-            POSITION: [6, 42, 0, 0, 180, 1],
-            TYPE: [
-                "crowbarTurretTank",
-                { INDEPENDENT: true }
-            ]
-        },
         {
             POSITION: [6, 32, 0, 0, 180, 1],
             TYPE: [
