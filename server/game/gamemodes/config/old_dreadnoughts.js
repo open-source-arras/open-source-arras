@@ -1,8 +1,8 @@
 module.exports = {
-  classic_food: true
-  //level_cap_cheat: 180,
-  //level_cap: 180,
-  /*growth: true,
+    classic_food: true
+    //level_cap_cheat: 180,
+    //level_cap: 180,
+    /*growth: true,
     defineLevelSkillPoints: level => {
         if (level <= 40) return 1;
         if (level <= 45 && (level & 1) == 1) return 1;

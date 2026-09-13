@@ -1,3 +1,3 @@
 module.exports = {
-  level_cap_cheat: 0
+    level_cap_cheat: 0
 }

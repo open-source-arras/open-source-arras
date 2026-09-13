@@ -1,3 +1,3 @@
 module.exports = {
-  groups: 2
+    groups: 2
 };

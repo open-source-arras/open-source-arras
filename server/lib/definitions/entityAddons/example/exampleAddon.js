@@ -12,59 +12,59 @@ const { makeMenu } = require("../../facilitators.js");
 return;
 
 let MAX_CHILDREN = 0,
-  GUNS = [],
-  TURRETS = [],
+    GUNS = [],
+    TURRETS = [],
 
-  alreadySeen = [],
-  next = ["basic"],
+    alreadySeen = [],
+    next = ["basic"],
 
-  // We don't loop infinitely, because that's a bad idea if someone makes a circular upgrade path.
-  // Also, RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD.
-  limit = 1000;
+    // We don't loop infinitely, because that's a bad idea if someone makes a circular upgrade path.
+    // Also, RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD. RECURSION BAD.
+    limit = 1000;
 while (next.length && limit--) {
-  let current = next;
-  next = [];
-  for (let i = 0; i < current.length; i++) {
+    let current = next;
+    next = [];
+    for (let i = 0; i < current.length; i++) {
 
-    // Handle string definition references
-    let now = ensureIsClass(current[i]);
+        // Handle string definition references
+        let now = ensureIsClass(current[i]);
 
-    // Handles tanks with multiple ways to upgrade to them, like Overgunner.
-    if (alreadySeen.includes(now.LABEL)) continue;
-    alreadySeen.push(now.LABEL);
+        // Handles tanks with multiple ways to upgrade to them, like Overgunner.
+        if (alreadySeen.includes(now.LABEL)) continue;
+        alreadySeen.push(now.LABEL);
 
-    // Add guns, turrets and additional max child count to our current list of stuff for our abomination to have.
-    if (now.MAX_CHILDREN) MAX_CHILDREN += now.MAX_CHILDREN;
-    if (now.GUNS) GUNS.push(...now.GUNS);
-    if (now.TURRETS) TURRETS.push(...now.TURRETS);
+        // Add guns, turrets and additional max child count to our current list of stuff for our abomination to have.
+        if (now.MAX_CHILDREN) MAX_CHILDREN += now.MAX_CHILDREN;
+        if (now.GUNS) GUNS.push(...now.GUNS);
+        if (now.TURRETS) TURRETS.push(...now.TURRETS);
 
-    // Add upgrades of current tank to next iteration
-    for (let key of Object.keys(now)) if (key.startsWith("UPGRADES_TIER_")) next.push(...now[key]);
-  }
+        // Add upgrades of current tank to next iteration
+        for (let key of Object.keys(now)) if (key.startsWith("UPGRADES_TIER_")) next.push(...now[key]);
+    }
 }
 
 // This adds the tank to the definitions and to the addons menu
 Class.abomination = {
-  PARENT: "genericTank",
-  LABEL: "The Abomination",
-  SKILL_CAP: Array(10).fill(15),
-  SIZE: 15,
-  BODY: {
-    ACCELERATION: base.ACCEL * 0.2,
-    SPEED: base.SPEED * 0.5,
-    HEALTH: base.HEALTH * 5,
-    DAMAGE: base.DAMAGE * 5,
-    PENETRATION: base.PENETRATION * 5,
-    SHIELD: base.SHIELD * 5,
-    REGEN: base.REGEN * 5,
-    FOV: base.FOV * 2,
-    DENSITY: base.DENSITY * 5,
-    PUSHABILITY: 0.1,
-    HETERO: 3,
-    RECOIL_MULTIPLIER: 0.1
-  },
-  EXTRA_SKILL: 28,
-  MAX_CHILDREN, GUNS, TURRETS
+    PARENT: "genericTank",
+    LABEL: "The Abomination",
+    SKILL_CAP: Array(10).fill(15),
+    SIZE: 15,
+    BODY: {
+        ACCELERATION: base.ACCEL * 0.2,
+        SPEED: base.SPEED * 0.5,
+        HEALTH: base.HEALTH * 5,
+        DAMAGE: base.DAMAGE * 5,
+        PENETRATION: base.PENETRATION * 5,
+        SHIELD: base.SHIELD * 5,
+        REGEN: base.REGEN * 5,
+        FOV: base.FOV * 2,
+        DENSITY: base.DENSITY * 5,
+        PUSHABILITY: 0.1,
+        HETERO: 3,
+        RECOIL_MULTIPLIER: 0.1
+    },
+    EXTRA_SKILL: 28,
+    MAX_CHILDREN, GUNS, TURRETS
 };
 Class.exampleAddon = makeMenu("Example Addon")
 Class.exampleAddon.UPGRADES_TIER_0 = ["abomination"]

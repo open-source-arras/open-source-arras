@@ -2,154 +2,154 @@ const {combineStats} = require("../facilitators.js")
 
 // Generators
 const shapeGeneratorUpgrades = [
-  ["egg", "gem", "gravel", "stone", "rock", "wall"].map(x => x + "Gen"),
-  ["square", "shinySquare", "legSquare", "shadowSquare", "rainbowSquare", "transSquare"].map(x => x + "Gen"),
-  ["triangle", "shinyTriangle", "legTriangle", "shadowTriangle", "rainbowTriangle", "transTriangle"].map(x => x + "Gen"),
-  ["pentagon", "shinyPentagon", "legPentagon", "shadowPentagon", "rainbowPentagon", "transPentagon"].map(x => x + "Gen"),
-  ["beta", "shinyBeta", "legBeta", "shadowBeta", "rainbowBeta", "transBeta"].map(x => x + "PentagonGen"),
-  ["alpha", "shinyAlpha", "legAlpha", "shadowAlpha", "rainbowAlpha", "transAlpha"].map(x => x + "PentagonGen")
+    ["egg", "gem", "gravel", "stone", "rock", "wall"].map(x => x + "Gen"),
+    ["square", "shinySquare", "legSquare", "shadowSquare", "rainbowSquare", "transSquare"].map(x => x + "Gen"),
+    ["triangle", "shinyTriangle", "legTriangle", "shadowTriangle", "rainbowTriangle", "transTriangle"].map(x => x + "Gen"),
+    ["pentagon", "shinyPentagon", "legPentagon", "shadowPentagon", "rainbowPentagon", "transPentagon"].map(x => x + "Gen"),
+    ["beta", "shinyBeta", "legBeta", "shadowBeta", "rainbowBeta", "transBeta"].map(x => x + "PentagonGen"),
+    ["alpha", "shinyAlpha", "legAlpha", "shadowAlpha", "rainbowAlpha", "transAlpha"].map(x => x + "PentagonGen")
 ]
 const hostileShapeGeneratorUpgrades = [
-  ["crasher", "sentrySwarm", "sentryGun", "sentryTrap"].map(x => x + "Gen"),
-  ["Crasher", "SentrySwarm", "SentryGun", "SentryTrap"].map(x => "shiny" + x + "Gen"),
-  ["legCrasher", "sentinelLauncher", "sentinelCrossbow", "sentinelMinigun"].map(x => x + "Gen")
+    ["crasher", "sentrySwarm", "sentryGun", "sentryTrap"].map(x => x + "Gen"),
+    ["Crasher", "SentrySwarm", "SentryGun", "SentryTrap"].map(x => "shiny" + x + "Gen"),
+    ["legCrasher", "sentinelLauncher", "sentinelCrossbow", "sentinelMinigun"].map(x => x + "Gen")
 ]
 const eliteBossGeneratorUpgrades = [
-  ["Destroyer", "Gunner", "Sprayer", "Battleship", "Spawner"].map(x => "elite" + x + "Gen"),
-  ["eliteSkimmer", "eliteSpinner", "oldEliteSprayer", "legionaryCrasher", "eliteTrapGuard"].map(x => x + "Gen")
+    ["Destroyer", "Gunner", "Sprayer", "Battleship", "Spawner"].map(x => "elite" + x + "Gen"),
+    ["eliteSkimmer", "eliteSpinner", "oldEliteSprayer", "legionaryCrasher", "eliteTrapGuard"].map(x => x + "Gen")
 ]
 const mysticalBossGeneratorUpgrades = [
-  ["sorcerer", "summoner", "enchantress", "exorcistor", "shaman"].map(x => x + "Gen")
+    ["sorcerer", "summoner", "enchantress", "exorcistor", "shaman"].map(x => x + "Gen")
 ]
 const nesterBossGeneratorUpgrades = [
-  ["Keeper", "Warden", "Guardian"].map(x => "nest" + x + "Gen")
+    ["Keeper", "Warden", "Guardian"].map(x => "nest" + x + "Gen")
 ]
 const rogueBossGeneratorUpgrades = [
-  ["Palisade", "Armada"].map(x => "rogue" + x + "Gen")
+    ["Palisade", "Armada"].map(x => "rogue" + x + "Gen")
 ]
 
 Class.genBody = {
-  PARENT: "spectator",
-  BODY: {
-    SPEED: 25,
-    FOV: 1
-  },
-  SKILL_CAP: [15, 0, 0, 0, 0, 0, 0, 0, 0, 15],
-  LAYER: 1e99,
-  ON: [],
-  RESET_EVENTS: true
+    PARENT: "spectator",
+    BODY: {
+        SPEED: 25,
+        FOV: 1
+    },
+    SKILL_CAP: [15, 0, 0, 0, 0, 0, 0, 0, 0, 15],
+    LAYER: 1e99,
+    ON: [],
+    RESET_EVENTS: true
 };
 
 const makeGenerator = (entity, entityLabel, shortEntityLabel, displayEntity, displayEntitySize, shape, color, entitySize, maxChildren = 100, launchSpeed = 1) => {
-  const config = {
-    PARENT: "genBody",
-    LABEL: `${entityLabel} Generator`,
-    UPGRADE_LABEL: `${shortEntityLabel} Gen.`,
-    SHAPE: shape,
-    COLOR: color,
-    MAX_CHILDREN: maxChildren,
-    UPGRADES_TIER_0: [],
+    const config = {
+        PARENT: "genBody",
+        LABEL: `${entityLabel} Generator`,
+        UPGRADE_LABEL: `${shortEntityLabel} Gen.`,
+        SHAPE: shape,
+        COLOR: color,
+        MAX_CHILDREN: maxChildren,
+        UPGRADES_TIER_0: [],
 
-    TURRETS: [{
-      TYPE: [displayEntity, {INDEPENDENT: true}],
-      POSITION: {
-        SIZE: displayEntitySize,
-        LAYER: 1
-      }
-    }],
+        TURRETS: [{
+            TYPE: [displayEntity, {INDEPENDENT: true}],
+            POSITION: {
+                SIZE: displayEntitySize,
+                LAYER: 1
+            }
+        }],
 
-    GUNS: [
-      {
-        POSITION: {
-          LENGTH: 2,
-          WIDTH: 10.5,
-          X: 15
-        },
-        PROPERTIES: {
-          SHOOT_SETTINGS: combineStats([{
-            shudder: 0.1,
-            speed: launchSpeed,
-            recoil: 0.1,
-            reload: 6,
-            size: entitySize / 13
-          }]),
-          NO_LIMITATIONS: true,
-          SPAWN_OFFSET: 0,
-          TYPE: [entity, { INDEPENDENT: true }]
-        }
-      },
-      {
-        POSITION: {
-          LENGTH: 11,
-          WIDTH: 10.5,
-          ASPECT: 1.4,
-          X: 4
-        }
-      }
-    ]
-  };
+        GUNS: [
+            {
+                POSITION: {
+                    LENGTH: 2,
+                    WIDTH: 10.5,
+                    X: 15
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([{
+                        shudder: 0.1,
+                        speed: launchSpeed,
+                        recoil: 0.1,
+                        reload: 6,
+                        size: entitySize / 13
+                    }]),
+                    NO_LIMITATIONS: true,
+                    SPAWN_OFFSET: 0,
+                    TYPE: [entity, { INDEPENDENT: true }]
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 11,
+                    WIDTH: 10.5,
+                    ASPECT: 1.4,
+                    X: 4
+                }
+            }
+        ]
+    };
 
-  return config;
+    return config;
 };
 
 Class.genCrasher = {
-  TYPE: [],
-  PARENT: "crasher"
+    TYPE: [],
+    PARENT: "crasher"
 }
 Class.genShinyCrasher = {
-  PARENT: "genCrasher",
-  COLOR: "lime",
-  VALUE: 1e3
+    PARENT: "genCrasher",
+    COLOR: "lime",
+    VALUE: 1e3
 }
 Class.genLegCrasher = {
-  PARENT: "genCrasher",
-  COLOR: "teal",
-  VALUE: 5e3
+    PARENT: "genCrasher",
+    COLOR: "teal",
+    VALUE: 5e3
 }
 Class.genSentrySwarm = {
-  TYPE: [],
-  PARENT: ["sentrySwarm"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentrySwarm"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genSentryGun = {
-  TYPE: [],
-  PARENT: ["sentryGun"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentryGun"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genSentryTrap = {
-  TYPE: [],
-  PARENT: ["sentryTrap"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentryTrap"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genShinySentrySwarm = {
-  TYPE: [],
-  PARENT: ["shinySentrySwarm"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["shinySentrySwarm"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genShinySentryGun = {
-  TYPE: [],
-  PARENT: ["shinySentryGun"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["shinySentryGun"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genShinySentryTrap = {
-  TYPE: [],
-  PARENT: ["shinySentryTrap"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["shinySentryTrap"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genSentinelLauncher = {
-  TYPE: [],
-  PARENT: ["sentinelLauncher"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentinelLauncher"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genSentinelCrossbow = {
-  TYPE: [],
-  PARENT: ["sentinelCrossbow"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentinelCrossbow"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 Class.genSentinelMinigun = {
-  TYPE: [],
-  PARENT: ["sentinelMinigun"],
-  CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    TYPE: [],
+    PARENT: ["sentinelMinigun"],
+    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
 };
 
 //EGG GENERATOR
@@ -264,38 +264,38 @@ Class.rogueArmadaGen = makeGenerator("rogueArmada", "Rogue Armada", "Rogue Armad
  * @param {DefinitionReference} next 
  */
 function generatorMatrix(matrix, previous, next) {
-  const height = matrix.length,
-    width = matrix[0].length;
+    const height = matrix.length,
+        width = matrix[0].length;
 
-  for (let y = 0; y < height; y++) {
-    if (matrix[y].length !== width) {
-      throw new Error(`The given grid is not rectangular!\nThe row at Y coordinate ${y} has ${matrix[y].length} items instead of the first row which has ${width}!`);
+    for (let y = 0; y < height; y++) {
+        if (matrix[y].length !== width) {
+            throw new Error(`The given grid is not rectangular!\nThe row at Y coordinate ${y} has ${matrix[y].length} items instead of the first row which has ${width}!`);
+        }
+
+        for (let x = 0; x < width; x++) {
+            let top = (y + height - 1) % height,
+                bottom = (y + height + 1) % height,
+                left = (x + width - 1) % width,
+                right = (x + width + 1) % width,
+
+                center = matrix[y][x];
+            top = matrix[top][x];
+            bottom = matrix[bottom][x];
+            left = matrix[y][left];
+            right = matrix[y][right];
+
+            let gen = Class[matrix[y][x]];
+            if (!gen) {
+                throw new Error(`The given grid has an invalid Definition Reference at indexes [${y}][${x}] named "${matrix[y][x]}"`);
+            }
+
+            gen.UPGRADES_TIER_0.push(
+                Config.spawn_class, top, previous,
+                left, center, right,
+                "spectator", bottom, next
+            );
+        }
     }
-
-    for (let x = 0; x < width; x++) {
-      let top = (y + height - 1) % height,
-        bottom = (y + height + 1) % height,
-        left = (x + width - 1) % width,
-        right = (x + width + 1) % width,
-
-        center = matrix[y][x];
-      top = matrix[top][x];
-      bottom = matrix[bottom][x];
-      left = matrix[y][left];
-      right = matrix[y][right];
-
-      let gen = Class[matrix[y][x]];
-      if (!gen) {
-        throw new Error(`The given grid has an invalid Definition Reference at indexes [${y}][${x}] named "${matrix[y][x]}"`);
-      }
-
-      gen.UPGRADES_TIER_0.push(
-        Config.spawn_class, top, previous,
-        left, center, right,
-        "spectator", bottom, next
-      );
-    }
-  }
 }
 
 // SHAPE UPGRADES

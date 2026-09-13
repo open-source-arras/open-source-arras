@@ -1,3 +1,3 @@
 module.exports = {
-  game_speed: 1.5
+    game_speed: 1.5
 }

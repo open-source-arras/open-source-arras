@@ -1,4 +1,4 @@
 module.exports = {
-  space_physics: true,
-  round_arena: true
+    space_physics: true,
+    round_arena: true
 }

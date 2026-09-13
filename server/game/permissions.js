@@ -7,33 +7,33 @@
 // todo: be more specific here
 
 module.exports = [
-  {
-    key: process.env.BETA_TESTER,
-    level: 1,
-    class: "menu_betaTester",
-    nameColor: "#FFFFFF",
-    note: "note here"
-  },
-  {
-    key: process.env.SHINY,
-    level: 2,
-    class: "menu_shinyMember",
-    nameColor: "#FFFFFF",
-    note: "note here"
-  },
-  {
-    key: process.env.YOUTUBER,
-    level: 2,
-    class: "menu_youtuber",
-    nameColor: "#FFFFFF",
-    note: "note here"
-  },
-  {
-    key: process.env.DEVELOPER,
-    administrator: true,
-    level: 3,
-    class: "menu_special",
-    nameColor: "#FFFFFF",
-    note: "note here"
-  }
+    {
+        key: process.env.BETA_TESTER,
+        level: 1,
+        class: "menu_betaTester",
+        nameColor: "#FFFFFF",
+        note: "note here"
+    },
+    {
+        key: process.env.SHINY,
+        level: 2,
+        class: "menu_shinyMember",
+        nameColor: "#FFFFFF",
+        note: "note here"
+    },
+    {
+        key: process.env.YOUTUBER,
+        level: 2,
+        class: "menu_youtuber",
+        nameColor: "#FFFFFF",
+        note: "note here"
+    },
+    {
+        key: process.env.DEVELOPER,
+        administrator: true,
+        level: 3,
+        class: "menu_special",
+        nameColor: "#FFFFFF",
+        note: "note here"
+    }
 ]

@@ -1,14 +1,14 @@
 module.exports = {
-  arms_race: true,
-  classic_enemy_types_nest: [
-    [1, [
-      [1, "crasher"]
-    ]],
-    [1/20, [
-      [1, "sentinelGun"], [1, "sentinelSwarm"], [1, "sentinelTrap"]
-    ]]
-  ]
-  /*boss_types: [
+    arms_race: true,
+    classic_enemy_types_nest: [
+        [1, [
+            [1, "crasher"]
+        ]],
+        [1/20, [
+            [1, "sentinelGun"], [1, "sentinelSwarm"], [1, "sentinelTrap"]
+        ]]
+    ]
+    /*boss_types: [
             {
             bosses: ["eliteDestroyer", "eliteGunner", "eliteSprayer", "eliteBattleship", "eliteSpawner"],
             amount: [5, 5, 4, 2, 1], chance: 2, nameType: "a",

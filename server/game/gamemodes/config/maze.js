@@ -1,4 +1,4 @@
 module.exports = {
-  maze: true,
-  maze_type: 1
+    maze: true,
+    maze_type: 1
 }

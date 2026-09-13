@@ -4671,8 +4671,8 @@ import * as socketStuff from "./socketinit.js";
         }
 
         // Draw arrow - slides to the right as button expands - KEEP YOUR ORIGINAL ARROW
-        const arrowW = BTN_WIDTH_COLLAPSED * 0.3;  // Arrow width (horizontal)
-        const arrowH = BTN_SIZE * 0.3;    // Arrow height (vertical)
+        const arrowW = BTN_WIDTH_COLLAPSED * 0.3; // Arrow width (horizontal)
+        const arrowH = BTN_SIZE * 0.3; // Arrow height (vertical)
 
         // Arrow position moves from center of collapsed button to right edge of expanded button
         const arrowBaseX = BTN_X + BTN_WIDTH_COLLAPSED / 2;
@@ -5006,7 +5006,7 @@ import * as socketStuff from "./socketinit.js";
                     drawGuiRect(x, y, cb.width, 25, true);
                     drawText(cb.optionService.selected, x + 13, y + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
                     ctx[2].fillStyle = color.black;
-                    const arrowW = 5;  // Arrow width (horizontal)
+                    const arrowW = 5; // Arrow width (horizontal)
                     const arrowH = 30 * 0.3; // Arrow height (vertical)
                     const arrowBaseX = x + cb.width + 17;
                     const arrowCenterX = arrowBaseX - 19;

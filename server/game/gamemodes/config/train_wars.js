@@ -1,3 +1,3 @@
 module.exports = {
-  train: true
+    train: true
 }

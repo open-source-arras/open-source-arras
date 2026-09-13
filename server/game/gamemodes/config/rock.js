@@ -1,3 +1,3 @@
 module.exports = {
-  room_setup: ["room_rock"]
+    room_setup: ["room_rock"]
 }
