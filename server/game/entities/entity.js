@@ -1168,10 +1168,7 @@ class Entity extends EventEmitter {
                     }
                     // Only if we give messages
                     if (doISendAText) {
-                        instance.sendMessage("You killed " + name + (killers.length > 1 ? " (with some help)." : "."));
-                    }
-                    if (this.settings.killMessage) {
-                        instance.sendMessage("You " + this.settings.killMessage + " " + name + (killers.length > 1 ? " (with some help)." : "."));
+                        instance.sendMessage(`You ${this.settings.killMessage ??= "killed"} ${name}` + (killers.length > 1 ? " (with some help)." : "."));
                     }
                 }
                 // Prepare the next part of the next
