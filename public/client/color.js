@@ -30,7 +30,8 @@ var color = {
         "black": "#484848", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.65
+        "border": 0.6,
+        "neon": false
     },
     "dark": {
         "blue": "#379fc6", // Blue Team
@@ -63,6 +64,33 @@ var color = {
         "guiblack": "#FFFFFF", // Grid
         "paletteSize": 20,
         "border": 0.15
+        "neon": true
+    },
+    "darkOld": {
+        "teal": "#6ecedc",
+        "lgreen": "#0c491d",
+        "orange": "#c46748",
+        "yellow": "#b2b224",
+        "lavender": "#7d56c5",
+        "aqua": "#62caa7",
+        "pink": "#b24fae",
+        "vlgrey": "#1e1e1e",
+        "lgrey": "#3c3a3a",
+        "guiwhite": "#000000",
+        "black": "#e5e5e5",
+        "blue": "#379FC6",
+        "green": "#30b53b",
+        "red": "#ff6c6e",
+        "gold": "#ffc665",
+        "purple": "#9673e8",
+        "magenta": "#c8679b",
+        "grey": "#635f5f",
+        "dgrey": "#73747a",
+        "white": "#11110f",
+        "guiblack": "#ffffff",
+        "paletteSize": 20,
+        "border": 0.15,
+        "neon": false
     },
     "classic": {
         "blue": "#00b2e1", // Blue Team
@@ -95,31 +123,7 @@ var color = {
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
         "border": 0.5
-    },
-    "classicDark": {
-        "teal": "#6ecedc",
-        "lgreen": "#0c491d",
-        "orange": "#c46748",
-        "yellow": "#b2b224",
-        "lavender": "#7d56c5",
-        "aqua": "#62caa7",
-        "pink": "#b24fae",
-        "vlgrey": "#1e1e1e",
-        "lgrey": "#3c3a3a",
-        "guiwhite": "#000000",
-        "black": "#e5e5e5",
-        "blue": "#379FC6",
-        "green": "#30b53b",
-        "red": "#ff6c6e",
-        "gold": "#ffc665",
-        "purple": "#9673e8",
-        "magenta": "#c8679b",
-        "grey": "#635f5f",
-        "dgrey": "#73747a",
-        "white": "#11110f",
-        "guiblack": "#FFFFFF",
-        "paletteSize": 20,
-        "border": 0.15
+        "neon": false
     },
     "natural": {
         "blue": "#4f93b5", // Blue Team
@@ -183,7 +187,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#36393e", // Grid
         "paletteSize": 20,
-        "border": 0.75
+        "border": 0.7529411764705882,
+        "neon": false
     },
     "midnight": {
         "blue": "#123455", // Blue Team
@@ -215,7 +220,8 @@ var color = {
         "black": "#091f28", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.6
+        "border": 0.6,
+        "neon": false
     },
     "solarizedDark": {
         "blue": "#268bd2", // Blue Team
@@ -247,7 +253,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.75
+        "border": 0.7529411764705882,
+        "neon": false
     },
     "retro": {
         "blue": "#2c3eb9", // Blue Team
@@ -279,7 +286,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.75
+        "border": 0.7529411764705882,
+        "neon": false
     },
     "snow": {
         "blue": "#aeaeff", // Blue Team
@@ -311,7 +319,8 @@ var color = {
         "black": "#383835", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.35
+        "border": 0.34901960784313724,
+        "neon": false
     },
     "navigator": {
         "blue": "#087089", // Blue Team
@@ -342,8 +351,9 @@ var color = {
         "grey": "#9c8993", // Barrels, Bar Backgrounds
         "black": "#000000", // Borders
         "guiblack": "#FFFFFF", // Grid
-        "paletteSize": 20, // (Placeholder)
-        "border": 0.25 // (Placeholder)
+        "paletteSize": 20,
+        "border": 0.2,
+        "neon": false
     },
     "coralReef": {
         "blue": "#4200ae", // Blue Team
@@ -375,7 +385,8 @@ var color = {
         "black": "#12466b", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.3
+        "border": 0.2980392156862745,
+        "neon": false
     },
     "gruvbox": {
         "blue": "#458588", // Blue Team
@@ -407,7 +418,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.6
+        "border": 0.6,
+        "neon": false
     },
     "eggplant": {
         "blue": "#06b6ef", // Blue Team
@@ -439,9 +451,10 @@ var color = {
         "black": "#2b1a29", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.75
+        "border": 0.7529411764705882,
+        "neon": false
     },
-    "wrSheetTheme": {
+    "worldRecordSheet": {
         "blue": "#6bb2bf", // Blue Team
         "green": "#68c56c", // Green Team
         "red": "#b86358", // Red Team
@@ -471,7 +484,8 @@ var color = {
         "black": "#56372b", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.3
+        "border": 0.6470588235294118,
+        "neon": false
     },
     "lyric": {
         "blue": "#771d1d", // Blue Team
@@ -536,8 +550,9 @@ var color = {
         "grey": "#838383", // Barrels, Bar Backgrounds
         "black": "#5f5f5f", // Borders
         "guiblack": "#080808", // Grid
-        "paletteSize": 20, // (Placeholder)
-        "border": 0.4 // (Placeholder)
+        "paletteSize": 20,
+        "border": 0.4,
+        "neon": false
     },
     "nebula": {
         "blue": "#9274e6", // Blue Team
@@ -601,7 +616,8 @@ var color = {
         "black": "#665750", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.7
+        "border": 0.7019607843137254,
+        "neon": false
     },
     "pastel": {
         "blue": "#397697", // Blue Team
@@ -633,7 +649,8 @@ var color = {
         "black": "#675240", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.75
+        "border": 0.7529411764705882,
+        "neon": false
     },
     "descent": {
         "blue": "#ababab", // Blue Team
@@ -665,7 +682,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.5
+        "border": 0.5019607843137255,
+        "neon": false
     },
     "badlands": {
         "blue": "#0c5a9e", // Blue Team
@@ -697,7 +715,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#cfe2f3", // Grid
         "paletteSize": 20,
-        "border": 0.4
+        "border": 0.4,
+        "neon": false
     },
     "pumpkinSkeleton": {
         "blue": "#3ca4cb", // Blue Team
@@ -729,7 +748,8 @@ var color = {
         "black": "#484848", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 1
+        "border": 1,
+        "neon": false
     },
     "blindness": {
         "teal": "#000000",
@@ -758,7 +778,8 @@ var color = {
         "brown": "#000000",
         "cyan": "#000000",
         "paletteSize": 20,
-        "border": 0
+        "border": 0,
+        "neon": false
     },
 };
 export { color }
