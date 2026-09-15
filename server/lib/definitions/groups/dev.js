@@ -174,7 +174,24 @@ Class.menu_bosses = makeMenu("Bosses Menu", {
         "dev"
     ].map(x => `menu_${x}Bosses`)
 });
-Class.menu_bosses.UPGRADES_TIER_0.push("bob")
+Class.menu_bosses.UPGRADES_TIER_0.push("menu_sentries", "bob");
+Class.menu_sentries = makeMenu("Sentries Menu", {
+    color: "pink",
+    upgrades: [
+        "sentryGun",
+        "sentrySwarm",
+        "sentryTrap",
+        "sentinelGun",
+        "sentinelSwarm",
+        "sentinelTrap",
+        "shinySentryGun",
+        "shinySentrySwarm",
+        "shinySentryTrap",
+        "sentinelLauncher",
+        "sentinelCrossbow",
+        "sentinelMinigun"
+    ]
+});
 Class.menu_eliteBosses = makeMenu("Elite Bosses Menu", {
     color: "pink",
     upgrades: [
