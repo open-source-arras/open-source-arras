@@ -271,7 +271,9 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     let typeHoncho = typeify(honcho);
     let typeDirectordrive = typeify(directordrive);
 
-    Class[typeDirector] = makeOver(type, director, preset.hybrid);
+    if (Class[typeDirector] == undefined) {
+        Class[typeDirector] = makeOver(type, director, preset.hybrid);
+    }
     Class[typeOverseer] = makeOver(type, overseer);
     Class[typeCruiser] = makeBattle(type, cruiser, preset.hybrid);
     Class[typeSpawner] = makeCap(type, spawner, preset.hybrid);
