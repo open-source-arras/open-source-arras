@@ -5,20 +5,20 @@ Class.gravel = {
     PARENT: "genericObstacle",
     LABEL: "Gravel",
     SIZE: 16,
-    SHAPE: -7
+    SHAPE: 7
 };
 Class.stone = {
     PARENT: "genericObstacle",
     LABEL: "Stone",
     SIZE: 32,
-    SHAPE: -7,
+    SHAPE: 7,
     VARIES_IN_SIZE: true
 };
 Class.rock = {
     PARENT: "genericObstacle",
     LABEL: "Rock",
     SIZE: 60,
-    SHAPE: -9,
+    SHAPE: 9,
     VARIES_IN_SIZE: true
 };
 Class.moon = {

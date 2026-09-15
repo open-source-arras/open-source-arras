@@ -8,7 +8,7 @@ let spawnPermanentBaseProtector = (loc, team) => {
     teamCheck = (tile, team) => {
         for (let i = 0; i < tile.entities.length; i++) {
             let entity = tile.entities[i];
-            if (entity.team !== team && !entity.ac && (!entity.master.master.ac || entity.ac === false) && !entity.isArenaCloser && (!entity.master.master.isArenaCloser || entity.isArenaCloser === false) && !Config.disable_base_check) {
+            if (entity.team !== team && entity.team !== -101 && !entity.ac && (!entity.master.master.ac || entity.ac === false) && !entity.isArenaCloser && (!entity.master.master.isArenaCloser || entity.isArenaCloser === false) && !Config.disable_base_check) {
                 entity.kill()
             };
         }

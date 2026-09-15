@@ -2012,7 +2012,7 @@ Class.zyrafaqBoss = {
     BODY: {SPEED: 0.55*base.SPEED, HEALTH: 18*base.HEALTH, SHIELD: 8*base.SHIELD, REGEN: 3*base.REGEN, DAMAGE: 3.5*base.DAMAGE, FOV: 1.5*base.FOV, RESIST: 1.2*base.RESIST},
     GUNS: [
         {POSITION: [26, 14, -1.4, 0, 0, 0, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.destroyer, g.op]), TYPE: "developerBullet"}},
-        ...weaponArray({POSITION: [16, 5, 1.2, 12, 0, 0, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.machineGun, g.op, {reload:2}]), TYPE: "developerBullet"}}, 3),
+        ...weaponArray({POSITION: [16, 5, 1.2, 10, 0, 0, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.machineGun, g.op, {reload:2}]), TYPE: "developerBullet"}}, 3),
         {POSITION: [6, 12, 1.2, 8, 0, 180, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.pounder, {speed:1.5, maxSpeed:1.5}]), TYPE: "zyrafaqBossDrone", MAX_CHILDREN: 3, AUTOFIRE: true, SYNCS_SKILLS: true, STAT_CALCULATOR: "drone", WAIT_TO_CYCLE: true, NO_LIMITATIONS: true}},
         ...weaponMirror({POSITION: [6, 12, 1.2, 8, 0, 90, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.pounder, {speed:1.5, maxSpeed:1.5}]), TYPE: "zyrafaqBossDrone", MAX_CHILDREN: 3, AUTOFIRE: true, SYNCS_SKILLS: true, STAT_CALCULATOR: "drone", WAIT_TO_CYCLE: true, NO_LIMITATIONS: true}})
     ],
