@@ -63,7 +63,7 @@ var color = {
         "black": "#131313", // Borders
         "guiblack": "#FFFFFF", // Grid
         "paletteSize": 20,
-        "border": 0.15
+        "border": 0.15,
         "neon": true
     },
     "darkOld": {
@@ -122,7 +122,7 @@ var color = {
         "black": "#444444", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.5
+        "border": 0.5,
         "neon": false
     },
     "natural": {
@@ -517,7 +517,8 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0
+        "border": 0,
+        "neon": false
     },
 
     // Removed arras themes
