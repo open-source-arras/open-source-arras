@@ -21,7 +21,8 @@ Class.blaster = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["triBlaster", "splasher"]
 };
 Class.gatlingGun = {
     PARENT: "genericTank",
@@ -40,9 +41,11 @@ Class.gatlingGun = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["sprayer_RG", "accurator", "halfNHalf"]
 };
 Class.machineFlank = makeFlank("machineGun", 2, "Machine Flank", { extraStats: [g.doubleTwin] });
+Class.machineFlank.UPGRADES_TIER_3 = ["machineTriple", "halfNHalf"];
 Class.rifle_old = {
     PARENT: "genericTank",
     LABEL: "Rifle",
@@ -66,7 +69,8 @@ Class.rifle_old = {
                 WIDTH: 9.5
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["sniperRifle", "rifleGuard", "spreadRifle"]
 };
 
 // Tier 3 (Level 45)
@@ -453,26 +457,20 @@ Class.triBlaster = {
     ]
 };
 
-// Class Tree
-addUpgrades("blaster", 3, ["triBlaster", "splasher"]);
-addUpgrades("gatlingGun", 3, ["sprayer_RG", "accurator", "halfNHalf"]);
-addUpgrades("machineFlank", 3, ["machineTriple", "halfNHalf"]);
-
-addUpgrades("rifle_old", 3, ["sniperRifle", "rifleGuard", "spreadRifle"]);
-
+// Class Tree Modification
 if (Config.retrograde) {
-    addUpgrades("machineGun", 2, ["blaster", "gatlingGun", "machineFlank"]);
-    addUpgrades("sniper", 2, ["gatlingGun"]);
+    Class.machineGun.UPGRADES_TIER_2.push("blaster", "gatlingGun", "machineFlank");
+    Class.sniper.UPGRADES_TIER_2.push("gatlingGun");
 
-    addUpgrades("hexaTank", 3, ["tornado_AR"]);
-    addUpgrades("tripleShot", 3, ["triBlaster"]);
+    Class.hexaTank.UPGRADES_TIER_3.push("tornado_AR");
+    Class.tripleShot.UPGRADES_TIER_3.push("triBlaster");
 };
 
 if (Config.arms_race || Config.retrograde) {
-    addUpgrades("assassin", 3, ["buttbuttin"]);
-    addUpgrades("destroyer", 3, ["blower"]);
-    addUpgrades("gunner", 3, ["battery"]);
-    addUpgrades("hexaTank", 3, ["deathStar"]);
-    addUpgrades("minigun", 3, ["subverter"]);
-    addUpgrades("smasher", 3, ["bonker"]);
+    Class.assassin.UPGRADES_TIER_3.push("buttbuttin");
+    Class.destroyer.UPGRADES_TIER_3.push("blower");
+    Class.gunner.UPGRADES_TIER_3.push("battery");
+    Class.hexaTank.UPGRADES_TIER_3.push("deathStar");
+    Class.minigun.UPGRADES_TIER_3.push("subverter");
+    Class.smasher.UPGRADES_TIER_3.push("bonker");
 };

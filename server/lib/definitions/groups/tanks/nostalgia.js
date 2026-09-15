@@ -5,12 +5,17 @@ const preset = require("../../presets.js");
 
 // Tier 1 (Level 15)
 Class.whirlwind = makeWhirlwind("genericTank", { label: "Whirlwind", satellites: 6, hat: "hexagonHat_spin", danger: 5 });
+Class.whirlwind.UPGRADES_TIER_2 = ["tornado", "hurricane"];
+Class.whirlwind.UPGRADES_TIER_3 = ["hexaWhirl", "munition", "whirl3", "whirlGuard", "prophet", "vortex"];
 
 // Tier 2 (Level 30)
 Class.hurricane = makeWhirlwind("genericTank", { hat: "octagonHat_spin", satellites: 8, label: "Hurricane" });
+Class.hurricane.UPGRADES_TIER_3 = ["typhoon", "blizzard"];
 Class.tornado = makeWhirlwind("genericTank", { hat: "squareHat_spin", hatSize: 10, satellites: 4, satelliteSize: 12, extraStats: [g.pounder], label: "Tornado" });
+Class.tornado.UPGRADES_TIER_3 = ["megaTornado", "tempest", "thunderbolt"];
 Class.whirlwind_old = makeWhirlwind("genericTank", { hat: "circleHat", hatSize: 24, hatLayer: 0, satellites: 6, satelliteType: "satellite_old", label: "Whirlwind" });
 Class.whirlwind_old.UPGRADE_LABEL = "Old Whirlwind";
+Class.whirlwind_old.UPGRADES_TIER_3 = ["monsoon", "maelstrom", "tornado_old", "typhoon_old", "vortex_old"];
 
 // Tier 3 (Level 45)
 Class.auto4_old = makeRadialAuto("auto4gun", { isTurret: true, danger: 7, size: 13, x: 6, label: "Gunner-3", count: 3 });
@@ -450,15 +455,7 @@ Class.vortex_old = makeWhirlwind("genericTank", { enableHat2: true, hat: "pentag
 Class.whirlGuard = makeWhirlwind("trapGuard", { label: "Whirl Guard" });
 Class.whirl3 = makeWhirlwind("auto3", { label: "Whirl-3" });
 
-// Class Tree (Tier 2)
-addUpgrades("whirlwind", 2, ["tornado", "hurricane"]);
-    addUpgrades("whirlwind", 3, ["hexaWhirl", "munition", "whirl3", "whirlGuard", "prophet", "vortex"]);
-    addUpgrades("tornado", 3, ["megaTornado", "tempest", "thunderbolt"]);
-    addUpgrades("hurricane", 3, ["typhoon", "blizzard"]);
-
-// Class Tree (Tier 3)
-addUpgrades("whirlwind_old", 3, ["monsoon", "maelstrom", "tornado_old", "typhoon_old", "vortex_old"]);
-
+// Class Tree Modification
 if (Config.teams == 1) {
     removeUpgrades("whirlwind", 3, ["prophet"]);
 };

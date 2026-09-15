@@ -1,8 +1,7 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeFore, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, makeAuto, makeBird, makeFlank, makeGuard, makeOver, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
 const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
-let tier4_AR = 3;
 
 // Basic Tank
 Class.basic = {
@@ -20,7 +19,9 @@ Class.basic = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_1: ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "desmos"],
+    UPGRADES_TIER_2: ["smasher"]
 };
 
 // Tier 1 (Level 15)
@@ -50,7 +51,8 @@ Class.desmos = {
                 ANGLE: 90
             }
         })
-    ]
+    ],
+    UPGRADES_TIER_2: ["helix"]
 };
 Class.director = {
     PARENT: "genericTank",
@@ -77,10 +79,14 @@ Class.director = {
                 WAIT_TO_CYCLE: true
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_2: ["overseer", "cruiser", "underseer", "spawner"],
+    UPGRADES_TIER_3: ["manager", "bigCheese"]
 };
 Class.flankGuard = makeFlank("basic", 3, "Flank Guard", { extraStats: [g.flankGuard] });
 Class.flankGuard.BODY = { SPEED: 1.125 * base.SPEED };
+Class.flankGuard.UPGRADES_TIER_2 = ["hexaTank", "triAngle", "auto3", "trapGuard", "triTrapper"];
+Class.flankGuard.UPGRADES_TIER_3 = ["tripleTwin", "quadruplex"];
 Class.machineGun = {
     PARENT: "genericTank",
     LABEL: "Machine Gun",
@@ -97,7 +103,8 @@ Class.machineGun = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_2: ["artillery", "minigun", "gunner", "sprayer"]
 };
 Class.pounder = {
     PARENT: "genericTank",
@@ -113,7 +120,9 @@ Class.pounder = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_2: ["destroyer", "builder", "artillery", "launcher"],
+    UPGRADES_TIER_3: ["shotgun", "eagle"]
 };
 Class.sniper = {
     PARENT: "genericTank",
@@ -132,7 +141,9 @@ Class.sniper = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_2: ["assassin", "hunter", "minigun", "rifle"],
+    UPGRADES_TIER_3: ["bushwhacker"]
 };
 Class.trapper = {
     PARENT: "genericTank",
@@ -158,7 +169,9 @@ Class.trapper = {
                 STAT_CALCULATOR: "trap"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_2: ["builder", "triTrapper", "trapGuard"],
+    UPGRADES_TIER_3: ["barricade", "overtrapper"]
 };
 Class.twin = {
     PARENT: "genericTank",
@@ -173,7 +186,9 @@ Class.twin = {
             SHOOT_SETTINGS: combineStats([g.basic, g.twin]),
             TYPE: "bullet"
         }
-    }, {delayIncrement: 0.5})
+    }, {delayIncrement: 0.5}),
+    UPGRADES_TIER_2: ["doubleTwin", "tripleShot", "gunner", "hexaTank", "helix"],
+    UPGRADES_TIER_3: ["dual", "bulwark", "musket"]
 };
 
 // Tier 2 (Level 30)
@@ -207,7 +222,8 @@ Class.artillery = {
                 LABEL: "Heavy"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["mortar", "ordnance", "beekeeper", "fieldGun"]
 };
 Class.assassin = {
     PARENT: "genericTank",
@@ -234,9 +250,11 @@ Class.assassin = {
                 ASPECT: -2.2
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["ranger", "falcon", "stalker", "autoAssassin", "single", "deadeye"]
 };
 Class.auto3 = makeRadialAuto("autoTankGun", { isTurret: true, danger: 6, label: "Auto-3" });
+Class.auto3.UPGRADES_TIER_3 = ["auto5", "mega3", "auto4", "banshee"];
 Class.builder = {
     PARENT: "genericTank",
     LABEL: "Builder",
@@ -266,7 +284,8 @@ Class.builder = {
                 STAT_CALCULATOR: "block"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["construct", "autoBuilder", "engineer", "boomer", "assembler", "architect", "conqueror"]
 };
 Class.cruiser = {
     PARENT: "genericTank",
@@ -290,7 +309,8 @@ Class.cruiser = {
             TYPE: "swarm",
             STAT_CALCULATOR: "swarm"
         }
-    }, {delayIncrement: 0.5})
+    }, {delayIncrement: 0.5}),
+    UPGRADES_TIER_3: ["carrier", "battleship", "fortress", "autoCruiser", "commander"]
 };
 Class.destroyer = {
     PARENT: "genericTank",
@@ -307,9 +327,11 @@ Class.destroyer = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["conqueror", "annihilator", "hybrid", "construct"]
 };
 Class.doubleTwin = makeFlank("twin", 2, "Double Twin", { extraStats: [g.doubleTwin] });
+Class.doubleTwin.UPGRADES_TIER_3 = ["tripleTwin", "hewnDouble", "autoDouble", "bentDouble"];
 Class.gunner = {
     PARENT: "genericTank",
     LABEL: "Gunner",
@@ -338,7 +360,8 @@ Class.gunner = {
                 TYPE: "bullet"
             }
         }
-    ], {delayIncrement: 0.25})
+    ], {delayIncrement: 0.25}),
+    UPGRADES_TIER_3: ["autoGunner", "nailgun", "auto4", "machineGunner", "gunnerTrapper", "cyclone", "overgunner"]
 };
 Class.healer = {
     PARENT: "genericHealer",
@@ -362,7 +385,8 @@ Class.healer = {
                 TYPE: "healerBullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["medic", "ambulance", "surgeon", "paramedic"]
 };
 Class.helix = {
     PARENT: "genericTank",
@@ -411,9 +435,11 @@ Class.helix = {
                 ANGLE: 90
             }
         })
-    ]
+    ],
+    UPGRADES_TIER_3: ["triplex", "quadruplex"]
 };
 Class.hexaTank = makeFlank("basic", 6, "Hexa Tank", { extraStats: [g.flankGuard, g.flankGuard], delayIncrement: 0.5, danger: 6 });
+Class.hexaTank.UPGRADES_TIER_3 = ["octoTank", "cyclone", "hexaTrapper"];
 Class.hunter = {
     PARENT: "genericTank",
     LABEL: "Hunter",
@@ -445,7 +471,8 @@ Class.hunter = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["predator", "xHunter", "poacher", "ordnance", "dual", "nimrod"]
 };
 Class.launcher = {
     PARENT: "genericTank",
@@ -473,7 +500,8 @@ Class.launcher = {
                 STAT_CALCULATOR: "sustained"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["skimmer", "twister", "swarmer", "sidewinder", "fieldGun"]
 };
 Class.marksman = {
     PARENT: "genericTank",
@@ -501,7 +529,8 @@ Class.marksman = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["deadeye", "nimrod", "revolver", "fork"]
 };
 Class.minigun = {
     PARENT: "genericTank",
@@ -519,7 +548,8 @@ Class.minigun = {
             SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
             TYPE: "bullet"
         }
-    }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+    }, 3, {lengthOffset: 2, delayIncrement: 1/3}),
+    UPGRADES_TIER_3: ["streamliner", "nailgun", "cropDuster", "barricade", "vulture"]
 };
 Class.overseer = {
     PARENT: "genericTank",
@@ -547,7 +577,8 @@ Class.overseer = {
             WAIT_TO_CYCLE: true,
             MAX_CHILDREN: 4
         }
-    })
+    }),
+    UPGRADES_TIER_3: ["overlord", "overtrapper", "overgunner", "banshee", "autoOverseer", "overdrive", "commander"]
 };
 Class.repeater = {
     PARENT: "genericTank",
@@ -587,7 +618,8 @@ Class.repeater = {
                 }
             }
         ])
-    ]
+    ],
+    UPGRADES_TIER_3: ["iterator", "duplicator"]
 };
 Class.rifle = {
     PARENT: "genericTank",
@@ -611,7 +643,8 @@ Class.rifle = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["musket", "crossbow", "armsman", "revolver"]
 };
 Class.smasher = {
     PARENT: "genericSmasher",
@@ -624,7 +657,8 @@ Class.smasher = {
                 SIZE: 21.5
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["megaSmasher", "spike", "autoSmasher", "landmine"]
 };
 Class.spawner = {
     PARENT: "genericTank",
@@ -662,7 +696,8 @@ Class.spawner = {
                 WIDTH: 12
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["factory", "autoSpawner"]
 };
 Class.spiral = {
     PARENT: "genericTank",
@@ -697,7 +732,8 @@ Class.spiral = {
                 ANGLE: 87.5
             }
         })
-    ]
+    ],
+    UPGRADES_TIER_3: ["coil", "python"]
 };
 Class.sprayer = {
     PARENT: "genericTank",
@@ -726,7 +762,8 @@ Class.sprayer = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["redistributor", "phoenix", "atomizer", "focal"]
 };
 Class.trapGuard = makeGuard({
     PARENT: "genericTank",
@@ -744,6 +781,7 @@ Class.trapGuard = makeGuard({
         }
     ]
 }, "Trap Guard");
+Class.trapGuard.UPGRADES_TIER_3 = ["bushwhacker", "gunnerTrapper", "bomber", "conqueror", "bulwark"];
 Class.triAngle = {
     PARENT: "genericTank",
     LABEL: "Tri-Angle",
@@ -778,9 +816,11 @@ Class.triAngle = {
                 LABEL: "Thruster"
             }
         })
-    ]
+    ],
+    UPGRADES_TIER_3: ["fighter", "booster", "falcon", "bomber", "autoTriAngle", "surfer", "eagle", "phoenix", "vulture"]
 };
 Class.triTrapper = makeFlank("trapper", 3, "Tri-Trapper", { extraStats: [g.flankGuard] });
+Class.triTrapper.UPGRADES_TIER_3 = ["fortress", "hexaTrapper", "septaTrapper", "architect"];
 Class.tripleShot = {
     PARENT: "genericTank",
     LABEL: "Triple Shot",
@@ -809,7 +849,8 @@ Class.tripleShot = {
                 TYPE: "bullet"
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_3: ["pentaShot", "spreadshot", "bentHybrid", "bentDouble", "triplet", "triplex"]
 };
 Class.underseer = {
     PARENT: "genericTank",
@@ -836,7 +877,8 @@ Class.underseer = {
             WAIT_TO_CYCLE: true,
             DELAY_SPAWN: false
         }
-    }, 2)
+    }, 2),
+    UPGRADES_TIER_3: ["necromancer", "maleficitor", "infestor"]
 };
 
 // Tier 3 (Level 45)
@@ -3794,69 +3836,10 @@ Class.xHunter = {
     ]
 };
 
-// Class Tree
-addUpgrades("basic", 1, ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "desmos"]);
-    addUpgrades("basic", 2, ["smasher"]);
-        addUpgrades("smasher", 3, ["megaSmasher", "spike", "autoSmasher", "landmine"]);
-        addUpgrades("healer", 3, ["medic", "ambulance", "surgeon", "paramedic"]);
-
-    addUpgrades("twin", 2, ["doubleTwin", "tripleShot", "gunner", "hexaTank", "helix"]);
-        addUpgrades("twin", 3, ["dual", "bulwark", "musket"]);
-        addUpgrades("doubleTwin", 3, ["tripleTwin", "hewnDouble", "autoDouble", "bentDouble"]);
-        addUpgrades("tripleShot", 3, ["pentaShot", "spreadshot", "bentHybrid", "bentDouble", "triplet", "triplex"]);
-        addUpgrades("gunner", 3, ["autoGunner", "nailgun", "auto4", "machineGunner", "gunnerTrapper", "cyclone", "overgunner"]);
-        addUpgrades("hexaTank", 3, ["octoTank", "cyclone", "hexaTrapper"]);
-        addUpgrades("helix", 3, ["triplex", "quadruplex"]);
-
-    addUpgrades("sniper", 2, ["assassin", "hunter", "minigun", "rifle", "marksman"]);
-        addUpgrades("sniper", 3, ["bushwhacker"]);
-        addUpgrades("assassin", 3, ["ranger", "falcon", "stalker", "autoAssassin", "single", "deadeye"]);
-        addUpgrades("hunter", 3, ["predator", "xHunter", "poacher", "ordnance", "dual", "nimrod"]);
-        addUpgrades("minigun", 3, ["streamliner", "nailgun", "cropDuster", "barricade", "vulture"]);
-        addUpgrades("rifle", 3, ["musket", "crossbow", "armsman", "revolver"]);
-        addUpgrades("marksman", 3, ["deadeye", "nimrod", "revolver", "fork"]);
-
-    addUpgrades("machineGun", 2, ["artillery", "minigun", "gunner", "sprayer"]);
-        addUpgrades("artillery", 3, ["mortar", "ordnance", "beekeeper", "fieldGun"]);
-        //addUpgrades("minigun", 3, []);
-        //addUpgrades("gunner", 3, []);
-        addUpgrades("sprayer", 3, ["redistributor", "phoenix", "atomizer", "focal"]);
-
-    addUpgrades("flankGuard", 2, ["hexaTank", "triAngle", "auto3", "trapGuard", "triTrapper"]);
-        addUpgrades("flankGuard", 3, ["tripleTwin", "quadruplex"]);
-        //addUpgrades("hexaTank", 3, []);
-        addUpgrades("triAngle", 3, ["fighter", "booster", "falcon", "bomber", "autoTriAngle", "surfer", "eagle", "phoenix", "vulture"]);
-        addUpgrades("auto3", 3, ["auto5", "mega3", "auto4", "banshee"]);
-        addUpgrades("trapGuard", 3, ["bushwhacker", "gunnerTrapper", "bomber", "conqueror", "bulwark"]);
-        addUpgrades("triTrapper", 3, ["fortress", "hexaTrapper", "septaTrapper", "architect"]);
-
-    addUpgrades("director", 2, ["overseer", "cruiser", "underseer", "spawner"]);
-        addUpgrades("director", 3, ["manager", "bigCheese"]);
-        addUpgrades("overseer", 3, ["overlord", "overtrapper", "overgunner", "banshee", "autoOverseer", "overdrive", "commander"]);
-        addUpgrades("cruiser", 3, ["carrier", "battleship", "fortress", "autoCruiser", "commander"]);
-        addUpgrades("underseer", 3, ["necromancer", "maleficitor", "infestor"]);
-        addUpgrades("spawner", 3, ["factory", "autoSpawner"]);
-
-    addUpgrades("pounder", 2, ["destroyer", "builder", "artillery", "launcher"]);
-        addUpgrades("pounder", 3, ["shotgun", "eagle"]);
-        addUpgrades("destroyer", 3, ["conqueror", "annihilator", "hybrid", "construct"]);
-        addUpgrades("builder", 3, ["construct", "autoBuilder", "engineer", "boomer", "assembler", "architect", "conqueror"]);
-        //addUpgrades("artillery", 3, []);
-        addUpgrades("launcher", 3, ["skimmer", "twister", "swarmer", "sidewinder", "fieldGun"]);
-
-    addUpgrades("trapper", 2, ["builder", "triTrapper", "trapGuard"]);
-        addUpgrades("trapper", 3, ["barricade", "overtrapper"]);
-        //addUpgrades("builder", 3, []);
-        //addUpgrades("triTrapper", 3, []);
-        //addUpgrades("trapGuard", 3, []);
-
-    addUpgrades("desmos", 2, ["helix"]);
-        //addUpgrades("helix", 3, []);
-        addUpgrades("spiral", 3, ["coil", "python"]);
-        addUpgrades("repeater", 3, ["iterator", "duplicator"]);
-
+// Class Tree Modification
 if (Config.teams == 1) {
-    addUpgrades("basic", 2, ["healer"]);
     removeUpgrades("basic", 2, ["smasher"]);
     removeUpgrades("director", 2, ["underseer"]);
+
+    Class.basic.UPGRADES_TIER_2.push("healer");
 };
