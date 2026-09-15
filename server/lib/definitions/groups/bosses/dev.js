@@ -1439,10 +1439,10 @@ Class.toothlessBoss = {
 
 // AESports
 Class.MKAura = makeAura(5, 0, 0.1, 42);
-Class.MKDoneAura = makeAura(2, 1, 0.3, 32);
+Class.MKDoneAura = makeAura(2, 1, 0.3, "#ff1000");
 Class.MKFactoryAura = makeAura(2.6, 1, 0.3, "trans");
 Class.MKCarrierAura = makeAura(2.1, 1, 0.3, 1);
-Class.MKMinionAura = makeAura(1.1, 1, 0.3, 32);
+Class.MKMinionAura = makeAura(1.1, 1, 0.3, "#ff1000");
 Class.MKDrone = {
     PARENT: "drone",
     LABEL: "MKShip Drone",
@@ -1638,11 +1638,11 @@ Class.AEMKShipBoss = {
     CONTROLLERS: ["nearestDifferentMaster", "minion"],
     UPGRADE_TOOLTIP: "Has 4 carriers, 4 factories, and their own auras. NOW FACE MY DESTRUCTION!",
     NO_SIZE_ANIMATION: true,
-    COLOR: 32,
-    UPGRADE_COLOR: 32,
+    COLOR: "#ff1000",
+    UPGRADE_COLOR: "#ff1000",
     GLOW: {
         RADIUS: 1.5,
-        COLOR: 32,
+        COLOR: "#ff1000",
         ALPHA: 0.9,
         RECURSION: 3
     },
