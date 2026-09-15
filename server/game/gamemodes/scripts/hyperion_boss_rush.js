@@ -1,7 +1,7 @@
 class HyperionBossRush  {
     constructor() {
         this.room = global.gameManager.room;
-        this.waves = [ran.choose([["hyperion_mk0","hyperion_mk0"],["hyperion_mkhalf"]])];
+        this.waves = [ran.choose([["hyperion_mk0","hyperion_mk0"],["hyperion_mkhalf","hyperion_mk1"]])];
     }
     defineProperties() {
         this.length = Config.wave_cap;

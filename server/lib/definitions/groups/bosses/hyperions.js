@@ -15,7 +15,8 @@ Class.hyperion_base = {
         HEALTH: 4 * base.HEALTH,
         DAMAGE: 2 * base.DAMAGE,
         REGEN: 0.5 * base.REGEN
-    }
+    },
+    FACING_TYPE: 'toTarget'
 }
 
 Class.hyperion_mk0_shield_l = {
@@ -195,7 +196,7 @@ Class.fake_hyperion_body = {
 Class.hyperion_mkhalf = {
     PARENT: 'hyperion_base',
     LABEL: "Hyperion MK0.5",
-    UPGRADE_LABEL: "Hyperion MK0",
+    UPGRADE_LABEL: "Hyperion MK0.5",
     UPGRADE_COLOR: "#CBC9FF",
     FACING_TYPE: 'toTarget',
     BODY: {
@@ -238,7 +239,88 @@ Class.hyperion_mkhalf = {
     ]
 }
 
+Class.hyperion_mk1_shield = {
+    COLOR: "#CBC9FF",
+    SHAPE: [[-0.375,-1],[-0.375,1],[0.375,0.625],[0.375,-0.625]],
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 5,
+                ANGLE: 90,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.lowPower, g.noRecoil]),
+                TYPE: 'bullet'
+            }
+        }, {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 5,
+                ANGLE: 270,
+                DELAY: 1
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.lowPower, g.noRecoil]),
+                TYPE: 'bullet'
+            }
+        }, {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 12,
+                ASPECT: 2/3,
+                ANGLE: 180
+            }
+        }
+    ]
+}
+
+Class.hyperion_mk1 = {
+    PARENT: 'hyperion_base',
+    LABEL: "Hyperion MK1",
+    UPGRADE_LABEL: "Hyperion MK1",
+    UPGRADE_COLOR: "#CBC9FF",
+    FACING_TYPE: 'toTarget',
+    BODY: {
+        FOV: 5
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.hunter, g.hunterSecondary, g.noRecoil]),
+                TYPE: 'frag1bullet'
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.hunter, g.noRecoil]),
+                TYPE: 'frag1bullet'
+            }
+        }
+    ],
+    TURRETS: [
+        {
+            POSITION: [30, 15, 0, 90, 0, 1],
+            TYPE: "hyperion_mk1_shield",
+        },
+        {
+            POSITION: [30, 15, 0, 270, 0, 1],
+            TYPE: "hyperion_mk1_shield",
+        }
+    ]
+}
+
 Class.menu_hyperions = makeMenu("Hyperions", {upgrades: [
     'hyperion_mk0',
-    'hyperion_mkhalf'
+    'hyperion_mkhalf',
+    'hyperion_mk1'
 ]});
