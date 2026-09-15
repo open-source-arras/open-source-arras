@@ -40,46 +40,6 @@ module.exports = {
     servers: [
         {
             share_client_server: false,
-            host: "localhost:4000",
-            port: 4000,
-            id: "c",
-
-            region: "Local",
-            serverhost: "Local",
-            location: "Localhost",
-            gamemode: ["tdm"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: true,
-            private: false,
-
-            properties: {
-
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:5050",
-            port: 5050,
-            id: "x",
-
-            region: "Local",
-            serverhost: "Local",
-            location: "Localhost",
-            gamemode: ["arms_race", "ffa"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: false,
-            private: true,
-
-            properties: {
-
-            }
-        },
-        {
-            share_client_server: false,
             host: "localhost:3001",
             port: 3001,
             id: "la",
@@ -205,9 +165,7 @@ module.exports = {
             unlisted: false,
             private: false,
 
-            properties: {
-
-            }
+            properties: {}
         }
     ],
 
