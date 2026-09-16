@@ -3825,6 +3825,8 @@ import * as socketStuff from "./socketinit.js";
     function drawAvailableUpgrades(spacing, alcoveSize) {
         // Draw upgrade menu
         if (global.optionsMenu_Anim.isOpened) global.clickables.upgrade.hide();
+        global.clickables.dailyTankUpgrade.hide();
+        global.clickables.dailyTankAd.hide();
         if (gui.upgrades.length > 0) {
             let internalSpacing = 15;
             let len = alcoveSize / 2;
