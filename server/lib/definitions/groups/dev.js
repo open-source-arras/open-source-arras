@@ -397,7 +397,7 @@ Class.menu_diep2 = makeMenu("Diep2 Menu", {
         "deathStar",
         "bonker",
         "protector",
-        "bulwark_old"
+        "doubleTrapGuard"
     ]
 });
 Class.menu_adminTanks = makeMenu("Admin Tanks", {

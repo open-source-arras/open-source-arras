@@ -1,6 +1,6 @@
 module.exports = {
     // Development
-    dev_build: false, // Whether this version is unstable and should be clearly marked as such.
+    dev_build: true, // Whether this version is unstable and should be clearly marked as such.
 
     // Client
     main_menu: "index.html", // Where the main menu is located (in the /public folder).
@@ -38,46 +38,6 @@ module.exports = {
   */
 
     servers: [
-        {
-            share_client_server: false,
-            host: "localhost:4000",
-            port: 4000,
-            id: "c",
-
-            region: "Local",
-            serverhost: "Local",
-            location: "Localhost",
-            gamemode: ["tdm"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: true,
-            private: false,
-
-            properties: {
-
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:5050",
-            port: 5050,
-            id: "x",
-
-            region: "Local",
-            serverhost: "Local",
-            location: "Localhost",
-            gamemode: ["arms_race", "ffa"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: false,
-            private: true,
-
-            properties: {
-
-            }
-        },
         {
             share_client_server: false,
             host: "localhost:3001",
@@ -205,9 +165,7 @@ module.exports = {
             unlisted: false,
             private: false,
 
-            properties: {
-
-            }
+            properties: {}
         }
     ],
 
