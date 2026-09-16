@@ -50,7 +50,7 @@ Class.whirlwind_bent = {
 };
 
 // Tier 2 (Level 30)
-Class.autoTrapper = makeAuto('trapper');
+Class.autoTrapper = makeAuto("trapper");
 Class.doubleFlail = {
     PARENT: "genericFlail",
     LABEL: "Double Flail",
