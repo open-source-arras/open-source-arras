@@ -1,7 +1,6 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeFore, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
+const { combineStats, makeAuto, makeSnake, weaponArray, weaponMirror } = require("../../facilitators.js");
+const { base, dfltskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
-const preset = require("../../presets.js");
 
 // Tier 1 (Level 15)
 Class.flail = {
@@ -16,7 +15,8 @@ Class.flail = {
             X: 10,
             ARC: 190
         }
-    }]
+    }],
+    UPGRADES_TIER_2: ["doubleFlail", "mace", "flangle"]
 };
 Class.whirlwind_bent = {
     PARENT: "genericTank",
@@ -45,7 +45,8 @@ Class.whirlwind_bent = {
                 ANGLE: 15
             }
         }
-    ], {delayIncrement: 0.5})
+    ], {delayIncrement: 0.5}),
+    UPGRADES_TIER_2: ["maelstrom", "hurricane", "monsoon", "typhoon", "tempest"].map(x => `${x}_bent`)
 };
 
 // Tier 2 (Level 30)
@@ -54,7 +55,8 @@ Class.doubleFlail = {
     PARENT: "genericFlail",
     LABEL: "Double Flail",
     DANGER: 6,
-    TURRETS: weaponArray(Class.flail.TURRETS, 2)
+    TURRETS: weaponArray(Class.flail.TURRETS, 2),
+    UPGRADES_TIER_3: ["tripleFlail"]
 };
 Class.flangle = {
     PARENT: "genericFlail",
@@ -75,7 +77,8 @@ Class.flangle = {
         }
     }),
     TURRETS: Class.flail.TURRETS,
-    SKILL_CAP: Array(10).fill(dfltskl)
+    SKILL_CAP: Array(10).fill(dfltskl),
+    UPGRADES_TIER_3: ["flooster", "flace"]
 };
 Class.hurricane_bent = {
     PARENT: "genericTank",
@@ -111,7 +114,8 @@ Class.mace = {
         TYPE: ["maceBolt3", {
             INDEPENDENT: true
         }]
-    }]
+    }],
+    UPGRADES_TIER_3: ["bigMama", "itHurtsDontTouchIt", "flace"]
 };
 Class.maelstrom_bent = {
     PARENT: "genericTank",
@@ -296,7 +300,8 @@ Class.volute = {
                 ANGLE: 90
             }
         })
-    ]
+    ],
+    UPGRADES_TIER_3: ["sidewinder"]
 };
 
 // Tier 3 (Level 45)
@@ -801,17 +806,3 @@ Class.wrangler = {
         })
     ]
 };
-
-// Class Tree (Tier 2)
-addUpgrades("flail", 2, ["doubleFlail", "mace", "flangle"]);
-    addUpgrades("doubleFlail", 3, ["tripleFlail"]);
-    addUpgrades("mace", 3, ["bigMama", "itHurtsDontTouchIt", "flace"]);
-    addUpgrades("flangle", 3, ["flooster", "flace"]);
-
-addUpgrades("whirlwind_bent", 2, ["maelstrom", "hurricane", "monsoon", "typhoon", "tempest"].map(x => x + "_bent"))
-	// rest of this branch isn't known lmao
-
-// Class Tree (Tier 3)
-addUpgrades("autoTrapper", 3, ["autoBuilder", "hexaTrapper", "autoTrapGuard"]);
-
-addUpgrades("volute", 3, ["sidewinder"]);

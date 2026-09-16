@@ -1,5 +1,5 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeFore, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
+const { combineStats, skillSet, makeAuto, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { base, dfltskl, statnames } = require("../../constants.js");
 const { getDistance } = require("../../../util.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
