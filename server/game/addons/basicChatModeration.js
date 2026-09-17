@@ -21,10 +21,13 @@ let recent = {},
         "I like pineapple on my pizza",
         "I need help, teach me how to play!",
         "I sometimes try to say bad things then this happens :(",
+        "I have really enjoyed playing with you! <3",
+        "I like arras.io pvp but you are truly better than me!",
         "In my free time I like to watch cat videos on Youtube", // [sic]
         "Lets be friends instead of fighting okay?",
         "Maybe we can have a rematch?",
         "Pineapple doesn't go on pizza!",
+        "Please go easy on me, this is my first game!",
         "Plz give me doggo memes!",
         "Sometimes I sing soppy, love songs in the car.",
         "Wait... This isn't what I typed!",
@@ -33,7 +36,8 @@ let recent = {},
         "You are very good at the game friend.",
         "You're a great person! Do you want to play some arras.io with me?",
         "Your damage per second is godly.",
-        "Your personality shines brighter than the sun."
+        "Your personality shines brighter than the sun.",
+        "ILY <3"
     ];
 
 Events.on("chatMessage", ({ message, socket, preventDefault, setMessage }) => {
