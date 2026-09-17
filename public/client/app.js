@@ -5094,8 +5094,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
 
         global.ingameKeybindRects = null;
-        global.ingameThemeSlider = { x: sx * r, y: sy * r, w: SW * r, h: (SH + 5) * r, track: SW };
-        global.ingameThemeNeon = { x: nx * r, y: ny * r, w: OV_SWATCH * r, h: OV_SWATCH * r };
+        const cr = r * global.ratio;
+        global.ingameThemeSlider = { x: sx * cr, y: sy * cr, w: SW * cr, h: (SH + 5) * cr, track: SW };
+        global.ingameThemeNeon = { x: nx * cr, y: ny * cr, w: OV_SWATCH * cr, h: OV_SWATCH * cr };
     }
 
     function drawKeybindsTab(panelX, PANEL_Y, PANEL_WIDTH, clickableRatio) {
@@ -5106,6 +5107,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
         const L = panelX + 22, W = PANEL_WIDTH - 44;
         const T = PANEL_Y - scrollY;
+        const cr = clickableRatio * global.ratio;
         const colW = W / 2;
         const entries = getKeybindEntries();
         const rows = Math.max(1, Math.ceil(entries.length / 2));
@@ -5134,7 +5136,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[2].clip();
             drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
             ctx[2].restore();
-            rects.push({ el: e.el, x: x * clickableRatio, y: y * clickableRatio, w: colW * clickableRatio, h: OV_BADGE * clickableRatio });
+            rects.push({ el: e.el, x: x * cr, y: y * cr, w: colW * cr, h: OV_BADGE * cr });
         });
         global.ingameKeybindRects = rects;
     }
