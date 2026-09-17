@@ -392,7 +392,7 @@ const global = {
             tabClickables: Region(10),  // Pre-initialize for up to 10 tabs
             themeClickables: Region(100),
             activeTab: 0, // 0=Options, 1=Theme, 2=Keybinds, 3=Secret
-            tabs: [["Options", 770], ["Theme", 610], ["Keybinds", 730]],
+            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838]],
             tabSlideAnim: util.Smoothbar(0, 0.3, 1.5, 0.03, 0.025, true),
             sliderMoving: false,
             currentOptionMenu: false
