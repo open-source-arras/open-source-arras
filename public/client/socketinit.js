@@ -1057,6 +1057,15 @@ let incoming = async function(message, socket) {
             global.finalLifetime.set(m[1]);
             global.finalKills = [util.AdvancedSmoothBar(0, 4), util.AdvancedSmoothBar(0, 5.5), util.AdvancedSmoothBar(0, 2.5), util.AdvancedSmoothBar(0, 6)];
             global.respawnTimeout = m[2];
+            global.readyToRespawn = false;
+            if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+            if (config.game.instantRespawn) {
+                global.readyToRespawn = true;
+            } else {
+                global.respawnReadyTimeout = setTimeout(() => {
+                    global.readyToRespawn = true;
+                }, 3000);
+            }
             if (global.respawnTimeout > 0) {
                 global.cannotRespawn = true;
                 setTimeout(() => {

@@ -227,6 +227,7 @@ const global = {
     autoSpin: false,
     syncingWithTank: false,
     respawnTimeout: false,
+    readyToRespawn: false,
     showDebug: false,
     died: false,
     kicked: false,
@@ -476,6 +477,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.entities = [];
         global.roomSetup = [];
         global.messages = [];
@@ -506,6 +509,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.gameConnecting = true;
         global.message = "";
         global.entities = [];
