@@ -1344,6 +1344,7 @@ const socketInit = () => {
     socket.onerror = error => {
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
+        //global.message = "Socket timed out.";
     };
 
     return socket;
