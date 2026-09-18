@@ -1564,6 +1564,9 @@ class socketManager {
                             if (Config.respawn_delay > 0) {
                                 socket.status.readyToSpawn = false;
                                 setTimeout(() => socket.status.readyToSpawn = true, Config.respawn_delay * 1000);
+                            } else if (!Config.instant_respawn) {
+                                socket.status.readyToSpawn = false;
+                                setTimeout(() => socket.status.readyToSpawn = true, 3000);
                             }
                             // Leave the clan party if clan wars is active
                             if (Config.clan_wars) Config.clan_wars_ft.remove(player.body);
