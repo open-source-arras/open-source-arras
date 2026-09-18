@@ -1561,12 +1561,10 @@ class socketManager {
                         }
                         let die = () => { // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
-                            if (Config.respawn_delay > 0) {
+                            let delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
+                            if (delay > 0) {
                                 socket.status.readyToSpawn = false;
-                                setTimeout(() => socket.status.readyToSpawn = true, Config.respawn_delay * 1000);
-                            } else if (!Config.instant_respawn) {
-                                socket.status.readyToSpawn = false;
-                                setTimeout(() => socket.status.readyToSpawn = true, 3000);
+                                setTimeout(() => socket.status.readyToSpawn = true, delay);
                             }
                             // Leave the clan party if clan wars is active
                             if (Config.clan_wars) Config.clan_wars_ft.remove(player.body);
