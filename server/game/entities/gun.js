@@ -36,6 +36,8 @@ class Gun extends EventEmitter {
         this.alpha = 1;
         this.strokeWidth = 1;
         this.canShoot = false;
+        this._wasPressed = false;
+        this._emitFireEvent = false;
         this.borderless = false;
         this.drawFill = true;
         this.drawAbove = false;
@@ -233,8 +235,16 @@ class Gun extends EventEmitter {
                 this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixed reload" ? 1 : sk.rld));
             }
         }
+        // Rising edge detection for fire events — only emit ON events on button press, not while held
+        let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
+        if (currentlyPressed && !this._wasPressed) {
+            this._emitFireEvent = true;
+        } else {
+            this._emitFireEvent = false;
+        }
+        this._wasPressed = currentlyPressed;
         // Firing routines
-        if (this.autofire || (this.altFire ? this.body.control.alt : this.body.control.fire)) {
+        if (this.autofire || currentlyPressed) {
             if (this.body.settings.hasNoReloadDelay && shootPermission) {
                 return (
                     this.shoot(),
@@ -350,12 +360,15 @@ class Gun extends EventEmitter {
             o.life();
             this.onShootFunction();
             this.recoilDir = this.body.facing + this.angle;
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o
-            });
+            if (this._emitFireEvent) {
+                this._emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o
+                });
+            }
             return;
         }
         if (this.independentChildren) {
@@ -369,13 +382,16 @@ class Gun extends EventEmitter {
                     break;
             }
             this.bulletInitIndependent(o);
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o,
-                body: this.master
-            });
+            if (this._emitFireEvent) {
+                this._emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o,
+                    body: this.master
+                });
+            }
             return;
         }
     
@@ -392,15 +408,18 @@ class Gun extends EventEmitter {
         o.velocity = s;
         this.bulletInit(o);
         o.coreSize = o.SIZE;
-        this.master.emit(this.altFire ? "altFire" : "fire", {
-            body: this.master,
-            gun: this,
-            child: o,
-            masterStore: this.master.store,
-            globalMasterStore: this.master.globalStore,
-            gunStore: this.store,
-            globalGunStore: this.globalStore
-        });
+        if (this._emitFireEvent) {
+            this._emitFireEvent = false;
+            this.master.emit(this.altFire ? "altFire" : "fire", {
+                body: this.master,
+                gun: this,
+                child: o,
+                masterStore: this.master.store,
+                globalMasterStore: this.master.globalStore,
+                gunStore: this.store,
+                globalGunStore: this.globalStore
+            });
+        }
         if (this.body.master.settings.shakeProperties && this.master.socket) {
             this.body.master.settings.shakeProperties.forEach(info => {
                 if (info.applyOn.shoot) {
