@@ -321,7 +321,8 @@ class socketManager {
                             active: Config.blackout,
                             color: Config.blackout_fog
                         }),
-                        Config.round_arena
+                        Config.round_arena,
+                        Config.instant_respawn
                     );
                     return;
                 }

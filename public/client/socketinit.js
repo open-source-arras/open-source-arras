@@ -858,6 +858,7 @@ let incoming = async function(message, socket) {
                 global.advanced.blackout.active = blackoutData.active;
                 global.advanced.blackout.color = blackoutData.color;
                 global.advanced.roundArena = m[6];
+                config.game.instantRespawn = m[7];
                 // Start syncing
                 socket.talk("S", getNow());
             } break;
