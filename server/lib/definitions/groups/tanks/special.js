@@ -919,7 +919,7 @@ Class.aeolus = {
     PARENT: "genericTank",
     LABEL: "Aeolus",
     ANGLE: 60,
-    CONTROLLERS: [["whirlwind", { maxDistance: 1, minDistance: 1 }]],
+    CONTROLLERS: [["whirlwind", { minDistance: 1, maxDistance: 5}]],
     HAS_NO_RECOIL: true,
     STAT_NAMES: statnames.whirlwind,
     TURRETS: [
@@ -934,175 +934,157 @@ Class.aeolus = {
     GUNS: (() => {
         let output = []
         for (let j = 0; j < 9; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * 40 },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * 40), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 1, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * 40 },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * 40), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 1, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 11; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/11) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 5/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/11) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 5/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 13; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/13) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 7/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/13) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 7/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 15; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/15) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 9/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/15) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 9/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
                     }
                 })
-            }
         }
         for (let j = 0; j < 17; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/17) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 11/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/17) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 11/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 19; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/19) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 13/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/19) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 13/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 21; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/21) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 15/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/21) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 15/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 23; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/23) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 17/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/23) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 17/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         for (let j = 0; j < 25; j++) {
-            for (let i = 3; i < 4; i++) {
-                output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/25) },
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
-                        TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 19/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
-                            }]]
-                        }],
-                        MAX_CHILDREN: 1,
-                        AUTOFIRE: true,
-                        SYNCS_SKILLS: false,
-                        WAIT_TO_CYCLE: true
-                    }
-                })
-            }
+            output.push({
+                POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: 3 * (360/25) },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                    TYPE: ["satellite", {
+                        ANGLE: 45 * 3 + (j * (360/25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                            offset: 19/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * 3
+                        }]]
+                    }],
+                    MAX_CHILDREN: 1,
+                    AUTOFIRE: true,
+                    SYNCS_SKILLS: false,
+                    WAIT_TO_CYCLE: true
+                }
+            })
         }
         return output
     })()
@@ -1546,7 +1528,7 @@ Class.developer = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
                 TYPE: "developerBullet"
             }
         }

@@ -978,6 +978,7 @@ Class.beemanTrap = {
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.swarm, g.bee, { shudder: 10, speed: 1.5 }]),
             TYPE: "bee",
+            STAT_CALCULATOR: "drone",
             SHOOT_ON_DEATH: true
         }
     }, 100)

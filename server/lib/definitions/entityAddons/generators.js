@@ -197,9 +197,9 @@ Class.transAlphaPentagonGen = makeGenerator("transAlphaPentagon", "Trans Legenda
 Class.gemGen = makeGenerator("gem", "Gem", "Gem", "gem", 4.75, 6, "aqua", Class.gem.SIZE, 100, 0)
 Class.jewelGen = makeGenerator("jewel", "Jewel", "Jewel", "jewel", 7, 6, "yellow", Class.jewel.SIZE, 100, 0)
 Class.wallGen = makeGenerator("wall", "Wall", "Wall", "wall", 15, 4, "grey", Class.wall.SIZE, 100, 0)
-Class.gravelGen = makeGenerator("gravel", "Gravel", "Gravel", "gravel", 7, -7, "grey", Class.gravel.SIZE, 100, 0)
-Class.stoneGen = makeGenerator("stone", "Stone", "Stone", "stone", 10, -7, "grey", Class.stone.SIZE, 100, 0)
-Class.rockGen = makeGenerator("rock", "Rock", "Rock", "rock", 15, -9, "grey", Class.rock.SIZE, 100, 0)
+Class.gravelGen = makeGenerator("gravel", "Gravel", "Gravel", "gravel", 7, 7, "grey", Class.gravel.SIZE, 100, 0)
+Class.stoneGen = makeGenerator("stone", "Stone", "Stone", "stone", 10, 7, "grey", Class.stone.SIZE, 100, 0)
+Class.rockGen = makeGenerator("rock", "Rock", "Rock", "rock", 15, 9, "grey", Class.rock.SIZE, 100, 0)
 // TODO: add gay baby jail creator/generator/whatever its called
 
 
