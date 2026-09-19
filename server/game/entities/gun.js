@@ -629,22 +629,24 @@ class Gun extends EventEmitter {
     }
 
     getPhotoInfo() {
-        return {
-            ...this.lastShot, 
-            color: this.color.compiled,
-            alpha: this.alpha,
-            strokeWidth: this.strokeWidth,
-            borderless: this.borderless, 
-            drawFill: this.drawFill, 
-            drawAbove: this.drawAbove,
-            length: this.length,
-            width: this.width,
-            aspect: this.aspect,
-            angle: this.angle,
-            direction: this.direction,
-            offset: this.offset,
-            layer: this.layer
-        };
+        if (!this.photoInfo) this.photoInfo = {};
+        let p = this.photoInfo;
+        p.time = this.lastShot.time;
+        p.power = this.lastShot.power;
+        p.color = this.color.compiled;
+        p.alpha = this.alpha;
+        p.strokeWidth = this.strokeWidth;
+        p.borderless = this.borderless;
+        p.drawFill = this.drawFill;
+        p.drawAbove = this.drawAbove;
+        p.length = this.length;
+        p.width = this.width;
+        p.aspect = this.aspect;
+        p.angle = this.angle;
+        p.direction = this.direction;
+        p.offset = this.offset;
+        p.layer = this.layer;
+        return p;
     }
 
     interpret() {

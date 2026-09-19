@@ -9,6 +9,7 @@ global.util = require("../lib/util.js");
 global.protocol = require("../lib/fasttalk.js");
 global.mazeGenerator = require("../miscFiles/mazeGenerator.js");
 global.grid = new HashGrid(7);
+global.viewGrid = new HashGrid(10, false);
 global.cannotRespawn = false;
 global.mockupData = [];
 global.mockupMap = {};

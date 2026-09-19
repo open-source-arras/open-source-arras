@@ -78,26 +78,28 @@ class Prop {
         }
     }
     camera() {
-        return {
-            type: 0x01,
-            id: this.id,
-            index: this.index,
-            size: this.size,
-            realSize: this.realSize,
-            facing: this.facing,
-            angle: this.bound.angle,
-            direction: this.bound.direction,
-            offset: this.bound.offset,
-            sizeFactor: this.bound.size,
-            mirrorMasterAngle: this.settings.mirrorMasterAngle,
-            layer: this.bound.layer,
-            color: this.color.compiled,
-            strokeWidth: this.strokeWidth,
-            borderless: this.borderless,
-            drawFill: this.drawFill,
-            guns: this.guns.map((gun) => gun.getPhotoInfo()),
-            turrets: this.turrets
-        };
+        if (!this.cameraInfo) this.cameraInfo = { guns: [] };
+        const info = this.cameraInfo;
+        info.type = 0x01;
+        info.id = this.id;
+        info.index = this.index;
+        info.size = this.size;
+        info.realSize = this.realSize;
+        info.facing = this.facing;
+        info.angle = this.bound.angle;
+        info.direction = this.bound.direction;
+        info.offset = this.bound.offset;
+        info.sizeFactor = this.bound.size;
+        info.mirrorMasterAngle = this.settings.mirrorMasterAngle;
+        info.layer = this.bound.layer;
+        info.color = this.color.compiled;
+        info.strokeWidth = this.strokeWidth;
+        info.borderless = this.borderless;
+        info.drawFill = this.drawFill;
+        info.guns.length = 0;
+        for (const gun of this.guns) info.guns.push(gun.getPhotoInfo());
+        info.turrets = this.turrets;
+        return info;
     }
 }
 

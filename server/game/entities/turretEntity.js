@@ -279,22 +279,25 @@ class turretEntity extends EventEmitter {
     };
 
     camera() {
-        return {
-            type: 0x01,
-            index: this.index,
-            size: this.size,
-            realSize: this.realSize,
-            facing: this.facing,
-            angle: this.bound.angle,
-            direction: this.bound.direction,
-            offset: this.bound.offset,
-            sizeFactor: this.bound.size,
-            mirrorMasterAngle: this.settings.mirrorMasterAngle ?? false,
-            layer: this.bound.layer,
-            color: this.color.compiled,
-            guns: Array.from(this.guns.values()).map(gun => gun.getPhotoInfo()),
-            turrets: Array.from(this.turrets.values()).map(turret => turret.camera())
-        };
+        if (!this.cameraInfo) this.cameraInfo = { guns: [], turrets: [] };
+        const info = this.cameraInfo;
+        info.type = 0x01;
+        info.index = this.index;
+        info.size = this.size;
+        info.realSize = this.realSize;
+        info.facing = this.facing;
+        info.angle = this.bound.angle;
+        info.direction = this.bound.direction;
+        info.offset = this.bound.offset;
+        info.sizeFactor = this.bound.size;
+        info.mirrorMasterAngle = this.settings.mirrorMasterAngle ?? false;
+        info.layer = this.bound.layer;
+        info.color = this.color.compiled;
+        info.guns.length = 0;
+        for (const gun of this.guns.values()) info.guns.push(gun.getPhotoInfo());
+        info.turrets.length = 0;
+        for (const turret of this.turrets.values()) info.turrets.push(turret.camera());
+        return info;
     };
 
     destroy() {

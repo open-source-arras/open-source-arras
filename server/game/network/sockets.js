@@ -1526,6 +1526,10 @@ class socketManager {
         };
         let lastVisibleUpdate = 0;
         let nearby = new Map();
+        let visible = [];
+        let view = [];
+        let msg = [];
+        let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
             getNearby: () => nearby,
@@ -1620,19 +1624,15 @@ class socketManager {
                     const camFovBroad = camera.fov * (global.gameManager.arenaClosed ? 1.6 : 1);
                     const camXBound = camFovBroad + 100;
                     const camYBound = camFovBroad * 0.5625 + 100;
-                    
-                    // Get nearby entities with single efficient check
-                    for (const entity of entities.values()) { 
-                        // Simplified check that combines both visibility checks
-                        if (Math.abs(entity.x - camera.x) < camXBound + 1.5 * entity.size &&
-                            Math.abs(entity.y - camera.y) < camYBound + 1.5 * entity.size) {
-                            nearby.set(entity.id, entity);
-                        }
+
+                    // Grab the entities near us from the view grid
+                    for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
+                        nearby.set(entity.id, entity);
                     }
                 }
                 
                 // Reset the nearby for this frame and prepare for detailed visibility check
-                let visible = [];
+                visible.length = 0;
                 
                 // Pre-calculate constants for the detailed visibility check
                 const camX = camera.x, camY = camera.y, camFov = camera.fov;
@@ -1672,8 +1672,6 @@ class socketManager {
                         this.sendMockup(index, socket);
                     }
                 }
-                // Spread it for upload
-                const view = [].concat(...visible);
                 if (!Config.load_all_mockups) {
                     for (let upgrade of (player.body?.upgrades || [])) {
                         if (player.body.skill.level >= upgrade.level) {
@@ -1688,10 +1686,13 @@ class socketManager {
                         camera.x,
                         camera.y
                     );
-                } else {
-                    // Update the gui
-                    player.gui.update();
-                    // Send it to the player
+                    lastSentCamX = NaN; // force a full packet next time
+                } else if (
+                    visible.length === 0 &&
+                    camera.x === lastSentCamX && camera.y === lastSentCamY &&
+                    fovNow === lastSentFov && camera.vx === lastSentVx &&
+                    camera.vy === lastSentVy && camera.scoping === lastSentScope
+                ) {
                     socket.talk(
                         "u",
                         lastCycle,
@@ -1700,11 +1701,42 @@ class socketManager {
                         fovNow,
                         camera.vx,
                         camera.vy,
-                        camera.scoping,
-                        ...player.gui.publish(),
-                        visible.length,
-                        ...view
+                        camera.scoping
                     );
+                } else {
+                    // Update the gui
+                    player.gui.update();
+                    view.length = 0;
+                    for (let i = 0; i < visible.length; i++) {
+                        let data = visible[i];
+                        for (let j = 0; j < data.length; j++) view.push(data[j]);
+                    }
+                    msg.length = 0;
+                    msg.push(
+                        "u",
+                        lastCycle,
+                        camera.x,
+                        camera.y,
+                        fovNow,
+                        camera.vx,
+                        camera.vy,
+                        camera.scoping
+                    );
+                    const gui = player.gui.publish();
+                    if (gui) {
+                        for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
+                    }
+                    msg.push(visible.length);
+                    for (let i = 0; i < view.length; i++) msg.push(view[i]);
+                    socket.talkArr(msg);
+                }
+                if (!updateCam) {
+                    lastSentCamX = camera.x;
+                    lastSentCamY = camera.y;
+                    lastSentFov = fovNow;
+                    lastSentVx = camera.vx;
+                    lastSentVy = camera.vy;
+                    lastSentScope = camera.scoping;
                 }
                 logs.network.mark();
             }
@@ -2113,6 +2145,12 @@ class socketManager {
             socket.close();
         };
         socket.talk = (...message) => {
+            if (socket.readyState === socket.OPEN) {
+                socket.send(protocol.encode(message), { binary: true });
+            }
+        };
+        // Same as talk(), but takes an array.
+        socket.talkArr = (message) => {
             if (socket.readyState === socket.OPEN) {
                 socket.send(protocol.encode(message), { binary: true });
             }

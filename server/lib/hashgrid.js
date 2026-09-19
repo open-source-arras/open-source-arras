@@ -2,9 +2,11 @@ module.exports = class HashGrid {
     static stride = 1 << 16;
 
     cells = new Map();
-    constructor(cellSize) {
+    constructor(cellSize, skipBonded = true) {
         this.cellSize = cellSize;
+        this.skipBonded = skipBonded;
         this.output = new Set();
+        this.clearCount = 0;
     }
 
     insert(entity, minX, minY, maxX, maxY) {
@@ -27,6 +29,7 @@ module.exports = class HashGrid {
         const cells = this.cells;
         const cellSize = this.cellSize;
         const stride = HashGrid.stride;
+        const skipBonded = this.skipBonded;
 
         this.output.clear();
         const endX = maxX >> cellSize;
@@ -37,7 +40,7 @@ module.exports = class HashGrid {
                 const cell = cells.get(key);
                 if (cell !== undefined) {
                     for (const entity of cell) {
-                        if (entity.bond) continue;
+                        if (skipBonded && entity.bond) continue;
                         if (entity.minX < maxX && entity.maxX > minX && entity.minY < maxY && entity.maxY > minY) {
                             this.output.add(entity);
                         }
@@ -49,6 +52,11 @@ module.exports = class HashGrid {
     }
 
     clear() {
-        this.cells.clear();
+        if ((++this.clearCount & 1023) === 0) {
+            for (const [key, cell] of this.cells) {
+                if (cell.length === 0) this.cells.delete(key);
+            }
+        }
+        for (const cell of this.cells.values()) cell.length = 0;
     }
 }
