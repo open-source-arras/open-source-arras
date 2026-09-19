@@ -873,7 +873,7 @@ let incoming = async function(message, socket) {
                 global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
             } break;
             case "permanentban": {
-                global.message = "You have been banned from the game.";
+                global.message = "You have been permanently banned from the game.";
             } break;
             case "svInfo": {
                 // For debugging.
