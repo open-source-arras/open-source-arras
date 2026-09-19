@@ -1649,7 +1649,12 @@ class socketManager {
                 
                 // Check each nearby entity for detailed visibility
                 for (const entity of nearby.values()) {
-                    
+
+                    // Skip fully invisible entities unless the viewer can see them
+                    if (entity.settings.fullyInvisible && !(player.body && player.body.settings.canSeeInvisible)) {
+                        continue;
+                    }
+
                     // Detailed visibility check
                     if (entity.photo && 
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
