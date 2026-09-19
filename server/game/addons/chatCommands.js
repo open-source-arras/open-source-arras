@@ -117,12 +117,18 @@ let commands = [
                         }
                         break;
                     case "spawnpoint":
-                        if (!args[1] || !args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
-                        socket.talk("m", 4_000, "Spawnpoint set.");
-                        global.spawnPoint = {
-                            x: parseInt(args[1] * 30),
-                            y: parseInt(args[2] * 30)
-                        };
+                        if (!args[1]) {
+                            global.spawnPoint = undefined;
+                            socket.talk("m", 4_000, "Spawnpoint reset.");
+                        } else if (!args[2]) {
+                            return socket.talk("m", 3_000, "Invalid arguments.");
+                        } else {
+                            global.spawnPoint = {
+                                x: parseInt(args[1] * 30),
+                                y: parseInt(args[2] * 30)
+                            };
+                            socket.talk("m", 4_000, "Spawnpoint set.");
+                        }
                         break;
                     case "close":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
