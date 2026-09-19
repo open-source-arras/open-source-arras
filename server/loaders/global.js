@@ -39,7 +39,13 @@ global.TEAM_ENEMIES = -101;
 global.getSpawnableArea = (team, gameManager) => {
     gameManager = ensureIsManager(gameManager);
     let room = gameManager.room;
-    return ran.choose((team in room.spawnable && room.spawnable[team].length) ? room.spawnable[team] : room.spawnableDefault).randomInside();
+    let spawnables = (team in room.spawnable && room.spawnable[team].length) ? room.spawnable[team] : room.spawnableDefault;
+    let loc;
+    let attempts = 20;
+    do {
+        loc = ran.choose(spawnables).randomInside();
+    } while (attempts-- && dirtyCheck(loc, 0));
+    return loc;
 }
 global.teamNames = [
     "BLUE",
