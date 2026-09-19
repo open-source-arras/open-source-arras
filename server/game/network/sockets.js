@@ -1913,7 +1913,7 @@ class socketManager {
         let minimapTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap) {
+                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap && !my.settings.fullyInvisible) {
                     all.push({
                         id: my.id,
                         data: [
@@ -1929,7 +1929,7 @@ class socketManager {
         let minimapAllTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.master === my && !my.lifetime) {
+                if (my.type === "tank" && my.master === my && !my.lifetime && !my.settings.fullyInvisible) {
                     all.push({
                         id: my.id,
                         data: [
