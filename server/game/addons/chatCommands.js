@@ -119,7 +119,7 @@ let commands = [
                     case "spawnpoint":
                         if (!args[1]) {
                             global.spawnPoint = undefined;
-                            socket.talk("m", 4_000, "Spawnpoint reset.");
+                            socket.talk("m", 4_000, "Spawnpoint removed.");
                         } else if (!args[2]) {
                             return socket.talk("m", 3_000, "Invalid arguments.");
                         } else {
