@@ -729,7 +729,11 @@ class Entity extends EventEmitter {
 
     camera() {
     // Get bound data
-        const turretsAndProps = Array.from(this.turrets.values()).concat(Array.from(this.props.values()));
+        if (!this.turretsAndProps) this.turretsAndProps = [];
+        const turretsAndProps = this.turretsAndProps;
+        turretsAndProps.length = 0;
+        for (const turret of this.turrets.values()) turretsAndProps.push(turret);
+        for (const prop of this.props.values()) turretsAndProps.push(prop);
         turretsAndProps.sort((a, b) => a.bound.layer - b.bound.layer);
         
         // Calculate type value more efficiently
@@ -750,34 +754,36 @@ class Entity extends EventEmitter {
             if (this.skill.level > 56) score = score / 2;
         }
         // Create camera info object
-        const cameraInfo = {
-            type: typeValue,
-            invuln: this.invuln,
-            id: this.id,
-            index: this.index,
-            x: this.x,
-            y: this.y,
-            vx: this.velocity.x,
-            vy: this.velocity.y,
-            size: this.size,
-            realSize: this.realSize,
-            health: this.health.display(),
-            shield: this.shield.display(),
-            alpha: this.alpha,
-            facing: this.facing,
-            vfacing: this.vfacing,
-            twiggle: forceTwiggle.includes(this.facingType) || this.eastereggs.braindamage || 
+        if (!this.cameraInfo) this.cameraInfo = { guns: [], turrets: [] };
+        const cameraInfo = this.cameraInfo;
+        cameraInfo.type = typeValue;
+        cameraInfo.invuln = this.invuln;
+        cameraInfo.id = this.id;
+        cameraInfo.index = this.index;
+        cameraInfo.x = this.x;
+        cameraInfo.y = this.y;
+        cameraInfo.vx = this.velocity.x;
+        cameraInfo.vy = this.velocity.y;
+        cameraInfo.size = this.size;
+        cameraInfo.realSize = this.realSize;
+        cameraInfo.health = this.health.display();
+        cameraInfo.shield = this.shield.display();
+        cameraInfo.alpha = this.alpha;
+        cameraInfo.facing = this.facing;
+        cameraInfo.vfacing = this.vfacing;
+        cameraInfo.twiggle = forceTwiggle.includes(this.facingType) || this.eastereggs.braindamage || 
                     this.settings.connectChildrenOnCamera || (this.facingType === "locksFacing" && this.control.alt) ||
-                    this.syncWithTank,
-            layer: layerValue,
-            color: this.color.compiled,
-            borderless: this.borderless,
-            drawFill: this.drawFill,
-            name: (this.nameColor || "#FFFFFF") + this.name,
-            score: this.settings.scoreLabel || score,
-            guns: Array.from(this.guns.values()).map(gun => gun.getPhotoInfo()),
-            turrets: turretsAndProps.map(turret => turret.camera())
-        };
+                    this.syncWithTank;
+        cameraInfo.layer = layerValue;
+        cameraInfo.color = this.color.compiled;
+        cameraInfo.borderless = this.borderless;
+        cameraInfo.drawFill = this.drawFill;
+        cameraInfo.name = (this.nameColor || "#FFFFFF") + this.name;
+        cameraInfo.score = this.settings.scoreLabel || score;
+        cameraInfo.guns.length = 0;
+        for (const gun of this.guns.values()) cameraInfo.guns.push(gun.getPhotoInfo());
+        cameraInfo.turrets.length = 0;
+        for (let i = 0; i < turretsAndProps.length; i++) cameraInfo.turrets.push(turretsAndProps[i].camera());
         
         // Process child camera connections if needed
         if (this.settings.connectChildrenOnCamera) {
