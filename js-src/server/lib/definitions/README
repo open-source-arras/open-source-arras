@@ -1,0 +1,3 @@
+ADDONS NOTICE
+- Use [/server/game/addons] for addons that change the game drasitcally.
+- For simpler/old format addons that only change entities, use [/server/lib/definitions/entityAddons].

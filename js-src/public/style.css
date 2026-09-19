@@ -1,0 +1,1116 @@
+::-webkit-scrollbar {
+	width: 6px;
+	height: 0;
+}
+::-webkit-scrollbar-track {
+	border-radius: 3px;
+	background: rgba(0, 0, 0, 0.15);
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+	background: rgba(0, 0, 0, 0.3);
+}
+.conceal {
+	-webkit-text-security: disc;
+}
+
+*:focus {
+	outline: 1px solid transparent;
+}
+
+html, body {
+	overflow: hidden;
+	height: 100%;
+	position: fixed;
+	-webkit-overflow-scrolling: touch;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
+}
+
+body {
+	font-family: 'Ubuntu';
+	font-size: 14px;
+	background-color: #484848;
+}
+
+html, body, .game {
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+
+canvas {
+	width: 100%;
+	height: 100%;
+	image-rendering: optimizeSpeed;
+	image-rendering: pixelated;
+}
+
+.header {
+	display: flex;
+	justify-content: center;
+	padding: 4px 0 8px;
+}
+.icon {
+	width: 60px;
+	height: 60px;
+	border-radius: 50%;
+}
+.icon > img {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+h1 {
+	padding: 0 12px;
+	margin: 0;
+	text-align: center;
+	font: bold 40px/1.5 Ubuntu;
+}
+body.mobile .icon {
+	width: 48px;
+	height: 48px;
+}
+body.mobile h1 {
+	font-size: 32px;
+}
+
+div.optionsHeader {
+	display: block;
+	margin: 8px 0 3px;
+	font: bold 13px/1 Ubuntu;
+	color: #000;
+	text-align: center;
+}
+.moreLinks {
+	text-align: center;
+}
+.moreLinks a {
+	white-space: nowrap;
+	margin: 0 5px;
+}
+
+h3 {
+	font-size: 14px;
+	line-height: 16px;
+	color: #484848;
+	text-align: center;
+	padding: 0;
+	margin: 9px 0 0;
+}
+#startMenuSlidingTrigger:hover>h3 {
+	color: #323232;
+}
+#startMenuSlidingTrigger:hover>h3>i.arrow {
+	border-color: #323232;
+}
+
+.horizontalSelector {
+	padding: 4px 0;
+	margin-bottom: 4px;
+	font: bold 12px Ubuntu;
+	text-align: center;
+	overflow: auto hidden;
+	scrollbar-width: none;
+	scroll-behavior: smooth;
+}
+.horizontalSelector span {
+	padding: 4px 8px;
+	color: #343434;
+	cursor: pointer;
+}
+.horizontalSelector span:hover {
+	color: #5f5f5f;
+}
+.horizontalSelector span.active {
+	background: #8abc3f;
+	color: #ffffff;
+	border-radius: 5px;
+	cursor: default;
+}
+
+.tdCenter {
+	width: 350px;
+}
+
+.serverSelector {
+	height: 154px; /*Should be 104px*/
+	text-align: center;
+	font-size: 13px;
+	font-weight: bold;
+	line-height: 10px;
+	padding: 0 6px;
+	scroll-behavior: smooth;
+}
+body.mobile .serverSelector {
+	height: 68px;
+}
+.serverSelector tr {
+	color: #828282;
+	cursor: pointer;
+}
+.serverSelector tr.featured {
+	color: #e8ae00;
+	text-shadow: #fff27e 0 0 6px;
+}
+.serverSelector tr.message {
+	color: #a8a8a8;
+	cursor: default;
+	font-style: italic;
+}
+.serverSelector tr.selected {
+	color: #8abc3f;
+	cursor: default;
+}
+.serverSelector tr td:first-child, .serverSelector tr td:last-child {
+	white-space: nowrap;
+}
+
+.shadowScroll {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	background:
+		/* Shadow covers */
+		linear-gradient(#dde6eb 30%, rgba(255, 255, 255, 0)),
+		linear-gradient(rgba(255, 255, 255, 0), #dde6eb 70%) 0 100%,
+		/* Shadows */
+		radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)),
+		radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0)) 0 100%;
+	background-repeat: no-repeat;
+	background-color: #dde6eb;
+	background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+	background-attachment: local, local, scroll, scroll;
+}
+a:link, a:visited {
+	color: #484848;
+}
+a:link:hover, a:visited:hover {
+	color: #909090;
+}
+
+input {
+	text-align: center;
+	width: 100%;
+	padding: 10px;
+	border: solid 2px #cccccc;
+	color: #cccccc;
+	box-sizing: border-box;
+	border-radius: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	outline: none;
+	font-family: Ubuntu;
+	font-weight: bold;
+	background: #fff;
+	transition: border 0.3s, background 0.3s, color 0.3s;
+}
+
+input:disabled {
+	background: #eee;
+}
+
+#optName {
+	padding: 10px;
+	font-size: larger;
+	color: black;
+}
+#optName::placeholder {
+	color: #ccc;
+}
+#playerKeyInput {
+	padding: 1.6px;
+	width: 340px;
+	color: black;
+}
+#playerKeyInput::placeholder {
+	color: #ccc;
+}
+#optCustom {
+	color: black;
+}
+#optCustom::placeholder {
+	color: #ccc;
+}
+
+input:focus {
+	border: solid 2px #ccc;
+}
+
+input.error {
+	border: solid 2px #f00;
+	background: #fee;
+	color: #a00;
+}
+
+#gameAreaWrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	width: 100%;
+	height: 100%;
+}
+
+#gameCanvas {
+	z-index: 4;
+	position: absolute;
+}
+
+#gameCanvas-background {
+	z-index: 1;
+	position: absolute;
+}
+
+#gameCanvas-gameplay {
+	z-index: 2;
+	position: absolute;
+}
+
+#gameCanvas-gui {
+	z-index: 3;
+	position: absolute;
+}
+
+#chatBox {
+	position: absolute;
+	z-index: 1;
+	width: 300px;
+	height: 30px;
+	top: 60%;
+	left: calc(50% - 149px);
+	border: 3px solid black;
+	border-radius: 100px;
+	color: black;
+	background-color: #ffffff;
+	box-sizing: border-box;
+	padding: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	outline: none;
+	transition: none;
+}
+#chatInput {
+	position: absolute;
+	z-index: 1;
+	width: 300px;
+	height: 30px;
+	top: 60%;
+	left: calc(50% - 149px);
+	border: 3px solid transparent;
+	border-radius: 100px;
+	color: black;
+	background-color: transparent;
+	box-sizing: border-box;
+	font: bold 19.7136px / 34.5417px Ubuntu;
+	text-align: left;
+	padding: 10px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	outline: none;
+	transition: none;
+}
+
+#startMenuWrapper {
+	transition: top 1s;
+	position: relative;
+	top: 0px;
+	z-index: 5;
+	max-width: 1150px;
+	margin: 0 auto;
+}
+body.mobile #startMenuWrapper { max-width: 780px; }
+
+.mainWrapper {
+	transition: all 0.5s;
+	padding: 75px 20px 0;
+}
+body.mobile .mainWrapper {
+	padding: 10px 10px 0;
+}
+
+.startMenu {
+	transition: all 0.5s;
+	display: flex;
+	max-height: 390px;
+	padding: 10px;
+	border-radius: 5px;
+	background-color: #dde6eb;
+	overflow: hidden;
+}
+body.mobile .startMenu { max-height: 340px; }
+
+.startMenuHolder {
+	position: relative;
+	width: 350px;
+	height: 350px;
+	margin: 10px 12px;
+	overflow: hidden;
+}
+body.mobile .startMenuHolder { height: 300px; }
+
+.startMenuHolder.mainHolder {
+	flex-shrink: 0;
+}
+.startMenuHolder.changelogHolder {
+	width: calc(100% - 780px);
+	display: flex;
+	flex-direction: column;
+}
+body.mobile .startMenuHolder.linkHolder { display: none; }
+body.mobile .startMenuHolder.changelogHolder {
+	width: calc(100% - 400px);
+}
+
+.bannerHolder {
+	display: block;
+	width: 336px;
+	height: 300px;
+	margin: 0 8px 3px 7px;
+	text-align: center;
+}
+
+.banner-fallback {
+	display: none;
+}
+
+.respawn-banner {
+	position: absolute;
+	max-width: 970px;
+	max-height: 280px;
+	bottom: 24px;
+	left: 0;
+	right: 0;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+.menuTabs {
+	height: 28px;
+	margin: 0 8px;
+}
+.menuTab {
+	font: 13px/28px Ubuntu;
+	padding: 6px 12px;
+	border-radius: 5px 5px 0 0;
+	color: #fff !important;
+	margin: 0 6px;
+}
+.menuTab.warning {
+	background: #e90;
+}
+.menuTab.critical {
+	background: #ff0000;
+}
+.menuTab.discord {
+	padding: 6px 12px 6px 36px;
+	background: #7289da url(/img/discord-old.svg) 8px 4px/23px no-repeat;
+}
+.menuTab.stat {
+	background: #f00 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAKUlEQVQoU2NkQAP/////DxJiZGRkRJZC4YAkcCpEl6C9QrgNhKweSgoBUcBf8wTAguMAAAAASUVORK5CYII=) 11px 9px no-repeat;
+	/*
+	let canvas = document.body.appendChild(document.createElement('canvas'))
+	canvas.width = 10
+	canvas.height = 10
+	canvas.style.background = '#f00'
+	let ctx = canvas.getContext('2d')
+	ctx.fillStyle = '#fff'
+	ctx.fillRect(0, 2, 2, 8)
+	ctx.fillRect(4, 0, 2, 10)
+	ctx.fillRect(8, 4, 2, 6)
+	copy(canvas.toDataURL())
+	*/
+	padding: 6px 12px 6px 30px;
+}
+.menuTab.achieve {
+	background: #8abc3f;
+}
+.menuTab > a {
+	color: #fff !important;
+	text-decoration: none;
+}
+.menuTab > a:link:hover, .menuTab > a:visited:hover, .menuTab > a:not(:only-child) {
+	text-decoration: underline;
+}
+
+.sliderHolder {
+	transition: all 0.5s;
+	width: 350px;
+	height: 295px;
+	overflow: hidden;
+}
+body.mobile .sliderHolder {
+	height: 245px;
+}
+
+table {
+	width: 100%;
+}
+body.mobile .mobile-hide {
+	display: none;
+}
+.resetControls {
+	opacity: 0;
+	transform: rotate(0deg);
+	transition: opacity 1000ms, margin 1000ms;
+	margin: 0 -6px;
+}
+.resetControls.spin {
+	transition: transform 500ms, opacity 1000ms 150ms, margin 1000ms 150ms;
+	transform: rotate(360deg);
+}
+.resetControls.active {
+	opacity: 1;
+	margin: 0 5px;
+	cursor: pointer;
+}
+.controlTable {
+	border-collapse: collapse;
+	margin: 0 2px;
+}
+.controlTable tr {
+	border: 0;
+	transition: opacity 500ms;
+}
+.controlTable tr.hidden {
+	opacity: 0;
+	pointer-events: none;
+}
+.controlTable tr.hidden td {
+	padding: 0 1px;
+}
+.controlTable tr.hidden div {
+	top: -20px;
+	height: 0;
+}
+.controlTable td {
+	transition: padding 500ms;
+}
+.controlTable div {
+	position: relative;
+	top: 0px;
+	height: 18px;
+	transition: height 500ms, top 500ms;
+}
+.controlTable td b {
+	display: inline-block;
+	width: 12px;
+	height: 16px;
+	cursor: pointer;
+	text-align: right;
+	vertical-align: bottom;
+}
+.controlTable td b:hover {
+	color: #777;
+}
+.controlTable td.editing b {
+	background: #fff;
+	color: #333;
+	border: 1px solid #dcdcdc;
+	border-radius: 4px;
+	padding: 1px 4px;
+	margin: -2px -7px -2px -3px;
+	text-align: center;
+	cursor: text;
+	-webkit-user-select: auto;
+	-moz-user-select: auto;
+	-ms-user-select: auto;
+	user-select: auto;
+}
+.controlTable td.editing span {
+	visibility: hidden;
+}
+
+#optColors {
+	width: 60%;
+}
+#optBorders {
+	width: 35%;
+}
+#optNames {
+	width: 60%;
+}
+#optCanvas {
+	width: 60%;
+}
+#optMobile {
+	display: none;
+}
+#optUiScale {
+  width: 60%;
+}
+
+body.mobile #optColors {
+	width: 336px;
+	margin-bottom: 4px;
+}
+
+body.mobile #optMobile,
+body.mobile #optBorders {
+	width: 165px;
+	margin-bottom: 4px;
+	display: inline-block;
+}
+
+body.not-mobile .mobileRow {
+	display: none;
+}
+
+.slider {
+	position: relative;
+	top: 0px;
+	opacity: 1;
+	width: 100%;
+	transition: all 500ms, opacity 500ms;
+}
+.slided .slider {
+	top: -280px;
+}
+.slided2 .slider {
+	top: calc(-100% + 20px);
+}
+body.mobile .slided .slider {
+	top: -220px;
+}
+.startMenuSlidingContent {
+	height: 270px;
+}
+body.mobile .startMenuSlidingContent {
+	height: 220px;
+}
+
+#startMenuSlidingTrigger {
+	cursor: pointer;
+	height: 25px;
+}
+
+#patchNotes {
+	max-width: 330px;
+	flex: 1 1 0;
+	padding: 5px 10px 10px;
+	overflow: hidden auto;
+}
+@supports not selector(::-webkit-scrollbar) {
+	#patchNotes {
+		scrollbar-width: thin;
+		scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.15);
+	}
+}
+
+#patchNotes ul {
+	padding-left: 15px;
+	margin-left: 10px;
+}
+#patchNotes div {
+	transition: max-height 500ms, opacity 500ms, line-height 500ms;
+	max-height: 1500px;
+	opacity: 1;
+	margin-bottom: 0;
+	line-height: 1.2;
+}
+#patchNotes div:nth-last-child(n+2)::after {
+	content: '';
+	display: block;
+	border: 0.5px solid rgba(0, 0, 0, 0.15);
+	margin: 18px 0;
+	transition: margin 500ms;
+}
+#patchNotes.default div.balance,
+#patchNotes.default div.patch,
+#patchNotes.updates div.announcement,
+#patchNotes.updates div.poll,
+#patchNotes.updates div.event,
+#patchNotes.updates div.balance,
+#patchNotes.updates div.patch,
+#patchNotes.balance div.update,
+#patchNotes.balance div.announcement,
+#patchNotes.balance div.poll,
+#patchNotes.balance div.event,
+#patchNotes.balance div.patch {
+	max-height: 0px;
+	opacity: 0;
+	line-height: 0;
+	pointer-events: none;
+}
+#patchNotes.default div.balance::after,
+#patchNotes.default div.patch::after,
+#patchNotes.updates div.announcement::after,
+#patchNotes.updates div.poll::after,
+#patchNotes.updates div.event::after,
+#patchNotes.updates div.balance::after,
+#patchNotes.updates div.patch::after,
+#patchNotes.balance div.update::after,
+#patchNotes.balance div.announcement::after,
+#patchNotes.balance div.poll::after,
+#patchNotes.balance div.event::after,
+#patchNotes.balance div.patch::after {
+	margin: 0;
+}
+
+#patchNotes table.poll-list {
+	margin: 8px 5px 20px;
+}
+#patchNotes table.poll-table {
+	text-align: center;
+	margin: 0 0 12px;
+}
+#patchNotes table.poll-table thead {
+	font-weight: bold;
+}
+#patchNotes b small {
+	color: #444;
+}
+#patchNotes b small a {
+	margin-left: 10px;
+}
+
+.startButtonHolder {
+	margin-top: 10px;
+}
+
+#startButton {
+	margin: 0;
+	width: 100%;
+	height: 40px;
+	box-sizing: border-box;
+	color: white !important;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+	background: #a9d86d;
+	border: 0;
+	cursor: pointer;
+	box-shadow: inset 0 -4px rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+	font: 16px Ubuntu;
+}
+#startButton:hover {
+	margin-top: 2px;
+	height: 38px;
+	box-shadow: inset 0 -2px rgba(0, 0, 0, 0.2);
+}
+
+#startButton:active {
+	margin-top: 4px;
+	height: 36px;
+	text-shadow: none;
+	box-shadow: inset 0 -49px rgba(0, 0, 0, 0.2);
+}
+
+#startButton .playText {
+	display: inline-block;
+	height: 22px;
+}
+#startButton:hover .playText {
+	height: 20px;
+}
+#startButton:active .playText {
+	height: 18px;
+}
+
+.bottomHolder > a {
+	display: inline-block;
+	position: relative;
+	margin: 2px;
+	height: 40px;
+	box-sizing: border-box;
+	padding: 7px 8px 9px;
+	color: white !important;
+	text-decoration: none;
+	text-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+	background: #b58efd;
+	border: 0;
+	cursor: pointer;
+	box-shadow: inset 0 -4px rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+}
+.bottomHolder > a:hover {
+	top: 2px;
+	height: 38px;
+	box-shadow: inset 0 -2px rgba(0, 0, 0, 0.2);
+}
+.bottomHolder > a:active {
+	top: 4px;
+	height: 36px;
+	text-shadow: none;
+	box-shadow: inset 0 -49px rgba(0, 0, 0, 0.2);
+}
+.bottomHolder > a > .text {
+	display: inline-block;
+	height: 24px;
+	margin-left: 8px;
+	font: bold 13px/24px Ubuntu;
+	vertical-align: top;
+}
+
+.tooltip {
+	position: relative;
+	bottom: 1px;
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	text-align: center;
+	background: rgb(0, 0, 0, 0.6);
+	font: bold 10px/15px Ubuntu;
+	color: #fff;
+	margin: 0 2px;
+}
+.tooltip:before {
+	content: '?';
+}
+
+.tooltip span {
+	position: absolute;
+	width: 160px;
+	background-color: #444;
+	color: #fff;
+	font: bold 11px Ubuntu;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	z-index: 1;
+	margin-left: -80px;
+	left: 50%;
+	transition: opacity 200ms, bottom 200ms;
+	pointer-events: none;
+	opacity: 0;
+	bottom: 200%;
+}
+.tooltip span::after {
+	content: '';
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #444 transparent transparent transparent;
+}
+.tooltip:hover span {
+	pointer-events: unset;
+	opacity: 1;
+	bottom: 150%;
+}
+
+/* Customize the label (the container) */
+.count {
+	display: inline-block;
+	width: 20px;
+	font: bold 12px Ubuntu;
+}
+
+.count span {
+	font-size: 10px;
+}
+
+.container {
+	position: relative;
+	padding-left: 20px;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.container input {
+	position: absolute;
+	visibility: hidden;
+	width: 0;
+	height: 0;
+	cursor: pointer;
+}
+
+.checkmark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 14px;
+	width: 14px;
+	border-radius: 4px;
+	background-color: #eee;
+	border: 1px solid #ccc;
+}
+
+.radio {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 14px;
+	width: 14px;
+	border-radius: 50%;
+	background-color: #eee;
+	border: 1px solid #ccc;
+}
+
+.container:hover input~.checkmark,
+.container:hover input~.radio {
+	background-color: #ccc;
+}
+
+.container input:disabled~.checkmark,
+.container input:disabled~.radio {
+	background-color: #ddd;
+}
+
+.container:hover input~.checkmark,
+.container:hover input~.radio {
+	background-color: #ccc;
+}
+
+.container input:disabled~.checkmark,
+.container input:disabled~.radio {
+	background-color: #ddd;
+}
+
+.container input:checked~.checkmark,
+.container input:checked~.radio {
+	background-color: #8abc3f;
+	border: 1px solid #8abc3f;
+}
+
+.container:hover input:checked~.checkmark,
+.container:hover input:checked~.radio {
+	background-color: #7fa843;
+	border: 1px solid #7fa843;
+}
+
+.container input:disabled:checked~.checkmark,
+.container input:disabled:checked~.radio {
+	background-color: #a1c172;
+	border: 1px solid #a1c172;
+}
+
+.container .checkmark:after {
+	content: "";
+	position: absolute;
+	display: none;
+	left: 4px;
+	top: 1px;
+	width: 4px;
+	height: 8px;
+	border: solid white;
+	border-width: 0 2px 2px 0;
+	transform: rotate(45deg);
+}
+
+.container .radio:after {
+	content: "";
+	display: none;
+	margin: 4px;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #fff;
+}
+
+.container input:checked~.checkmark:after,
+.container input:checked~.radio:after {
+	display: block;
+}
+
+select {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font: 13px/1 Ubuntu;
+	padding: 2px 28px 2px 8px;
+	height: 21px;
+	margin-left: 3px;
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAICAYAAAD0g6+qAAAAwklEQVQoU42QMQrCQBBFZxeGgJ7BI1jYa2GzTTY3sRUECy1yA0svEQhhEHIHLdRrqF2a5EuCkbgmmin/zLz5f5QxZsTMK2ZeR1F0p5ay1i7zPD+LiLT1S01Za7dEtCGiY5Zl8zRNH81h3/d3SqkFgFOSJJNOUBAEAwAHIpq6sAbkprWexXF86QSVjTaY53nhy8lfSBWtvuDAKhlAL8gHyHUGAFrr8a84zZhvR7VojBkyc1gUxV5Erl0/cfUvUN9Fd+4JA1JkCdbmVf8AAAAASUVORK5CYII=) 100% no-repeat #eee;
+	/*
+	let canvas = document.body.appendChild(document.createElement('canvas'))
+	canvas.width = Math.ceil(8 * Math.sqrt(2)) + 6
+	canvas.height = Math.ceil(5 * Math.sqrt(2))
+	let ctx = canvas.getContext('2d')
+	ctx.strokeStyle = '#4c4c4c'
+	ctx.translate(4 * Math.sqrt(2), -3 * Math.sqrt(2))
+	ctx.rotate(Math.PI * 0.25)
+	ctx.lineCap = 'round'
+	ctx.lineJoin = 'round'
+	ctx.lineWidth = 2
+	ctx.beginPath()
+	ctx.moveTo(1, 7)
+	ctx.lineTo(7, 7)
+	ctx.lineTo(7, 1)
+	ctx.stroke()
+	copy(canvas.toDataURL())
+	*/
+	border-radius: 4px;
+	border: 1px solid #ccc;
+}
+
+select:hover {
+	background-color: #ccc;
+}
+
+select:active {
+	background-color: #eee;
+}
+
+.tooltip {
+	position: relative;
+	bottom: 1px;
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	text-align: center;
+	background: rgb(0, 0, 0, 0.6);
+	font: bold 10px/15px Ubuntu;
+	color: #fff;
+	margin: 0 2px;
+}
+
+.tooltip::before {
+	content: "?";
+}
+
+.tooltip span {
+	position: absolute;
+	width: 160px;
+	background-color: #444;
+	color: #fff;
+	font: bold 11px Ubuntu;
+	text-align: center;
+	border-radius: 6px;
+	padding: 5px 0;
+	z-index: 1;
+	margin-left: -80px;
+	left: 50%;
+	transition: opacity 200ms, bottom 200ms;
+	pointer-events: none;
+	opacity: 0;
+	bottom: 200%;
+}
+
+.tooltip span::after {
+	content: "";
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	margin-left: -5px;
+	border-width: 5px;
+	border-style: solid;
+	border-color: #444 transparent transparent transparent;
+}
+
+.tooltip:hover span {
+	pointer-events: unset;
+	opacity: 1;
+	bottom: 150%;
+}
+
+i {
+	transition: transform 500ms;
+}
+
+i.arrow {
+	border: solid #484848;
+	border-width: 0 2px 2px 0;
+	display: inline-block;
+	padding: 3px;
+}
+
+i.reset {
+	display: inline-block;
+	width: 8px;
+	height: 8px;
+	border: #000 2px solid;
+	border-right-color: transparent;
+	border-radius: 50%;
+	position: relative;
+	top: 3px;
+}
+
+i.reset::after {
+	content: "";
+	display: inline-block;
+	border: 3px solid;
+	border-color: transparent #000 #000 transparent;
+	position: relative;
+	left: 3px;
+	bottom: 8px;
+}
+
+i.cross {
+	display: inline-block;
+	width: 2px;
+	height: 2px;
+	margin: 0 5px -3px;
+	padding: 6px;
+}
+
+i.cross.x {
+	transform: rotate(135deg);
+}
+
+i.cross::before,
+i.cross::after {
+	content: "";
+	background-color: #000;
+	border-radius: 2px;
+	float: left;
+}
+
+i.cross::before {
+	width: 12px;
+	height: 2px;
+	margin-left: -5px;
+}
+
+i.cross::after {
+	width: 2px;
+	height: 12px;
+	margin-top: -7px;
+}
+
+i.flag {
+	display: inline-block;
+	width: 2px;
+	height: 12px;
+	background: #000;
+	margin: 0 15px 0 5px;
+}
+
+i.flag::before {
+	content: "";
+	display: inline-block;
+	width: 9px;
+	height: 7px;
+	background-color: #000;
+	margin: 0 0 5px 3px;
+	transition: margin-bottom 500ms;
+}
+
+i.flag.down::before {
+	margin-bottom: 2px;
+}
+
+#tabAddons ul {
+	padding-left: 0px;
+    margin-left: 0px;
+	font: bold 13px/1 Ubuntu;
+}
+
+#tabAddons ul2 {
+	font: normal 15px/1 Ubuntu;
+}
+
+#tabAddons ul3 {
+	font: bold 13px/1 Ubuntu;
+    color: red;
+}
+
+#tabAddons div::after {
+	content: '';
+	display: block;
+	border: 0.5px solid rgba(0, 0, 0, 0.15);
+	margin: 18px 0;
+	transition: margin 500ms;
+}

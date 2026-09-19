@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        <meta name="description" content="Custom Shape Builder for Open Source Arras">
+        <meta name="robots" content="index, follow">
+        <meta property="og:image" content="/favicon/base.svg">
+        <meta property="og:image:width" content="54">
+        <meta property="og:image:height" content="54">
+        <title>Custom Shape Builder - Open Source Arras</title>
+	    <link rel="stylesheet" href="/font.css"/>
+	    <link rel="stylesheet" href="/style.css"/>
+        <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/32x32.png">
+        <link rel="icon" type="image/png" sizes="64x64" href="/favicon/64x64.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/96x96.png">
+        <link rel="icon" type="image/png" sizes="128x128" href="/favicon/128x128.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/192x192.png">
+        <link rel="icon" type="image/png" sizes="256x256" href="/favicon/256x256.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/512x512.png">
+        <link rel="icon" type="image/png" sizes="1024x1024" href="/favicon/1024x1024.png">
+        <link rel="icon" type="image/png" sizes="2048x2048" href="/favicon/2048x2048.png">
+        <link rel="icon" type="image/svg+xml" sizes="400x400" href="/favicon/base.svg">
+        <meta name="theme-color" content="#8abc3f">
+        <meta name="application-name" content="OSA">
+        <meta name="msapplication-TileColor" content="#8abc3f">
+		<style>
+			#startMenuWrapper { max-width: 780px; }
+			.startMenuHolder.changelogHolder {
+				width: calc(100% - 400px);
+			}
+			#output {
+				font: 16px Ubuntu Mono;
+				margin: 3px 13px;
+				outline: none;
+				border: 1px solid #ccc;
+				border-radius: 5px;
+				padding: 9px;
+				background-color: #ffffff;
+			}
+			#calculator {
+				width: 350px;
+				height: 350px;
+			}
+			body.mobile #calculator {
+				width: 300px;
+				height: 300px;
+			}
+			#add:active {
+				background: rgba(0, 0, 0, 0.3);
+			}
+			#remove:active {
+				background: rgba(0, 0, 0, 0.3);
+			}
+		</style>
+	</head>
+	<body oncontextmenu="return false" id="mainBody">
+		<script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+		<div class="mainWrapper">
+			<div id="startMenuWrapper">
+                <div id="menuTabs" class="menuTabs" style="text-align: center;">
+                    <span class="menuTab achieve" style="background: #8abc3f;"><a id="add">Add Point</a></span>
+                    <span class="menuTab achieve" style="background: #e03e41;"><a id="remove">Remove Point</a></span>
+                    <span class="menuTab achieve" style="background: #2b3278;"><a href="../../">Return to Main Menu</a></span>
+                </div>
+				<div class="startMenu">
+                    <div class="startMenuHolder mainHolder">
+	                    <div id="calculator"></div>
+					</div>
+                    <div class="startMenuHolder changelogHolder">
+                        <div class="optionsHeader">Custom Shape Output</div>
+                        <div class="shadowScroll">
+                        	<div id="output" contenteditable></div>
+                        </div>
+                    </div>
+				</div>
+			</div>
+		</div>
+        <script type="module" src="../../client/app.js"></script>
+		<script>
+		let calculatorElement = document.getElementById('calculator')
+		let addElement = document.getElementById('add')
+		let removeElement = document.getElementById('remove')
+		let outputElement = document.getElementById('output')
+
+		let calculator = Desmos.GraphingCalculator(calculatorElement)
+		calculator.updateSettings({
+			expressionsCollapsed: true
+		})
+		calculator.setExpression({
+			id: 'table',
+			type: 'table',
+			columns: [{
+				latex: 'x_1',
+				values: [-1, 0.5, 1, 1, 0.5, -1],
+			}, {
+				latex: 'y_1',
+				values: [-1, -1, -0.5, 0.5, 1, 1],
+				dragMode: Desmos.DragModes.XY,
+				color: Desmos.Colors.BLACK,
+			}],
+		})
+		calculator.setExpression({
+			id: 'tableReconnect',
+			latex: '\\operatorname{polygon}\\left(x_1,\\ y_1\\right)',
+			color: Desmos.Colors.BLACK,
+			fill: null,
+		})
+		calculator.setExpression({
+			id: 'hitbox',
+			latex: 'x^2+y^2=1',
+			color: Desmos.Colors.RED,
+		})
+		calculator.setMathBounds({
+			left: -3,
+			right: 3,
+			bottom: -3,
+			top: 3,
+		})
+
+
+		let xList = calculator.HelperExpression({ latex: 'x_1' })
+		let xListValue = [-1, 0.5, 1, 1, 0.5, -1]
+		let yList = calculator.HelperExpression({ latex: 'y_1' })
+		let yListValue = [-1, -1, -0.5, 0.5, 1, 1]
+
+		xList.observe('listValue', () => {
+			xListValue = xList.listValue
+			updateCode()
+		})
+		yList.observe('listValue', () => {
+			yListValue = yList.listValue
+			updateCode()
+		})
+
+		let lock = false
+		let updateCode = () => {
+			if (lock) {
+				lock = false
+				return
+			}
+			let x = xListValue.slice()
+			let y = yListValue.slice()
+			let out = []
+			while (x.length > 0 && y.length > 0) {
+				out.push([x.shift(), y.shift()])
+			}
+			outputElement.style.color = '#000'
+			outputElement.innerText = 'SHAPE: ' + JSON.stringify(out) + ','
+		}
+		let updateExpression = () => {
+			calculator.setExpression({
+				id: 'table',
+				type: 'table',
+				columns: [{
+					latex: 'x_1',
+					values: xListValue,
+				}, {
+					latex: 'y_1',
+					values: yListValue,
+					lines: true,
+					dragMode: Desmos.DragModes.XY,
+					color: Desmos.Colors.BLACK,
+				}],
+			})
+		}
+
+		addElement.onclick = () => {
+			xListValue.push(Math.round(Math.random() * 20 - 10) / 5)
+			yListValue.push(Math.round(Math.random() * 20 - 10) / 5)
+			updateExpression()
+			updateCode()
+		}
+		removeElement.onclick = () => {
+			if (xListValue.length > 1) {
+				xListValue.pop()
+				yListValue.pop()
+			}
+			updateExpression()
+			updateCode()
+		}
+		outputElement.addEventListener('input', () => {
+			let output = outputElement.innerText.match(/\[\s*\[.*]\s*]/) || ['']
+			try {
+				let points = JSON.parse(output)
+				xListValue = points.map(r => r[0])
+				yListValue = points.map(r => r[1])
+				outputElement.style.color = '#000'
+				lock = true
+				updateExpression()
+			} catch(e) {
+				outputElement.style.color = '#b00'
+			}
+		}, false)
+		updateCode()
+		</script>
+	</body>
+</html>

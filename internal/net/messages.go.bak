@@ -1,0 +1,2615 @@
+package net
+
+// messages.go ports the message layer of js-src/server/game/network/sockets.js:
+// one Go type per opcode, the code that turns it into []Value for the encoder,
+// and the code that parses one back. The codec itself is fasttalk.go and is not
+// touched here.
+//
+// Scope is the wire format only. Building a Photo from an entity, deciding when
+// to send, the socket lifecycle and perspective() all live elsewhere.
+//
+// Positions in the comments are "after the opcode has been shifted off"
+// (sockets.js:201, socketinit.js:827), matching docs/protocol.md section 3.
+// Append writes the opcode first, because that is what talk() sends; Parse
+// takes the post-shift slice, because that is what the dispatcher hands you.
+// Opcode() splits one into the other.
+//
+// Expected bytes for the tests come from running the real JS — see
+// tools/gen-message-vectors.js, which slices flatten(), publish(), floppy(),
+// getstuff() and the Delta class straight out of sockets.js and evaluates them.
+
+import (
+	"errors"
+	"math"
+	"math/big"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+)
+
+// ---------------------------------------------------------------------------
+// Frame assembly
+// ---------------------------------------------------------------------------
+
+// Builder turns a message into wire bytes without allocating in the steady
+// state. One per connection; not safe for concurrent use.
+//
+// Every opcode follows the same two-step shape:
+//
+//	b.Frame(msg.Append(b.Buf()))
+//
+// Buf hands back the scratch slice emptied, Append fills it, Frame encodes it.
+// Both the scratch slice and the Encoder's output buffer are retained, so a
+// warm Builder allocates nothing. Do not call Buf twice without a Frame in
+// between: the second call would hand out the same backing array.
+type Builder struct {
+	enc Encoder
+	buf []Value
+}
+
+// Buf returns the reusable message buffer, emptied. Append into it.
+func (b *Builder) Buf() []Value { return b.buf[:0] }
+
+// Frame encodes an appended message. The returned bytes are owned by the
+// Builder and are invalidated by the next call, exactly like Encoder.Encode.
+func (b *Builder) Frame(msg []Value) ([]byte, error) {
+	b.buf = msg
+	return b.enc.Encode(msg)
+}
+
+// Grow presizes the scratch buffer. Worth calling once for the uplink, whose
+// length scales with the number of visible entities.
+func (b *Builder) Grow(n int) {
+	if cap(b.buf) < n {
+		b.buf = make([]Value, 0, n)
+	}
+}
+
+// Opcode splits a decoded frame the way the two dispatchers do — m.shift() at
+// sockets.js:201 and socketinit.js:827. ok is false for an empty frame or one
+// whose first element is not a string; the JS switch would then fall through to
+// its default, which logs and does nothing (sockets.js:731).
+func Opcode(m []Value) (op string, rest []Value, ok bool) {
+	if len(m) == 0 || m[0].Kind != KindString {
+		return "", m, false
+	}
+	return m[0].Str, m[1:], true
+}
+
+// KickError is a validation failure that makes the JS call socket.kick with
+// this exact reason string (sockets.js:203 and friends). The socket layer
+// decides what to do with it; the reason text is reproduced verbatim so the
+// Go server's logs stay comparable with Node's.
+type KickError struct{ Reason string }
+
+func (e *KickError) Error() string { return e.Reason }
+
+func kick(reason string) error { return &KickError{Reason: reason} }
+
+// ErrShortFrame is returned when a frame runs out of elements mid-structure.
+// The JS reads past the end and gets undefined instead; Go cannot, so the
+// packet is rejected. Only reachable from a hostile or corrupt peer.
+var ErrShortFrame = errors.New("net: frame ended mid-message")
+
+// ---------------------------------------------------------------------------
+// JS semantics helpers
+// ---------------------------------------------------------------------------
+
+// jsRound is Math.round, which breaks ties toward +Infinity. Go's math.Round
+// breaks them away from zero, so Math.round(-0.5) is -0 where math.Round(-0.5)
+// is -1. Shield quantisation and leaderboard scores can both be negative, so
+// the difference is live.
+//
+// Written as floor(x) plus a fraction test rather than floor(x+0.5) because
+// x+0.5 is not exact for x just below 0.5.
+func jsRound(x float64) float64 {
+	if math.IsNaN(x) || math.IsInf(x, 0) {
+		return x
+	}
+	f := math.Floor(x)
+	if x-f >= 0.5 {
+		f++
+	}
+	return f
+}
+
+// clamp is util.clamp (util.js:16): min(max(v, lo), hi).
+func clamp(v, lo, hi float64) float64 { return math.Min(math.Max(v, lo), hi) }
+
+// jsNumberString is Number.prototype.toString for base 10 — what String(x) and
+// x.toString() produce. Needed because the `k` handler calls m[0].toString() on
+// whatever arrived (sockets.js:207) and the `DTAST` handler calls String(m[0])
+// (sockets.js:720); a hostile client controls both.
+//
+// Exact for every value the game produces. It follows the spec's switch to
+// exponential form outside [1e-6, 1e21), which is where JS and Go's default
+// formatting disagree.
+func jsNumberString(f float64) string {
+	switch {
+	case math.IsNaN(f):
+		return "NaN"
+	case math.IsInf(f, 1):
+		return "Infinity"
+	case math.IsInf(f, -1):
+		return "-Infinity"
+	case f == 0:
+		return "0" // covers -0, which JS also prints as "0"
+	}
+	a := math.Abs(f)
+	if a >= 1e-6 && a < 1e21 {
+		return strconv.FormatFloat(f, 'f', -1, 64)
+	}
+	s := strconv.FormatFloat(f, 'e', -1, 64)
+	// Go writes e+07 where JS writes e+7.
+	if i := strings.IndexByte(s, 'e'); i >= 0 {
+		mant, exp := s[:i], s[i+1:]
+		sign := ""
+		if exp[0] == '+' || exp[0] == '-' {
+			sign, exp = string(exp[0]), exp[1:]
+		}
+		exp = strings.TrimLeft(exp, "0")
+		if exp == "" {
+			exp = "0"
+		}
+		s = mant + "e" + sign + exp
+	}
+	return s
+}
+
+// jsToFixed1 is Number.prototype.toFixed(1). The `p` pong and svInfo both put
+// its result on the wire as a string (sockets.js:337, speedLoop.js:24), and the
+// pong argument comes straight from the client, so the rounding has to be the
+// spec's and not Go's.
+//
+// ECMA-262 strips the sign first and then picks the integer n nearest to 10*|x|,
+// preferring the larger n on a tie — so ties round away from zero, and the
+// comparison is against the exact binary value. (0.35).toFixed(1) is "0.3"
+// because 0.35 is really 0.34999999999999997779. big.Rat gets that exactly;
+// float arithmetic does not.
+func jsToFixed1(x float64) string {
+	switch {
+	case math.IsNaN(x):
+		return "NaN"
+	case math.IsInf(x, 1):
+		return "Infinity"
+	case math.IsInf(x, -1):
+		return "-Infinity"
+	case math.Abs(x) >= 1e21:
+		return jsNumberString(x)
+	}
+	sign := ""
+	if x < 0 {
+		sign, x = "-", -x
+	}
+	r := new(big.Rat).SetFloat64(x)
+	r.Mul(r, big.NewRat(10, 1))
+	n := new(big.Int).Quo(r.Num(), r.Denom()) // x >= 0, so truncation is floor
+	rem := new(big.Rat).Sub(r, new(big.Rat).SetInt(n))
+	if rem.Cmp(big.NewRat(1, 2)) >= 0 {
+		n.Add(n, big.NewInt(1))
+	}
+	d := n.String()
+	if len(d) < 2 {
+		d = "0" + d
+	}
+	return sign + d[:len(d)-1] + "." + d[len(d)-1:]
+}
+
+// jsonNumber is JSON.stringify of a number: the same text as String(x), except
+// that the non-finite values become null (edge case 31 in docs/protocol.md).
+func jsonNumber(f float64) string {
+	if math.IsNaN(f) || math.IsInf(f, 0) {
+		return "null"
+	}
+	return jsNumberString(f)
+}
+
+// jsTrim is String.prototype.trim's whitespace set, which is not Go's: JS trims
+// U+FEFF and Go does not, Go trims U+0085 and JS does not. This runs on the
+// permission key (sockets.js:207), where a mismatch would make a token that
+// works against Node fail against Go.
+// The set is ECMA-262 WhiteSpace plus LineTerminator: TAB VT FF SP NBSP
+// ZWNBSP, LF CR LS PS, and the Zs category.
+func jsTrim(s string) string {
+	return strings.TrimFunc(s, func(r rune) bool {
+		switch r {
+		case '\t', '\v', '\f', ' ', '\u00a0', '\ufeff',
+			'\n', '\r', '\u2028', '\u2029',
+			'\u1680', '\u202f', '\u205f', '\u3000':
+			return true
+		}
+		return r >= '\u2000' && r <= '\u200a'
+	})
+}
+
+// valueString is what the JS gets when it calls String() or .toString() on a
+// decoded element.
+func valueString(v Value) string {
+	if v.Kind == KindString {
+		return v.Str
+	}
+	return jsNumberString(v.Num)
+}
+
+// truthy is JS truthiness for a decoded element. Booleans never survive the
+// codec (fasttalk.js:281), so only "" and 0/NaN are falsy here.
+func truthy(v Value) bool {
+	if v.Kind == KindString {
+		return v.Str != ""
+	}
+	return v.Num != 0 && !math.IsNaN(v.Num)
+}
+
+// strictEqual is JS ===, which the delta change detector uses
+// (sockets.js:1695). NaN is unequal to itself; +0 and -0 are equal.
+//
+// One JS distinction is unreachable here: false !== 0 is true over there, but a
+// Value folds a boolean into a number. No delta row carries a boolean inside
+// its compared range — the leaderboard's only boolean is field 7, which
+// DataLength excludes — so nothing depends on it.
+func strictEqual(a, b Value) bool {
+	if a.Kind != b.Kind {
+		return false
+	}
+	if a.Kind == KindString {
+		return a.Str == b.Str
+	}
+	return a.Num == b.Num // false for NaN, true for +0 vs -0
+}
+
+// nameTokens is encodeURI(name).split(/%..|./).length from the spawn handler
+// (sockets.js:269), the only length limit the server enforces on a name.
+//
+// split returns matches+1 pieces, and every character survives encodeURI as
+// either itself or a run of %XX escapes, one match each. So the count is one
+// plus the number of URI-safe characters plus the number of UTF-8 bytes in the
+// rest — which is why an emoji costs 4 and 47 ASCII characters is the real
+// limit.
+//
+// One case cannot be reproduced: encodeURI throws a URIError on a lone
+// surrogate, taking the handler down. Go strings cannot hold one — Decode turns
+// it into U+FFFD — so that frame reaches here as 3 bytes instead.
+func nameTokens(name string) int {
+	n := 1
+	for _, r := range name {
+		if r < 0x80 && uriUnescaped(byte(r)) {
+			n++
+		} else {
+			n += utf8.RuneLen(r)
+		}
+	}
+	return n
+}
+
+// uriUnescaped is encodeURI's pass-through set: uriUnreserved plus uriReserved
+// plus '#'.
+func uriUnescaped(c byte) bool {
+	switch {
+	case c >= 'A' && c <= 'Z', c >= 'a' && c <= 'z', c >= '0' && c <= '9':
+		return true
+	}
+	return strings.IndexByte("-_.!~*'();/?:@&=+$,#", c) >= 0
+}
+
+// QuantiseMinimap packs a world coordinate into the signed byte the minimap
+// delta carries (sockets.js:1812). The client multiplies back by 255, not 256
+// (socketinit.js:773) — a permanent 0.39% scale bias that must be preserved.
+func QuantiseMinimap(v, roomDimension float64) float64 {
+	return clamp(math.Floor((256*v)/roomDimension), -128, 127)
+}
+
+// SkillsHex is getstuff (sockets.js:890): the 20-character skills string, two
+// hex digits per stat, written from shi down to atk. amount is indexed in the
+// forward atk..shi order the stat lists use everywhere else (sockets.js:836),
+// so this reverses it. The client reads the string forward
+// (socketinit.js:722-733) and the statsdata triples are read backward
+// (socketinit.js:716), which is the double reversal that makes the two agree.
+//
+// Amounts are skill levels, always small non-negative integers; a value outside
+// 0..255 produces more or fewer than two digits here exactly as toString(16)
+// does in the JS, and desynchronises the client's fixed-offset slices.
+func SkillsHex(amount [10]float64) string {
+	var b strings.Builder
+	b.Grow(20)
+	for i := 9; i >= 0; i-- {
+		h := strconv.FormatInt(int64(amount[i]), 16)
+		if len(h) < 2 {
+			b.WriteByte('0')
+		}
+		b.WriteString(h)
+	}
+	return b.String()
+}
+
+// Stat order for the statsdata triples and for SkillsHex's input
+// (sockets.js:836, :473).
+var StatNames = [10]string{"atk", "hlt", "spd", "str", "pen", "dam", "rld", "mob", "rgn", "shi"}
+
+// ---------------------------------------------------------------------------
+// Unions
+//
+// Two fields genuinely take different wire tags depending on which code path
+// built them. Both are modelled as small tagged structs rather than an empty
+// interface, so building one still allocates nothing.
+// ---------------------------------------------------------------------------
+
+// MockupIndex is field 0 of `M`.
+//
+// ANSWER, open question 3. It is a number on the sendMockup path — parseInt of
+// a split index, sockets.js:1437 — and a string on the load_all_mockups path,
+// where mockupData[i].index is copied from the entity (mockups.js:7) and forced
+// to a string by mockupEntity.js:143. Measured: index 12 as a number encodes
+// f9 2a ff 4d 0c 7b 7d 00 (tag 0b0010, one data byte) and as the string "12"
+// encodes f9 aa ff 4d 31 32 00 7b 7d 00 (tag 0b1010). Same value, different
+// frame, so this has to be a union.
+//
+// Which fires when: the numeric form comes from every sendMockup call — the
+// per-frame visible-entity push (sockets.js:1623), the leaderboard push
+// (:1975), the `T` tank-tree handler (:679) and the daily tank (:2230). The
+// string form is the bulk push at connect when Config.load_all_mockups is on
+// (:2222) and the definition-reload rebroadcast (chatCommands.js:303,
+// editor.js:152). Both fire in one session, because :1975 and :679 are not
+// gated on load_all_mockups.
+//
+// The client tolerates both: global.mockups[m[0]] (socketinit.js:957) is an
+// array subscript, and JS resolves the number 12 and the string "12" to the
+// same slot. Verified against all 2492 built mockups: every .index is a string,
+// and all of them are plain decimal numbers.
+type MockupIndex struct {
+	IsString bool
+	Str      string
+	Num      float64
+}
+
+func MockupIndexNum(n float64) MockupIndex { return MockupIndex{Num: n} }
+func MockupIndexStr(s string) MockupIndex  { return MockupIndex{IsString: true, Str: s} }
+
+func (m MockupIndex) value() Value {
+	if m.IsString {
+		return S(m.Str)
+	}
+	return N(m.Num)
+}
+
+func valueToMockupIndex(v Value) MockupIndex {
+	if v.Kind == KindString {
+		return MockupIndexStr(v.Str)
+	}
+	return MockupIndexNum(v.Num)
+}
+
+// ScoreValue is the nameplate score of a full entity record — entity.js:766,
+// `this.settings.scoreLabel || score`.
+//
+// ANSWER, open question 4. scoreLabel is written in exactly two places in the
+// tree, serverTravel.js:36 and :44, both template literals of the form
+// "3 players", so the label branch is always a string; the fallback is
+// skill.score, always a number. The branch is live rather than theoretical:
+// Class.serverPortal resolves to TYPE "tank" with DISPLAY_NAME true, so its
+// camera() sets 0x04 and the nameplate pair does reach the wire. A travel
+// portal therefore puts a 0b1010 string in the slot every other tank fills with
+// an integer tag.
+type ScoreValue struct {
+	IsLabel bool
+	Label   string
+	Score   float64
+}
+
+func Score(n float64) ScoreValue     { return ScoreValue{Score: n} }
+func ScoreLabel(s string) ScoreValue { return ScoreValue{IsLabel: true, Label: s} }
+
+func (s ScoreValue) value() Value {
+	if s.IsLabel {
+		return S(s.Label)
+	}
+	return N(s.Score)
+}
+
+func valueToScore(v Value) ScoreValue {
+	if v.Kind == KindString {
+		return ScoreLabel(v.Str)
+	}
+	return Score(v.Num)
+}
+
+// OptString is a string slot the client may leave empty by sending the literal
+// false, which arrives as the number 0 (fasttalk.js:281). Only the spawn
+// packet's transferbodyID does this — socketinit.js:938 sends
+// `global.bodyID ? global.bodyID : false`, and sockets.js:273 only type-checks
+// the slot when it is truthy.
+type OptString struct {
+	Present bool
+	Value   string
+}
+
+func SomeString(s string) OptString { return OptString{Present: true, Value: s} }
+
+func (o OptString) value() Value {
+	if o.Present {
+		return S(o.Value)
+	}
+	return B(false)
+}
+
+// ---------------------------------------------------------------------------
+// Opcode strings
+//
+// The letters are reused across directions with different payloads
+// (docs/protocol.md section 2.6), so dispatch must be direction-scoped and
+// these are named accordingly.
+// ---------------------------------------------------------------------------
+
+// Server to client.
+const (
+	OpSvWelcome          = "W"
+	OpSvKeyAccepted      = "w"
+	OpSvRoomSetup        = "R"
+	OpSvRoomRefresh      = "r"
+	OpSvForceCamera      = "c"
+	OpSvUplink           = "u"
+	OpSvBroadcast        = "b"
+	OpSvResetMinimap     = "RM"
+	OpSvResetLeaderboard = "RL"
+	OpSvMockup           = "M"
+	OpSvDeath            = "F"
+	OpSvPopup            = "m"
+	OpSvPopupLines       = "Em"
+	OpSvScreenMessage    = "message"
+	OpSvSync             = "S"
+	OpSvPong             = "p"
+	OpSvTankTree         = "T"
+	OpSvNameColor        = "z"
+	OpSvTransfer         = "t"
+	OpSvKick             = "K"
+	OpSvTemporaryBan     = "temporaryban"
+	OpSvPermanentBan     = "permanentban"
+	OpSvChat             = "CHAT_MESSAGE_ENTITY"
+	OpSvDailyTankAd      = "DTA"
+	OpSvDailyTankAdDone  = "DTAD"
+	OpSvDailyTankAdStart = "DTAST"
+	OpSvResetEntities    = "RE"
+	OpSvClearCache       = "CC"
+	OpSvScreenShake      = "SH"
+	OpSvServerInfo       = "svInfo"
+)
+
+// Server to client, parsed by the client but sent by no server code
+// (docs/protocol.md section 2.5). Decode-only here.
+const (
+	OpSvGlobalServerInfo     = "gSvInfo"
+	OpSvSyncWithTank         = "I"
+	OpSvActivateSmoothCamera = "AS"
+	OpSvDeactivateSmoothCam  = "DS"
+)
+
+// Client to server.
+const (
+	OpClKey               = "k"
+	OpClSpawn             = "s"
+	OpClSync              = "S"
+	OpClPing              = "p"
+	OpClDownlink          = "d"
+	OpClCommand           = "C"
+	OpClKeys              = "#"
+	OpClToggle            = "t"
+	OpClUpgrade           = "U"
+	OpClStat              = "x"
+	OpClLevelUp           = "L"
+	OpClSuicide           = "1"
+	OpClControl           = "H"
+	OpClChat              = "M"
+	OpClTankTree          = "T"
+	OpClDailyTankAd       = "DTA"
+	OpClDailyTankAdDone   = "DTAD"
+	OpClDailyTankAdStart  = "DTAST"
+	OpClNeedsNewBroadcast = "NWB"
+)
+
+// ---------------------------------------------------------------------------
+// Cursor
+// ---------------------------------------------------------------------------
+
+// cursor walks a decoded message. The JS equivalent (get.next, socketinit.js)
+// reads past the end and gets undefined; every read here is checked instead.
+type cursor struct {
+	m []Value
+	i int
+}
+
+func (c *cursor) next() (Value, error) {
+	if c.i >= len(c.m) {
+		return Value{}, ErrShortFrame
+	}
+	v := c.m[c.i]
+	c.i++
+	return v, nil
+}
+
+func (c *cursor) num() (float64, error) {
+	v, err := c.next()
+	if err != nil {
+		return 0, err
+	}
+	return v.Num, nil
+}
+
+// str takes the JS coercion, so a well-formed frame round-trips exactly and a
+// malformed one still yields the text the client would have shown.
+func (c *cursor) str() (string, error) {
+	v, err := c.next()
+	if err != nil {
+		return "", err
+	}
+	return valueString(v), nil
+}
+
+func (c *cursor) boolean() (bool, error) {
+	v, err := c.next()
+	if err != nil {
+		return false, err
+	}
+	return v.Num != 0, nil
+}
+
+// ---------------------------------------------------------------------------
+// 3.3.2 gun record
+// ---------------------------------------------------------------------------
+
+// Gun is one gun photo, 15 fields. flatten walks it with `for (let k in ...)`
+// (sockets.js:1353), so the order is gun.getPhotoInfo()'s key insertion order
+// (gun.js:606-623) with this.lastShot spread first (gun.js:10). Adding a key
+// anywhere in getPhotoInfo shifts the whole stream, which is why the list is
+// hard-coded here rather than derived.
+type Gun struct {
+	Time        float64
+	Power       float64
+	Color       string
+	Alpha       float64
+	StrokeWidth float64
+	Borderless  bool
+	DrawFill    bool
+	DrawAbove   bool
+	Length      float64
+	Width       float64
+	Aspect      float64
+	Angle       float64
+	Direction   float64
+	Offset      float64
+	Layer       float64
+}
+
+// GunFields is how many elements one gun record occupies.
+const GunFields = 15
+
+func (g *Gun) Append(dst []Value) []Value {
+	return append(dst,
+		N(g.Time), N(g.Power), S(g.Color), N(g.Alpha), N(g.StrokeWidth),
+		B(g.Borderless), B(g.DrawFill), B(g.DrawAbove),
+		N(g.Length), N(g.Width), N(g.Aspect),
+		N(g.Angle), N(g.Direction), N(g.Offset), N(g.Layer))
+}
+
+func parseGun(c *cursor) (Gun, error) {
+	var g Gun
+	var err error
+	if g.Time, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Power, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Color, err = c.str(); err != nil {
+		return g, err
+	}
+	if g.Alpha, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.StrokeWidth, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Borderless, err = c.boolean(); err != nil {
+		return g, err
+	}
+	if g.DrawFill, err = c.boolean(); err != nil {
+		return g, err
+	}
+	if g.DrawAbove, err = c.boolean(); err != nil {
+		return g, err
+	}
+	if g.Length, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Width, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Aspect, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Angle, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Direction, err = c.num(); err != nil {
+		return g, err
+	}
+	if g.Offset, err = c.num(); err != nil {
+		return g, err
+	}
+	g.Layer, err = c.num()
+	return g, err
+}
+
+// ---------------------------------------------------------------------------
+// 3.3.1 entity record
+// ---------------------------------------------------------------------------
+
+// Photo type bits, set by the four camera() implementations: Entity contributes
+// 0x02 and 0x04 (entity.js:724-725), Bullet is exactly 0x10
+// (bulletEntity.js:361), Turret and Prop are exactly 0x01 (turretEntity.js:276,
+// propEntity.js:80).
+const (
+	PhotoTurret     = 0x01
+	PhotoDrawHealth = 0x02
+	PhotoNamed      = 0x04
+	PhotoBullet     = 0x10
+)
+
+// Overwrite offsets used by perspective (sockets.js:1385) once a record is
+// flattened. They differ between the two layouts, which is the trap at
+// sockets.js:1396: the autospin override writes offset 10 unconditionally, and
+// that is twiggle in the full layout but layer in the bullet one. perspective
+// itself needs an Entity and belongs to the view layer; these are here because
+// they are facts about the layout.
+const (
+	PhotoFullTwiggle = 10
+	PhotoFullColor   = 12
+	PhotoFullAlpha   = 18
+	PhotoBulletColor = 11
+	PhotoBulletAlpha = 14
+)
+
+// Photo is one entity record as flatten() sees it: the object camera() returns.
+// Which fields reach the wire is chosen by Type's bits, so the three layouts
+// share one struct exactly as they share one JS object — sockets.js:1289-1361.
+//
+// Health, Shield and Alpha are the raw 0..1 values; Append applies the
+// quantisation (sockets.js:1318-1320). ceil for health and round for shield is
+// not a typo you may normalise: a health of 1e-9 must transmit as 1, a shield
+// of 1e-9 as 0.
+type Photo struct {
+	Type int
+
+	// Every layout.
+	Index string
+	Color string
+	Size  float64
+	Layer float64
+
+	// Turret and prop layout (Type & 0x01).
+	Facing            float64
+	RealSize          float64
+	SizeFactor        float64
+	Angle             float64
+	Direction         float64
+	Offset            float64
+	MirrorMasterAngle bool
+
+	// Bullet and full layouts.
+	ID      float64
+	X, Y    float64
+	VX, VY  float64
+	VFacing float64
+	Health  float64
+	Shield  float64
+	Alpha   float64
+
+	// Full layout only.
+	Twiggle    bool
+	Borderless bool
+	DrawFill   bool
+	Invuln     bool
+
+	// Full layout with 0x04 only.
+	Name  string
+	Score ScoreValue
+
+	Guns    []Gun
+	Turrets []Photo
+}
+
+// Append ports flatten (sockets.js:1289). The comment there claims the first
+// entry is removed by perspective(); it is not — data.type is on the wire and
+// the client reads it first (socketinit.js:450).
+func (p *Photo) Append(dst []Value) []Value {
+	dst = append(dst, N(p.Type))
+	switch {
+	case p.Type&PhotoTurret != 0:
+		dst = append(dst,
+			N(p.Facing), N(p.Layer), S(p.Index), S(p.Color),
+			N(p.Size), N(p.RealSize), N(p.SizeFactor),
+			N(p.Angle), N(p.Direction), N(p.Offset), B(p.MirrorMasterAngle))
+	case p.Type&PhotoBullet != 0:
+		dst = append(dst,
+			N(p.ID), S(p.Index), N(p.X), N(p.Y), N(p.VX), N(p.VY),
+			N(p.Size), N(p.Facing), N(p.VFacing), N(p.Layer), S(p.Color),
+			N(math.Ceil(65535*p.Health)), N(jsRound(65535*p.Shield)), N(jsRound(255*p.Alpha)))
+	default:
+		dst = append(dst,
+			N(p.ID), S(p.Index), N(p.X), N(p.Y), N(p.VX), N(p.VY),
+			N(p.Size), N(p.Facing), N(p.VFacing), B(p.Twiggle), N(p.Layer), S(p.Color),
+			B(p.Borderless), B(p.DrawFill), B(p.Invuln),
+			N(math.Ceil(65535*p.Health)), N(jsRound(65535*p.Shield)), N(jsRound(255*p.Alpha)))
+		if p.Type&PhotoNamed != 0 {
+			dst = append(dst, S(p.Name), p.Score.value())
+		}
+	}
+
+	dst = append(dst, N(len(p.Guns)))
+	for i := range p.Guns {
+		dst = p.Guns[i].Append(dst)
+	}
+	dst = append(dst, N(len(p.Turrets)))
+	for i := range p.Turrets {
+		dst = p.Turrets[i].Append(dst)
+	}
+	return dst
+}
+
+// ParsePhoto reads one entity record, recursing into turrets. It follows the
+// client's process() (socketinit.js:447), not flatten(), including where the
+// two disagree: process reads the nameplate pair for any non-turret record with
+// 0x04, while flatten writes it only in the full branch. The four camera()
+// implementations make 0x14 and 0x05 impossible, so the disagreement is inert —
+// but a decoder has to match the real client, bug and all.
+func ParsePhoto(m []Value) (Photo, int, error) {
+	c := cursor{m: m}
+	p, err := parsePhoto(&c)
+	return p, c.i, err
+}
+
+func parsePhoto(c *cursor) (Photo, error) {
+	var p Photo
+	t, err := c.num()
+	if err != nil {
+		return p, err
+	}
+	p.Type = int(t)
+
+	if p.Type&PhotoTurret != 0 {
+		if p.Facing, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Layer, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Index, err = c.str(); err != nil {
+			return p, err
+		}
+		if p.Color, err = c.str(); err != nil {
+			return p, err
+		}
+		if p.Size, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.RealSize, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.SizeFactor, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Angle, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Direction, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Offset, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.MirrorMasterAngle, err = c.boolean(); err != nil {
+			return p, err
+		}
+	} else {
+		if p.ID, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Index, err = c.str(); err != nil {
+			return p, err
+		}
+		if p.X, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Y, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.VX, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.VY, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Size, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Facing, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.VFacing, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Type&PhotoBullet == 0 {
+			if p.Twiggle, err = c.boolean(); err != nil {
+				return p, err
+			}
+		}
+		if p.Layer, err = c.num(); err != nil {
+			return p, err
+		}
+		if p.Color, err = c.str(); err != nil {
+			return p, err
+		}
+		if p.Type&PhotoBullet == 0 {
+			if p.Borderless, err = c.boolean(); err != nil {
+				return p, err
+			}
+			if p.DrawFill, err = c.boolean(); err != nil {
+				return p, err
+			}
+			// The client skips the invuln read for the bullet layout
+			// (socketinit.js:516), and flatten never wrote one.
+			if p.Invuln, err = c.boolean(); err != nil {
+				return p, err
+			}
+		}
+		var h, s, a float64
+		if h, err = c.num(); err != nil {
+			return p, err
+		}
+		if s, err = c.num(); err != nil {
+			return p, err
+		}
+		if a, err = c.num(); err != nil {
+			return p, err
+		}
+		p.Health, p.Shield, p.Alpha = h/65535, s/65535, a/255
+		if p.Type&PhotoNamed != 0 {
+			if p.Name, err = c.str(); err != nil {
+				return p, err
+			}
+			var sc Value
+			if sc, err = c.next(); err != nil {
+				return p, err
+			}
+			p.Score = valueToScore(sc)
+		}
+	}
+
+	guns, err := c.num()
+	if err != nil {
+		return p, err
+	}
+	if n := int(guns); n > 0 {
+		p.Guns = make([]Gun, 0, n)
+		for k := 0; k < n; k++ {
+			g, err := parseGun(c)
+			if err != nil {
+				return p, err
+			}
+			p.Guns = append(p.Guns, g)
+		}
+	}
+
+	turrets, err := c.num()
+	if err != nil {
+		return p, err
+	}
+	if n := int(turrets); n > 0 {
+		p.Turrets = make([]Photo, 0, n)
+		for k := 0; k < n; k++ {
+			t, err := parsePhoto(c)
+			if err != nil {
+				return p, err
+			}
+			p.Turrets = append(p.Turrets, t)
+		}
+	}
+	return p, nil
+}
+
+// ---------------------------------------------------------------------------
+// 3.3.4 GUI block
+// ---------------------------------------------------------------------------
+
+// GUI block bits, accumulated into element 0 with += (sockets.js:974) and
+// decoded at socketinit.js:676-688. Payloads follow in ascending bit order, and
+// only for set bits.
+const (
+	GUIFPS         = 0x0001
+	GUILabel       = 0x0002
+	GUIScore       = 0x0004
+	GUIPoints      = 0x0008
+	GUIUpgrades    = 0x0010
+	GUIStats       = 0x0020
+	GUISkills      = 0x0040
+	GUIAccel       = 0x0080
+	GUITopSpeed    = 0x0100
+	GUIRoot        = 0x0200
+	GUIClass       = 0x0400
+	GUIVisibleName = 0x0800
+	GUIDailyTank   = 0x1000
+)
+
+// GUIBlock is publish()'s output (sockets.js:956). Each Has flag is that
+// field's floppy having something to publish; a floppy publishes only when it
+// is both flagged and non-null (sockets.js:824), so an absent field is absent
+// from the block and the flag stays raised for next time.
+//
+// The block is never empty: with nothing to say publish() still returns [0],
+// one element with tag 0b0000.
+type GUIBlock struct {
+	HasFPS bool
+	FPS    float64
+
+	HasLabel bool
+	Label    string // b.index, a string (entity.js:196)
+	Color    string // o.color, else gui.master.teamColor (sockets.js:982)
+	BodyID   float64
+
+	// ScoreJSON is JSON.stringify([score, solo, assists, bosses]). Held as text
+	// because the JS builds it in update() and the floppy stores the string
+	// (sockets.js:916) — publish() never re-serialises, and neither should the
+	// send path. GUIScoreJSON writes it.
+	HasScore  bool
+	ScoreJSON string
+
+	HasPoints bool
+	Points    float64
+
+	// Upgrades are "branch_branchLabel_index" strings (sockets.js:925),
+	// preceded by their count.
+	HasUpgrades bool
+	Upgrades    []string
+
+	// Stats are 10 (title, cap, softcap) triples in atk..shi order
+	// (sockets.js:864-869). The client assigns them to skills[9] down to
+	// skills[0] (socketinit.js:716).
+	HasStats     bool
+	StatTitles   [10]string
+	StatCaps     [10]float64
+	StatSoftCaps [10]float64
+
+	HasSkills bool
+	Skills    string // SkillsHex output, 20 hex characters
+
+	HasAccel bool
+	Accel    float64
+
+	HasTopSpeed bool
+	TopSpeed    float64
+
+	HasRoot bool
+	Root    string
+
+	HasClass bool
+	Class    string
+
+	// VisibleName is pre-converted to 0/1 at sockets.js:953, because a floppy
+	// throws on a boolean (sockets.js:811).
+	HasVisibleName bool
+	VisibleName    float64
+
+	// DailyTank is JSON.stringify([indexOrNull, adsPending]) or
+	// JSON.stringify([false]) (sockets.js:942-943). Left as the JSON text
+	// because the first element is a string, null or false.
+	HasDailyTank  bool
+	DailyTankJSON string
+}
+
+// Mask is element 0 of the block.
+func (g *GUIBlock) Mask() int {
+	mask := 0
+	for _, b := range [...]struct {
+		on  bool
+		bit int
+	}{
+		{g.HasFPS, GUIFPS}, {g.HasLabel, GUILabel}, {g.HasScore, GUIScore},
+		{g.HasPoints, GUIPoints}, {g.HasUpgrades, GUIUpgrades}, {g.HasStats, GUIStats},
+		{g.HasSkills, GUISkills}, {g.HasAccel, GUIAccel}, {g.HasTopSpeed, GUITopSpeed},
+		{g.HasRoot, GUIRoot}, {g.HasClass, GUIClass}, {g.HasVisibleName, GUIVisibleName},
+		{g.HasDailyTank, GUIDailyTank},
+	} {
+		if b.on {
+			mask += b.bit
+		}
+	}
+	return mask
+}
+
+func (g *GUIBlock) Append(dst []Value) []Value {
+	dst = append(dst, N(g.Mask()))
+	if g.HasFPS {
+		// o.fps || 1 turns a genuine zero into one (sockets.js:977).
+		f := g.FPS
+		if f == 0 || math.IsNaN(f) {
+			f = 1
+		}
+		dst = append(dst, N(f))
+	}
+	if g.HasLabel {
+		dst = append(dst, S(g.Label), S(g.Color), N(g.BodyID))
+	}
+	if g.HasScore {
+		dst = append(dst, S(g.ScoreJSON))
+	}
+	if g.HasPoints {
+		dst = append(dst, N(g.Points))
+	}
+	if g.HasUpgrades {
+		dst = append(dst, N(len(g.Upgrades)))
+		for _, u := range g.Upgrades {
+			dst = append(dst, S(u))
+		}
+	}
+	if g.HasStats {
+		for i := 0; i < 10; i++ {
+			dst = append(dst, S(g.StatTitles[i]), N(g.StatCaps[i]), N(g.StatSoftCaps[i]))
+		}
+	}
+	if g.HasSkills {
+		dst = append(dst, S(g.Skills))
+	}
+	if g.HasAccel {
+		dst = append(dst, N(g.Accel))
+	}
+	if g.HasTopSpeed {
+		dst = append(dst, N(g.TopSpeed))
+	}
+	if g.HasRoot {
+		dst = append(dst, S(g.Root))
+	}
+	if g.HasClass {
+		dst = append(dst, S(g.Class))
+	}
+	if g.HasVisibleName {
+		dst = append(dst, N(g.VisibleName))
+	}
+	if g.HasDailyTank {
+		dst = append(dst, S(g.DailyTankJSON))
+	}
+	return dst
+}
+
+// GUIScoreJSON is JSON.stringify([score, solo, assists, bosses])
+// (sockets.js:916), for the caller to store on the gui when the value changes.
+// It allocates, which is why it does not live on the send path.
+func GUIScoreJSON(score, solo, assists, bosses float64) string {
+	var b strings.Builder
+	b.WriteByte('[')
+	for i, f := range [4]float64{score, solo, assists, bosses} {
+		if i > 0 {
+			b.WriteByte(',')
+		}
+		b.WriteString(jsonNumber(f))
+	}
+	b.WriteByte(']')
+	return b.String()
+}
+
+func parseGUIBlock(c *cursor) (GUIBlock, error) {
+	var g GUIBlock
+	mask, err := c.num()
+	if err != nil {
+		return g, err
+	}
+	bits := int(mask)
+
+	if bits&GUIFPS != 0 {
+		g.HasFPS = true
+		if g.FPS, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUILabel != 0 {
+		g.HasLabel = true
+		if g.Label, err = c.str(); err != nil {
+			return g, err
+		}
+		if g.Color, err = c.str(); err != nil {
+			return g, err
+		}
+		if g.BodyID, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIScore != 0 {
+		g.HasScore = true
+		if g.ScoreJSON, err = c.str(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIPoints != 0 {
+		g.HasPoints = true
+		if g.Points, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIUpgrades != 0 {
+		g.HasUpgrades = true
+		n, err := c.num()
+		if err != nil {
+			return g, err
+		}
+		g.Upgrades = make([]string, 0, int(n))
+		for i := 0; i < int(n); i++ {
+			u, err := c.str()
+			if err != nil {
+				return g, err
+			}
+			g.Upgrades = append(g.Upgrades, u)
+		}
+	}
+	if bits&GUIStats != 0 {
+		g.HasStats = true
+		for i := 0; i < 10; i++ {
+			if g.StatTitles[i], err = c.str(); err != nil {
+				return g, err
+			}
+			if g.StatCaps[i], err = c.num(); err != nil {
+				return g, err
+			}
+			if g.StatSoftCaps[i], err = c.num(); err != nil {
+				return g, err
+			}
+		}
+	}
+	if bits&GUISkills != 0 {
+		g.HasSkills = true
+		if g.Skills, err = c.str(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIAccel != 0 {
+		g.HasAccel = true
+		if g.Accel, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUITopSpeed != 0 {
+		g.HasTopSpeed = true
+		if g.TopSpeed, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIRoot != 0 {
+		g.HasRoot = true
+		if g.Root, err = c.str(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIClass != 0 {
+		g.HasClass = true
+		if g.Class, err = c.str(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIVisibleName != 0 {
+		g.HasVisibleName = true
+		if g.VisibleName, err = c.num(); err != nil {
+			return g, err
+		}
+	}
+	if bits&GUIDailyTank != 0 {
+		g.HasDailyTank = true
+		if g.DailyTankJSON, err = c.str(); err != nil {
+			return g, err
+		}
+	}
+	return g, nil
+}
+
+// ---------------------------------------------------------------------------
+// 3.3.5 delta block
+// ---------------------------------------------------------------------------
+
+// DeltaRow is one entry: an id and its fields. The minimap rows carry 5 and 3
+// fields; the leaderboard rows carry 8 (sockets.js:1748).
+type DeltaRow struct {
+	ID   float64
+	Data []Value
+}
+
+type deltaSpan struct{ start, end int }
+
+type deltaSnapshot struct {
+	ids   []float64
+	spans []deltaSpan
+	vals  []Value
+}
+
+func (s *deltaSnapshot) reset() {
+	s.ids = s.ids[:0]
+	s.spans = s.spans[:0]
+	s.vals = s.vals[:0]
+}
+
+func (s *deltaSnapshot) load(rows []DeltaRow) {
+	s.reset()
+	for _, r := range rows {
+		start := len(s.vals)
+		s.vals = append(s.vals, r.Data...)
+		s.ids = append(s.ids, r.ID)
+		s.spans = append(s.spans, deltaSpan{start, len(s.vals)})
+	}
+}
+
+func (s *deltaSnapshot) row(i int) []Value { return s.vals[s.spans[i].start:s.spans[i].end] }
+
+// Delta is the class at sockets.js:1668. Both lists must be sorted ascending by
+// id: the merge decides delete versus create by comparing ids
+// (sockets.js:1703), so an unsorted list silently produces a wrong diff. The
+// leaderboard builders sort explicitly (sockets.js:1762); the minimap builders
+// rely on the entity map's iteration order.
+//
+// The JS keeps one snapshot per socket inside a single Delta (this.data[id],
+// sockets.js:1675) for the per-socket team and leaderboard blocks. Model that
+// as one Delta per subscriber.
+//
+// Seeding differs and it matters for the first frame only: the JS seeds a new
+// id with finder([]) (sockets.js:1675), which for minimapAll and the
+// leaderboards returns a full current snapshot rather than nothing, so their
+// first incremental update is near-empty. A fresh Delta here starts empty, so
+// its first update is all creates. Call Seed to reproduce the JS. In practice
+// the first broadcast is the reset form anyway, because status.needsNewBroadcast
+// starts true (sockets.js:2127).
+type Delta struct {
+	// DataLength is how many fields the change detector compares
+	// (sockets.js:1694). It is not necessarily how many fields a row carries —
+	// see the leaderboard.
+	DataLength int
+
+	prev deltaSnapshot
+	cur  deltaSnapshot
+
+	deletes    []Value
+	updates    []Value
+	updatesLen int
+}
+
+// NewDelta matches `new Delta(dataLength, finder)`; the finder is the caller's
+// business because it needs entities.
+func NewDelta(dataLength int) *Delta { return &Delta{DataLength: dataLength} }
+
+// Seed installs a snapshot without emitting anything, standing in for the
+// finder([]) call at sockets.js:1675.
+func (d *Delta) Seed(rows []DeltaRow) { d.prev.load(rows) }
+
+// Update diffs rows against the stored snapshot and keeps rows as the new one.
+// AppendUpdate and AppendReset then write the two wire forms, the same pair the
+// JS returns at sockets.js:1726.
+func (d *Delta) Update(rows []DeltaRow) {
+	d.cur.load(rows)
+	d.deletes = d.deletes[:0]
+	d.updates = d.updates[:0]
+	d.updatesLen = 0
+
+	old, now := &d.prev, &d.cur
+	oldIndex, nowIndex := 0, 0
+	for oldIndex < len(old.ids) && nowIndex < len(now.ids) {
+		switch {
+		case old.ids[oldIndex] == now.ids[nowIndex]:
+			if d.changed(old.row(oldIndex), now.row(nowIndex)) {
+				d.updates = append(d.updates, N(now.ids[nowIndex]))
+				d.updates = append(d.updates, now.row(nowIndex)...)
+				d.updatesLen++
+			}
+			oldIndex++
+			nowIndex++
+		case old.ids[oldIndex] < now.ids[nowIndex]:
+			d.deletes = append(d.deletes, N(old.ids[oldIndex]))
+			oldIndex++
+		default:
+			d.updates = append(d.updates, N(now.ids[nowIndex]))
+			d.updates = append(d.updates, now.row(nowIndex)...)
+			d.updatesLen++
+			nowIndex++
+		}
+	}
+	for ; oldIndex < len(old.ids); oldIndex++ {
+		d.deletes = append(d.deletes, N(old.ids[oldIndex]))
+	}
+	for ; nowIndex < len(now.ids); nowIndex++ {
+		d.updates = append(d.updates, N(now.ids[nowIndex]))
+		d.updates = append(d.updates, now.row(nowIndex)...)
+		d.updatesLen++
+	}
+
+	d.prev, d.cur = d.cur, d.prev // the old snapshot becomes next call's scratch
+}
+
+// changed is the loop at sockets.js:1694. It stops at DataLength, so a row
+// field past that is on the wire but invisible to change detection.
+//
+// ANSWER, open question 1. The leaderboard Delta is built with 7
+// (sockets.js:1852, :1907, :1922, :1934) while its rows carry 8 fields and the
+// client reads 8 (Integrate(8), socketinit.js:286). The 8th is
+// renderOnLeaderboard (sockets.js:1756, `entry.settings.renderOnLeaderboard ??
+// true`; the HP, tag and mothership builders hardcode false). The client stores
+// it as renderEntity (socketinit.js:807) and app.js:3820 uses it to decide
+// whether to draw the tank's mini-image next to the row.
+//
+// Measured by driving the real Delta class (tools/gen-message-vectors.js): with
+// dataLength 7 a change confined to field 7 emits [0,0], an empty update; the
+// same change through a Delta built with 8 emits the whole row. The reset form
+// carries all eight either way.
+//
+// It is a bug, not a decision. Every other Delta's dataLength equals its row
+// length exactly (5 and 5, 3 and 3); only the leaderboard is short, its 8th
+// field has an `?? true` default that reads like a later addition, and the
+// effect is a stale icon rather than any saving. Ported as 7 regardless: the
+// client is calibrated against the current bytes, and architecture.md rule 4
+// says port the bug and flag it.
+func (d *Delta) changed(old, now []Value) bool {
+	for i := 0; i < d.DataLength; i++ {
+		oldOK, nowOK := i < len(old), i < len(now)
+		if !oldOK && !nowOK {
+			continue // undefined !== undefined is false
+		}
+		if oldOK != nowOK || !strictEqual(old[i], now[i]) {
+			return true
+		}
+	}
+	return false
+}
+
+// AppendUpdate writes the incremental form (sockets.js:1724):
+// deletesLength, ids, updatesLength, then (id, fields) per updated row.
+func (d *Delta) AppendUpdate(dst []Value) []Value {
+	dst = append(dst, N(len(d.deletes)))
+	dst = append(dst, d.deletes...)
+	dst = append(dst, N(d.updatesLen))
+	return append(dst, d.updates...)
+}
+
+// AppendReset writes the full form (sockets.js:1723, :1725): no deletes, then
+// every current row. Sent when status.needsNewBroadcast is set, always after a
+// separate RM frame.
+func (d *Delta) AppendReset(dst []Value) []Value {
+	dst = append(dst, N(0), N(len(d.prev.ids)))
+	for i := range d.prev.ids {
+		dst = append(dst, N(d.prev.ids[i]))
+		dst = append(dst, d.prev.row(i)...)
+	}
+	return dst
+}
+
+// ---------------------------------------------------------------------------
+// Server -> client
+// ---------------------------------------------------------------------------
+
+// SvWelcome is `W`, sent once the socket is accepted (sockets.js:2235). The
+// client answers with `k` (socketinit.js:831).
+type SvWelcome struct{}
+
+func (SvWelcome) Append(dst []Value) []Value { return append(dst, S(OpSvWelcome), B(true)) }
+
+func ParseSvWelcome(m []Value) (SvWelcome, error) { return SvWelcome{}, nil }
+
+// SvKeyAccepted is `w`, the answer to a `k` (sockets.js:205). The client then
+// asks for the room with `s` (socketinit.js:845).
+type SvKeyAccepted struct{}
+
+func (SvKeyAccepted) Append(dst []Value) []Value { return append(dst, S(OpSvKeyAccepted), B(true)) }
+
+func ParseSvKeyAccepted(m []Value) (SvKeyAccepted, error) { return SvKeyAccepted{}, nil }
+
+// SvRoomSetup is `R`, the full room state (sockets.js:283).
+//
+// ServerStartTime is a float64 but reaches the wire as JSON text, which is what
+// keeps an epoch millisecond value off the float32 path — do not "optimise" it
+// back into a number. TilesJSON and BlackoutJSON stay pre-serialised because
+// their shapes come from the room and from Config: the tile grid is
+// [[{color, visibleOnBlackout, image}, ...], ...] (sockets.js:287) and the
+// blackout object is {active, color} (sockets.js:296).
+type SvRoomSetup struct {
+	Width, Height   float64
+	TilesJSON       string
+	ServerStartTime float64
+	RoomSpeed       float64
+	BlackoutJSON    string
+	RoundArena      bool
+}
+
+func (r *SvRoomSetup) Append(dst []Value) []Value {
+	return append(dst, S(OpSvRoomSetup), N(r.Width), N(r.Height), S(r.TilesJSON),
+		S(jsonNumber(r.ServerStartTime)), N(r.RoomSpeed), S(r.BlackoutJSON), B(r.RoundArena))
+}
+
+func ParseSvRoomSetup(m []Value) (SvRoomSetup, error) {
+	var r SvRoomSetup
+	c := cursor{m: m}
+	var err error
+	if r.Width, err = c.num(); err != nil {
+		return r, err
+	}
+	if r.Height, err = c.num(); err != nil {
+		return r, err
+	}
+	if r.TilesJSON, err = c.str(); err != nil {
+		return r, err
+	}
+	start, err := c.str()
+	if err != nil {
+		return r, err
+	}
+	if r.ServerStartTime, err = strconv.ParseFloat(strings.TrimSpace(start), 64); err != nil {
+		return r, err
+	}
+	if r.RoomSpeed, err = c.num(); err != nil {
+		return r, err
+	}
+	if r.BlackoutJSON, err = c.str(); err != nil {
+		return r, err
+	}
+	r.RoundArena, err = c.boolean()
+	return r, err
+}
+
+// SvRoomRefresh is `r`, broadcast when the map changes (sockets.js:33). Its
+// tiles are {color, image} only — no visibleOnBlackout — and both opcodes land
+// in the same client field, so an `r` after an `R` drops that flag
+// (socketinit.js:853, :869).
+type SvRoomRefresh struct {
+	Width, Height float64
+	TilesJSON     string
+}
+
+func (r *SvRoomRefresh) Append(dst []Value) []Value {
+	return append(dst, S(OpSvRoomRefresh), N(r.Width), N(r.Height), S(r.TilesJSON))
+}
+
+func ParseSvRoomRefresh(m []Value) (SvRoomRefresh, error) {
+	var r SvRoomRefresh
+	c := cursor{m: m}
+	var err error
+	if r.Width, err = c.num(); err != nil {
+		return r, err
+	}
+	if r.Height, err = c.num(); err != nil {
+		return r, err
+	}
+	r.TilesJSON, err = c.str()
+	return r, err
+}
+
+// SvForceCamera is `c`, which snaps the client camera (sockets.js:1284). FOV is
+// 2000 at that call site.
+type SvForceCamera struct {
+	X, Y, FOV float64
+}
+
+func (f *SvForceCamera) Append(dst []Value) []Value {
+	return append(dst, S(OpSvForceCamera), N(f.X), N(f.Y), N(f.FOV))
+}
+
+func ParseSvForceCamera(m []Value) (SvForceCamera, error) {
+	var f SvForceCamera
+	c := cursor{m: m}
+	var err error
+	if f.X, err = c.num(); err != nil {
+		return f, err
+	}
+	if f.Y, err = c.num(); err != nil {
+		return f, err
+	}
+	f.FOV, err = c.num()
+	return f, err
+}
+
+// SvUplinkCamera is the camera-only form of `u` (sockets.js:1636), sent only
+// from gazeUpon(true) — i.e. from newPlayer (sockets.js:1123).
+//
+// ANSWER, open question 2. The client discriminates on `m[0] == true`
+// (socketinit.js:961) against a slot the full form fills with lastCycle
+// (sockets.js:1648). The literal true and the number 1 both encode as nibble
+// 0b0001 with zero data bytes, so the two forms are byte-identical in element 0
+// — measured: camera-only is f9 18 8f 75 ..., a full frame with lastCycle 1 is
+// f9 18 84 0e 0f 75 .... A decoder cannot tell them apart from that element,
+// only from the frame's length.
+//
+// The misparse needs lastCycle to be exactly 1. lastCycle is util.time(), which
+// is Date.now() minus the moment util.js loaded (util.js:134-138), sampled once
+// per gameloop tick (game/index.js:278). The gameloop is a setInterval started
+// long after boot: loading the definitions and mockups alone measures 888 ms in
+// this tree, and the first tick lands a further cycleSpeed after that. So a
+// healthy server never sends 1, and the only route to it is the wall clock
+// stepping backwards to leave exactly 1 ms of apparent uptime on the tick that
+// samples it. Real but vanishingly narrow; nothing in the Go port should try to
+// fix it, because the client would still misread the frame.
+type SvUplinkCamera struct {
+	X, Y float64
+}
+
+func (u *SvUplinkCamera) Append(dst []Value) []Value {
+	return append(dst, S(OpSvUplink), B(true), N(u.X), N(u.Y))
+}
+
+func ParseSvUplinkCamera(m []Value) (SvUplinkCamera, error) {
+	var u SvUplinkCamera
+	c := cursor{m: m}
+	if _, err := c.next(); err != nil { // the true flag
+		return u, err
+	}
+	var err error
+	if u.X, err = c.num(); err != nil {
+		return u, err
+	}
+	u.Y, err = c.num()
+	return u, err
+}
+
+// SvUplink is the full form of `u`, the per-frame world update
+// (sockets.js:1646). The GUI block must immediately precede the entity count:
+// the client slices from index 7 and hands the remainder to convert.gui() and
+// then convert.data() with nothing between them (socketinit.js:979-1001).
+type SvUplink struct {
+	LastCycle float64
+	X, Y      float64
+	FOV       float64
+	VX, VY    float64
+	Scoping   bool
+	GUI       GUIBlock
+	Entities  []Photo
+}
+
+// AppendHead writes everything up to and including the GUI block, stopping
+// before the entity count. The real server caches one flattened []Value per
+// entity (sockets.js:1611) and concatenates those; a caller doing the same
+// appends the count and its cached blocks after this, instead of filling
+// Entities and calling Append.
+func (u *SvUplink) AppendHead(dst []Value) []Value {
+	dst = append(dst, S(OpSvUplink), N(u.LastCycle), N(u.X), N(u.Y),
+		N(u.FOV), N(u.VX), N(u.VY), B(u.Scoping))
+	return u.GUI.Append(dst)
+}
+
+func (u *SvUplink) Append(dst []Value) []Value {
+	dst = u.AppendHead(dst)
+	dst = append(dst, N(len(u.Entities)))
+	for i := range u.Entities {
+		dst = u.Entities[i].Append(dst)
+	}
+	return dst
+}
+
+func ParseSvUplink(m []Value) (SvUplink, error) {
+	var u SvUplink
+	c := cursor{m: m}
+	var err error
+	if u.LastCycle, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.X, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.Y, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.FOV, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.VX, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.VY, err = c.num(); err != nil {
+		return u, err
+	}
+	if u.Scoping, err = c.boolean(); err != nil {
+		return u, err
+	}
+	if u.GUI, err = parseGUIBlock(&c); err != nil {
+		return u, err
+	}
+	count, err := c.num()
+	if err != nil {
+		return u, err
+	}
+	if n := int(count); n > 0 {
+		u.Entities = make([]Photo, 0, n)
+		for i := 0; i < n; i++ {
+			p, err := parsePhoto(&c)
+			if err != nil {
+				return u, err
+			}
+			u.Entities = append(u.Entities, p)
+		}
+	}
+	return u, nil
+}
+
+// SvBroadcast is `b`, three concatenated delta blocks with no separators
+// (sockets.js:1981 reset, :1989 incremental): minimap (5 fields), the team or
+// all-teams minimap (3), and the leaderboard (8 on the wire, 7 compared).
+//
+// A nil Team emits the literal [0, 0] the JS falls back to (sockets.js:1984).
+// That is byte-identical to an empty delta block, so nothing is lost either
+// way; in the JS the fallback is in fact unreachable, because minimapTeamUpdates
+// is assigned for every subscriber before the branch runs (sockets.js:1955).
+//
+// ANSWER, open question 5. socket.anon, which would replace the leaderboard
+// block with [0, 0] (sockets.js:1985, :1993), is dead: it is read at those two
+// sites and assigned nowhere in js-src, and there is no dynamic socket property
+// write anywhere in the tree for it to hide behind. Not ported.
+type SvBroadcast struct {
+	Minimap     *Delta
+	Team        *Delta
+	Leaderboard *Delta
+	Reset       bool
+}
+
+func (b *SvBroadcast) Append(dst []Value) []Value {
+	dst = append(dst, S(OpSvBroadcast))
+	appendBlock := func(dst []Value, d *Delta) []Value {
+		if d == nil {
+			return append(dst, N(0), N(0))
+		}
+		if b.Reset {
+			return d.AppendReset(dst)
+		}
+		return d.AppendUpdate(dst)
+	}
+	dst = appendBlock(dst, b.Minimap)
+	dst = appendBlock(dst, b.Team)
+	return appendBlock(dst, b.Leaderboard)
+}
+
+// SvBroadcastRows is the decoded form of `b` (sockets.js:1981). It is the three
+// blocks as rows, which is all the wire carries: the incremental and reset
+// forms are the same shape, so a decoder cannot tell them apart either.
+type SvBroadcastRows struct {
+	MinimapDeletes     []float64
+	MinimapUpdates     []DeltaRow
+	TeamDeletes        []float64
+	TeamUpdates        []DeltaRow
+	LeaderboardDeletes []float64
+	LeaderboardUpdates []DeltaRow
+}
+
+// Field counts per block (sockets.js:1797, :1822, :1852 and socketinit.js:284).
+const (
+	MinimapFields     = 5
+	MinimapTeamFields = 3
+	LeaderboardFields = 8
+)
+
+func ParseSvBroadcast(m []Value) (SvBroadcastRows, error) {
+	var b SvBroadcastRows
+	c := cursor{m: m}
+	var err error
+	if b.MinimapDeletes, b.MinimapUpdates, err = parseDeltaBlock(&c, MinimapFields); err != nil {
+		return b, err
+	}
+	if b.TeamDeletes, b.TeamUpdates, err = parseDeltaBlock(&c, MinimapTeamFields); err != nil {
+		return b, err
+	}
+	b.LeaderboardDeletes, b.LeaderboardUpdates, err = parseDeltaBlock(&c, LeaderboardFields)
+	return b, err
+}
+
+// parseDeltaBlock is Integrate.update (socketinit.js:131). fields is how many
+// the client slices per row, which for the leaderboard is 8 even though the
+// server compares 7.
+func parseDeltaBlock(c *cursor, fields int) ([]float64, []DeltaRow, error) {
+	nDel, err := c.num()
+	if err != nil {
+		return nil, nil, err
+	}
+	var deletes []float64
+	if n := int(nDel); n > 0 {
+		deletes = make([]float64, 0, n)
+		for i := 0; i < n; i++ {
+			id, err := c.num()
+			if err != nil {
+				return nil, nil, err
+			}
+			deletes = append(deletes, id)
+		}
+	}
+	nUpd, err := c.num()
+	if err != nil {
+		return nil, nil, err
+	}
+	var updates []DeltaRow
+	if n := int(nUpd); n > 0 {
+		updates = make([]DeltaRow, 0, n)
+		for i := 0; i < n; i++ {
+			id, err := c.num()
+			if err != nil {
+				return nil, nil, err
+			}
+			if c.i+fields > len(c.m) {
+				return nil, nil, ErrShortFrame
+			}
+			row := make([]Value, fields)
+			copy(row, c.m[c.i:c.i+fields])
+			c.i += fields
+			updates = append(updates, DeltaRow{ID: id, Data: row})
+		}
+	}
+	return deletes, updates, nil
+}
+
+// SvResetMinimap is `RM` (sockets.js:1980, :1997). No payload.
+type SvResetMinimap struct{}
+
+func (SvResetMinimap) Append(dst []Value) []Value { return append(dst, S(OpSvResetMinimap)) }
+
+func ParseSvResetMinimap(m []Value) (SvResetMinimap, error) { return SvResetMinimap{}, nil }
+
+// SvResetLeaderboard is `RL` (sockets.js:1998). No payload.
+type SvResetLeaderboard struct{}
+
+func (SvResetLeaderboard) Append(dst []Value) []Value { return append(dst, S(OpSvResetLeaderboard)) }
+
+func ParseSvResetLeaderboard(m []Value) (SvResetLeaderboard, error) {
+	return SvResetLeaderboard{}, nil
+}
+
+// SvMockup is `M`, one tank definition's render data (sockets.js:1444 and
+// :2222). See MockupIndex for why field 0 is a union. The client drops the
+// frame if field 1 is falsy (socketinit.js:956).
+type SvMockup struct {
+	Index      MockupIndex
+	MockupJSON string
+}
+
+func (m *SvMockup) Append(dst []Value) []Value {
+	return append(dst, S(OpSvMockup), m.Index.value(), S(m.MockupJSON))
+}
+
+func ParseSvMockup(m []Value) (SvMockup, error) {
+	var out SvMockup
+	c := cursor{m: m}
+	v, err := c.next()
+	if err != nil {
+		return out, err
+	}
+	out.Index = valueToMockupIndex(v)
+	out.MockupJSON, err = c.str()
+	return out, err
+}
+
+// SvDeath is `F` (sockets.js:1523), whose payload is player.records()
+// (sockets.js:1252). Killers are entity indices, already strings
+// (entity.js:1138, :196).
+type SvDeath struct {
+	Score        float64
+	Lifetime     float64 // whole seconds, Math.floor
+	RespawnDelay float64
+	Solo         float64
+	Assists      float64
+	Bosses       float64
+	Polygons     float64
+	Killers      []string
+}
+
+func (d *SvDeath) Append(dst []Value) []Value {
+	dst = append(dst, S(OpSvDeath), N(d.Score), N(d.Lifetime), N(d.RespawnDelay),
+		N(d.Solo), N(d.Assists), N(d.Bosses), N(d.Polygons), N(len(d.Killers)))
+	for _, k := range d.Killers {
+		dst = append(dst, S(k))
+	}
+	return dst
+}
+
+func ParseSvDeath(m []Value) (SvDeath, error) {
+	var d SvDeath
+	c := cursor{m: m}
+	var err error
+	if d.Score, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.Lifetime, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.RespawnDelay, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.Solo, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.Assists, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.Bosses, err = c.num(); err != nil {
+		return d, err
+	}
+	if d.Polygons, err = c.num(); err != nil {
+		return d, err
+	}
+	n, err := c.num()
+	if err != nil {
+		return d, err
+	}
+	if k := int(n); k > 0 {
+		d.Killers = make([]string, 0, k)
+		for i := 0; i < k; i++ {
+			s, err := c.str()
+			if err != nil {
+				return d, err
+			}
+			d.Killers = append(d.Killers, s)
+		}
+	}
+	return d, nil
+}
+
+// SvPopup is `m`, a transient on-screen message (sockets.js:28, :264;
+// entity.js:151 and most addon sites). The client swaps the order:
+// createMessage(m[1], m[0]) (socketinit.js:943).
+type SvPopup struct {
+	Duration float64
+	Text     string
+}
+
+func (p *SvPopup) Append(dst []Value) []Value {
+	return append(dst, S(OpSvPopup), N(p.Duration), S(p.Text))
+}
+
+func ParseSvPopup(m []Value) (SvPopup, error) {
+	var p SvPopup
+	c := cursor{m: m}
+	var err error
+	if p.Duration, err = c.num(); err != nil {
+		return p, err
+	}
+	p.Text, err = c.str()
+	return p, err
+}
+
+// SvPopupLines is `Em`, the multi-line popup (chatCommands.js:26, :39, :89,
+// :207; keyCommands.js:86, :532, :646, :720). Same shape as `m` but the text is
+// JSON.stringify of an array of lines.
+type SvPopupLines struct {
+	Duration  float64
+	LinesJSON string
+}
+
+func (p *SvPopupLines) Append(dst []Value) []Value {
+	return append(dst, S(OpSvPopupLines), N(p.Duration), S(p.LinesJSON))
+}
+
+func ParseSvPopupLines(m []Value) (SvPopupLines, error) {
+	var p SvPopupLines
+	c := cursor{m: m}
+	var err error
+	if p.Duration, err = c.num(); err != nil {
+		return p, err
+	}
+	p.LinesJSON, err = c.str()
+	return p, err
+}
+
+// SvScreenMessage is `message`, the blocking full-screen text
+// (sockets.js:227, :231, :262).
+type SvScreenMessage struct{ Text string }
+
+func (s *SvScreenMessage) Append(dst []Value) []Value {
+	return append(dst, S(OpSvScreenMessage), S(s.Text))
+}
+
+func ParseSvScreenMessage(m []Value) (SvScreenMessage, error) {
+	var s SvScreenMessage
+	c := cursor{m: m}
+	var err error
+	s.Text, err = c.str()
+	return s, err
+}
+
+// SvSync is `S`, the clock-sync bounce (sockets.js:328): the client's own
+// timestamp echoed back, then util.time().
+type SvSync struct {
+	ClientTime float64
+	ServerTime float64
+}
+
+func (s *SvSync) Append(dst []Value) []Value {
+	return append(dst, S(OpSvSync), N(s.ClientTime), N(s.ServerTime))
+}
+
+func ParseSvSync(m []Value) (SvSync, error) {
+	var s SvSync
+	c := cursor{m: m}
+	var err error
+	if s.ClientTime, err = c.num(); err != nil {
+		return s, err
+	}
+	s.ServerTime, err = c.num()
+	return s, err
+}
+
+// SvPong is `p` (sockets.js:337). The payload is ping.toFixed(1), a string, so
+// the wire tag is 0b1010 and not a number tag; the client subtracts it and
+// relies on coercion (socketinit.js:1047). ping is whatever the client sent, so
+// the rounding is attacker-reachable and has to be the spec's — see jsToFixed1.
+type SvPong struct{ Ping float64 }
+
+func (p *SvPong) Append(dst []Value) []Value {
+	return append(dst, S(OpSvPong), S(jsToFixed1(p.Ping)))
+}
+
+func ParseSvPong(m []Value) (SvPong, error) {
+	var p SvPong
+	c := cursor{m: m}
+	s, err := c.str()
+	if err != nil {
+		return p, err
+	}
+	p.Ping, err = strconv.ParseFloat(strings.TrimSpace(s), 64)
+	return p, err
+}
+
+// SvTankTree is `T`, the acknowledgement that the tank-tree mockups have been
+// pushed (sockets.js:694). No payload.
+type SvTankTree struct{}
+
+func (SvTankTree) Append(dst []Value) []Value { return append(dst, S(OpSvTankTree)) }
+
+func ParseSvTankTree(m []Value) (SvTankTree, error) { return SvTankTree{}, nil }
+
+// SvNameColor is `z` (sockets.js:1170), an HTML colour like "#ff0000".
+type SvNameColor struct{ Color string }
+
+func (z *SvNameColor) Append(dst []Value) []Value {
+	return append(dst, S(OpSvNameColor), S(z.Color))
+}
+
+func ParseSvNameColor(m []Value) (SvNameColor, error) {
+	var z SvNameColor
+	c := cursor{m: m}
+	var err error
+	z.Color, err = c.str()
+	return z, err
+}
+
+// SvTransfer is `t`, the instruction to reconnect elsewhere (sockets.js:2041).
+// Host has had its scheme stripped; ID is the 8 hex characters minted at
+// sockets.js:2025.
+type SvTransfer struct {
+	Host string
+	ID   string
+}
+
+func (t *SvTransfer) Append(dst []Value) []Value {
+	return append(dst, S(OpSvTransfer), S(t.Host), S(t.ID))
+}
+
+func ParseSvTransfer(m []Value) (SvTransfer, error) {
+	var t SvTransfer
+	c := cursor{m: m}
+	var err error
+	if t.Host, err = c.str(); err != nil {
+		return t, err
+	}
+	t.ID, err = c.str()
+	return t, err
+}
+
+// SvKick is `K`, sent through lastWords (sockets.js:53, :79, :2005), which
+// terminates the socket immediately after the send (sockets.js:2070). No
+// payload; the client's handler is empty (socketinit.js:1221).
+type SvKick struct{}
+
+func (SvKick) Append(dst []Value) []Value { return append(dst, S(OpSvKick)) }
+
+func ParseSvKick(m []Value) (SvKick, error) { return SvKick{}, nil }
+
+// SvTemporaryBan is `temporaryban` (sockets.js:236). No payload; the kick
+// follows so the client has time to render the reason.
+type SvTemporaryBan struct{}
+
+func (SvTemporaryBan) Append(dst []Value) []Value { return append(dst, S(OpSvTemporaryBan)) }
+
+func ParseSvTemporaryBan(m []Value) (SvTemporaryBan, error) { return SvTemporaryBan{}, nil }
+
+// SvPermanentBan is `permanentban` (sockets.js:244, :2197). No payload.
+type SvPermanentBan struct{}
+
+func (SvPermanentBan) Append(dst []Value) []Value { return append(dst, S(OpSvPermanentBan)) }
+
+func ParseSvPermanentBan(m []Value) (SvPermanentBan, error) { return SvPermanentBan{}, nil }
+
+// SvChat is `CHAT_MESSAGE_ENTITY` (sockets.js:123, :124), one JSON array of
+// [{id, messages:[{text, id}]}]. With status.disablechat set the server still
+// sends the entity ids, with empty message arrays.
+type SvChat struct{ EntitiesJSON string }
+
+func (s *SvChat) Append(dst []Value) []Value {
+	return append(dst, S(OpSvChat), S(s.EntitiesJSON))
+}
+
+func ParseSvChat(m []Value) (SvChat, error) {
+	var s SvChat
+	c := cursor{m: m}
+	var err error
+	s.EntitiesJSON, err = c.str()
+	return s, err
+}
+
+// SvDailyTankAd is `DTA` (sockets.js:701): JSON {src, normalAdSize, waitTime},
+// where waitTime is a number for an image and the literal string "isVideo"
+// otherwise.
+type SvDailyTankAd struct{ AdJSON string }
+
+func (a *SvDailyTankAd) Append(dst []Value) []Value {
+	return append(dst, S(OpSvDailyTankAd), S(a.AdJSON))
+}
+
+func ParseSvDailyTankAd(m []Value) (SvDailyTankAd, error) {
+	var a SvDailyTankAd
+	c := cursor{m: m}
+	var err error
+	a.AdJSON, err = c.str()
+	return a, err
+}
+
+// SvDailyTankAdDone is `DTAD` (sockets.js:715). No payload.
+type SvDailyTankAdDone struct{}
+
+func (SvDailyTankAdDone) Append(dst []Value) []Value { return append(dst, S(OpSvDailyTankAdDone)) }
+
+func ParseSvDailyTankAdDone(m []Value) (SvDailyTankAdDone, error) { return SvDailyTankAdDone{}, nil }
+
+// SvDailyTankAdStart is `DTAST` (sockets.js:721). No payload.
+type SvDailyTankAdStart struct{}
+
+func (SvDailyTankAdStart) Append(dst []Value) []Value { return append(dst, S(OpSvDailyTankAdStart)) }
+
+func ParseSvDailyTankAdStart(m []Value) (SvDailyTankAdStart, error) {
+	return SvDailyTankAdStart{}, nil
+}
+
+// SvResetEntities is `RE` (chatCommands.js:301, editor.js:150), which clears
+// the client's mockup and entity caches before a definition reload. No payload.
+type SvResetEntities struct{}
+
+func (SvResetEntities) Append(dst []Value) []Value { return append(dst, S(OpSvResetEntities)) }
+
+func ParseSvResetEntities(m []Value) (SvResetEntities, error) { return SvResetEntities{}, nil }
+
+// SvClearCache is `CC` (chatCommands.js:307, editor.js:156). No payload.
+type SvClearCache struct{}
+
+func (SvClearCache) Append(dst []Value) []Value { return append(dst, S(OpSvClearCache)) }
+
+func ParseSvClearCache(m []Value) (SvClearCache, error) { return SvClearCache{}, nil }
+
+// SvScreenShake is `SH` (entity.js:524, :907; gun.js:403): one JSON object
+// {type, duration, amount, keepShake, push, applyOn:{upgrade, shoot}} built at
+// entity.js:497.
+type SvScreenShake struct{ ShakeJSON string }
+
+func (s *SvScreenShake) Append(dst []Value) []Value {
+	return append(dst, S(OpSvScreenShake), S(s.ShakeJSON))
+}
+
+func ParseSvScreenShake(m []Value) (SvScreenShake, error) {
+	var s SvScreenShake
+	c := cursor{m: m}
+	var err error
+	s.ShakeJSON, err = c.str()
+	return s, err
+}
+
+// SvServerInfo is `svInfo`, the debug stats line (speedLoop.js:24). MSPT
+// reaches the wire as toFixed(1), a string.
+type SvServerInfo struct {
+	Gamemode string
+	MSPT     float64
+}
+
+func (s *SvServerInfo) Append(dst []Value) []Value {
+	return append(dst, S(OpSvServerInfo), S(s.Gamemode), S(jsToFixed1(s.MSPT)))
+}
+
+func ParseSvServerInfo(m []Value) (SvServerInfo, error) {
+	var s SvServerInfo
+	c := cursor{m: m}
+	var err error
+	if s.Gamemode, err = c.str(); err != nil {
+		return s, err
+	}
+	mspt, err := c.str()
+	if err != nil {
+		return s, err
+	}
+	s.MSPT, err = strconv.ParseFloat(strings.TrimSpace(mspt), 64)
+	return s, err
+}
+
+// ---------------------------------------------------------------------------
+// Server -> client, decode only
+//
+// The client parses these four but no server code sends them — verified by
+// grepping talk( across js-src/server and js-src/index.js
+// (docs/protocol.md section 2.5). They are given parsers and no Append: a Go
+// server has nothing to send them from, and inventing a sender would put a
+// frame on the wire that the Node server never produces. The parsers cost
+// nothing and let a Go test client or the differential harness read a capture
+// that contains one.
+// ---------------------------------------------------------------------------
+
+// SvGlobalServerInfo is `gSvInfo` (socketinit.js:883). The client reads only
+// m[1], the player count; m[0] is unread, so its type is unknowable from here.
+type SvGlobalServerInfo struct{ Players float64 }
+
+func ParseSvGlobalServerInfo(m []Value) (SvGlobalServerInfo, error) {
+	var s SvGlobalServerInfo
+	if len(m) < 2 {
+		return s, ErrShortFrame
+	}
+	s.Players = m[1].Num
+	return s, nil
+}
+
+// SvSyncWithTank is `I` (socketinit.js:1087), which toggles the client's
+// syncingWithTank flag on the truthiness of m[0].
+type SvSyncWithTank struct{ Syncing bool }
+
+func ParseSvSyncWithTank(m []Value) (SvSyncWithTank, error) {
+	var s SvSyncWithTank
+	if len(m) < 1 {
+		return s, ErrShortFrame
+	}
+	s.Syncing = truthy(m[0])
+	return s, nil
+}
+
+// SvActivateSmoothCamera is `AS` (socketinit.js:1237). No payload.
+type SvActivateSmoothCamera struct{}
+
+func ParseSvActivateSmoothCamera(m []Value) (SvActivateSmoothCamera, error) {
+	return SvActivateSmoothCamera{}, nil
+}
+
+// SvDeactivateSmoothCamera is `DS` (socketinit.js:1241). No payload.
+type SvDeactivateSmoothCamera struct{}
+
+func ParseSvDeactivateSmoothCamera(m []Value) (SvDeactivateSmoothCamera, error) {
+	return SvDeactivateSmoothCamera{}, nil
+}
+
+// ---------------------------------------------------------------------------
+// Client -> server
+//
+// Parse reproduces the handler's validation, including the exact kick reason,
+// so the Go server refuses the same frames Node refuses. Checks that need
+// socket status or Config — the duplicate-spawn guard (sockets.js:204), the
+// arena-closed branch (:260), the daily-tank config gate (:697) — belong to the
+// socket layer and are named in each type's comment rather than done here.
+// ---------------------------------------------------------------------------
+
+// ClKey is `k`, the permission key (sockets.js:202). Zero or one element; the
+// server answers `w` before it even looks at the key.
+//
+// The socket layer still has to reject a second `k` on a verified socket with
+// "Duplicate player spawn attempt." (sockets.js:204).
+type ClKey struct {
+	HasKey bool
+	Key    string
+}
+
+func (k *ClKey) Append(dst []Value) []Value {
+	dst = append(dst, S(OpClKey))
+	if k.HasKey {
+		dst = append(dst, S(k.Key))
+	}
+	return dst
+}
+
+func ParseClKey(m []Value) (ClKey, error) {
+	var k ClKey
+	if len(m) > 1 {
+		return k, kick("Ill-sized key request.")
+	}
+	if len(m) == 1 {
+		// m[0].toString().trim(), with no guard against a non-string
+		// (sockets.js:207).
+		k.HasKey = true
+		k.Key = jsTrim(valueString(m[0]))
+	}
+	return k, nil
+}
+
+// ClSpawn is `s`, both the room request and the spawn request
+// (socketinit.js:845, :938).
+//
+// Two traps. The length check passes at 4 elements but Incognito is m[4], so a
+// 4-element frame is kicked by the incognito type check instead — and
+// canvas.js:1074 sends only 3, which the length check catches (edge case 24).
+// TransferBodyID is checked only when truthy, so the literal false the client
+// sends for "no transfer" arrives as the number 0 and passes (edge case 25).
+//
+// Name still has to have Config.banned_characters stripped by the caller
+// (sockets.js:277); that is config, not protocol.
+type ClSpawn struct {
+	Name           string
+	NeedsRoom      float64
+	AutoLevelUp    float64
+	TransferBodyID OptString
+	Incognito      float64
+}
+
+func (s *ClSpawn) Append(dst []Value) []Value {
+	return append(dst, S(OpClSpawn), S(s.Name), N(s.NeedsRoom), N(s.AutoLevelUp),
+		s.TransferBodyID.value(), N(s.Incognito))
+}
+
+func ParseClSpawn(m []Value) (ClSpawn, error) {
+	var s ClSpawn
+	if len(m) < 4 {
+		return s, kick("Ill-sized spawn request.")
+	}
+	if m[0].Kind != KindString {
+		return s, kick("Bad spawn request. (name)")
+	}
+	s.Name = m[0].Str
+	if nameTokens(s.Name) > 48 {
+		return s, kick("Shorten your name!")
+	}
+	if m[1].Kind != KindNumber {
+		return s, kick("Bad spawn request. (needsRoom)")
+	}
+	if m[2].Kind != KindNumber {
+		return s, kick("Bad spawn request. (autoLVLup)")
+	}
+	if len(m) < 5 || m[4].Kind != KindNumber {
+		return s, kick("Bad spawn request. (incognito)")
+	}
+	s.NeedsRoom, s.AutoLevelUp, s.Incognito = m[1].Num, m[2].Num, m[4].Num
+
+	if truthy(m[3]) {
+		if m[3].Kind != KindString {
+			return s, kick("Bad body transfer. (transferbodyID)")
+		}
+		// replace() takes the first occurrence only (sockets.js:274).
+		s.TransferBodyID = SomeString(strings.Replace(m[3].Str, s.Name, "", 1))
+	}
+	return s, nil
+}
+
+// ClSync is `S`, a clock-sync request carrying the client's clock
+// (socketinit.js:862, :908, :1368). The resync at :1368 sends Date.now(), a
+// value past 2^32, so it is float32-quantised with a 131072 ms ulp.
+type ClSync struct{ Time float64 }
+
+func (s *ClSync) Append(dst []Value) []Value { return append(dst, S(OpClSync), N(s.Time)) }
+
+func ParseClSync(m []Value) (ClSync, error) {
+	var s ClSync
+	if len(m) != 1 {
+		return s, kick("Ill-sized sync packet.")
+	}
+	if m[0].Kind != KindNumber {
+		return s, kick("Weird sync packet.")
+	}
+	s.Time = m[0].Num
+	return s, nil
+}
+
+// ClPing is `p` (socketinit.js:834, :1331). The server bounces it back as
+// SvPong.
+type ClPing struct{ Payload float64 }
+
+func (p *ClPing) Append(dst []Value) []Value { return append(dst, S(OpClPing), N(p.Payload)) }
+
+func ParseClPing(m []Value) (ClPing, error) {
+	var p ClPing
+	if len(m) != 1 {
+		return p, kick("Ill-sized ping.")
+	}
+	if m[0].Kind != KindNumber {
+		return p, kick("Weird ping.")
+	}
+	p.Payload = m[0].Num
+	return p, nil
+}
+
+// ClDownlink is `d` (socketinit.js:1031), the acknowledgement that clears
+// status.receiving so the next uplink may be sent.
+type ClDownlink struct{ Time float64 }
+
+func (d *ClDownlink) Append(dst []Value) []Value { return append(dst, S(OpClDownlink), N(d.Time)) }
+
+func ParseClDownlink(m []Value) (ClDownlink, error) {
+	var d ClDownlink
+	if len(m) != 1 {
+		return d, kick("Ill-sized downlink.")
+	}
+	if m[0].Kind != KindNumber {
+		return d, kick("Bad downlink.")
+	}
+	d.Time = m[0].Num
+	return d, nil
+}
+
+// Command bits, from socketinit.js:1300 and sockets.js:391. Bit 7 is unused.
+const (
+	CommandUp    = 1 << 0
+	CommandDown  = 1 << 1
+	CommandLeft  = 1 << 2
+	CommandRight = 1 << 3
+	CommandLMB   = 1 << 4
+	CommandMMB   = 1 << 5
+	CommandRMB   = 1 << 6
+)
+
+// ClCommand is `C`, the movement and mouse packet (socketinit.js:1305).
+//
+// ReverseTank is not type-checked by the handler, so it can arrive as a string.
+// TargetX and TargetY can be NaN — the client computes Math.round(x / ratio)
+// and a zero ratio yields NaN, which passes typeof and is written straight into
+// player.target (edge case 27).
+type ClCommand struct {
+	TargetX, TargetY float64
+	ReverseTank      Value
+	Commands         float64
+}
+
+func (c *ClCommand) Append(dst []Value) []Value {
+	return append(dst, S(OpClCommand), N(c.TargetX), N(c.TargetY), c.ReverseTank, N(c.Commands))
+}
+
+func ParseClCommand(m []Value) (ClCommand, error) {
+	var c ClCommand
+	if len(m) != 4 {
+		return c, kick("Ill-sized command packet.")
+	}
+	if m[0].Kind != KindNumber || m[1].Kind != KindNumber || m[3].Kind != KindNumber {
+		return c, kick("Weird downlink.")
+	}
+	if m[3].Num > 255 {
+		return c, kick("Malformed command packet.")
+	}
+	c.TargetX, c.TargetY, c.ReverseTank, c.Commands = m[0].Num, m[1].Num, m[2], m[3].Num
+	return c, nil
+}
+
+// ClKeys is `#`, the key state (canvas.js:159, :255, :417, :837). A release is
+// the key name prefixed with "-" (canvas.js:414). The handler validates
+// nothing; it wraps runKeyCommand in try/catch (sockets.js:401), and an empty
+// list is treated as ["default"] downstream (keyCommands.js:986).
+type ClKeys struct{ Keys []string }
+
+func (k *ClKeys) Append(dst []Value) []Value {
+	dst = append(dst, S(OpClKeys))
+	for _, s := range k.Keys {
+		dst = append(dst, S(s))
+	}
+	return dst
+}
+
+func ParseClKeys(m []Value) (ClKeys, error) {
+	var k ClKeys
+	if len(m) == 0 {
+		return k, nil
+	}
+	k.Keys = make([]string, 0, len(m))
+	for _, v := range m {
+		k.Keys = append(k.Keys, valueString(v))
+	}
+	return k, nil
+}
+
+// Toggle indices, from the list at sockets.js:422.
+const (
+	ToggleAutospin = 0
+	ToggleAutofire = 1
+	ToggleOverride = 2
+	ToggleAutoalt  = 3
+)
+
+// ClToggle is `t` (canvas.js:261, :814, :1052). Index must land in the
+// four-name list; a fractional index misses it and is kicked.
+type ClToggle struct {
+	Index       float64
+	SendMessage Value // not type-checked by the handler (sockets.js:420)
+}
+
+func (t *ClToggle) Append(dst []Value) []Value {
+	return append(dst, S(OpClToggle), N(t.Index), t.SendMessage)
+}
+
+func ParseClToggle(m []Value) (ClToggle, error) {
+	var t ClToggle
+	if len(m) != 2 {
+		return t, kick("Ill-sized toggle.")
+	}
+	if m[0].Kind != KindNumber {
+		return t, kick("Weird toggle.")
+	}
+	if m[0].Num != math.Trunc(m[0].Num) || m[0].Num < 0 || m[0].Num > 3 {
+		return t, kick("Bad toggle.")
+	}
+	t.Index, t.SendMessage = m[0].Num, m[1]
+	return t, nil
+}
+
+// ClUpgrade is `U` (canvas.js:326, :598, :600, :862). The pair (0, -1) is the
+// daily-tank request and skips every other check (sockets.js:450); the caller
+// must still kick it when Config.daily_tank is unset.
+//
+// A NaN branch id reaches the typeof check as a number, so only the isFinite
+// test catches it (edge case 26).
+type ClUpgrade struct {
+	Upgrade   float64
+	BranchID  float64
+	DailyTank bool
+}
+
+func (u *ClUpgrade) Append(dst []Value) []Value {
+	if u.DailyTank {
+		return append(dst, S(OpClUpgrade), N(0), N(-1))
+	}
+	return append(dst, S(OpClUpgrade), N(u.Upgrade), N(u.BranchID))
+}
+
+func ParseClUpgrade(m []Value) (ClUpgrade, error) {
+	var u ClUpgrade
+	if len(m) != 2 {
+		return u, kick("Ill-sized upgrade request.")
+	}
+	if m[0].Kind == KindNumber && m[0].Num == 0 && m[1].Kind == KindNumber && m[1].Num == -1 {
+		return ClUpgrade{Upgrade: 0, BranchID: -1, DailyTank: true}, nil
+	}
+	if m[0].Kind != KindNumber || m[0].Num < 0 ||
+		m[1].Kind != KindNumber || math.IsNaN(m[1].Num) || math.IsInf(m[1].Num, 0) || m[1].Num < 0 {
+		return u, kick("Bad upgrade request.")
+	}
+	u.Upgrade, u.BranchID = m[0].Num, m[1].Num
+	return u, nil
+}
+
+// ClStat is `x`, a skill point spend (canvas.js:311, :468, :856). Max must be
+// exactly 0 or 1, and the stat index must land in StatNames — but the handler
+// checks the index last, after both type checks (sockets.js:488).
+type ClStat struct {
+	Index float64
+	Max   float64
+}
+
+func (s *ClStat) Append(dst []Value) []Value {
+	return append(dst, S(OpClStat), N(s.Index), N(s.Max))
+}
+
+func ParseClStat(m []Value) (ClStat, error) {
+	var s ClStat
+	if len(m) != 2 {
+		return s, kick("Ill-sized skill request.")
+	}
+	if m[0].Kind != KindNumber {
+		return s, kick("Weird stat upgrade request number.")
+	}
+	if m[1].Kind != KindNumber {
+		return s, kick("Weird stat upgrade request max boolean.")
+	}
+	if m[1].Num != 0 && m[1].Num != 1 {
+		return s, kick("invalid upgrade request max boolean.")
+	}
+	if m[0].Num != math.Trunc(m[0].Num) || m[0].Num < 0 || m[0].Num > 9 {
+		return s, kick("Unknown stat upgrade request.")
+	}
+	s.Index, s.Max = m[0].Num, m[1].Num
+	return s, nil
+}
+
+// ClLevelUp is `L`, the level-up cheat (canvas.js:240, :831). No payload, and
+// the only opcode that kicks for having one.
+type ClLevelUp struct{}
+
+func (ClLevelUp) Append(dst []Value) []Value { return append(dst, S(OpClLevelUp)) }
+
+func ParseClLevelUp(m []Value) (ClLevelUp, error) {
+	if len(m) != 0 {
+		return ClLevelUp{}, kick("Ill-sized level-up request.")
+	}
+	return ClLevelUp{}, nil
+}
+
+// ClSuicide is `1`, the self-destruct (canvas.js:249, :821). No payload, no
+// validation.
+type ClSuicide struct{}
+
+func (ClSuicide) Append(dst []Value) []Value { return append(dst, S(OpClSuicide)) }
+
+func ParseClSuicide(m []Value) (ClSuicide, error) { return ClSuicide{}, nil }
+
+// ClControl is `H`, the request to take or relinquish control of a dominator,
+// mothership or boss (canvas.js:243, :834, :1065). No payload, no validation.
+type ClControl struct{}
+
+func (ClControl) Append(dst []Value) []Value { return append(dst, S(OpClControl)) }
+
+func ParseClControl(m []Value) (ClControl, error) { return ClControl{}, nil }
+
+// ClChat is `M`, a chat message (canvas.js:23). Must be a string or the socket
+// is kicked. The § doubling at sockets.js:651 is a Config-gated sanitiser and
+// belongs to the caller.
+type ClChat struct{ Text string }
+
+func (c *ClChat) Append(dst []Value) []Value { return append(dst, S(OpClChat), S(c.Text)) }
+
+func ParseClChat(m []Value) (ClChat, error) {
+	var c ClChat
+	if len(m) == 0 || m[0].Kind != KindString {
+		return c, kick("Non-string chat message.")
+	}
+	c.Text = m[0].Str
+	return c, nil
+}
+
+// ClTankTree is `T`, the request for the tank tree's mockups (global.js:451).
+// No payload.
+type ClTankTree struct{}
+
+func (ClTankTree) Append(dst []Value) []Value { return append(dst, S(OpClTankTree)) }
+
+func ParseClTankTree(m []Value) (ClTankTree, error) { return ClTankTree{}, nil }
+
+// ClDailyTankAd is `DTA`, the request for an ad (canvas.js:602). No payload;
+// the caller kicks when Config.daily_tank is unset (sockets.js:697).
+type ClDailyTankAd struct{}
+
+func (ClDailyTankAd) Append(dst []Value) []Value { return append(dst, S(OpClDailyTankAd)) }
+
+func ParseClDailyTankAd(m []Value) (ClDailyTankAd, error) { return ClDailyTankAd{}, nil }
+
+// ClDailyTankAdDone is `DTAD` (canvas.js:604; socketinit.js:1146, :1148). No
+// payload.
+type ClDailyTankAdDone struct{}
+
+func (ClDailyTankAdDone) Append(dst []Value) []Value { return append(dst, S(OpClDailyTankAdDone)) }
+
+func ParseClDailyTankAdDone(m []Value) (ClDailyTankAdDone, error) { return ClDailyTankAdDone{}, nil }
+
+// ClDailyTankAdStart is `DTAST` (socketinit.js:1109), the video's duration.
+//
+// The handler keeps only the integer part, as String(m[0]).split(".")[0] —
+// text, not arithmetic, so a value in exponential form keeps its exponent. Its
+// case has no break, so handling one also sets status.forceNewBroadcast
+// (sockets.js:727 falling into :729); that side effect is the socket layer's to
+// reproduce.
+type ClDailyTankAdStart struct{ Duration float64 }
+
+func (d *ClDailyTankAdStart) Append(dst []Value) []Value {
+	return append(dst, S(OpClDailyTankAdStart), N(d.Duration))
+}
+
+func ParseClDailyTankAdStart(m []Value) (ClDailyTankAdStart, error) {
+	var d ClDailyTankAdStart
+	if len(m) == 0 {
+		return d, ErrShortFrame
+	}
+	d.Duration = m[0].Num
+	return d, nil
+}
+
+// DurationSeconds is what the handler actually uses: the text before the first
+// decimal point (sockets.js:720).
+func (d *ClDailyTankAdStart) DurationSeconds() string {
+	s := jsNumberString(d.Duration)
+	if i := strings.IndexByte(s, '.'); i >= 0 {
+		return s[:i]
+	}
+	return s
+}
+
+// ClNeedsNewBroadcast is `NWB` (socketinit.js:932), which asks for a full
+// minimap and leaderboard reset on the next 250 ms tick. No payload.
+type ClNeedsNewBroadcast struct{}
+
+func (ClNeedsNewBroadcast) Append(dst []Value) []Value {
+	return append(dst, S(OpClNeedsNewBroadcast))
+}
+
+func ParseClNeedsNewBroadcast(m []Value) (ClNeedsNewBroadcast, error) {
+	return ClNeedsNewBroadcast{}, nil
+}
