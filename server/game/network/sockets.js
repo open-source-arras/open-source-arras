@@ -107,13 +107,10 @@ class socketManager {
         // Send chat messages to everyone
         for (let view of global.gameManager.views) {
             let nearby = view.getNearby(),
-                array = [],
-                playerBody = view.socket.player.body;
+                array = [];
 
             for (let entity of nearby.values()) {
-                if (entity.settings.fullyInvisible && !(playerBody && playerBody.settings.canSeeInvisible)) {
-                    continue;
-                }
+                if (entity.settings.fullyInvisible && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) continue;
                 let id = entity.id;
                 if (chats[id]) {
                     array.push({ id: id, messages: [] });
@@ -1618,64 +1615,35 @@ class socketManager {
 
                 // Grab entities that we can see
                 if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval) {
-                    // Update our timer
                     lastVisibleUpdate = camera.lastUpdate;
-                    
-                    // Reuse the nearby array instead of recreating it
                     nearby.clear();
-                    
-                    // Pre-calculate camera bounds for the broad check
                     const camFovBroad = camera.fov * (global.gameManager.arenaClosed ? 1.6 : 1);
                     const camXBound = camFovBroad + 100;
                     const camYBound = camFovBroad * 0.5625 + 100;
-
-                    // Grab the entities near us from the view grid
                     for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
                         nearby.set(entity.id, entity);
                     }
                 }
                 
-                // Reset the nearby for this frame and prepare for detailed visibility check
                 visible.length = 0;
                 
-                // Pre-calculate constants for the detailed visibility check
                 const camX = camera.x, camY = camera.y, camFov = camera.fov;
-                const limitDistance = 1.5;  // Recommended value is 2
+                const limitDistance = 1.5;
                 const fovDiv = camFov / limitDistance;
                 const fovDivY = fovDiv * (9 / 13);
-                
-                // Prepare a batch of mockups to send
                 const mockupsToSend = new Set();
-                
-                // Check each nearby entity for detailed visibility
+
                 for (const entity of nearby.values()) {
-
-                    // Skip fully invisible entities unless the viewer can see them
-                    if (entity.settings.fullyInvisible && !(player.body && player.body.settings.canSeeInvisible)) {
-                        continue;
-                    }
-
-                    // Detailed visibility check
-                    if (entity.photo && 
+                    if (entity.settings.fullyInvisible && !(player.body && player.body.settings.canSeeInvisible)) continue;
+                    if (entity.photo &&
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
                         Math.abs(entity.y - camY) < fovDivY + 1.5 * entity.size
                     ) {
-                        // Add mockup to batch if needed
-                        if (!Config.load_all_mockups && entity.index) {
-                            mockupsToSend.add(entity.index);
-                        }
-                
-                        // Lazily initialize flattened photo
-                        if (!entity.flattenedPhoto) {
-                            entity.flattenedPhoto = this.flatten(entity.photo);
-                        }
-                        
-                        // Add to visible entities
+                        if (!Config.load_all_mockups && entity.index) mockupsToSend.add(entity.index);
+                        if (!entity.flattenedPhoto) entity.flattenedPhoto = this.flatten(entity.photo);
                         visible.push(this.perspective(entity, player, entity.flattenedPhoto));
                     }
                 }
-                
-                // Send mockups as a batch if needed
                 if (!Config.load_all_mockups && mockupsToSend.size > 0) {
                     for (const index of mockupsToSend) {
                         this.sendMockup(index, socket);
