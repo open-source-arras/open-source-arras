@@ -82,7 +82,7 @@ let commands = [
                     `- ${prefix} arena size dynamic - Make the size of the arena dynamic, depending on the number of players`,
                     `- ${prefix} arena size <width> <height> - Set the size of the arena`,
                     `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
-                    `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn by default`,
+                    `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn on default`,
                     `- ${prefix} arena close - Close the arena`
                 ];
                 if (!Config.sandbox) lines.splice(1, 1)
@@ -117,18 +117,12 @@ let commands = [
                         }
                         break;
                     case "spawnpoint":
-                        if (!args[1]) {
-                            global.spawnPoint = undefined;
-                            socket.talk("m", 4_000, "Spawnpoint removed.");
-                        } else if (!args[2]) {
-                            return socket.talk("m", 3_000, "Invalid arguments.");
-                        } else {
-                            global.spawnPoint = {
-                                x: parseInt(args[1] * 30),
-                                y: parseInt(args[2] * 30)
-                            };
-                            socket.talk("m", 4_000, "Spawnpoint set.");
-                        }
+                        if (!args[1] || !args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
+                        socket.talk("m", 4_000, "Spawnpoint set.");
+                        global.spawnPoint = {
+                            x: parseInt(args[1] * 30),
+                            y: parseInt(args[2] * 30)
+                        };
                         break;
                     case "close":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);

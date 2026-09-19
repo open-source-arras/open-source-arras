@@ -132,13 +132,9 @@ class Canvas {
     }
 
     respawn() {
-        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
+        if (global.died && !global.cannotRespawn) {
             this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, false, 1 * config.game.incognitoMode);
             global.died = false;
-            if (config.game.instantRespawn) {
-                global.cannotRespawn = false;
-                global.respawnTimeout = false;
-            }
         }
     }
 
@@ -216,7 +212,7 @@ class Canvas {
 
             case "Enter":
                 // Enter to respawn
-                if (global.died && global.readyToRespawn && !global.cannotRespawn) {
+                if (global.died && !global.cannotRespawn) {
                     this.respawn();
                     global.selfDestructed = false;
                     global.died = false;
@@ -828,7 +824,7 @@ class Canvas {
     // Touchscreen Controls
     touchStart(e) {
         e.preventDefault();
-        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
+        if (global.died && !global.cannotRespawn) {
             this.respawn();
             global.resetTarget();
         } else {
@@ -1128,7 +1124,7 @@ class Canvas {
                 }
                 // Shoot
                 if (this.gamepad.buttons[7].pressed) {
-        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
+                    if (global.died && !global.cannotRespawn) {
                         this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp);
                         global.died = false;
                     } else {

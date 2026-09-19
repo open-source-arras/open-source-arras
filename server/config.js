@@ -8,7 +8,6 @@ module.exports = {
     port: 3000, // Which port to run the web server on.
 
     // Server
-    broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     startup_logs: true, // Enable detailed startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
@@ -196,7 +195,6 @@ module.exports = {
     run_speed: 1.5, // General multiplier for acceleration and max speeds.
     max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
     respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
-    instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
 
     upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
     upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.

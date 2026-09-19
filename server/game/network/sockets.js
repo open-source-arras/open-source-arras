@@ -107,13 +107,9 @@ class socketManager {
         // Send chat messages to everyone
         for (let view of global.gameManager.views) {
             let nearby = view.getNearby(),
-                array = [],
-                playerBody = view.socket.player.body;
+                array = [];
 
             for (let entity of nearby.values()) {
-                if (entity.settings.fullyInvisible && !(playerBody && playerBody.settings.canSeeInvisible)) {
-                    continue;
-                }
                 let id = entity.id;
                 if (chats[id]) {
                     array.push({ id: id, messages: [] });
@@ -325,8 +321,7 @@ class socketManager {
                             active: Config.blackout,
                             color: Config.blackout_fog
                         }),
-                        Config.round_arena,
-                        Config.instant_respawn
+                        Config.round_arena
                     );
                     return;
                 }
@@ -1530,10 +1525,6 @@ class socketManager {
         };
         let lastVisibleUpdate = 0;
         let nearby = new Map();
-        let visible = [];
-        let view = [];
-        let msg = [];
-        let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
             getNearby: () => nearby,
@@ -1569,10 +1560,9 @@ class socketManager {
                         }
                         let die = () => { // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
-                            let delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
-                            if (delay > 0) {
+                            if (Config.respawn_delay > 0) {
                                 socket.status.readyToSpawn = false;
-                                setTimeout(() => socket.status.readyToSpawn = true, delay);
+                                setTimeout(() => socket.status.readyToSpawn = true, Config.respawn_delay * 1000);
                             }
                             // Leave the clan party if clan wars is active
                             if (Config.clan_wars) Config.clan_wars_ft.remove(player.body);
@@ -1628,15 +1618,19 @@ class socketManager {
                     const camFovBroad = camera.fov * (global.gameManager.arenaClosed ? 1.6 : 1);
                     const camXBound = camFovBroad + 100;
                     const camYBound = camFovBroad * 0.5625 + 100;
-
-                    // Grab the entities near us from the view grid
-                    for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
-                        nearby.set(entity.id, entity);
+                    
+                    // Get nearby entities with single efficient check
+                    for (const entity of entities.values()) { 
+                        // Simplified check that combines both visibility checks
+                        if (Math.abs(entity.x - camera.x) < camXBound + 1.5 * entity.size &&
+                            Math.abs(entity.y - camera.y) < camYBound + 1.5 * entity.size) {
+                            nearby.set(entity.id, entity);
+                        }
                     }
                 }
                 
                 // Reset the nearby for this frame and prepare for detailed visibility check
-                visible.length = 0;
+                let visible = [];
                 
                 // Pre-calculate constants for the detailed visibility check
                 const camX = camera.x, camY = camera.y, camFov = camera.fov;
@@ -1649,12 +1643,7 @@ class socketManager {
                 
                 // Check each nearby entity for detailed visibility
                 for (const entity of nearby.values()) {
-
-                    // Skip fully invisible entities unless the viewer can see them
-                    if (entity.settings.fullyInvisible && !(player.body && player.body.settings.canSeeInvisible)) {
-                        continue;
-                    }
-
+                    
                     // Detailed visibility check
                     if (entity.photo && 
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
@@ -1681,6 +1670,8 @@ class socketManager {
                         this.sendMockup(index, socket);
                     }
                 }
+                // Spread it for upload
+                const view = [].concat(...visible);
                 if (!Config.load_all_mockups) {
                     for (let upgrade of (player.body?.upgrades || [])) {
                         if (player.body.skill.level >= upgrade.level) {
@@ -1695,13 +1686,10 @@ class socketManager {
                         camera.x,
                         camera.y
                     );
-                    lastSentCamX = NaN; // force a full packet next time
-                } else if (
-                    visible.length === 0 &&
-                    camera.x === lastSentCamX && camera.y === lastSentCamY &&
-                    fovNow === lastSentFov && camera.vx === lastSentVx &&
-                    camera.vy === lastSentVy && camera.scoping === lastSentScope
-                ) {
+                } else {
+                    // Update the gui
+                    player.gui.update();
+                    // Send it to the player
                     socket.talk(
                         "u",
                         lastCycle,
@@ -1710,42 +1698,11 @@ class socketManager {
                         fovNow,
                         camera.vx,
                         camera.vy,
-                        camera.scoping
+                        camera.scoping,
+                        ...player.gui.publish(),
+                        visible.length,
+                        ...view
                     );
-                } else {
-                    // Update the gui
-                    player.gui.update();
-                    view.length = 0;
-                    for (let i = 0; i < visible.length; i++) {
-                        let data = visible[i];
-                        for (let j = 0; j < data.length; j++) view.push(data[j]);
-                    }
-                    msg.length = 0;
-                    msg.push(
-                        "u",
-                        lastCycle,
-                        camera.x,
-                        camera.y,
-                        fovNow,
-                        camera.vx,
-                        camera.vy,
-                        camera.scoping
-                    );
-                    const gui = player.gui.publish();
-                    if (gui) {
-                        for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
-                    }
-                    msg.push(visible.length);
-                    for (let i = 0; i < view.length; i++) msg.push(view[i]);
-                    socket.talkArr(msg);
-                }
-                if (!updateCam) {
-                    lastSentCamX = camera.x;
-                    lastSentCamY = camera.y;
-                    lastSentFov = fovNow;
-                    lastSentVx = camera.vx;
-                    lastSentVy = camera.vy;
-                    lastSentScope = camera.scoping;
                 }
                 logs.network.mark();
             }
@@ -1913,7 +1870,7 @@ class socketManager {
         let minimapTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap && !my.settings.fullyInvisible) {
+                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap) {
                     all.push({
                         id: my.id,
                         data: [
@@ -1929,7 +1886,7 @@ class socketManager {
         let minimapAllTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.master === my && !my.lifetime && !my.settings.fullyInvisible) {
+                if (my.type === "tank" && my.master === my && !my.lifetime) {
                     all.push({
                         id: my.id,
                         data: [
@@ -2154,12 +2111,6 @@ class socketManager {
             socket.close();
         };
         socket.talk = (...message) => {
-            if (socket.readyState === socket.OPEN) {
-                socket.send(protocol.encode(message), { binary: true });
-            }
-        };
-        // Same as talk(), but takes an array.
-        socket.talkArr = (message) => {
             if (socket.readyState === socket.OPEN) {
                 socket.send(protocol.encode(message), { binary: true });
             }
