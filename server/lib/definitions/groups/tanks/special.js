@@ -419,7 +419,7 @@ Class.spectator = {
     LABEL: "Spectator",
     ALPHA: 0,
     CAN_BE_ON_LEADERBOARD: false,
-    //CAN_GO_OUTSIDE_ROOM: true,
+    CAN_GO_OUTSIDE_ROOM: true,
     ACCEPTS_SCORE: false,
     DRAW_HEALTH: false,
     HITS_OWN_TYPE: "never",
