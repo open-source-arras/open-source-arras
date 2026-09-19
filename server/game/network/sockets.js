@@ -107,9 +107,13 @@ class socketManager {
         // Send chat messages to everyone
         for (let view of global.gameManager.views) {
             let nearby = view.getNearby(),
-                array = [];
+                array = [],
+                playerBody = view.socket.player.body;
 
             for (let entity of nearby.values()) {
+                if (entity.settings.fullyInvisible && !(playerBody && playerBody.settings.canSeeInvisible)) {
+                    continue;
+                }
                 let id = entity.id;
                 if (chats[id]) {
                     array.push({ id: id, messages: [] });
