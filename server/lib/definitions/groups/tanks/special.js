@@ -466,7 +466,7 @@ Class.spectator = {
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to kill the selected entity.",
+    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
             POSITION: {
@@ -548,7 +548,7 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to ban the selected player.",
+    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
         {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},

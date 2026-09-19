@@ -597,7 +597,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the mothership.");
-                    player.body.sendMessage("Press F to relinquish control of the mothership.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the mothership.`);
                     if (Config.mothership_time_limit != 0) {
                         if (Config.mothership_time_limit <= 10_000) {
                             if (player.body == null) return;
@@ -640,7 +640,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the dominator.");
-                    player.body.sendMessage("Press F to relinquish control of the dominator.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the dominator.`);
                 } else if (Config.boss_control) {
                     let bosses = ent.map((entry) => {
                         if (entry.isBoss && !entry.underControl) return entry;
@@ -661,7 +661,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the visitor.");
-                    player.body.sendMessage("Press F to relinquish control of the visitor.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the visitor.`);
                 }/* else {
                     player.body.sendMessage("There are no special tanks in this mode that you can control.");
                 }*/

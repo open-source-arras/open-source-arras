@@ -1,3 +1,5 @@
+import { global } from "./global.js";
+import { translateServerMessage } from "./keybinds.js";
 const config = {
     graphical: {
         borderChunk: 6,
@@ -60,13 +62,13 @@ function createMessage(con, dur = 10_000, JSONMessage = false) {
         global.messages.push({
             text: "Nah that aint the text",
             faded: 0,
-            textJSON: JSON.parse(con),
+            textJSON: JSON.parse(con).map(line => translateServerMessage(line)),
             time: Date.now(),
             duration: dur,
         });
     } else {
         global.messages.push({
-            text: con,
+            text: translateServerMessage(con),
             faded: 0,
             time: Date.now(),
             duration: dur,
@@ -77,7 +79,6 @@ function resetTarget() {
     global.player.target.x = 0;
     global.player.target.y = 0;
 }
-import { global } from "./global.js";
 global.tips = [
     [
         "Tip: You can view and edit your keybinds in the options menu.",

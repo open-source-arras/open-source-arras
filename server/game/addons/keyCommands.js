@@ -50,12 +50,25 @@ function init() {
     }
     function makeHelpList(command) {
         let name = command.name;
-        let key = command.displayKey ? command.displayKey : command.keys.map((keys) => keys.map((key) => key[1]).join("+")).join(" / ");
+        let keyStr, defaultChar;
+        if (command.displayKey) {
+            keyStr = command.displayKey;
+            defaultChar = command.displayKey;
+        } else {
+            keyStr = command.keys.map(keys => {
+                return keys.map(k => {
+                    if (typeof k[0] === "number") return k[1];
+                    let prefix = k[0].startsWith("-") ? "-" : "";
+                    return prefix + key(prefix ? k[0].slice(1) : k[0]);
+                }).join("+");
+            }).join(" / ");
+            defaultChar = command.keys[0][0][1];
+        }
         let description = command.description ?? false;
         let asterisk = command.level > 1 ? "*" : "";
         let text = "";
-        if (name.slice(0, 1).toUpperCase() === key) text = `- [${key}]${name.slice(1)}${asterisk}`;
-        else text = `- [${key}] ${name}${asterisk}`;
+        if (name.slice(0, 1).toUpperCase() === defaultChar) text = `- [${keyStr}]${name.slice(1)}${asterisk}`;
+        else text = `- [${keyStr}] ${name}${asterisk}`;
         if (description) text += ` - ${description}`
         return text;
     }
@@ -987,7 +1000,7 @@ function init() {
             run: ({ socket }) => {
                 if (!socket.status.givenOperatorTips) {
                     socket.status.givenOperatorTips = true;
-                    socket.talk("m", 10_000, "Press ` + ¹ or ` + / for help.");
+                    socket.talk("m", 10_000, `Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
                 }
             }
         }

@@ -23,6 +23,8 @@ global.chats = {};
 global.travellingPlayers = [];
 global.fps = "Unknown";
 
+global.key = (name) => `\x01${name}\x01`;
+
 global.loadedAddons = [];
 global.addonAuthorInfos = [];
 global.TEAM_BLUE = -1;
