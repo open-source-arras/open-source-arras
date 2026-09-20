@@ -332,7 +332,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -342,7 +343,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -352,7 +354,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }  
         },
         {
@@ -362,7 +365,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -372,7 +376,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -382,7 +387,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -392,7 +398,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {   POSITION: [4, 5, 1, 10, 0, -105, 0],
@@ -401,7 +408,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         }
     ],
