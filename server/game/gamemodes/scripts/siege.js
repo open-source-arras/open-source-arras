@@ -207,7 +207,7 @@ class Siege {
                     }, 1000) // 1 Second.
                 }
             }
-            global.gameManager.socketManager.broadcastRoom();
+            global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
         });
     }
 

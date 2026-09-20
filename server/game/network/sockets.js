@@ -29,17 +29,29 @@ class socketManager {
         }
     };
     broadcastRoom() {
+        let data = JSON.stringify(global.gameManager.room.setup.map(x => x.map(t => {
+            return {
+                color: t.color,
+                image: t.image ?? false
+            }
+        })));
         for (let i = 0; i < this.clients.length; i++) {
             this.clients[i].talk(
                 "r",
                 global.gameManager.room.width,
                 global.gameManager.room.height,
-                JSON.stringify(global.gameManager.room.setup.map(x => x.map(t => { 
-                    return {
-                        color: t.color,
-                        image: t.image ?? false
-                    }
-                })))
+                data
+            );
+        }
+    };
+    broadcastRoomUpdate(gridX, gridY, color, image) {
+        for (let i = 0; i < this.clients.length; i++) {
+            this.clients[i].talk(
+                "ru",
+                gridX,
+                gridY,
+                color,
+                image ?? false
             );
         }
     };

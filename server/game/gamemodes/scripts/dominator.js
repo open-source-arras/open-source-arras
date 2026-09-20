@@ -78,7 +78,7 @@ class Domination {
             }
     
             this.spawnDominators(tile, newTeam, newColor, type, true);
-            global.gameManager.socketManager.broadcastRoom();
+            global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
         });
     }
 
