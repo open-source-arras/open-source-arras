@@ -120,6 +120,7 @@ const ACTION_KEYS = {
     levelup: "KEY_SPECIAL_LEVEL_UP",
     police: "KEY_SPECIAL_POLICE",
     blast: "KEY_SPECIAL_BLAST",
+    polygon: "KEY_SPECIAL_POLYGON",
     attribute: "KEY_SPECIAL_ATTRIBUTE",
     attribute_minimap_team: "KEY_SPECIAL_ATTRIBUTE_MINIMAP_TEAM",
     attribute_minimap_hide: "KEY_SPECIAL_ATTRIBUTE_MINIMAP_HIDE",
