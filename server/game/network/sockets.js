@@ -1119,13 +1119,15 @@ class socketManager {
         };
         // Bring to life
         socket.status.deceased = false;
-        if (Config.sandbox && !socket.status.hasSpawned && !this.players.length) {
-            if (!socket.permissions || socket.permissions?.permissionLevel < 3) {
-                setPermissionLevel(socket, 3);
-            };
-            socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
-        } else if (Config.sandbox && !socket.status.hasSpawned) {
-            socket.talk("m", 8_000, "You have joined a sandbox.");
+        if (Config.sandbox && !socket.status.hasSpawned) {
+            if (!this.players.length) {
+                if (!socket.permissions || socket.permissions?.permissionLevel < 3) {
+                    setPermissionLevel(socket, 3);
+                };
+                socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
+            } else {
+                socket.talk("m", 8_000, "You have joined a sandbox.");
+            }
         }
         // Define the player.
         if (this.players.indexOf(socket.player) != -1) {
