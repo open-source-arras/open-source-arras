@@ -4687,8 +4687,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             tr.querySelectorAll("td").forEach((td) => {
                 const b = td.querySelector("b");
                 if (!b) return;
-                const label = td.textContent.replace(b.textContent, "").replace(/^[\s-]+/, "").trim()
-                    .replace(/[a-z]+/g, (wd) => wd.charAt(0).toUpperCase() + wd.slice(1));
+                const label = td.textContent.replace(b.textContent, "").replace(/^[\s-]+/, "").trim();
                 out.push({ el: b, label });
             });
         });
@@ -5133,12 +5132,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }
             ctx[2].strokeStyle = color.black;
             drawGuiRect(x, y, OV_BADGE, OV_BADGE, true);
-            drawText(e.el.textContent || "-", x + OV_BADGE / 2, y + OV_BADGE / 2, 13.5, color.black, "center", true, 1, false);
+            drawText(e.el.textContent || "-", x + OV_BADGE / 2, y + OV_BADGE / 2, 12, color.black, "center", true, 1, false);
             ctx[2].save();
             ctx[2].beginPath();
             ctx[2].rect(x + OV_BADGE + 10, y, colW - OV_BADGE - 18, OV_BADGE);
             ctx[2].clip();
-            drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
+            drawText(e.label, x + OV_BADGE + 10, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
             ctx[2].restore();
             rects.push({ el: e.el, x: x * cr, y: y * cr, w: colW * cr, h: OV_BADGE * cr });
         });
