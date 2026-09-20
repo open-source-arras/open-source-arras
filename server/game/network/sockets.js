@@ -123,7 +123,7 @@ class socketManager {
                 array = [];
 
             for (let entity of nearby.values()) {
-                if (entity.settings.fullyInvisible && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) continue;
+                if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) continue;
                 let id = entity.id;
                 if (chats[id]) {
                     array.push({ id: id, messages: [] });
@@ -1595,7 +1595,7 @@ class socketManager {
             }
             if (player.body.settings.canSeeInvisible) {
                 data = data.slice();
-                let alpha = this.getInvisEntityAlpha(player, e);
+                let alpha = this.getInvisEntityAlpha(player, e, player.body.settings.canSeeInvisible);
                 if (e.limited) data[14] = Math.round(255 * alpha);
                 else data[18] = Math.round(255 * alpha);
             }
@@ -1793,7 +1793,7 @@ class socketManager {
                 const mockupsToSend = new Set();
 
                 for (const entity of nearby.values()) {
-                    if (entity.settings.fullyInvisible && !(player.body && player.body.settings.canSeeInvisible)) continue;
+                    if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(player.body && player.body.settings.canSeeInvisible)) continue;
                     if (entity.photo &&
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
                         Math.abs(entity.y - camY) < fovDivY + 1.5 * entity.size
