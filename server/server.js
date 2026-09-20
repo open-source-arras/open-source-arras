@@ -69,7 +69,7 @@ try {
 
 // Log a warning if Access-Control-Allow-Origin is enabled
 if (Config.allow_ACAO && Config.startup_logs) {
-    util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the WebServer.");
+    util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the web server.");
 }
 
 // Show a warning about default API key
@@ -218,10 +218,10 @@ server = http.createServer((req, res) => {
             let fileToGet = path.join(publicRoot, pathname);
             let httpCode = 200;
 
-            // If the requested file doesn't exist or isn't a file, default to the main_menu file
+            // If the requested file doesn't exist or isn't a file, default to the index file
             if (!fileToGet.startsWith(publicRoot) || !fs.existsSync(fileToGet) || !fs.lstatSync(fileToGet).isFile()) {
                 httpCode = 404;
-                fileToGet = path.join(publicRoot, Config.main_menu);
+                fileToGet = path.join(publicRoot, Config.index);
             }
 
             // Determine the file's MIME type based on its extension and serve the file stream
