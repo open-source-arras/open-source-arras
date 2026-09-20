@@ -1036,6 +1036,9 @@ let incoming = async function(message, socket) {
             case "temporaryban": {
                 global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
             } break;
+            case "moderatorban": {
+                global.message = "You have been temporarily banned by a game moderator. You will be able to rejoin after a server restart.";
+            } break;
             case "permanentban": {
                 global.message = "You have been permanently banned from the game.";
             } break;

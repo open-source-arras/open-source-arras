@@ -114,13 +114,14 @@ function init() {
             description: "Defines you to your token's tank.",
             keys: [[["KEY_SPECIAL_PRESET_2", "2"]]],
             permissionLevel: 1,
+            tokenClass: "banHammer",
             hidden: true,
             run: ({ socket, player }) => {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define(socket.permissions?.class || Config.spawn_class);
                     let msg = Config.token_message.split("\n");
-                    if (!socket.status.specialTankWarned) {
+                    if (!socket.status.specialTankWarned && socket.permissions?.class !== "banHammer") {
                         socket.status.specialTankWarned = true;
                         for (let i = 0; i < msg.length; i++) {
                             player.body.sendMessage(msg[i]);
@@ -965,7 +966,7 @@ function init() {
                 }
             }
         }
-        if (command && socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel)) {
+        if (command && (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel) || (command.tokenClass && socket.permissions?.class === command.tokenClass))) {
             try {
                 command.run({
                     socket,
