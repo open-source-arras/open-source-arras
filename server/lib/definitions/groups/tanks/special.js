@@ -685,7 +685,6 @@ Class.arenaCloser = {
     DANGER: 10,
     SIZE: 34,
     COLOR: "yellow",
-    UPGRADE_COLOR: "yellow",
     LAYER: 13,
     BODY: {
         REGEN: 1e5,
@@ -700,7 +699,6 @@ Class.arenaCloser = {
     HITS_OWN_TYPE: "never",
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
-    UPGRADE_TOOLTIP: "Hackerman",
     GUNS: [
         {
             POSITION: {
@@ -801,7 +799,6 @@ Class.arrasPolice = {
 Class.baseProtector = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     ON_MINIMAP: false,
     SIZE: 64,
     DAMAGE_CLASS: 0,
@@ -848,10 +845,9 @@ Class.baseProtector = {
         }
     ], 4)
 };
-Class.baseProtector_alt = {
+Class.baseProtector_diep = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     STAT_NAMES: statnames.drone,
     ON_MINIMAP: false,
     SIZE: 20,
