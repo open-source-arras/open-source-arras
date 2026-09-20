@@ -34,6 +34,12 @@ module.exports = [
         nameColor: "#FFFFFF"
     },
     {
+        key: process.env.GAME_MOD_ALT,
+        permissionLevel: 5,
+        class: "banHammer",
+        nameColor: "#FFFFFF"
+    },
+    {
         key: process.env.GAME_ADMIN,
         permissionLevel: 6,
         class: "menu_gameAdmin",
