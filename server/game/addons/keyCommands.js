@@ -399,6 +399,18 @@ function init() {
                 delete player.body.store.wallCMD;
             }
         },
+        // WIP
+        {
+            name: "Polygon (WIP)",
+            keys: [[["KEY_SPECIAL_POLYGON", "F"]]],
+            level: 1,
+            operatorAccess: true,
+            run: ({ player }) => {
+                let o = new Entity(target(player));
+                o.define("egg");
+                o.team = TEAM_ENEMIES;
+            }
+        },
         {
             name: "Vanish",
             keys: [[["KEY_SPECIAL_VANISH", "V"]]],
