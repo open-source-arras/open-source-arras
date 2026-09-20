@@ -11,27 +11,21 @@
 module.exports = [
     {
         key: process.env.SHINY,
-        permissionLevel: 3,
-        class: "menu_shinyMember",
-        nameColor: "#FFFFFF"
+        class: "menu_shinyMember"
     },
     {
         key: process.env.YOUTUBER,
-        permissionLevel: 3,
-        class: "menu_youtuber",
-        nameColor: "#FFFFFF"
+        class: "menu_youtuber"
     },
     {
         key: process.env.BETA_TESTER,
         permissionLevel: 4,
-        class: "menu_betaTester",
-        nameColor: "#FFFFFF"
+        class: "menu_betaTester"
     },
     {
         key: process.env.GAME_MOD,
         permissionLevel: 5,
-        class: "menu_gameMod",
-        nameColor: "#FFFFFF"
+        class: "menu_gameMod"
     },
     {
         key: process.env.GAME_MOD_ALT,
@@ -40,14 +34,13 @@ module.exports = [
     {
         key: process.env.GAME_ADMIN,
         permissionLevel: 6,
-        class: "menu_gameAdmin",
-        nameColor: "#FFFFFF"
+        class: "menu_gameAdmin"
     },
     {
         key: process.env.DEVELOPER,
         permissionLevel: 7,
         class: "menu_special",
         nameColor: "#FFFFFF",
-        editorAccess: true
+        allowEditor: true
     }
 ]

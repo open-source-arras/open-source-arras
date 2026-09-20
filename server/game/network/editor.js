@@ -45,7 +45,7 @@ class Editor {
         const queryIndex = req.url.indexOf("?");
         const token = queryIndex >= 0 ? req.url.slice(queryIndex + 1) : "";
         
-        ws.verified = Config.editor && token && this.gameServer.socketManager.permissionsDict[token]?.editorAccess === true;
+        ws.verified = Config.editor && token && this.gameServer.socketManager.permissionsDict[token]?.allowEditor === true;
 
         ws.on("message", message => this.incoming(ws, message));
     }
