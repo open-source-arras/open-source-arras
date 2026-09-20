@@ -4,11 +4,23 @@
 // - 2 // Arena Supervisor
 // - 3 // Arena Operator
 // - 4 // Beta Tester
-// - 5 // Shiny Member
-// - 6 // YouTuber
+// - 5 // Game Mod
+// - 6 // Game Admin
 // - 7 // Developer
 
 module.exports = [
+    {
+        key: process.env.SHINY,
+        operatorLevel: 3,
+        class: "menu_shinyMember",
+        nameColor: "#FFFFFF",
+    },
+    {
+        key: process.env.YOUTUBER,
+        operatorLevel: 3,
+        class: "menu_youtuber",
+        nameColor: "#FFFFFF",
+    },
     {
         key: process.env.BETA_TESTER,
         operatorLevel: 4,
@@ -16,15 +28,15 @@ module.exports = [
         nameColor: "#FFFFFF",
     },
     {
-        key: process.env.SHINY,
+        key: process.env.GAME_MOD,
         operatorLevel: 5,
-        class: "menu_shinyMember",
+        class: "menu_gameMod",
         nameColor: "#FFFFFF",
     },
     {
-        key: process.env.YOUTUBER,
+        key: process.env.GAME_ADMIN,
         operatorLevel: 6,
-        class: "menu_youtuber",
+        class: "menu_gameAdmin",
         nameColor: "#FFFFFF",
     },
     {

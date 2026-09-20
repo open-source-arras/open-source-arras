@@ -74,7 +74,7 @@ function init() {
     }
     
     // This is your commands does things.
-    let operatorLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Beta Tester", "Shiny Member", "Youtuber", "Developer"];
+    let operatorLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Beta Tester", "Game Mod", "Game Admin", "Developer"];
     let commands = [
         {
             name: "Help",
