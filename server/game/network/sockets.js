@@ -190,8 +190,8 @@ class socketManager {
         util.remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
         // Remove the socket
         util.remove(this.clients, this.clients.indexOf(socket));
-        if (Config.sandbox && this.clients.length && !this.clients.some((c) => c.status.operatorLevel >= 3)) {
-            setOperatorLevel(this.clients[0], 3);
+        if (Config.sandbox && this.clients.length && !this.clients.some((c) => c.status.permissionLevel >= 3)) {
+            setPermissionLevel(this.clients[0], 3);
             this.clients[0].talk("m", 8_000, `You have inherited the sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
         }
         if (!global.gameManager.parentPort) {
@@ -239,7 +239,7 @@ class socketManager {
                         util.log(`[WARNING]: A socket failed to verify with the token: ${key}`);
                     }
                     socket.key = key;
-                    setOperatorLevel(socket, socket.permissions?.operatorLevel ?? 0);
+                    setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
                 }
                 if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
@@ -1120,7 +1120,7 @@ class socketManager {
         // Bring to life
         socket.status.deceased = false;
         if (Config.sandbox && !socket.status.hasSpawned && !this.players.length) {
-            setOperatorLevel(socket, 3);
+            setPermissionLevel(socket, 3);
             socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
         } else if (Config.sandbox && !socket.status.hasSpawned) {
             socket.talk("m", 8_000, "You have joined a sandbox.");
@@ -2375,7 +2375,7 @@ class socketManager {
             daily_tank_watched_ad: false,
             readyToSpawn: true,
             hasOperator: false,
-            operatorLevel: 0,
+            permissionLevel: 0,
             readyToBroadcast: false,
             mockupData: socket.initMockupList(),
             lastHeartbeat: util.time()

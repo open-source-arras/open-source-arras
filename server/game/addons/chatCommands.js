@@ -5,12 +5,12 @@ let commands = [
     {
         command: ["help"],
         description: "Show this help menu.",
-        operatorLevel: 0,
+        permissionLevel: 0,
         run: ({ socket }) => {
             let useOldMenu = false;
             let lines = [
                 "Help menu:",
-                ...commands.filter((c) => socket.status.operatorLevel >= operatorLevelValue(c.operatorLevel) && !c.hidden).map((c) => {
+                ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
                     let cmdData = [c.command];
                     let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ")
                     let description = c.description ?? false;
@@ -29,7 +29,7 @@ let commands = [
     {
         command: ["leaderboard", "b"],
         description: "Select the leaderboard to display.",
-        operatorLevel: 0,
+        permissionLevel: 0,
         run: ({ socket, args }) => {
             let sendAvailableLeaderboardMessage = () => {
                 let lines = [
@@ -64,7 +64,7 @@ let commands = [
     {
         command: ["toggle", "t"],
         description: "Enable or disable chat",
-        operatorLevel: 0,
+        permissionLevel: 0,
         run: ({ socket }) => {
             socket.status.disablechat = !socket.status.disablechat;
             socket.talk("m", 3_000, `In-game chat ${socket.status.disablechat ? "disabled" : "enabled"}.`);
@@ -73,9 +73,9 @@ let commands = [
     {
         command: ["arena"],
         description: "Manage the arena",
-        operatorLevel: 0,
+        permissionLevel: 0,
         hidden: true,
-        operatorLevel: 3,
+        permissionLevel: 3,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableArenaMessage = () => {
                 let lines = [
@@ -144,7 +144,7 @@ let commands = [
     {
         command: ["broadcast"],
         description: "Broadcast a message to all players.",
-        operatorLevel: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -157,7 +157,7 @@ let commands = [
     {
         command: ["define"],
         description: "Change your tank.",
-        operatorLevel: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -172,7 +172,7 @@ let commands = [
     {
         command: ["level"],
         description: "Change your level.",
-        operatorLevel: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -186,7 +186,7 @@ let commands = [
     {
         command: ["team"],
         description: "Change your team.", // player teams are -1 through -8, dreads are -10, room is -100 and enemies is -101
-        operatorLevel: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -200,7 +200,7 @@ let commands = [
     {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
-        operatorLevel: 7,
+        permissionLevel: 7,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
@@ -328,7 +328,7 @@ function runCommand(socket, message, gameManager) {
     let commandName = args.shift();
     let command = commands.find((command) => command.command.includes(commandName));
     if (command) {
-        if (socket.status.operatorLevel >= operatorLevelValue(command.operatorLevel)) {
+        if (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel)) {
             try {
                 command.run({ socket, message, args, gameManager: gameManager });
             } catch(e) {

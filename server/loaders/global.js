@@ -76,14 +76,14 @@ global.getTeamColor = (team, fixMode = false) => {
     return color;
 }
 global.isPlayerTeam = team => team < 0 || team > -11;
-global.setOperatorLevel = (socket, level) => {
+global.setPermissionLevel = (socket, level) => {
     if (!socket || !socket.status) return;
-    socket.status.operatorLevel = level;
+    socket.status.permissionLevel = level;
     let has = level > 0;
     socket.status.hasOperator = has;
     if (socket.player && socket.player.body) socket.player.body.hasOperator = has;
 };
-global.operatorLevelValue = (level) => {
+global.permissionLevelValue = (level) => {
     if (typeof level === "number") return level;
     return { player: 0, AC: 1, AS: 2, AO: 3 }[level];
 };
