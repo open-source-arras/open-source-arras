@@ -72,6 +72,11 @@ if (Config.allow_ACAO && Config.startup_logs) {
     util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the WebServer.");
 }
 
+// Show a warning about default API key
+if (process.env.API_KEY === "ChangeAPIKeyNow!") {
+    util.warn("You are using the default API key, which lets anyone submit server-travel players to this server. Set a unique API_KEY in server/.env.")
+}
+
 // Create an HTTP server to handle both API and static file requests
 server = http.createServer((req, res) => {
     let query = {};
