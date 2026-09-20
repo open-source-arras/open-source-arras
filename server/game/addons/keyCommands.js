@@ -1023,11 +1023,16 @@ function init() {
         let permsLevel = socket.permissions?.level;
         if (!permsLevel) permsLevel = 0;
         if (!codes.length) codes = ["default"];
-        let command = commands.find((command) =>
-            command.keys.some((keys) =>
-                keys.every((key, index) => key[0] === codes[index])
-            )
-        );
+        let name = codes.find((code) => code.startsWith("-")) || codes[codes.length - 1];
+        let command, length = 0;
+        for (const cmd of commands) {
+            for (const keys of cmd.keys) {
+                if (keys.length > length && keys[keys.length - 1][0] === name && keys.slice(0, -1).every((key) => codes.includes(key[0]))) {
+                    command = cmd;
+                    length = keys.length;
+                }
+            }
+        }
         if (command && (permsLevel >= command.level || (command.operatorAccess && socket.player.body.hasOperator))) {
             try {
                 command.run({
