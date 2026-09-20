@@ -571,13 +571,14 @@ Class.banHammer = {
                 const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
                 let lowest = Infinity, closest;
                 for (const instance of entities.values()) {
+                    if (instance === body || !instance.isPlayer) continue;
                     let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
                     if (distance < lowest) {
                         lowest = distance;
                         closest = instance;
                     }
                 }
-                if (closest.bond) return;
+                if (!closest || closest.bond) return;
                 let message = [
                     `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
                     `Score: ${closest.skill.score};`,
