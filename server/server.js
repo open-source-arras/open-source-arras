@@ -304,7 +304,7 @@ global.onServerLoaded = () => {
         if (Config.startup_logs) {
             util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
-                console.log(`> ${Config.host}/#${game.id}`.padEnd(30, " ") + ` -> ${game.region.padEnd(10, " ")} (${game.serverhost.padEnd(8, " ")} - ${game.location.padEnd(10, " ")} - ${game.gameMode})`)
+                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.serverhost} - ${game.location} - ${game.gameMode}`)
             }
             console.log("\n");
         }
