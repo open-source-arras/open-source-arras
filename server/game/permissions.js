@@ -1,34 +1,36 @@
 // PERMISSION LEVELS
-// - level: 0 // Player
-// - level: 1 // Arena Conductor // basic stuff
-// - level: 2 // Arena Supervisor // level 1 + advanced stuff
-// - level: 3 // Arena Operator // level 2 + everything else
-
-// todo: be more specific here
+// - 0 // Player
+// - 1 // Arena Conductor
+// - 2 // Arena Supervisor
+// - 3 // Arena Operator
+// - 4 // Beta Tester
+// - 5 // Shiny Member
+// - 6 // YouTuber
+// - 7 // Developer
 
 module.exports = [
     {
         key: process.env.BETA_TESTER,
-        level: 1,
+        operatorLevel: 4,
         class: "menu_betaTester",
         nameColor: "#FFFFFF",
     },
     {
         key: process.env.SHINY,
-        level: 2,
+        operatorLevel: 5,
         class: "menu_shinyMember",
         nameColor: "#FFFFFF",
     },
     {
         key: process.env.YOUTUBER,
-        level: 2,
+        operatorLevel: 6,
         class: "menu_youtuber",
         nameColor: "#FFFFFF",
     },
     {
         key: process.env.DEVELOPER,
         administrator: true,
-        level: 3,
+        operatorLevel: 7,
         class: "menu_special",
         nameColor: "#FFFFFF",
     }

@@ -5,12 +5,12 @@ let commands = [
     {
         command: ["help"],
         description: "Show this help menu.",
-        level: 0,
-        run: ({ socket, level }) => {
+        operatorLevel: 0,
+        run: ({ socket }) => {
             let useOldMenu = false;
             let lines = [
                 "Help menu:",
-                ...commands.filter((c) => level >= c.level && !c.hidden).map((c) => {
+                ...commands.filter((c) => socket.status.operatorLevel >= operatorLevelValue(c.operatorLevel) && !c.hidden).map((c) => {
                     let cmdData = [c.command];
                     let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ")
                     let description = c.description ?? false;
@@ -29,7 +29,7 @@ let commands = [
     {
         command: ["leaderboard", "b"],
         description: "Select the leaderboard to display.",
-        level: 0,
+        operatorLevel: 0,
         run: ({ socket, args }) => {
             let sendAvailableLeaderboardMessage = () => {
                 let lines = [
@@ -64,7 +64,7 @@ let commands = [
     {
         command: ["toggle", "t"],
         description: "Enable or disable chat",
-        level: 0,
+        operatorLevel: 0,
         run: ({ socket }) => {
             socket.status.disablechat = !socket.status.disablechat;
             socket.talk("m", 3_000, `In-game chat ${socket.status.disablechat ? "disabled" : "enabled"}.`);
@@ -73,8 +73,9 @@ let commands = [
     {
         command: ["arena"],
         description: "Manage the arena",
-        level: 1,
+        operatorLevel: 0,
         hidden: true,
+        operatorLevel: 3,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableArenaMessage = () => {
                 let lines = [
@@ -143,7 +144,7 @@ let commands = [
     {
         command: ["broadcast"],
         description: "Broadcast a message to all players.",
-        level: 2,
+        operatorLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -156,7 +157,7 @@ let commands = [
     {
         command: ["define"],
         description: "Change your tank.",
-        level: 2,
+        operatorLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -171,7 +172,7 @@ let commands = [
     {
         command: ["level"],
         description: "Change your level.",
-        level: 2,
+        operatorLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -185,7 +186,7 @@ let commands = [
     {
         command: ["team"],
         description: "Change your team.", // player teams are -1 through -8, dreads are -10, room is -100 and enemies is -101
-        level: 2,
+        operatorLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -199,7 +200,7 @@ let commands = [
     {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
-        level: 3,
+        operatorLevel: 7,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
@@ -327,12 +328,9 @@ function runCommand(socket, message, gameManager) {
     let commandName = args.shift();
     let command = commands.find((command) => command.command.includes(commandName));
     if (command) {
-        let permissionsLevel = socket.permissions?.level ?? 0;
-        let level = command.level;
-
-        if (permissionsLevel >= level) {
+        if (socket.status.operatorLevel >= operatorLevelValue(command.operatorLevel)) {
             try {
-                command.run({ socket, message, args, level: permissionsLevel, gameManager: gameManager });
+                command.run({ socket, message, args, gameManager: gameManager });
             } catch(e) {
                 console.error("Error while running ", commandName);
                 console.error(e);
