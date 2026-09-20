@@ -82,6 +82,7 @@ function init() {
             level: 1,
             operatorAccess: true,
             run: ({ socket, level, operator }) => {
+            hidden: true,
                 let lines = [
                     "Help menu:",
                     ...commands
