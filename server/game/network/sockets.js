@@ -1121,7 +1121,7 @@ class socketManager {
         socket.status.deceased = false;
         if (Config.sandbox && !socket.status.hasSpawned) {
             if (!this.players.length) {
-                if (!socket.permissions || socket.permissions?.permissionLevel < 3) {
+                if (socket.status.permissionLevel < 3) {
                     setPermissionLevel(socket, 3);
                 };
                 socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
