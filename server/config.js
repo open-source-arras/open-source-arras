@@ -9,6 +9,7 @@ module.exports = {
 
     // Server
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
+    delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     startup_logs: true, // Enable detailed startup logs and log speed loop warnings in the terminal
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.

@@ -5,6 +5,7 @@ PERMABAN_FILE = "./permanentBans.json";
 let bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
 global.chatID = 0;
+const GUN_PHOTO_FIELDS = 15;
 
 class socketManager {
     constructor(parent) {
@@ -215,14 +216,16 @@ class socketManager {
         }
         switch (m.shift()) {
             case "k": { // key verification
-                if (m.length > 1) {
+                if (m.length > 2) {
                     socket.kick("Ill-sized key request."); return 1; 
                 }
                 if (socket.status.verified) {
                     socket.kick("Duplicate player spawn attempt."); return 1; 
                 }
-                socket.talk("w", true);
-                if (m.length === 1) {
+                // Optional capability flags: bit 0 = understands delta entity packets.
+                socket.status.deltaEntities = Config.delta_entities && ((m[1] || 0) & 1) === 1;
+                socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
+                if (m.length >= 1) {
                     let key = m[0].toString().trim();
                     // Use hasOwnProperty to avoid prototype chain lookup
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
@@ -233,6 +236,7 @@ class socketManager {
                     }
                     socket.key = key;
                 }
+                if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
                 if (this.clients.length == 1) {
                     util.log("[INFO]: " + this.clients.length + " client connected");
@@ -1411,6 +1415,148 @@ class socketManager {
         return output;
     }
 
+    // Builds the created/changed/removed sections of a "u" packet for a view.
+    // `sent` holds the last flattened record sent for each entity id.
+    buildEntityDelta(msg, visible, sent) {
+        let created = this.dCreated || (this.dCreated = []);
+        let changed = this.dChanged || (this.dChanged = []);
+        let removed = this.dRemoved || (this.dRemoved = []);
+        let seen = this.dSeen || (this.dSeen = new Set());
+        created.length = 0;
+        changed.length = 0;
+        removed.length = 0;
+        seen.clear();
+        let changedCount = 0;
+
+        for (let i = 0; i < visible.length; i++) {
+            let data = visible[i];
+            // Top level turrets/props carry no id, always send them in full.
+            if (data[0] & 0x01) {
+                created.push(data);
+                continue;
+            }
+            let id = data[1];
+            seen.add(id);
+            let prev = sent.get(id);
+            if (prev === undefined || prev[0] !== data[0] || prev[2] !== data[2]) {
+                // New entity, or its class changed: send it whole.
+                if (prev !== undefined) removed.push(id);
+                created.push(data);
+                sent.set(id, data.slice());
+            } else if (this.diffEntity(prev, data, changed)) {
+                changedCount++;
+                sent.set(id, data.slice());
+            }
+        }
+        // Anything we sent before and no longer see is gone from this view.
+        for (let id of sent.keys()) {
+            if (!seen.has(id)) removed.push(id);
+        }
+        for (let i = 0; i < removed.length; i++) sent.delete(removed[i]);
+
+        msg.push(created.length);
+        for (let i = 0; i < created.length; i++) {
+            let data = created[i];
+            for (let j = 0; j < data.length; j++) msg.push(data[j]);
+        }
+        msg.push(changedCount);
+        for (let i = 0; i < changed.length; i++) msg.push(changed[i]);
+        msg.push(removed.length);
+        for (let i = 0; i < removed.length; i++) msg.push(removed[i]);
+    }
+
+    // Compares two flattened records and appends `id, mask, values` to `out`
+    // when anything tracked changed. Returns whether a record was appended.
+    diffEntity(prev, now, out) {
+        const type = now[0];
+        const limited = (type & 0x10) !== 0;
+        let mask = 0;
+        if (prev[3] !== now[3] || prev[4] !== now[4]) mask |= 0x0001;
+        if (prev[5] !== now[5] || prev[6] !== now[6]) mask |= 0x0002;
+        if (prev[7] !== now[7]) mask |= 0x0004;
+        if (prev[8] !== now[8] || prev[9] !== now[9]) mask |= 0x0008;
+        if (limited) {
+            if (prev[12] !== now[12] || prev[13] !== now[13]) mask |= 0x0010;
+            if (prev[14] !== now[14]) mask |= 0x0020;
+            if (prev[11] !== now[11]) mask |= 0x0080;
+            if (prev[10] !== now[10]) mask |= 0x0400;
+        } else {
+            if (prev[16] !== now[16] || prev[17] !== now[17]) mask |= 0x0010;
+            if (prev[18] !== now[18]) mask |= 0x0020;
+            if (prev[10] !== now[10] || prev[13] !== now[13] || prev[14] !== now[14] || prev[15] !== now[15]) mask |= 0x0040;
+            if (prev[12] !== now[12]) mask |= 0x0080;
+            if (prev[11] !== now[11]) mask |= 0x0400;
+            if (type & 0x04) {
+                if (prev[19] !== now[19]) mask |= 0x0100;
+                if (prev[20] !== now[20]) mask |= 0x0200;
+            }
+        }
+        // Guns come next. Only send the fields that actually changed per gun.
+        const gunStart = limited ? 15 : ((type & 0x04) ? 21 : 19);
+        const gunLen = now[gunStart];
+        const countChanged = prev[gunStart] !== gunLen;
+        let anyGunChanged = countChanged;
+        if (!anyGunChanged) {
+            for (let g = 0; g < gunLen; g++) {
+                const off = gunStart + 1 + g * GUN_PHOTO_FIELDS;
+                for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                    if (prev[off + f] !== now[off + f]) { anyGunChanged = true; break; }
+                }
+                if (anyGunChanged) break;
+            }
+        }
+        if (anyGunChanged) mask |= 0x0800;
+        // Turret records are inlined into the tail, so the whole tail is the block.
+        const turretStart = gunStart + 1 + gunLen * GUN_PHOTO_FIELDS;
+        const turretsChanged = prev.length !== now.length || prev[turretStart] !== now[turretStart] || !this.sameRange(prev, now, turretStart + 1, now.length);
+        if (turretsChanged) mask |= 0x1000;
+        if (mask === 0) return false;
+
+        out.push(now[1], mask);
+        if (mask & 0x0001) out.push(now[3], now[4]);
+        if (mask & 0x0002) out.push(now[5], now[6]);
+        if (mask & 0x0004) out.push(now[7]);
+        if (mask & 0x0008) out.push(now[8], now[9]);
+        if (mask & 0x0010) out.push(limited ? now[12] : now[16], limited ? now[13] : now[17]);
+        if (mask & 0x0020) out.push(limited ? now[14] : now[18]);
+        if (mask & 0x0040) out.push((now[10] ? 1 : 0) | (now[15] ? 2 : 0) | (now[13] ? 4 : 0) | (now[14] ? 8 : 0));
+        if (mask & 0x0080) out.push(limited ? now[11] : now[12]);
+        if (mask & 0x0100) out.push(now[19]);
+        if (mask & 0x0200) out.push(now[20]);
+        if (mask & 0x0400) out.push(limited ? now[10] : now[11]);
+        if (mask & 0x0800) {
+            out.push(gunLen);
+            for (let g = 0; g < gunLen; g++) {
+                const off = gunStart + 1 + g * GUN_PHOTO_FIELDS;
+                let gunMask = 0;
+                if (countChanged || g >= prev[gunStart]) {
+                    gunMask = (1 << GUN_PHOTO_FIELDS) - 1;
+                } else {
+                    for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                        if (prev[off + f] !== now[off + f]) gunMask |= (1 << f);
+                    }
+                }
+                out.push(gunMask);
+                for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                    if (gunMask & (1 << f)) out.push(now[off + f]);
+                }
+            }
+        }
+        if (mask & 0x1000) {
+            out.push(now[turretStart]);
+            for (let i = turretStart + 1; i < now.length; i++) out.push(now[i]);
+        }
+        return true;
+    }
+
+    // True when every value in `[from, to)` is identical between the two records.
+    sameRange(a, b, from, to) {
+        for (let i = from; i < to; i++) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
     getInvisEntityAlpha(player, other, canSeeInvisible = false) {
         let alpha;
         if (player.body.id === other.master.id) {
@@ -1542,6 +1688,7 @@ class socketManager {
         let visible = [];
         let view = [];
         let msg = [];
+        let sent = new Map();
         let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
@@ -1677,6 +1824,7 @@ class socketManager {
                     );
                     lastSentCamX = NaN; // force a full packet next time
                 } else if (
+                    !socket.status.deltaEntities &&
                     visible.length === 0 &&
                     camera.x === lastSentCamX && camera.y === lastSentCamY &&
                     fovNow === lastSentFov && camera.vx === lastSentVx &&
@@ -1695,11 +1843,6 @@ class socketManager {
                 } else {
                     // Update the gui
                     player.gui.update();
-                    view.length = 0;
-                    for (let i = 0; i < visible.length; i++) {
-                        let data = visible[i];
-                        for (let j = 0; j < data.length; j++) view.push(data[j]);
-                    }
                     msg.length = 0;
                     msg.push(
                         "u",
@@ -1715,8 +1858,18 @@ class socketManager {
                     if (gui) {
                         for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
                     }
-                    msg.push(visible.length);
-                    for (let i = 0; i < view.length; i++) msg.push(view[i]);
+                    if (socket.status.deltaEntities) {
+                        this.buildEntityDelta(msg, visible, sent);
+                    } else {
+                        // Full snapshot for clients without delta support.
+                        view.length = 0;
+                        for (let i = 0; i < visible.length; i++) {
+                            let data = visible[i];
+                            for (let j = 0; j < data.length; j++) view.push(data[j]);
+                        }
+                        msg.push(visible.length);
+                        for (let i = 0; i < view.length; i++) msg.push(view[i]);
+                    }
                     socket.talkArr(msg);
                 }
                 if (!updateCam) {
@@ -2198,6 +2351,7 @@ class socketManager {
         // Set up the status container
         socket.status = {
             verified: false,
+            deltaEntities: false,
             receiving: 0,
             deceased: true,
             requests: 0,
