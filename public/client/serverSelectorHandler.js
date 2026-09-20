@@ -82,7 +82,6 @@ global.loadServerSelector = (serverData, text) => {
     });
 }
 
-
 let loadEmptyServerSelector = (text) => {
     let serverSelector = document.getElementById("serverSelector"),
     tbody = document.createElement("tbody");
@@ -265,52 +264,22 @@ let initializeFilter = () => {
         return check;
     }
     createFilter(svFilterRegionDoc, [
-        { name: "All", filter: (h) => {
-            return checkFilter(h, global.filters.regions.all);
-        } },
-        { name: "USA", filter: (h) => {
-            return checkFilter(h, global.filters.regions.america);
-        } },
-        { name: "Europe", filter: (h) => { 
-            return checkFilter(h, global.filters.regions.europe);
-        } },
-        { name: "Asia", filter: (h) => { 
-            return checkFilter(h, global.filters.regions.asia);
-        } },
-        { name: "Oceania", filter: (h) => { 
-            return checkFilter(h, global.filters.regions.oceania);
-        } },
+        { name: "All", filter: (h) => { return checkFilter(h, global.filters.regions.all) } },
+        { name: "USA", filter: (h) => { return checkFilter(h, global.filters.regions.america) } },
+        { name: "Europe", filter: (h) => { return checkFilter(h, global.filters.regions.europe) } },
+        { name: "Asia", filter: (h) => { return checkFilter(h, global.filters.regions.asia) } },
+        { name: "Oceania", filter: (h) => { return checkFilter(h, global.filters.regions.oceania) } }
     ]);
     createFilter(svFilterModeDoc, [
-        { name: "All", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.all);
-        } },
-        { name: "FFA", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.ffa);
-        } },
-        { name: "Squads", filter: (h) => { 
-            return checkFilter(h, global.filters.gamemodes.squads);
-        } },
-        { name: "TDM", filter: (h) => { 
-            return checkFilter(h, global.filters.gamemodes.tdm);
-        } },
-        { name: "Minigames", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.minigames);
-        } },/*
-        { name: "Normal", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.normal);
-        } },
-        { name: "Growth", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.growth);
-        } },
-        { name: "Arms Race", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.armsRace);
-        } },
-        { name: "Other", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.other);
-        } },*/
-        { name: "Sandbox", filter: (h) => {
-            return checkFilter(h, global.filters.gamemodes.sandbox);
-        } }
+        { name: "All", filter: (h) => { return checkFilter(h, global.filters.gamemodes.all) } },
+        { name: "FFA", filter: (h) => { return checkFilter(h, global.filters.gamemodes.ffa) } },
+        { name: "Squads", filter: (h) => { return checkFilter(h, global.filters.gamemodes.squads) } },
+        { name: "TDM", filter: (h) => { return checkFilter(h, global.filters.gamemodes.tdm) } },
+        { name: "Minigames", filter: (h) => { return checkFilter(h, global.filters.gamemodes.minigames) } },
+        //{ name: "Normal", filter: (h) => { return checkFilter(h, global.filters.gamemodes.normal) } },
+        //{ name: "Growth", filter: (h) => { return checkFilter(h, global.filters.gamemodes.growth) } },
+        //{ name: "Arms Race", filter: (h) => { return checkFilter(h, global.filters.gamemodes.armsRace) } },
+        //{ name: "Other", filter: (h) => { return checkFilter(h, global.filters.gamemodes.other) } },
+        { name: "Sandbox", filter: (h) => { return checkFilter(h, global.filters.gamemodes.sandbox) } }
     ]);
 }
