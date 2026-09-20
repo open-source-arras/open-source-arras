@@ -592,7 +592,11 @@ Class.banHammer = {
             handler: ({body}) => {
                 const s = body.store;
                 const e = s.selectedEntity
-                if (!e || !e.isPlayer) return;
+                if (!e || !e.isPlayer || !e.socket) return;
+                if (e.socket.status.operatorLevel >= 4) {
+                    body.sendMessage("You cannot ban this player!");
+                    return;
+                }
                 global.gameManager.socketManager.ban(e.socket, "Ban Hammer");
                 body.sendMessage("Banned the selected player.");
             }
