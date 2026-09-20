@@ -112,7 +112,7 @@ let initializeFilter = () => {
             europe: [],
             asia: [],
             oceania: [],
-            other: [],
+            other: []
         },
         gamemodes: {
             all: [],
@@ -126,7 +126,7 @@ let initializeFilter = () => {
             normal: [],
             growth: [],
             armsRace: [],
-            other: [],
+            other: []
         }
     }
     let nvmText = document.createElement("td");
@@ -144,7 +144,12 @@ let initializeFilter = () => {
         global.filters.regions.all.push(s);
 
         // USA
-        if (s.region.toLowerCase() === "usa" || s.region.toLowerCase() === "us west" || s.region.toLowerCase() === "us central" || s.region.toLowerCase() === "us east") global.filters.regions.america.push(s);
+        if (
+            s.region.toLowerCase() === "usa" ||
+            s.region.toLowerCase() === "us west" ||
+            s.region.toLowerCase() === "us central" ||
+            s.region.toLowerCase() === "us east"
+        ) global.filters.regions.america.push(s);
 
         // Europe
         if (s.region.toLowerCase() === "europe") global.filters.regions.europe.push(s);
@@ -261,66 +266,51 @@ let initializeFilter = () => {
     }
     createFilter(svFilterRegionDoc, [
         { name: "All", filter: (h) => {
-            let e = checkFilter(h, global.filters.regions.all);
-            return e;
+            return checkFilter(h, global.filters.regions.all);
         } },
         { name: "USA", filter: (h) => {
-            let e = checkFilter(h, global.filters.regions.america);
-            return e;
+            return checkFilter(h, global.filters.regions.america);
         } },
         { name: "Europe", filter: (h) => { 
-            let e = checkFilter(h, global.filters.regions.europe);
-            return e;
+            return checkFilter(h, global.filters.regions.europe);
         } },
         { name: "Asia", filter: (h) => { 
-            let e = checkFilter(h, global.filters.regions.asia);
-            return e;
+            return checkFilter(h, global.filters.regions.asia);
         } },
         { name: "Oceania", filter: (h) => { 
-            let e = checkFilter(h, global.filters.regions.oceania);
-            return e;
+            return checkFilter(h, global.filters.regions.oceania);
         } },
     ]);
     createFilter(svFilterModeDoc, [
         { name: "All", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.all);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.all);
         } },
         { name: "FFA", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.ffa);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.ffa);
         } },
         { name: "Squads", filter: (h) => { 
-            let e = checkFilter(h, global.filters.gamemodes.squads);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.squads);
         } },
         { name: "TDM", filter: (h) => { 
-            let e = checkFilter(h, global.filters.gamemodes.tdm);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.tdm);
         } },
         { name: "Minigames", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.minigames);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.minigames);
         } },/*
         { name: "Normal", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.normal);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.normal);
         } },
         { name: "Growth", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.growth);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.growth);
         } },
         { name: "Arms Race", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.armsRace);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.armsRace);
         } },
         { name: "Other", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.other);
-            return e;
+            return checkFilter(h, global.filters.gamemodes.other);
         } },*/
         { name: "Sandbox", filter: (h) => {
-            let e = checkFilter(h, global.filters.gamemodes.sandbox);
-            return e;
-        } },
+            return checkFilter(h, global.filters.gamemodes.sandbox);
+        } }
     ]);
 }
