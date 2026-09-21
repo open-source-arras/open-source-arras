@@ -147,6 +147,7 @@ class Editor {
                                 socket.status.mockupData = socket.initMockupList();
                                 socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
                                 socket.status.selectedLeaderboard = "stop";
+                                socket.status.entitySent?.clear();
                                 socket.talk("RE");
                                 if (Config.load_all_mockups) {
                                     for (let i = 0; i < mockupData.length; i++) {

@@ -1703,7 +1703,7 @@ class socketManager {
         let visible = [];
         let view = [];
         let msg = [];
-        let sent = new Map();
+        let sent = socket.status.entitySent || (socket.status.entitySent = new Map());
         let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
