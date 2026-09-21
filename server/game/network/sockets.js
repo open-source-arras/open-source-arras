@@ -1229,7 +1229,7 @@ class socketManager {
             body = new Entity(loc);
             body.protect();
             body.isPlayer = true;
-            body.define(Config.spawn_class);
+            body.define(socket.permissions?.spawnAs || Config.spawn_class);
             body.name = name;
             body.incognito = socket.status.incognito ?? false;
             if (socket.permissions && socket.permissions.nameColor) {

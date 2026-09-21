@@ -29,7 +29,8 @@ module.exports = [
     },
     {
         key: process.env.GAME_MOD_ALT,
-        class: "banHammer"
+        class: "banHammer",
+        spawnAs: "basic"
     },
     {
         key: process.env.GAME_ADMIN,
