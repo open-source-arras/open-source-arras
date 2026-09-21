@@ -59,7 +59,7 @@ class gameHandler {
             case instance.isPortal || other.isPortal:
                 let [portal, otherBody] = instance.isPortal ? [instance, other] : [other, instance];
 
-                if (portal.settings.destination && otherBody.isPlayer && otherBody.socket) {
+                if (portal.settings.destination && otherBody.isPlayer && otherBody.socket && !otherBody.immuneToPortals) {
                     global.gameManager.socketManager.sendToServer(otherBody.socket, portal.settings.destination);
                 } else if (["bullet", "drone", "trap", "satellite"].includes(otherBody.type)) {
                     if (otherBody.master !== portal) otherBody.kill();

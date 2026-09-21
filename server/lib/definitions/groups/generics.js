@@ -30,6 +30,7 @@ Class.genericEntity = {
     DRAW_HEALTH: false,
     DRAW_SELF: true,
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     DAMAGE_EFFECTS: true,
     RATEFFECTS: true,
     MOTION_EFFECTS: true,
@@ -122,6 +123,7 @@ Class.genericTank = {
     IGNORED_BY_AI: false,
     INVISIBLE: [0, 0],
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     MAX_CHILDREN: 0,
     NECRO: false,
     NO_SIZE_ANIMATION: false,
@@ -227,6 +229,7 @@ Class.food = {
     MOTION_TYPE: "drift",
     FACING_TYPE: "turnWithSpeed",
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     LEVEL_CAP: 1,
     BODY: {
         STEALTH: 30,
@@ -665,6 +668,7 @@ Class.serverPortal = {
             event: "tick",
             handler: ({ body }) => {
                 for (let instance of entities.values()) {
+                    if (instance.immuneToPortals) continue;
                     let diffX = instance.x - body.x,
                         diffY = instance.y - body.y,
                         dist2 = diffX ** 2 + diffY ** 2;

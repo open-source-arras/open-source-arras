@@ -434,6 +434,7 @@ Class.spectator = {
     IGNORED_BY_AI: true,
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
+    IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,

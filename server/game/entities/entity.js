@@ -309,6 +309,7 @@ class Entity extends EventEmitter {
         if (set.BORDERLESS != null) this.borderless = set.BORDERLESS;
         if (set.DRAW_FILL != null) this.drawFill = set.DRAW_FILL;
         if (set.IS_IMMUNE_TO_TILES) this.immuneToTiles = set.IS_IMMUNE_TO_TILES;
+        if (set.IS_IMMUNE_TO_PORTALS != null) this.immuneToPortals = set.IS_IMMUNE_TO_PORTALS;
         if (set.TEAM != null) {
             this.team = set.TEAM;
             if (global.gameManager.socketManager.players.length) {
