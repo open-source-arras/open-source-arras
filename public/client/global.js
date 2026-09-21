@@ -225,6 +225,8 @@ const global = {
     gameConnecting: false,
     gameUpdate: false,
     disconnected: false,
+    deathTimestamp: 0,
+    disconnectTimestamp: 0,
     autoSpin: false,
     syncingWithTank: false,
     respawnTimeout: false,

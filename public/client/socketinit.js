@@ -1216,6 +1216,7 @@ let incoming = async function(message, socket) {
             0 < c && global.metrics.latency.push(c);
         } break;
         case "F": { // to pay respects
+            global.deathTimestamp = Date.now();
             global.deathAnimation = util.AdvancedSmoothBar(0, 4, 1);
             global.deathAnimation.set(4);
             global.finalScore = util.AdvancedSmoothBar(0, 1.5);
@@ -1516,6 +1517,7 @@ const socketInit = () => {
         if (global.dailyTankAd.render) global.dailyTankAd.exit();
         socket.open = false;
         global.disconnected = true;
+        global.disconnectTimestamp = Date.now();
     };
 
     socket.onerror = error => {

@@ -4405,7 +4405,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             picture = util.getEntityImageFromMockup(gui.type, gui.color),
             baseColor = picture.color,
             name = global.player.name.substring(7, global.player.name.length + 1),
-            timestamp = Math.floor(Date.now());
+            timestamp = Math.floor(global.deathTimestamp || Date.now());
 
         clearScreen(color.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
         let ratio = util.getScreenRatio();
@@ -5851,6 +5851,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         clearScreen(gameDraw.mixColors(color.red, color.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
         drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
         if (global.message === "") global.message = "The connection closed due to an error.\nTry reloading and clearing your cache, or joining another server.";
+        drawText(new Date(global.disconnectTimestamp || Date.now()).toISOString() + "", global.screenWidth / 2, global.screenHeight / 2 - 60, 8.125, color.guiwhite, "center");
         drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.orange, "center");
         lastPing = 0;
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
