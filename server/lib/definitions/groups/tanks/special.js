@@ -514,13 +514,6 @@ Class.guillotine = {
     ],
     ON: [
         {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
-        {
             event: "fire",
             handler: ({body, masterStore: s}) => {
                 const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
@@ -566,13 +559,6 @@ Class.banHammer = {
         ...Class.spectator.GUNS
     ],
     ON: [
-        {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
         {
             event: "fire",
             handler: ({body, masterStore: s}) => {
