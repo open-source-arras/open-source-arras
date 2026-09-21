@@ -240,7 +240,7 @@ module.exports = {
 
     // Food
     enable_food: true, // Allows food to spawn.
-    food_cap: 70, // Maximum number of regular food at any time.
+    food_cap: 150, // Maximum number of regular food at any time.
     food_cap_nest: 15, // Maximum number of nest food at any time.
     enemy_cap_nest: 10, // Maximum number of enemy nest food at any time.
     food_group_cap: 6, // Number of foods that random food groups spawn with
