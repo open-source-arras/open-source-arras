@@ -4,8 +4,8 @@
 // - 2 // Arena Supervisor
 // - 3 // Arena Operator
 // - 4 // Beta Tester
-// - 5 // Game Mod
-// - 6 // Game Admin
+// - 5 // Game Mod (old)
+// - 6 // Game Admin (old)
 // - 7 // Developer
 
 module.exports = [
@@ -24,17 +24,7 @@ module.exports = [
     },
     {
         key: process.env.GAME_MOD,
-        permissionLevel: 5,
-        class: "menu_gameMod"
-    },
-    {
-        key: process.env.GAME_MOD_ALT,
         class: "banHammer"
-    },
-    {
-        key: process.env.GAME_ADMIN,
-        permissionLevel: 6,
-        class: "menu_gameAdmin"
     },
     {
         key: process.env.DEVELOPER,
