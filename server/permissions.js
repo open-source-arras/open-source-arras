@@ -33,7 +33,7 @@ module.exports = [
         class: "menu_betaTester"
     },
     {
-        key: process.env.GAME_MOD,
+        key: process.env.GAME_MODERATOR,
         class: "banHammer"
     },
     {
