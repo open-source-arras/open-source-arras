@@ -815,7 +815,7 @@ function init() {
         {
             name: "Ban",
             keys: [[["KEY_SPECIAL_BAN", "O"]]],
-            permissionLevel: 2,
+            permissionLevel: 5,
             run: ({ socket, player }) => {
                 const types = 2,
                     typeNames = [["permanent", "permanently"], ["temporary", "temporarily"]];
