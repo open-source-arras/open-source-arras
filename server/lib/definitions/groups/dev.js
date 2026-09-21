@@ -14,15 +14,13 @@ const enable_retrograde_menu = false;
 Class.menu_special = makeMenu("Special Menu", {
     upgrades: [
         Config.spawn_class,
-        //"menu_gameAdmin",
         "eggGen",
         "menu_specialTanks",
         "menu_bosses",
         "menu_nostalgia",
         "menu_scrapped",
         "menu_memes",
-        dreadnoughts,
-        "menu_shinyMember",
+        "menu_testing",
         "menu_addons"
     ]
 });
@@ -537,6 +535,6 @@ Class.menu_addons = makeMenu("Addons Menu", {
         "menu_youtuber",
         "guillotine",
         "banHammer",
-        "menu_testing"
+        "menu_shinyMember"
     ]
 });
