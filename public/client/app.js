@@ -1602,6 +1602,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     function drawText(rawText, x, y, size, defaultFillStyle, align = "left", center = false, fade = 1, stroke = true, context = ctx[2]) {
+        let lines = ("" + rawText).split(/\r?\n/);
+        if (lines.length > 1) {
+            let s = size + config.graphical.fontSizeBoost,
+                lineHeight = s + 2 * (s / 5) + 8;
+            for (let l = 0; l < lines.length; l++) {
+                drawText(lines[l], x, y + l * lineHeight, size, defaultFillStyle, align, center, fade, stroke, context);
+            }
+            return;
+        }
         size += config.graphical.fontSizeBoost;
         // Get text dimensions and resize/reset the canvas
         let offset = size / 5,
@@ -5841,7 +5850,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         scaleScreenRatio(ratio, true);
         clearScreen(gameDraw.mixColors(color.red, color.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
         drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
-        if (global.message === "") global.message = "The connection closed due to an error.\n" + "Try reloading and clearing your cache, or joining another server.";
+        if (global.message === "") global.message = "The connection closed due to an error.\nTry reloading and clearing your cache, or joining another server.";
         drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.orange, "center");
         lastPing = 0;
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
