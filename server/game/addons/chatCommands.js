@@ -301,6 +301,7 @@ let commands = [
                         socket.status.mockupData = socket.initMockupList();
                         socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
                         socket.status.selectedLeaderboard = "stop";
+                        socket.status.entitySent?.clear();
                         socket.talk("RE"); // Also reset the global.entities in the client so it can refresh.
                         if (Config.load_all_mockups) {
                             for (let i = 0; i < mockupData.length; i++) {
