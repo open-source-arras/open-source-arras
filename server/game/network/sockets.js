@@ -17,7 +17,7 @@ class socketManager {
         this.playersReceived = [];
         this.bans = [];
         // Import permissions
-        for (let entry of require("../permissions.js")) {
+        for (let entry of require("../../permissions.js")) {
             if (entry.key != null) {
                 this.permissionsDict[entry.key] = entry;
             }
