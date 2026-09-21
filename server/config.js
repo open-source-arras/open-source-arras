@@ -111,7 +111,7 @@ module.exports = {
 
             properties: {
                 teams: 2,
-                bot_cap: 40,
+                bot_cap: 20,
                 server_travel_properties: {
                     loop_interval: 10_000, // how often the portal loop executes in seconds
                     portals: 1 // amount of portals to spawn
