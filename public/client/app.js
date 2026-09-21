@@ -1605,7 +1605,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         let lines = ("" + rawText).split(/\r?\n/);
         if (lines.length > 1) {
             let s = size + config.graphical.fontSizeBoost,
-                lineHeight = s + 2 * (s / 5) + 8;
+                lineHeight = s + 2 * (s / 5);
             for (let l = 0; l < lines.length; l++) {
                 drawText(lines[l], x, y + l * lineHeight, size, defaultFillStyle, align, center, fade, stroke, context);
             }
@@ -4413,7 +4413,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
         drawText("Level " + gui.__s.getLevel(), x - 270, y + 100, 12, color.guiwhite, "center");
         drawText(picture.name, x - 270, y + 125, 18, color.guiwhite, "center");
-        drawText(new Date(timestamp).toISOString() + "", x, y - 165, 8.125, color.guiwhite, "center");
+        drawText(new Date(timestamp).toISOString() + "", x, y - 164, 8.125, color.guiwhite, "center");
         drawText(name == "" ? "Your Score: " : name + "'s Score: ", x - 170, y - 50, 23.75, color.guiwhite);
         drawText(util.formatLargeNumber(Math.round(global.finalScore.get())), x - 170, y + 11, 48, color.guiwhite);
         ctx[2].globalAlpha = global.lerp(1, 1.25, glide);
@@ -5851,7 +5851,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         clearScreen(gameDraw.mixColors(color.red, color.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
         drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
         if (global.message === "") global.message = "The connection closed due to an error.\nTry reloading and clearing your cache, or joining another server.";
-        drawText(new Date(global.disconnectTimestamp || Date.now()).toISOString() + "", global.screenWidth / 2, global.screenHeight / 2 - 60, 8.125, color.guiwhite, "center");
+        drawText(new Date(global.disconnectTimestamp || Date.now()).toISOString() + "", global.screenWidth / 2, global.screenHeight / 2 - 224, 8.125, color.guiwhite, "center");
         drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.orange, "center");
         lastPing = 0;
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
