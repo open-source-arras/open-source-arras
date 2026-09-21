@@ -534,6 +534,9 @@ Class.menu_addons = makeMenu("Addons Menu", {
     tooltip: "Content that is (usually) not part of Open Source Arras but was added by someone else.",
     boxColor: "rainbow",
     upgrades: [
+        "menu_youtuber",
+        "guillotine",
+        "banHammer",
         "menu_testing"
     ]
 });
