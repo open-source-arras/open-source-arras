@@ -1515,7 +1515,9 @@ class socketManager {
             for (let g = 0; g < gunLen; g++) {
                 const off = gunStart + 1 + g * GUN_PHOTO_FIELDS;
                 for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
-                    if (prev[off + f] !== now[off + f]) { anyGunChanged = true; break; }
+                    if (prev[off + f] !== now[off + f]) {
+                        anyGunChanged = true; break; 
+                    }
                 }
                 if (anyGunChanged) break;
             }

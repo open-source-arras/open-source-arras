@@ -215,7 +215,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 "critical",
                 "discord",
                 "stat",
-                "achieve",
+                "achieve"
             ];
             if (allowedType.includes(type)) {
                 let b = document.getElementById("menuTabs");
@@ -368,6 +368,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         for (let doc of document.getElementById("optionMenuTabs").children) {
             if (doc.textContent.toLowerCase() === "addons") doc.style.display = "";
         }
+
         // OSA info
         let i_div = document.createElement("div");
         i_div.classList.add("optionsHeader");
