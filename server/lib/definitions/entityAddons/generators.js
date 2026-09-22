@@ -297,7 +297,7 @@ function rarities(type = "") {
     return Array(rarities.length).fill().map((v, i) => rarities[i] + (type.at(0).toUpperCase() + type.slice(1, type.length)));
 }
 function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, variesInSize = true, spawnOffset = 0.5) {
-    if (!Class[type]) return {PARENT: "spectator", LABEL: "Error"};
+    if (!Class[entity]) return {PARENT: "spectator", LABEL: "Error"};
     let found = {};
     let toFind = [
         "SHAPE", "LABEL", "COLOR", "SIZE", "VALUE"
