@@ -122,7 +122,7 @@ Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false)
 Class[`gaybabyjail${suffix}`] = {
     PARENT: "genBody",
     LABEL: `Gay Baby Jail Generator`,
-    SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 -0.1 -1 L -0.4 -1.2 L -0.9 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.9 0.9 L -0.4 1.2 L -0.1 1 A 1 1 0 0 0 0.9 0.4",
+    SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 0 -1 L -0.3 -1.2 L -0.8 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.8 0.9 L -0.3 1.2 L 0 1 A 1 1 0 0 0 0.9 0.4",
     COLOR: "lightGray",
     SIZE: 24,
     UPGRADES_TIER_0: [],
