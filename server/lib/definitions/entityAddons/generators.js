@@ -257,7 +257,7 @@ generatorMatrix(shapeGeneratorUpgrades);
 );
 
 // functions
-function generatorMatrix(matrix, previous, next) {
+function generatorMatrix(matrix) {
     const height = matrix.length,
         width = matrix[0].length;
 
