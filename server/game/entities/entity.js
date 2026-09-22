@@ -1228,7 +1228,7 @@ class Entity extends EventEmitter {
                 this.sendMessage(killText + killSuffix);
             }
             // If I'm the leader, broadcast it:
-            if (this.id === global.gameManager.room.topPlayerID) {
+            if (Config.broadcast_leader_usurped && this.id === global.gameManager.room.topPlayerID) {
                 let usurptText = this.name === "" ? "The leader" : this.name;
                 if (notJustFood) {
                     usurptText += " has been usurped by";

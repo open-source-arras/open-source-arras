@@ -184,6 +184,7 @@ module.exports = {
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
     sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
+    broadcast_leader_usurped: false, // Broadcasts "The leader has been usurped by..." when the leader dies.
 
     // Seasonal
     fireworks: false, // Toggles fireworks (automatic around July 4 in US-region servers)
