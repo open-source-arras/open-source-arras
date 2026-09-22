@@ -391,6 +391,7 @@ class Gun extends EventEmitter {
         }
         o.velocity = s;
         this.bulletInit(o);
+        o.SIZE *= (o.squiggle ?? 1);
         o.coreSize = o.SIZE;
         this.master.emit(this.altFire ? "altFire" : "fire", {
             body: this.master,
