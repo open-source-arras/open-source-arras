@@ -18,12 +18,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     let { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow } = socketStuff;
     // Get the changelog
     fetch("CHANGELOG.md", { cache: "no-cache" }).then(response => response.text()).then(response => {
-      let b = [];
-      var c = [];
-      for (let d of response.split("\n"))
-        0 !== d.length &&
-          ((response = d.charAt(0)),
-          "#" === response
+        let b = [];
+        var c = [];
+        for (let d of response.split("\n"))
+            0 !== d.length &&
+            ((response = d.charAt(0)),
+            "#" === response
             ? (b.push(c), (c = [d.slice(1).trim()]))
             : "-" === response
             ? c.push(d.slice(1).trim())
