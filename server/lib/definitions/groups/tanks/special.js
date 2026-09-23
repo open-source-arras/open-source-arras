@@ -1542,7 +1542,7 @@ Class.developer = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
                 TYPE: "developerBullet"
             }
         }

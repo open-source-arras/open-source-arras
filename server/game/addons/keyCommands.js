@@ -954,7 +954,6 @@ function init() {
     ];
     global.runKeyCommand = (socket, codes) => {
         if (!socket?.player?.body) return 1;
-      
         if (!codes.length) codes = ["default"];
         let name = codes.find((code) => code.startsWith("-")) || codes[codes.length - 1];
         let command, length = 0;

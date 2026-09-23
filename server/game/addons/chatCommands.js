@@ -71,7 +71,6 @@ let commands = [
         }
     },
     {
-    {
         command: ["id"],
         description: "Show your player id.",
         permissionLevel: 0,
@@ -80,6 +79,7 @@ let commands = [
             socket.talk("m", 4_000, `${socket.id}`);
         }
     },
+    {
         command: ["arena"],
         description: "Manage the arena",
         hidden: true,
