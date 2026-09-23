@@ -82,7 +82,6 @@ let commands = [
     },
         command: ["arena"],
         description: "Manage the arena",
-        permissionLevel: 0,
         hidden: true,
         permissionLevel: 3,
         run: ({ socket, args, gameManager }) => {
