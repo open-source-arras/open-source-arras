@@ -566,7 +566,7 @@ Class.banHammer = {
                 const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
                 let lowest = Infinity, closest;
                 for (const instance of entities.values()) {
-                    if (instance === body || !instance.isPlayer) continue;
+                    if (!instance.isPlayer) continue;
                     let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
                     if (distance < lowest) {
                         lowest = distance;
@@ -592,6 +592,12 @@ Class.banHammer = {
                 if (e.socket.status.operatorLevel >= 4) {
                     body.sendMessage("You cannot ban this player!");
                     return;
+                }
+                for (const instance of entities.values()) {
+                    if (instance === body) {
+                        body.sendMessage("You cannot ban yourself!");
+                        return;
+                    }
                 }
                 global.gameManager.socketManager.ban(e.socket, "Ban Hammer");
                 body.sendMessage("Banned the selected player.");
