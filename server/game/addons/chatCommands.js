@@ -71,6 +71,15 @@ let commands = [
         }
     },
     {
+    {
+        command: ["id"],
+        description: "Show your player id.",
+        permissionLevel: 0,
+        hidden: true,
+        run: ({ socket }) => {
+            socket.talk("m", 4_000, `${socket.id}`);
+        }
+    },
         command: ["arena"],
         description: "Manage the arena",
         permissionLevel: 0,
