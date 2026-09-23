@@ -325,7 +325,7 @@ let commands = [
 function runCommand(socket, message, gameManager) {
     if (!message.startsWith(prefix) || !socket?.player?.body) return;
 
-    let args = message.slice(prefix.length).split(" ");
+    let args = message.slice(prefix.length).trimStart().split(/\s+/);
     let commandName = args.shift();
     let command = commands.find((command) => command.command.includes(commandName));
     if (command) {
