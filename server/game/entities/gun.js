@@ -36,8 +36,8 @@ class Gun extends EventEmitter {
         this.alpha = 1;
         this.strokeWidth = 1;
         this.canShoot = false;
-        this._wasPressed = false;
-        this._emitFireEvent = false;
+        this.wasPressed = false;
+        this.emitFireEvent = false;
         this.borderless = false;
         this.drawFill = true;
         this.drawAbove = false;
@@ -236,12 +236,12 @@ class Gun extends EventEmitter {
             }
         }
         let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
-        if (currentlyPressed && !this._wasPressed) {
-            this._emitFireEvent = true;
+        if (currentlyPressed && !this.wasPressed) {
+            this.emitFireEvent = true;
         } else {
-            this._emitFireEvent = false;
+            this.emitFireEvent = false;
         }
-        this._wasPressed = currentlyPressed;
+        this.wasPressed = currentlyPressed;
         // Firing routines
         if (this.autofire || currentlyPressed) {
             if (this.body.settings.hasNoReloadDelay && shootPermission) {
@@ -359,8 +359,8 @@ class Gun extends EventEmitter {
             o.life();
             this.onShootFunction();
             this.recoilDir = this.body.facing + this.angle;
-            if (this._emitFireEvent) {
-                this._emitFireEvent = false;
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
                 this.master.emit(this.altFire ? "altFire" : "fire", {
                     gun: this,
                     store: this.store,
@@ -381,8 +381,8 @@ class Gun extends EventEmitter {
                     break;
             }
             this.bulletInitIndependent(o);
-            if (this._emitFireEvent) {
-                this._emitFireEvent = false;
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
                 this.master.emit(this.altFire ? "altFire" : "fire", {
                     gun: this,
                     store: this.store,
@@ -407,8 +407,8 @@ class Gun extends EventEmitter {
         o.velocity = s;
         this.bulletInit(o);
         o.coreSize = o.SIZE;
-        if (this._emitFireEvent) {
-            this._emitFireEvent = false;
+        if (this.emitFireEvent) {
+            this.emitFireEvent = false;
             this.master.emit(this.altFire ? "altFire" : "fire", {
                 body: this.master,
                 gun: this,
