@@ -165,7 +165,7 @@ let commands = [
     {
         command: ["define"],
         description: "Change your tank.",
-        permissionLevel: 2,
+        permissionLevel: 7,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
