@@ -125,7 +125,7 @@ Class[`gaybabyjail${suffix}`] = {
     SIZE: 24,
     UPGRADES_TIER_0: [],
     BODY: {FOV: base.FOV * 1.5},
-    PROPS: [
+    TURRETS: [ // bug, should be props
         ...weaponArray({
             POSITION: {SIZE: 6, X: -6, LAYER: 1, ANGLE: 60},
             TYPE: `gaybabyjail${suffix}arrow`
