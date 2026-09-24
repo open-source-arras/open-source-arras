@@ -2,6 +2,7 @@ class gameHandler {
     constructor() {
         this.loopCounter = 0;
         this.loophealCounter = 0;
+        this.broadcastTick = 0;
         this.bots = [];
         this.foods = [];
         this.nestFoods = [];
@@ -58,7 +59,7 @@ class gameHandler {
             case instance.isPortal || other.isPortal:
                 let [portal, otherBody] = instance.isPortal ? [instance, other] : [other, instance];
 
-                if (portal.settings.destination && otherBody.isPlayer && otherBody.socket) {
+                if (portal.settings.destination && otherBody.isPlayer && otherBody.socket && !otherBody.immuneToPortals) {
                     global.gameManager.socketManager.sendToServer(otherBody.socket, portal.settings.destination);
                 } else if (["bullet", "drone", "trap", "satellite"].includes(otherBody.type)) {
                     if (otherBody.master !== portal) otherBody.kill();
@@ -276,10 +277,18 @@ class gameHandler {
         logs.master.mark();
         // Update lastCycle only once
         global.gameManager.room.lastCycle = util.time();
-        for (let i = 0; i < global.gameManager.clients.length; i++) {
-            let client = global.gameManager.clients[i];
-            if (client.status.readyToBroadcast) {
-                client.view.gazeUpon();
+        global.viewGrid.clear();
+        for (const instance of entities.values()) {
+            const half = 1.5 * instance.size;
+            global.viewGrid.insert(instance, instance.x - half, instance.y - half, instance.x + half, instance.y + half);
+        }
+        if (++this.broadcastTick >= (Config.broadcast_divisor || 1)) {
+            this.broadcastTick = 0;
+            for (let i = 0; i < global.gameManager.clients.length; i++) {
+                let client = global.gameManager.clients[i];
+                if (client.status.readyToBroadcast) {
+                    client.view.gazeUpon();
+                }
             }
         }
     };

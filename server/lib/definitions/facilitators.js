@@ -1499,7 +1499,6 @@ exports.makeCrasher = type => ({
     FACING_TYPE: "smoothWithMotion",
     HITS_OWN_TYPE: "hard",
     HAS_NO_MASTER: true,
-    VALUE: type.VALUE * 5,
     BODY: {
         SPEED: 1 + 5 / Math.max(2, (type.PROPS.length ?? 0) + type.SHAPE),
         HEALTH: Math.pow(type.BODY.HEALTH, 2/3),
@@ -1572,18 +1571,16 @@ exports.makeLaby = (type, tier, rarity, level, baseScale = 1) => {
     let usableSHAPE = Math.max(type.SHAPE, 3),
         downscale = Math.cos(Math.PI / usableSHAPE),
         healthMultiplier = Math.pow(5, level) - (level > 2 ? Math.pow(5, level) / Math.pow(5, level - 2) : 0);
+
+    let value = type.VALUE;
+    if (level > 0) {
+        value = type.VALUE * (level > 2 ? 8 : 5);
+    };
+
     return {
         PARENT: "food",
-        LABEL: ["", "Beta ", "Alpha ", "Omega ", "Gamma ", "Delta "][level] + type.LABEL,
-        VALUE: util.getReversedJackpot(
-            Math.min(
-                5e6,
-                (tier == 0
-                    ? 30 * (level > 1 ? Math.pow(6, level - 1) : level) + 8
-                    : 30 * Math.pow(5, tier + level - 1)) *
-                    (labyRarityToScore[rarity] || 1)
-            )
-        ),
+        LABEL: ["", "Beta ", "Alpha ", "Omega "][level] + type.LABEL,
+        VALUE: util.getReversedJackpot(Math.min(5e6, value)),
         SHAPE: type.SHAPE,
         SIZE: (type.SIZE * baseScale) / downscale ** level,
         COLOR: type.COLOR,

@@ -1273,12 +1273,13 @@ class io_scaleWithMaster extends IO {
     constructor(body) {
         super(body);
         this.storedSize = 0;
+        this.ratio = this.body.SIZE * 4.1
     }
     think(input) {
         let masterSize = this.body.master.size;
         if (masterSize != this.storedSize) {
             this.storedSize = masterSize;
-            this.body.SIZE = masterSize * this.body.size / this.body.master.size;
+            this.body.SIZE = masterSize * this.ratio;
         }
     }
 }

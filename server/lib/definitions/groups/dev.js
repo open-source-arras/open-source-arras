@@ -146,7 +146,7 @@ Class.menu_dominators = makeMenu("Dominator Menu", {
         //"trapperDominator_AR",
         "antiTankMachineGun",
         "baseProtector",
-        "baseProtector_alt"
+        "baseProtector_diep"
     ]
 });
 Class.menu_sanctuaries = makeMenu("Sanctuary Tier Menu", {
@@ -534,6 +534,9 @@ Class.menu_addons = makeMenu("Addons Menu", {
     tooltip: "Content that is (usually) not part of Open Source Arras but was added by someone else.",
     boxColor: "rainbow",
     upgrades: [
+        "menu_youtuber",
+        "guillotine",
+        "banHammer",
         "menu_testing"
     ]
 });

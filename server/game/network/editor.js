@@ -44,8 +44,8 @@ class Editor {
     connect(ws, req) {
         const queryIndex = req.url.indexOf("?");
         const token = queryIndex >= 0 ? req.url.slice(queryIndex + 1) : "";
-        
-        ws.verified = Config.editor && token && this.gameServer.socketManager.permissionsDict[token]?.administrator === true;
+
+        ws.verified = Config.editor && token && this.gameServer.socketManager.permissionsDict[token]?.allowEditor === true;
 
         ws.on("message", message => this.incoming(ws, message));
     }
@@ -147,6 +147,7 @@ class Editor {
                                 socket.status.mockupData = socket.initMockupList();
                                 socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
                                 socket.status.selectedLeaderboard = "stop";
+                                socket.status.entitySent?.clear();
                                 socket.talk("RE");
                                 if (Config.load_all_mockups) {
                                     for (let i = 0; i < mockupData.length; i++) {
