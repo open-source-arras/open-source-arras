@@ -1,32 +1,20 @@
-const {combineStats} = require("../facilitators.js")
+const {combineStats, weaponArray, weaponMirror} = require("../facilitators.js")
 
+
+let suffix = "Gen"
 // Generators
 const shapeGeneratorUpgrades = [
-    ["egg", "gem", "gravel", "stone", "rock", "wall"].map(x => x + "Gen"),
-    ["square", "shinySquare", "legSquare", "shadowSquare", "rainbowSquare", "transSquare"].map(x => x + "Gen"),
-    ["triangle", "shinyTriangle", "legTriangle", "shadowTriangle", "rainbowTriangle", "transTriangle"].map(x => x + "Gen"),
-    ["pentagon", "shinyPentagon", "legPentagon", "shadowPentagon", "rainbowPentagon", "transPentagon"].map(x => x + "Gen"),
-    ["beta", "shinyBeta", "legBeta", "shadowBeta", "rainbowBeta", "transBeta"].map(x => x + "PentagonGen"),
-    ["alpha", "shinyAlpha", "legAlpha", "shadowAlpha", "rainbowAlpha", "transAlpha"].map(x => x + "PentagonGen")
-]
-const hostileShapeGeneratorUpgrades = [
-    ["crasher", "sentrySwarm", "sentryGun", "sentryTrap"].map(x => x + "Gen"),
-    ["Crasher", "SentrySwarm", "SentryGun", "SentryTrap"].map(x => "shiny" + x + "Gen"),
-    ["legCrasher", "sentinelLauncher", "sentinelCrossbow", "sentinelMinigun"].map(x => x + "Gen")
-]
-const eliteBossGeneratorUpgrades = [
-    ["Destroyer", "Gunner", "Sprayer", "Battleship", "Spawner"].map(x => "elite" + x + "Gen"),
-    ["eliteSkimmer", "eliteSpinner", "oldEliteSprayer", "legionaryCrasher", "eliteTrapGuard"].map(x => x + "Gen")
-]
-const mysticalBossGeneratorUpgrades = [
-    ["sorcerer", "summoner", "enchantress", "exorcistor", "shaman"].map(x => x + "Gen")
-]
-const nesterBossGeneratorUpgrades = [
-    ["Keeper", "Warden", "Guardian"].map(x => "nest" + x + "Gen")
-]
-const rogueBossGeneratorUpgrades = [
-    ["Palisade", "Armada"].map(x => "rogue" + x + "Gen")
-]
+    ["wall", "egg", "gem"],
+    ["gravel", "square", ...rarities("square")],
+    ["stone", "triangle", ...rarities("triangle")],
+    ["rock", "pentagon", ...rarities("pentagon")],
+    ["pumpkin", "betaPentagon", ...rarities("betaPentagon")],
+    ["gaybabyjail", "alphaPentagon", ...rarities("alphaPentagon")],
+    [null, "crasher"],
+    [null, "sentrySwarm", "shinySentrySwarm"],
+    [null, "sentryGun", "shinySentryGun"],
+    [null, "sentryTrap", "shinySentryTrap"]
+].map(array => array.map(x => x + suffix))
 
 Class.genBody = {
     PARENT: "spectator",
@@ -39,22 +27,261 @@ Class.genBody = {
     ON: [],
     RESET_EVENTS: true
 };
+Class.genWall = {
+    PARENT: "wall",
+    SIZE: Class.wall.SIZE * 2
+}
+Class.genCrasher = {
+    TYPE: [],
+    PARENT: "crasher",
+    ACCEPTS_SCORE: false,
+};
+for (let def of ["sentryTrap", "sentryGun", "sentrySwarm"]) {
+    Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+        TYPE: [],
+        PARENT: def,
+        ACCEPTS_SCORE: false,
+        CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    }
+}
+for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
+    Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+        TYPE: [],
+        PARENT: def,
+        SIZE: Class.sentry.SIZE / 1.5,
+        ACCEPTS_SCORE: false,
+        CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
+    }
+    Class["genDisplay" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+        PARENT: def,
+        SIZE: Class.sentry.SIZE,
+    }
+}
 
-const makeGenerator = (entity, entityLabel, shortEntityLabel, displayEntity, displayEntitySize, shape, color, entitySize, maxChildren = 100, launchSpeed = 1) => {
+Class["gaybabyjail" + suffix + "arrow"] = {
+    PARENT: "genericTank",
+    SHAPE: "M -1 -0.3 L 1 -0.3 L 1 -0.9 L 2 0 L 1 0.9 L 1 0.3 L -1 0.3 Z",
+    INDEPENDENT: true,
+}
+Class["gaybabyjail" + suffix + "ring"] = {
+    PARENT: "genericTank",
+    SHAPE: "M0-1A1 1 0 000 1 1 1 0 000-1M0-.7A.7 .7 0 010 .7 .7 .7 0 010-.7",
+    INDEPENDENT: true,
+}
+
+//EGG GENERATOR
+Class[`egg${suffix}`] = makeGenerator("egg");
+//SQUARE GENERATORS
+Class[`square${suffix}`] = makeGenerator("square")
+Class[`shinySquare${suffix}`] = makeGenerator("shinySquare", "square", 1, 2)
+Class[`legendarySquare${suffix}`] = makeGenerator("legendarySquare", "square", 1, 4)
+Class[`shadowSquare${suffix}`] = makeGenerator("shadowSquare", "square", 1, 6)
+Class[`rainbowSquare${suffix}`] = makeGenerator("rainbowSquare", "square", 1, 8)
+Class[`transSquare${suffix}`] = makeGenerator("transSquare", "square", 1, 10)
+
+//TRIANGLE GENERATORS
+Class[`triangle${suffix}`] = makeGenerator("triangle")
+Class[`shinyTriangle${suffix}`] = makeGenerator("shinyTriangle", "triangle", 1, 3)
+Class[`legendaryTriangle${suffix}`] = makeGenerator("legendaryTriangle", "triangle", 1, 6)
+Class[`shadowTriangle${suffix}`] = makeGenerator("shadowTriangle", "triangle", 1, 9)
+Class[`rainbowTriangle${suffix}`] = makeGenerator("rainbowTriangle", "triangle", 1, 12)
+Class[`transTriangle${suffix}`] = makeGenerator("transTriangle", "triangle", 1, 15)
+
+//PENTAGON GENERATORS
+Class[`pentagon${suffix}`] = makeGenerator("pentagon")
+Class[`shinyPentagon${suffix}`] = makeGenerator("shinyPentagon", "pentagon", 1, 4)
+Class[`legendaryPentagon${suffix}`] = makeGenerator("legendaryPentagon", "pentagon", 1, 8)
+Class[`shadowPentagon${suffix}`] = makeGenerator("shadowPentagon", "pentagon", 1, 12)
+Class[`rainbowPentagon${suffix}`] = makeGenerator("rainbowPentagon", "pentagon", 1, 16)
+Class[`transPentagon${suffix}`] = makeGenerator("transPentagon", "pentagon", 1, 20)
+//beta
+Class[`betaPentagon${suffix}`] = makeGenerator("betaPentagon", null, 1, 15)
+Class[`shinyBetaPentagon${suffix}`] = makeGenerator("shinyBetaPentagon", "betaPentagon", 1, 20)
+Class[`legendaryBetaPentagon${suffix}`] = makeGenerator("legendaryBetaPentagon", "betaPentagon", 1, 25)
+Class[`shadowBetaPentagon${suffix}`] = makeGenerator("shadowBetaPentagon", "betaPentagon", 1, 30)
+Class[`rainbowBetaPentagon${suffix}`] = makeGenerator("rainbowBetaPentagon", "betaPentagon", 1, 35)
+Class[`transBetaPentagon${suffix}`] = makeGenerator("transBetaPentagon", "betaPentagon", 1, 40)
+//alpha
+Class[`alphaPentagon${suffix}`] = makeGenerator("alphaPentagon", null, 1, 25)
+Class[`shinyAlphaPentagon${suffix}`]  = makeGenerator("shinyAlphaPentagon", "alphaPentagon", 1, 31)
+Class[`legendaryAlphaPentagon${suffix}`]  = makeGenerator("legendaryAlphaPentagon", "alphaPentagon", 1, 37)
+Class[`shadowAlphaPentagon${suffix}`]  = makeGenerator("shadowAlphaPentagon", "alphaPentagon", 1, 43)
+Class[`rainbowAlphaPentagon${suffix}`]  = makeGenerator("rainbowAlphaPentagon", "alphaPentagon", 1, 49)
+Class[`transAlphaPentagon${suffix}`]  = makeGenerator("transAlphaPentagon", "alphaPentagon", 1, 55)
+//MISC GENERATORS
+
+Class[`gem${suffix}`] = makeGenerator("gem", null, 0, 0)
+Class[`wall${suffix}`] = makeGenerator("genWall", null, 0, 0, false, 1)
+Class[`gravel${suffix}`] = makeGenerator("gravel", null, 0, 0, false)
+Class[`stone${suffix}`] = makeGenerator("stone", null, 0, 0, false)
+Class[`rock${suffix}`] = makeGenerator("rock", null, 0, 0, false)
+Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false)
+Class[`gaybabyjail${suffix}`] = {
+    PARENT: "genBody",
+    LABEL: `Gay Baby Jail Generator`,
+    SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 0 -1 L -0.3 -1.2 L -0.8 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.8 0.9 L -0.3 1.2 L 0 1 A 1 1 0 0 0 0.9 0.4",
+    COLOR: "lightGray",
+    SIZE: 24,
+    UPGRADES_TIER_0: [],
+    BODY: {FOV: 1.5},
+    TURRETS: [
+        ...weaponArray({
+            POSITION: {SIZE: 6, X: -6, LAYER: 1, ANGLE: 60},
+            TYPE: `gaybabyjail${suffix}arrow`
+        },3),
+        {
+            POSITION: {SIZE: 15, LAYER: 1},
+            TYPE: `gaybabyjail${suffix}ring`
+        },
+    ],
+    GUNS: [
+        ...weaponArray([
+            {
+                POSITION: {
+                    LENGTH: 1,
+                    WIDTH: 5.25,
+                    X: -105.5,
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([{
+                        shudder: 0.1,
+                        speed: 0,
+                        recoil: 0.1,
+                        reload: 6,
+                        size: Class.genWall.SIZE / 5.5
+                    }]),
+                    TYPE: ["genWall", {INDEPENDENT: true}],
+                    NO_LIMITATIONS: true,
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 5.25,
+                    ASPECT: 2,
+                    X: -110
+                }
+            }
+        ], 4),
+        ...weaponArray(weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 1,
+                    WIDTH: 5.25,
+                    X: -105.5,
+                    Y: 40,
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([{
+                        shudder: 0.1,
+                        speed: 0,
+                        recoil: 0.1,
+                        reload: 6,
+                        size: Class.genWall.SIZE / 5.5
+                    }]),
+                    TYPE: ["genWall", {INDEPENDENT: true}],
+                    NO_LIMITATIONS: true,
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 5.25,
+                    ASPECT: 2,
+                    X: -110,
+                    Y: 40,
+                }
+            }
+        ]), 4),
+        ...weaponArray([
+            {
+                POSITION: {
+                    LENGTH: 1,
+                    WIDTH: 5.25,
+                    X: -105.5,
+                    ANGLE: 45,
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([{
+                        shudder: 0.1,
+                        speed: 0,
+                        recoil: 0.1,
+                        reload: 6,
+                        size: Class.genWall.SIZE / 5.5
+                    }]),
+                    TYPE: ["genWall", {INDEPENDENT: true}],
+                    NO_LIMITATIONS: true,
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 5.25,
+                    ASPECT: 2,
+                    X: -110,
+                    ANGLE: 45
+                }
+            }
+        ], 4),
+        ...weaponArray({
+            POSITION: {WIDTH: 95, LENGTH: 4, X: 110},
+        }, 8)
+    ]
+};
+//HOSTILE POLYGONS GENERATORS
+//crasher
+Class[`crasher${suffix}`] = makeGenerator("crasher", null, 0, 0, false)
+//sentries
+Class[`sentrySwarm${suffix}`] = makeGenerator("genSentrySwarm", null, 1, 0, 0, false)
+Class[`sentryGun${suffix}`] = makeGenerator("genSentryGun", null, 1, 0, 0, false)
+Class[`sentryTrap${suffix}`] = makeGenerator("genSentryTrap", null, 1, 0, 0, false)
+//shiny sentries
+Class[`shinySentrySwarm${suffix}`] = makeGenerator("genShinySentrySwarm", "genDisplayShinySentrySwarm", 1, 0, 0, false)
+Class[`shinySentryGun${suffix}`] = makeGenerator("genShinySentryGun", "genDisplayShinySentryGun", 1, 0, 0, false)
+Class[`shinySentryTrap${suffix}`] = makeGenerator("genShinySentryTrap", "genDisplayShinySentryTrap", 1, 0, 0, false)
+
+function rarities(type = "") {
+    const rarities = ["shiny", "legendary", "shadow", "rainbow", "trans"];
+    return Array(rarities.length).fill().map((v, i) => rarities[i] + (type.at(0).toUpperCase() + type.slice(1, type.length)));
+}
+function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, variesInSize = true, spawnOffset = 0.75) {
+    if (!Class[entity]) return {PARENT: "spectator", LABEL: "Error"};
+    let found = {entity: {}, displayEntity: {}};
+    let toFind = [
+        "SHAPE", "LABEL", "COLOR", "SIZE", "VALUE"
+    ]
+    const findProperties = (type, returnTo, ...properties) => {
+        let canContinue = true;
+        if (!Class[type]) canContinue = false
+        if (canContinue) {
+            if (!properties.length) properties = toFind; 
+            properties.forEach(k => {
+                if (Class[type][k] !== undefined) returnTo[k] = Class[type][k]
+                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, returnTo, k)
+                else returnTo[k] = Class.genericTank[k];
+            })
+        }
+    }
+    if (!displayEntity) displayEntity = entity;
+    findProperties(entity, found.entity);
+    findProperties(displayEntity, found.displayEntity);
+
     const config = {
         PARENT: "genBody",
-        LABEL: `${entityLabel} Generator`,
-        UPGRADE_LABEL: `${shortEntityLabel} Gen.`,
-        SHAPE: shape,
-        COLOR: color,
-        MAX_CHILDREN: maxChildren,
+        LABEL: `${found.entity.LABEL} Generator`,
+        SHAPE: found.entity.SHAPE,
+        COLOR: { // prevent shifts from affecting us
+            BASE: found.entity.COLOR?.BASE ?? found.entity.COLOR, 
+            BRIGHTNESS_SHIFT: found.entity.COLOR?.BRIGHTNESS_SHIFT ?? 0, 
+            HUE_SHIFT: found.entity.COLOR?.HUE_SHIFT ?? 0
+        },
         UPGRADES_TIER_0: [],
-
         TURRETS: [{
-            TYPE: [displayEntity, {INDEPENDENT: true}],
+            TYPE: [displayEntity, {FACING_TYPE: "toTarget", INDEPENDENT: true}],
             POSITION: {
-                SIZE: displayEntitySize,
-                LAYER: 1
+                SIZE: Math.sqrt(found.displayEntity.SIZE) * 2,
+                LAYER: 1,
+                ARC: 0
             }
         }],
 
@@ -71,11 +298,11 @@ const makeGenerator = (entity, entityLabel, shortEntityLabel, displayEntity, dis
                         speed: launchSpeed,
                         recoil: 0.1,
                         reload: 6,
-                        size: entitySize / 13
+                        size: (found.entity.SIZE + extraSize) / 13
                     }]),
+                    TYPE: [entity, {INDEPENDENT: true, VARIES_IN_SIZE: variesInSize}],
                     NO_LIMITATIONS: true,
-                    SPAWN_OFFSET: 0,
-                    TYPE: [entity, { INDEPENDENT: true }]
+                    SPAWN_OFFSET: spawnOffset,
                 }
             },
             {
@@ -91,192 +318,17 @@ const makeGenerator = (entity, entityLabel, shortEntityLabel, displayEntity, dis
 
     return config;
 };
-
-Class.genCrasher = {
-    TYPE: [],
-    PARENT: "crasher"
-}
-Class.genShinyCrasher = {
-    PARENT: "genCrasher",
-    COLOR: "lime",
-    VALUE: 1e3
-}
-Class.genLegCrasher = {
-    PARENT: "genCrasher",
-    COLOR: "teal",
-    VALUE: 5e3
-}
-Class.genSentrySwarm = {
-    TYPE: [],
-    PARENT: ["sentrySwarm"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genSentryGun = {
-    TYPE: [],
-    PARENT: ["sentryGun"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genSentryTrap = {
-    TYPE: [],
-    PARENT: ["sentryTrap"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genShinySentrySwarm = {
-    TYPE: [],
-    PARENT: ["shinySentrySwarm"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genShinySentryGun = {
-    TYPE: [],
-    PARENT: ["shinySentryGun"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genShinySentryTrap = {
-    TYPE: [],
-    PARENT: ["shinySentryTrap"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genSentinelLauncher = {
-    TYPE: [],
-    PARENT: ["sentinelLauncher"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genSentinelCrossbow = {
-    TYPE: [],
-    PARENT: ["sentinelCrossbow"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-Class.genSentinelMinigun = {
-    TYPE: [],
-    PARENT: ["sentinelMinigun"],
-    CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-};
-
-//EGG GENERATOR
-Class.eggGen = makeGenerator("egg", "Egg", "Egg", "egg", 4.25, 0, "veryLightGrey", Class.egg.SIZE)
-
-//SQUARE GENERATORS
-Class.squareGen = makeGenerator("square", "Square", "Square", "square", 6, 4, "gold", Class.square.SIZE)
-Class.shinySquareGen = makeGenerator("shinySquare", "Shiny Square", "ShinySqr.", "square", 6, 4, "lime", Class.square.SIZE)
-Class.legSquareGen = makeGenerator("legendarySquare", "Legendary Square", "LegSqr.", "square", 6, 4, "teal", Class.square.SIZE)
-Class.shadowSquareGen = makeGenerator("shadowSquare", "Shadow Square", "ShdSqr.", "square", 6, 4, "pureBlack", Class.square.SIZE)
-Class.rainbowSquareGen = makeGenerator("rainbowSquare", "Rainbow Legendary Square", "RbwSqr.", "square", 6, 4, "rainbow", Class.square.SIZE)
-Class.transSquareGen = makeGenerator("transSquare", "Trans Legendary Square", "TransSqr.", "square", 6, 4, 37, Class.square.SIZE)
-
-//TRIANGLE GENERATORS
-Class.triangleGen = makeGenerator("triangle", "Triangle", "Triangle", "triangle", 6, 3, "orange", Class.triangle.SIZE)
-Class.shinyTriangleGen = makeGenerator("shinyTriangle", "Shiny Triangle", "ShinyTri.", "triangle", 6, 3, "lime", Class.triangle.SIZE)
-Class.legTriangleGen = makeGenerator("legendaryTriangle", "Legendary Triangle", "LegTri.", "triangle", 6, 3, "teal", Class.triangle.SIZE)
-Class.shadowTriangleGen = makeGenerator("shadowTriangle", "Shadow Triangle", "ShdTri.", "triangle", 6, 3, "pureBlack", Class.triangle.SIZE)
-Class.rainbowTriangleGen = makeGenerator("rainbowTriangle", "Rainbow Legendary Triangle", "RbwTri.", "triangle", 6, 3, "rainbow", Class.triangle.SIZE)
-Class.transTriangleGen = makeGenerator("transTriangle", "Trans Legendary Triangle", "TransTri.", "triangle", 6, 3, 37, Class.triangle.SIZE)
-
-//PENTAGON GENERATORS
-Class.pentagonGen = makeGenerator("pentagon", "Pentagon", "Pentagon", "pentagon", 8, 5, "purple", Class.pentagon.SIZE)
-Class.shinyPentagonGen = makeGenerator("shinyPentagon", "Shiny Pentagon", "ShinyPnt.", "pentagon", 8, 5, "lime", Class.pentagon.SIZE)
-Class.legPentagonGen = makeGenerator("legendaryPentagon", "Legendary Pentagon", "LegPnt.", "pentagon", 8, 5, "teal", Class.pentagon.SIZE)
-Class.shadowPentagonGen = makeGenerator("shadowPentagon", "Shadow Pentagon", "ShdPnt.", "pentagon", 8, 5, "pureBlack", Class.pentagon.SIZE)
-Class.rainbowPentagonGen = makeGenerator("rainbowPentagon", "Rainbow Legendary Pentagon", "RbwPnt.", "pentagon", 8, 5, "rainbow", Class.pentagon.SIZE)
-Class.transPentagonGen = makeGenerator("transPentagon", "Trans Legendary Pentagon", "TransPnt.", "pentagon", 8, 5, 37, Class.pentagon.SIZE)
-//beta
-Class.betaPentagonGen = makeGenerator("betaPentagon", "Beta Pentagon", "BetaPnt.", "pentagon", 12, 5, "purple", Class.betaPentagon.SIZE + 15)
-Class.shinyBetaPentagonGen = makeGenerator("shinyBetaPentagon", "Shiny Beta Pentagon", "ShinyBPnt.", "pentagon", 12, 5, "lime", Class.betaPentagon.SIZE + 15)
-Class.legBetaPentagonGen = makeGenerator("legendaryBetaPentagon", "Legendary Beta Pentagon", "LegBPnt.", "pentagon", 12, 5, "teal", Class.betaPentagon.SIZE + 15)
-Class.shadowBetaPentagonGen = makeGenerator("shadowBetaPentagon", "Shadow Beta Pentagon", "ShdBPnt.", "pentagon", 12, 5, "pureBlack", Class.betaPentagon.SIZE + 15)
-Class.rainbowBetaPentagonGen = makeGenerator("rainbowBetaPentagon", "Rainbow Legendary Beta Pentagon", "RbwBPnt.", "pentagon", 12, 5, "rainbow", Class.betaPentagon.SIZE + 15)
-Class.transBetaPentagonGen = makeGenerator("transBetaPentagon", "Trans Legendary Beta Pentagon", "TransBPnt.", "pentagon", 12, 5, 37, Class.betaPentagon.SIZE + 15)
-//alpha
-Class.alphaPentagonGen = makeGenerator("alphaPentagon", "Alpha Pentagon", "AlphaPnt.", "pentagon", 15, 5, "purple", Class.alphaPentagon.SIZE + 25)
-Class.shinyAlphaPentagonGen = makeGenerator("shinyAlphaPentagon", "Shiny Alpha Pentagon", "ShinyAPnt.", "pentagon", 15, 5, "lime", Class.alphaPentagon.SIZE + 30)
-Class.legAlphaPentagonGen = makeGenerator("legendaryAlphaPentagon", "Legendary Alpha Pentagon", "LegAPnt.", "pentagon", 15, 5, "teal", Class.alphaPentagon.SIZE + 40)
-Class.shadowAlphaPentagonGen = makeGenerator("shadowAlphaPentagon", "Shadow Alpha Pentagon", "ShdAPnt.", "pentagon", 15, 5, "pureBlack", Class.alphaPentagon.SIZE + 50)
-Class.rainbowAlphaPentagonGen = makeGenerator("rainbowAlphaPentagon", "Rainbow Legendary Alpha Pentagon", "RbwAPnt.", "pentagon", 15, 5, "rainbow", Class.alphaPentagon.SIZE + 70)
-Class.transAlphaPentagonGen = makeGenerator("transAlphaPentagon", "Trans Legendary Alpha Pentagon", "TransAPnt.", "pentagon", 15, 5, 37, Class.alphaPentagon.SIZE + 90)
-
-//MISC GENERATORS
-Class.gemGen = makeGenerator("gem", "Gem", "Gem", "gem", 4.75, 6, "aqua", Class.gem.SIZE, 100, 0)
-Class.jewelGen = makeGenerator("jewel", "Jewel", "Jewel", "jewel", 7, 6, "yellow", Class.jewel.SIZE, 100, 0)
-Class.wallGen = makeGenerator("wall", "Wall", "Wall", "wall", 15, 4, "grey", Class.wall.SIZE, 100, 0)
-Class.gravelGen = makeGenerator("gravel", "Gravel", "Gravel", "gravel", 7, -7, "grey", Class.gravel.SIZE, 100, 0)
-Class.stoneGen = makeGenerator("stone", "Stone", "Stone", "stone", 10, -7, "grey", Class.stone.SIZE, 100, 0)
-Class.rockGen = makeGenerator("rock", "Rock", "Rock", "rock", 15, -9, "grey", Class.rock.SIZE, 100, 0)
-// TODO: add gay baby jail creator/generator/whatever its called
-
-
-//HOSTILE POLYGONS GENERATORS
-//crasher
-Class.crasherGen = makeGenerator("crasher", "Crasher", "Crasher", "crasher", 4.75, 3, "pink", Class.crasher.SIZE)
-Class.shinyCrasherGen = makeGenerator("genShinyCrasher", "Shiny Crasher", "ShinyCr.", "genShinyCrasher", 4.75, 3, "lime", Class.crasher.SIZE)
-Class.legCrasherGen = makeGenerator("genLegCrasher", "Legendary Crasher", "LegCr.", "genLegCrasher", 4.75, 3, "teal", Class.crasher.SIZE)
-//sentries
-Class.sentrySwarmGen = makeGenerator("genSentrySwarm", "Sentry", "SwarmSen.", "sentrySwarm", 5.75, 3, "pink", Class.sentry.SIZE, 20)
-Class.sentryGunGen = makeGenerator("genSentryGun", "Sentry", "GunSen.", "sentryGun", 5.75, 3, "pink", Class.sentry.SIZE, 20)
-Class.sentryTrapGen = makeGenerator("genSentryTrap", "Sentry", "TrapSen.", "sentryTrap", 5.75, 3, "pink", Class.sentry.SIZE, 20)
-//shiny sentries
-Class.shinySentrySwarmGen = makeGenerator("genShinySentrySwarm", "Sentry", "ShinySSen.", "shinySentrySwarm", 5.75, 3, "lime", Class.sentry.SIZE, 20)
-Class.shinySentryGunGen = makeGenerator("genShinySentryGun", "Sentry", "ShinyGSen.", "shinySentryGun", 5.75, 3, "lime", Class.sentry.SIZE, 20)
-Class.shinySentryTrapGen = makeGenerator("genShinySentryTrap", "Sentry", "ShinyTSen.", "shinySentryTrap", 5.75, 3, "lime", Class.sentry.SIZE, 20)
-//sentinels
-Class.sentinelLauncherGen = makeGenerator("genSentinelLauncher", "Sentinel", "LnchSnt.", "sentinelLauncher", 11.75, 5, "purple", Class.sentinel.SIZE, 10)
-Class.sentinelCrossbowGen = makeGenerator("genSentinelCrossbow", "Sentinel", "CrsSnt.", "sentinelCrossbow", 11.75, 5, "purple", Class.sentinel.SIZE, 10)
-Class.sentinelMinigunGen = makeGenerator("genSentinelMinigun", "Sentinel", "MiniSnt.", "sentinelMinigun", 11.75, 5, "purple", Class.sentinel.SIZE, 10)
-
-// BOSSES GENERATORS
-//mysticals
-Class.sorcererGen = makeGenerator("sorcerer", "Sorcerer", "Sorcerer", "sorcerer", 10, 0, "veryLightGrey", Class.sorcerer.SIZE, 5)
-Class.summonerGen = makeGenerator("summoner", "Summoner", "Summoner", "summoner", 10, 4, "gold", Class.summoner.SIZE, 5)
-Class.enchantressGen = makeGenerator("enchantress", "Enchantress", "Enchantress", "enchantress", 10, 3.5, "orange", Class.enchantress.SIZE, 5)
-Class.exorcistorGen = makeGenerator("exorcistor", "Exorcistor", "Exorcistor", "exorcistor", 10, 5.5, "purple", Class.exorcistor.SIZE, 5)
-Class.shamanGen = makeGenerator("shaman", "Shaman", "Shaman", "shaman", 10, 6.5, "hexagon", Class.shaman.SIZE, 5)
-//elites
-Class.eliteDestroyerGen = makeGenerator("eliteDestroyer", "Elite Crasher", "Elite Crasher", "eliteDestroyer", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteGunnerGen = makeGenerator("eliteGunner", "Elite Crasher", "Elite Crasher", "eliteGunner", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteSprayerGen = makeGenerator("eliteSprayer", "Elite Crasher", "Elite Crasher", "eliteSprayer", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteBattleshipGen = makeGenerator("eliteBattleship", "Elite Crasher", "Elite Crasher", "eliteBattleship", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteSpawnerGen = makeGenerator("eliteSpawner", "Elite Crasher", "Elite Crasher", "eliteSpawner", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteTrapGuardGen = makeGenerator("eliteTrapGuard", "Elite Crasher", "Elite Crasher", "eliteTrapGuard", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteSpinnerGen = makeGenerator("eliteSpinner", "Elite Crasher", "Elite Crasher", "eliteSpinner", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.oldEliteSprayerGen = makeGenerator("eliteSprayer_old", "Elite Crasher", "Elite Crasher", "eliteSprayer_old", 10, 3, "pink", Class.elite.SIZE, 5)
-Class.eliteSkimmerGen = makeGenerator("eliteSkimmer", "Elite Skimmer", "Elite Skimmer", "eliteSkimmer", 10, 3, "orange", Class.elite.SIZE, 5)
-Class.legionaryCrasherGen = makeGenerator("legionaryCrasher", "Legionary Crasher", "Legionary Crasher", "legionaryCrasher", 12, 3, "pink", Class.elite.SIZE, 1)
-//nesters
-Class.nestKeeperGen = makeGenerator("nestKeeper", "Nest Keeper", "Nest Keeper", "nestKeeper", 10, 5, "purple", Class.nestKeeper.SIZE, 5)
-Class.nestWardenGen = makeGenerator("nestWarden", "Nest Warden", "Nest Warden", "nestWarden", 10, 5, "purple", Class.nestWarden.SIZE, 5)
-Class.nestGuardianGen = makeGenerator("nestGuardian", "Nest Guardian", "Nest Guardian", "nestGuardian", 10, 5, "purple", Class.nestGuardian.SIZE, 5)
-//rogues
-Class.roguePalisadeGen = makeGenerator("roguePalisade", "Rogue Palisade", "Rogue Palisade", "roguePalisade", 10, 6, "darkGrey", Class.roguePalisade.SIZE, 5)
-Class.rogueArmadaGen = makeGenerator("rogueArmada", "Rogue Armada", "Rogue Armada", "rogueArmada", 10, 7, "darkGrey", Class.rogueArmada.SIZE, 5)
-
 // GENERATOR UPGRADES
-/**
- * An identifier that represents a pointer to a `Definition` inside `Class`.
- * @typedef {string} DefinitionReference
- */
-
-/**
- * Assuming a rectangular grid of `DefinitionReference`'s to Generators without upgrades,
- * this function, also assuming the edges are connected (akin to pacman), gives each Generator
- * a "menu" of upgrades, which allows the user to directly "navigate" to a generator's
- * 4 direct neighbors.
- * This function throws an `Error` if the given 2d array is not rectangular.
- * @param {DefinitionReference[][]} matrix 
- * @param {DefinitionReference} previous 
- * @param {DefinitionReference} next 
- */
 function generatorMatrix(matrix, previous, next) {
-    const height = matrix.length,
-        width = matrix[0].length;
-
+    const height = matrix.length;
+    
     for (let y = 0; y < height; y++) {
-        if (matrix[y].length !== width) {
-            throw new Error(`The given grid is not rectangular!\nThe row at Y coordinate ${y} has ${matrix[y].length} items instead of the first row which has ${width}!`);
-        }
 
-        for (let x = 0; x < width; x++) {
+        for (let x = 0; x < matrix[y].length; x++) {
             let top = (y + height - 1) % height,
                 bottom = (y + height + 1) % height,
-                left = (x + width - 1) % width,
-                right = (x + width + 1) % width,
+                left = (x + matrix[y].length - 1) % matrix[y].length,
+                right = (x + matrix[y].length + 1) % matrix[y].length;
 
                 center = matrix[y][x];
             top = matrix[top][x];
@@ -284,34 +336,33 @@ function generatorMatrix(matrix, previous, next) {
             left = matrix[y][left];
             right = matrix[y][right];
 
-            let gen = Class[matrix[y][x]];
-            if (!gen) {
-                throw new Error(`The given grid has an invalid Definition Reference at indexes [${y}][${x}] named "${matrix[y][x]}"`);
+            for (let i = 0; i < height; i++) {
+                if (Class[bottom]) break;
+                bottom = matrix[(y + height + i + 1) % height][x];
             }
-
-            gen.UPGRADES_TIER_0.push(
-                Config.spawn_class, top, previous,
-                left, center, right,
-                "spectator", bottom, next
-            );
+            for (let i = 0; i < height; i++) {
+                if (Class[top]) break;
+                top = matrix[(y + height - i - 1) % height][x];
+            }
+            for (let i = 0; i < matrix[y].length; i++) {
+                if (Class[left]) break;
+                left = matrix[y][(x + matrix[y].length - i - 1) % matrix[y].length];
+            }
+            for (let i = 0; i < matrix[y].length; i++) {
+                if (Class[right]) break;
+                right = matrix[y][(x + matrix[y].length + i + 1) % matrix[y].length];
+            }
+            let gen = Class[center];
+            if (!gen) continue;
+            gen.UPGRADES_TIER_0 = [
+                Config.spawn_class,
+                left, right,
+                "menu_shinyMember",
+                top, bottom,
+            ];
         }
     }
 }
 
 // SHAPE UPGRADES
-generatorMatrix(shapeGeneratorUpgrades, "roguePalisadeGen", "crasherGen");
-
-// HOSTILE UPGRADES
-generatorMatrix(hostileShapeGeneratorUpgrades, "eggGen", "eliteDestroyerGen");
-
-// ELITE UPGRADES
-generatorMatrix(eliteBossGeneratorUpgrades, "sentinelLauncherGen", "sorcererGen");
-
-// MYSTICAL UPGRADES
-generatorMatrix(mysticalBossGeneratorUpgrades, "eliteDestroyerGen", "nestKeeperGen");
-
-// NESTER UPGRADES
-generatorMatrix(nesterBossGeneratorUpgrades, "sorcererGen", "roguePalisadeGen");
-
-// ROGUE UPGRADES
-generatorMatrix(rogueBossGeneratorUpgrades, "nestKeeperGen", "eggGen");
+generatorMatrix(shapeGeneratorUpgrades);
