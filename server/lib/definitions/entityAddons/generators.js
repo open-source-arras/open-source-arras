@@ -48,7 +48,8 @@ for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
     Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
         TYPE: [],
         PARENT: def,
-        SIZE: Class.sentry.SIZE / 1.5,
+        VALUE: Class.sentry.VALUE,
+        SIZE: Class.sentry.SIZE,
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
     }
@@ -118,7 +119,7 @@ Class[`rock${suffix}`] = makeGenerator("rock", null, 0, 0, false)
 Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false)
 Class[`gaybabyjail${suffix}`] = {
     PARENT: "genBody",
-    LABEL: "Gay Baby Jail Generator",
+    LABEL: "Gay Baby Jail Creator",
     SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 0 -1 L -0.3 -1.2 L -0.8 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.8 0.9 L -0.3 1.2 L 0 1 A 1 1 0 0 0 0.9 0.4",
     COLOR: "lightGray",
     SIZE: 24,
