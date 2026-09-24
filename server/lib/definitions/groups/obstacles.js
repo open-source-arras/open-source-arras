@@ -41,7 +41,7 @@ Class.pumpkinStar = {
     LABEL: "Star",
     SHAPE: -6,
     COLOR: "#267524",
-    MIRROR_MASTER_ANGLE: true,
+    MIRROR_MASTER_ANGLE: true
 };
 Class.pumpkin = {
     PARENT: "stone",

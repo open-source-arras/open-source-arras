@@ -19,8 +19,7 @@ const shapeGeneratorUpgrades = [
 Class.genBody = {
     PARENT: "spectator",
     BODY: {
-        SPEED: 25,
-        FOV: 1
+        SPEED: base.SPEED * 25
     },
     SKILL_CAP: [15, 0, 0, 0, 0, 0, 0, 0, 0, 15],
     LAYER: 1e99,
@@ -34,7 +33,7 @@ Class.genWall = {
 Class.genCrasher = {
     TYPE: [],
     PARENT: "crasher",
-    ACCEPTS_SCORE: false,
+    ACCEPTS_SCORE: false
 };
 for (let def of ["sentryTrap", "sentryGun", "sentrySwarm"]) {
     Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
@@ -54,19 +53,19 @@ for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
     }
     Class["genDisplay" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
         PARENT: def,
-        SIZE: Class.sentry.SIZE,
+        SIZE: Class.sentry.SIZE
     }
 }
 
 Class["gaybabyjail" + suffix + "arrow"] = {
     PARENT: "genericTank",
     SHAPE: "M -1 -0.3 L 1 -0.3 L 1 -0.9 L 2 0 L 1 0.9 L 1 0.3 L -1 0.3 Z",
-    INDEPENDENT: true,
+    INDEPENDENT: true
 }
 Class["gaybabyjail" + suffix + "ring"] = {
     PARENT: "genericTank",
     SHAPE: "M0-1A1 1 0 000 1 1 1 0 000-1M0-.7A.7 .7 0 010 .7 .7 .7 0 010-.7",
-    INDEPENDENT: true,
+    INDEPENDENT: true
 }
 
 //EGG GENERATOR
@@ -118,21 +117,21 @@ Class[`rock${suffix}`] = makeGenerator("rock", null, 0, 0, false)
 Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false)
 Class[`gaybabyjail${suffix}`] = {
     PARENT: "genBody",
-    LABEL: `Gay Baby Jail Generator`,
+    LABEL: "Gay Baby Jail Generator",
     SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 0 -1 L -0.3 -1.2 L -0.8 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.8 0.9 L -0.3 1.2 L 0 1 A 1 1 0 0 0 0.9 0.4",
     COLOR: "lightGray",
     SIZE: 24,
     UPGRADES_TIER_0: [],
-    BODY: {FOV: 1.5},
+    BODY: {FOV: base.FOV * 1.5},
     PROPS: [
         ...weaponArray({
             POSITION: {SIZE: 6, X: -6, LAYER: 1, ANGLE: 60},
             TYPE: `gaybabyjail${suffix}arrow`
-        },3),
+        }, 3),
         {
             POSITION: {SIZE: 15, LAYER: 1},
             TYPE: `gaybabyjail${suffix}ring`
-        },
+        }
     ],
     GUNS: [
         ...weaponArray([
@@ -140,7 +139,7 @@ Class[`gaybabyjail${suffix}`] = {
                 POSITION: {
                     LENGTH: 1,
                     WIDTH: 5.25,
-                    X: -105.5,
+                    X: -105.5
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([{
@@ -151,7 +150,7 @@ Class[`gaybabyjail${suffix}`] = {
                         size: Class.genWall.SIZE / 5.5
                     }]),
                     TYPE: ["genWall", {INDEPENDENT: true}],
-                    NO_LIMITATIONS: true,
+                    NO_LIMITATIONS: true
                 }
             },
             {
@@ -169,7 +168,7 @@ Class[`gaybabyjail${suffix}`] = {
                     LENGTH: 1,
                     WIDTH: 5.25,
                     X: -105.5,
-                    Y: 40,
+                    Y: 40
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([{
@@ -180,7 +179,7 @@ Class[`gaybabyjail${suffix}`] = {
                         size: Class.genWall.SIZE / 5.5
                     }]),
                     TYPE: ["genWall", {INDEPENDENT: true}],
-                    NO_LIMITATIONS: true,
+                    NO_LIMITATIONS: true
                 }
             },
             {
@@ -189,7 +188,7 @@ Class[`gaybabyjail${suffix}`] = {
                     WIDTH: 5.25,
                     ASPECT: 2,
                     X: -110,
-                    Y: 40,
+                    Y: 40
                 }
             }
         ]), 4),
@@ -199,7 +198,7 @@ Class[`gaybabyjail${suffix}`] = {
                     LENGTH: 1,
                     WIDTH: 5.25,
                     X: -105.5,
-                    ANGLE: 45,
+                    ANGLE: 45
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([{
@@ -210,7 +209,7 @@ Class[`gaybabyjail${suffix}`] = {
                         size: Class.genWall.SIZE / 5.5
                     }]),
                     TYPE: ["genWall", {INDEPENDENT: true}],
-                    NO_LIMITATIONS: true,
+                    NO_LIMITATIONS: true
                 }
             },
             {
@@ -224,7 +223,7 @@ Class[`gaybabyjail${suffix}`] = {
             }
         ], 4),
         ...weaponArray({
-            POSITION: {WIDTH: 95, LENGTH: 4, X: 110},
+            POSITION: {WIDTH: 95, LENGTH: 4, X: 110}
         }, 8)
     ]
 };
@@ -303,7 +302,7 @@ function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, va
                     }]),
                     TYPE: [entity, {INDEPENDENT: true, VARIES_IN_SIZE: variesInSize}],
                     NO_LIMITATIONS: true,
-                    SPAWN_OFFSET: spawnOffset,
+                    SPAWN_OFFSET: spawnOffset
                 }
             },
             {
@@ -331,7 +330,7 @@ function generatorMatrix(matrix, previous, next) {
                 left = (x + matrix[y].length - 1) % matrix[y].length,
                 right = (x + matrix[y].length + 1) % matrix[y].length;
 
-                center = matrix[y][x];
+            center = matrix[y][x];
             top = matrix[top][x];
             bottom = matrix[bottom][x];
             left = matrix[y][left];
@@ -359,7 +358,7 @@ function generatorMatrix(matrix, previous, next) {
                 Config.spawn_class,
                 left, right,
                 "menu_shinyMember",
-                top, bottom,
+                top, bottom
             ];
         }
     }
