@@ -332,7 +332,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -342,7 +343,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -352,7 +354,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }  
         },
         {
@@ -362,7 +365,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -372,7 +376,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -382,7 +387,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -392,7 +398,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {   POSITION: [4, 5, 1, 10, 0, -105, 0],
@@ -401,7 +408,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         }
     ],
@@ -419,13 +427,14 @@ Class.spectator = {
     LABEL: "Spectator",
     ALPHA: 0,
     CAN_BE_ON_LEADERBOARD: false,
-    //CAN_GO_OUTSIDE_ROOM: true,
+    CAN_GO_OUTSIDE_ROOM: true,
     ACCEPTS_SCORE: false,
     DRAW_HEALTH: false,
     HITS_OWN_TYPE: "never",
     IGNORED_BY_AI: true,
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
+    IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
@@ -466,7 +475,7 @@ Class.spectator = {
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to kill the selected entity.",
+    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
             POSITION: {
@@ -506,13 +515,6 @@ Class.guillotine = {
     ],
     ON: [
         {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
-        {
             event: "fire",
             handler: ({body, masterStore: s}) => {
                 const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
@@ -548,7 +550,7 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to ban the selected player.",
+    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
         {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},
@@ -559,25 +561,19 @@ Class.banHammer = {
     ],
     ON: [
         {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
-        {
             event: "fire",
             handler: ({body, masterStore: s}) => {
                 const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
                 let lowest = Infinity, closest;
                 for (const instance of entities.values()) {
+                    if (!instance.isPlayer) continue;
                     let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
                     if (distance < lowest) {
                         lowest = distance;
                         closest = instance;
                     }
                 }
-                if (closest.bond) return;
+                if (!closest || closest.bond) return;
                 let message = [
                     `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
                     `Score: ${closest.skill.score};`,
@@ -592,7 +588,17 @@ Class.banHammer = {
             handler: ({body}) => {
                 const s = body.store;
                 const e = s.selectedEntity
-                if (!e || !e.isPlayer) return;
+                if (!e || !e.isPlayer || !e.socket) return;
+                if (e.socket.status.operatorLevel >= 4) {
+                    body.sendMessage("You cannot ban this player!");
+                    return;
+                }
+                for (const instance of entities.values()) {
+                    if (instance === body) {
+                        body.sendMessage("You cannot ban yourself!");
+                        return;
+                    }
+                }
                 global.gameManager.socketManager.ban(e.socket, "Ban Hammer");
                 body.sendMessage("Banned the selected player.");
             }
@@ -672,7 +678,6 @@ Class.arenaCloser = {
     DANGER: 10,
     SIZE: 34,
     COLOR: "yellow",
-    UPGRADE_COLOR: "yellow",
     LAYER: 13,
     BODY: {
         REGEN: 1e5,
@@ -687,7 +692,6 @@ Class.arenaCloser = {
     HITS_OWN_TYPE: "never",
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
-    UPGRADE_TOOLTIP: "Hackerman",
     GUNS: [
         {
             POSITION: {
@@ -788,7 +792,6 @@ Class.arrasPolice = {
 Class.baseProtector = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     ON_MINIMAP: false,
     SIZE: 64,
     DAMAGE_CLASS: 0,
@@ -835,10 +838,9 @@ Class.baseProtector = {
         }
     ], 4)
 };
-Class.baseProtector_alt = {
+Class.baseProtector_diep = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     STAT_NAMES: statnames.drone,
     ON_MINIMAP: false,
     SIZE: 20,
@@ -1546,7 +1548,7 @@ Class.developer = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
                 TYPE: "developerBullet"
             }
         }

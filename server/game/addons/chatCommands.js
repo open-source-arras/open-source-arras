@@ -5,12 +5,12 @@ let commands = [
     {
         command: ["help"],
         description: "Show this help menu.",
-        level: 0,
-        run: ({ socket, level }) => {
+        permissionLevel: 0,
+        run: ({ socket }) => {
             let useOldMenu = false;
             let lines = [
                 "Help menu:",
-                ...commands.filter((c) => level >= c.level && !c.hidden).map((c) => {
+                ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
                     let cmdData = [c.command];
                     let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ")
                     let description = c.description ?? false;
@@ -29,7 +29,7 @@ let commands = [
     {
         command: ["leaderboard", "b"],
         description: "Select the leaderboard to display.",
-        level: 0,
+        permissionLevel: 0,
         run: ({ socket, args }) => {
             let sendAvailableLeaderboardMessage = () => {
                 let lines = [
@@ -64,17 +64,26 @@ let commands = [
     {
         command: ["toggle", "t"],
         description: "Enable or disable chat",
-        level: 0,
+        permissionLevel: 0,
         run: ({ socket }) => {
             socket.status.disablechat = !socket.status.disablechat;
             socket.talk("m", 3_000, `In-game chat ${socket.status.disablechat ? "disabled" : "enabled"}.`);
         }
     },
     {
+        command: ["id"],
+        description: "Show your player id.",
+        permissionLevel: 0,
+        hidden: true,
+        run: ({ socket }) => {
+            socket.talk("m", 4_000, `${socket.id}`);
+        }
+    },
+    {
         command: ["arena"],
         description: "Manage the arena",
-        level: 1,
         hidden: true,
+        permissionLevel: 3,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableArenaMessage = () => {
                 let lines = [
@@ -82,7 +91,7 @@ let commands = [
                     `- ${prefix} arena size dynamic - Make the size of the arena dynamic, depending on the number of players`,
                     `- ${prefix} arena size <width> <height> - Set the size of the arena`,
                     `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
-                    `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn on default`,
+                    `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn by default`,
                     `- ${prefix} arena close - Close the arena`
                 ];
                 if (!Config.sandbox) lines.splice(1, 1)
@@ -117,12 +126,18 @@ let commands = [
                         }
                         break;
                     case "spawnpoint":
-                        if (!args[1] || !args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
-                        socket.talk("m", 4_000, "Spawnpoint set.");
-                        global.spawnPoint = {
-                            x: parseInt(args[1] * 30),
-                            y: parseInt(args[2] * 30)
-                        };
+                        if (!args[1]) {
+                            global.spawnPoint = undefined;
+                            socket.talk("m", 4_000, "Spawnpoint removed.");
+                        } else if (!args[2]) {
+                            return socket.talk("m", 3_000, "Invalid arguments.");
+                        } else {
+                            global.spawnPoint = {
+                                x: parseInt(args[1] * 30),
+                                y: parseInt(args[2] * 30)
+                            };
+                            socket.talk("m", 4_000, "Spawnpoint set.");
+                        }
                         break;
                     case "close":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
@@ -137,7 +152,7 @@ let commands = [
     {
         command: ["broadcast"],
         description: "Broadcast a message to all players.",
-        level: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -150,7 +165,7 @@ let commands = [
     {
         command: ["define"],
         description: "Change your tank.",
-        level: 2,
+        permissionLevel: 7,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -165,7 +180,7 @@ let commands = [
     {
         command: ["level"],
         description: "Change your level.",
-        level: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -179,7 +194,7 @@ let commands = [
     {
         command: ["team"],
         description: "Change your team.", // player teams are -1 through -8, dreads are -10, room is -100 and enemies is -101
-        level: 2,
+        permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -193,7 +208,7 @@ let commands = [
     {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
-        level: 3,
+        permissionLevel: 7,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
@@ -294,6 +309,7 @@ let commands = [
                         socket.status.mockupData = socket.initMockupList();
                         socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
                         socket.status.selectedLeaderboard = "stop";
+                        socket.status.entitySent?.clear();
                         socket.talk("RE"); // Also reset the global.entities in the client so it can refresh.
                         if (Config.load_all_mockups) {
                             for (let i = 0; i < mockupData.length; i++) {
@@ -317,16 +333,13 @@ let commands = [
 function runCommand(socket, message, gameManager) {
     if (!message.startsWith(prefix) || !socket?.player?.body) return;
 
-    let args = message.slice(prefix.length).split(" ");
+    let args = message.slice(prefix.length).trimStart().split(/\s+/);
     let commandName = args.shift();
     let command = commands.find((command) => command.command.includes(commandName));
     if (command) {
-        let permissionsLevel = socket.permissions?.level ?? 0;
-        let level = command.level;
-
-        if (permissionsLevel >= level) {
+        if (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel)) {
             try {
-                command.run({ socket, message, args, level: permissionsLevel, gameManager: gameManager });
+                command.run({ socket, message, args, gameManager: gameManager });
             } catch(e) {
                 console.error("Error while running ", commandName);
                 console.error(e);

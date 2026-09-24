@@ -7,16 +7,23 @@ import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import * as socketStuff from "./socketinit.js";
 
+const THEME_PALETTE_KEYS = [
+    "teal", "lgreen", "orange", "yellow", "aqua", "pink", "vlgrey", "lgrey",
+    "guiwhite", "black", "blue", "green", "red", "gold", "purple", "magenta",
+    "grey", "dgrey", "white", "guiblack",
+];
+const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
+
 (async function (util, global, config, Canvas, color, gameDraw, socketStuff, keybinderHandler) {
     let { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow } = socketStuff;
     // Get the changelog
     fetch("CHANGELOG.md", { cache: "no-cache" }).then(response => response.text()).then(response => {
-      let b = [];
-      var c = [];
-      for (let d of response.split("\n"))
-        0 !== d.length &&
-          ((response = d.charAt(0)),
-          "#" === response
+        let b = [];
+        var c = [];
+        for (let d of response.split("\n"))
+            0 !== d.length &&
+            ((response = d.charAt(0)),
+            "#" === response
             ? (b.push(c), (c = [d.slice(1).trim()]))
             : "-" === response
             ? c.push(d.slice(1).trim())
@@ -165,6 +172,8 @@ import * as socketStuff from "./socketinit.js";
             document.getElementById("optRenderPlayerBars").checked = true;
             document.getElementById("optFancy").checked = true;
             document.getElementById("optInterpolation").checked = true;
+            document.getElementById("optLerpAnim").checked = true;
+            document.getElementById("smoothCamera").checked = true;
             document.getElementById("optFancy").checked = true;
             document.getElementById("autoLevelUp").checked = true;
             if (global.mobile) document.getElementById("showCrosshair").checked = true, document.getElementById("showJoystick").checked = true;
@@ -180,6 +189,8 @@ import * as socketStuff from "./socketinit.js";
             util.submitToLocalStorage("showCrosshair");
             util.submitToLocalStorage("showJoystick");
             util.submitToLocalStorage("optInterpolation");
+            util.submitToLocalStorage("optLerpAnim");
+            util.submitToLocalStorage("smoothCamera");
             util.submitToLocalStorage("optFancy");
             util.submitToLocalStorage("autoLevelUp");
             localStorage.setItem("loadedForFirstTime", "true");
@@ -204,7 +215,7 @@ import * as socketStuff from "./socketinit.js";
                 "critical",
                 "discord",
                 "stat",
-                "achieve",
+                "achieve"
             ];
             if (allowedType.includes(type)) {
                 let b = document.getElementById("menuTabs");
@@ -357,6 +368,7 @@ import * as socketStuff from "./socketinit.js";
         for (let doc of document.getElementById("optionMenuTabs").children) {
             if (doc.textContent.toLowerCase() === "addons") doc.style.display = "";
         }
+
         // OSA info
         let i_div = document.createElement("div");
         i_div.classList.add("optionsHeader");
@@ -864,7 +876,44 @@ import * as socketStuff from "./socketinit.js";
             );
         };
 
+    function parseThemeV1(string) {
+        const data = atob(string.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/"));
+        if (!data.startsWith(THEME_V1_MAGIC)) return null;
+        let off = 5;
+        if (data.charCodeAt(off++) !== 1) return null;
+        const nameLen = data.charCodeAt(off++);
+        const name = data.slice(off, off + nameLen) || "Unknown Theme";
+        off += nameLen;
+        const authorLen = data.charCodeAt(off++);
+        const author = data.slice(off, off + authorLen);
+        off += authorLen;
+        const tableLen = data.charCodeAt(off++);
+        const table = [];
+        for (let i = 0; i < tableLen; i++) {
+            table.push((data.charCodeAt(off) << 16) | (data.charCodeAt(off + 1) << 8) | data.charCodeAt(off + 2));
+            off += 3;
+        }
+        const specialLen = data.charCodeAt(off++);
+        const special = [];
+        for (let i = 0; i < specialLen; i++) {
+            special.push((data.charCodeAt(off) << 16) | (data.charCodeAt(off + 1) << 8) | data.charCodeAt(off + 2));
+            off += 3;
+        }
+        const border = data.charCodeAt(off++) / 0xff;
+        const neon = data.charCodeAt(off) === 1;
+        if (!table.length) return null;
+        const content = { paletteSize: table.length, border, neon };
+        THEME_PALETTE_KEYS.forEach((key, i) => {
+            if (i < table.length) content[key] = "#" + (table[i] & 0xffffff).toString(16).padStart(6, "0");
+        });
+        return { name, author, content };
+    }
+
     function parseTheme(string, logError = true) {
+        try {
+            const v1 = parseThemeV1(string);
+            if (v1) return v1;
+        } catch { }
         // Decode from base64
         try {
             var stripped = string.replace(/\s+/g, "");
@@ -1554,6 +1603,15 @@ import * as socketStuff from "./socketinit.js";
     }
 
     function drawText(rawText, x, y, size, defaultFillStyle, align = "left", center = false, fade = 1, stroke = true, context = ctx[2]) {
+        let lines = ("" + rawText).split(/\r?\n/);
+        if (lines.length > 1) {
+            let s = size + config.graphical.fontSizeBoost,
+                lineHeight = s + 2 * (s / 5);
+            for (let l = 0; l < lines.length; l++) {
+                drawText(lines[l], x, y + l * lineHeight, size, defaultFillStyle, align, center, fade, stroke, context);
+            }
+            return;
+        }
         size += config.graphical.fontSizeBoost;
         // Get text dimensions and resize/reset the canvas
         let offset = size / 5,
@@ -4348,7 +4406,7 @@ import * as socketStuff from "./socketinit.js";
             picture = util.getEntityImageFromMockup(gui.type, gui.color),
             baseColor = picture.color,
             name = global.player.name.substring(7, global.player.name.length + 1),
-            timestamp = Math.floor(Date.now());
+            timestamp = Math.floor(global.deathTimestamp || Date.now());
 
         clearScreen(color.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
         let ratio = util.getScreenRatio();
@@ -4356,7 +4414,7 @@ import * as socketStuff from "./socketinit.js";
         drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
         drawText("Level " + gui.__s.getLevel(), x - 270, y + 100, 12, color.guiwhite, "center");
         drawText(picture.name, x - 270, y + 125, 18, color.guiwhite, "center");
-        drawText(new Date(timestamp).toISOString() + "", x, y - 165, 8.125, color.guiwhite, "center");
+        drawText(new Date(timestamp).toISOString() + "", x, y - 164, 8.125, color.guiwhite, "center");
         drawText(name == "" ? "Your Score: " : name + "'s Score: ", x - 170, y - 50, 23.75, color.guiwhite);
         drawText(util.formatLargeNumber(Math.round(global.finalScore.get())), x - 170, y + 11, 48, color.guiwhite);
         ctx[2].globalAlpha = global.lerp(1, 1.25, glide);
@@ -4592,6 +4650,511 @@ import * as socketStuff from "./socketinit.js";
         }))
     }
 
+    const THEME_SWATCHES = [
+        ["blue", "Blue"], ["vlgrey", "Eggs"], ["lgrey", "Walls"],
+        ["green", "Green"], ["gold", "Squares"], ["lgreen", "Health Bars"],
+        ["red", "Red"], ["orange", "Triangles"], ["teal", "Shield Bars"],
+        ["magenta", "Purple"], ["purple", "Pentagons"], ["grey", "Barrels"],
+        ["yellow", "Neutral"], ["aqua", "Hexagons"], ["white", "Background"],
+        ["dgrey", "Rogues"], ["pink", "Crashers"], ["guiblack", "Grid"],
+        ["guiwhite", "Text"], ["black", "Borders"],
+    ];
+
+    const OV_ROW1 = 41, OV_ROW2 = 81, OV_ROW3 = 121;
+    const OV_COLORS_HEAD = 183, OV_GRID_TOP = 201, OV_GRID_PITCH = 40;
+    const OV_BORDERS_HEAD = 503, OV_SLIDER_TOP = 524, OV_NEON_TOP = 561;
+    const OV_CTRL_H = 28, OV_SWATCH = 28, OV_GAP = 13, OV_COL_PITCH = 145, OV_BADGE = 26;
+    const OV_INSET_L = 24, OV_INSET_R = 18, OV_CODE_GAP = 11, OV_REMOVE_W = 98;
+    const OV_SLIDER_W = 152, OV_TITLE_TOP = 31;
+    const THEME_PANEL_H = 608;
+    const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
+
+    let _themeList = null;
+    function loadThemes() {
+        if (!_themeList) {
+            _themeList = fetch("themes.json")
+                .then((r) => r.json())
+                .catch(() => []);
+        }
+        return _themeList;
+    }
+
+    const PERSONAL_THEMES_KEY = "personalThemes";
+    function loadPersonalThemes() {
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem(PERSONAL_THEMES_KEY) || "[]"); } catch { }
+        return Array.isArray(list) ? list.filter((t) => t && t.content) : [];
+    }
+    function savePersonalThemes(list) {
+        try { localStorage.setItem(PERSONAL_THEMES_KEY, JSON.stringify(list)); } catch { }
+    }
+
+    let _keybindEntries = null;
+    function getKeybindEntries() {
+        if (_keybindEntries) return _keybindEntries;
+        const out = [];
+        document.querySelectorAll("#controlSettings tr").forEach((tr) => {
+            tr.querySelectorAll("td").forEach((td) => {
+                const b = td.querySelector("b");
+                if (!b) return;
+                const label = td.textContent.replace(b.textContent, "").replace(/^[\s-]+/, "").trim()
+                    .replace(/[a-z]+/g, (wd) => wd.charAt(0).toUpperCase() + wd.slice(1));
+                out.push({ el: b, label });
+            });
+        });
+        _keybindEntries = out;
+        return out;
+    }
+    function keybindsPanelHeight() {
+        const rows = Math.max(1, Math.ceil(getKeybindEntries().length / 2));
+        return KB_ROW_TOP + (rows - 1) * KB_ROW_PITCH + OV_BADGE + 13;
+    }
+
+    function themeCode(palette, name, author) {
+        const bytes = [0x6a, 0xba, 0xda, 0xb3, 0xf0, 1];
+        const push = (str) => { bytes.push(str.length); for (const c of str) bytes.push(c.charCodeAt(0)); };
+        push(name || "");
+        push(author || "");
+        bytes.push(THEME_PALETTE_KEYS.length);
+        for (const k of THEME_PALETTE_KEYS) {
+            const v = parseInt((palette[k] || "#000000").slice(1), 16);
+            bytes.push((v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff);
+        }
+        const special = [palette.black || "#484848"];
+        bytes.push(special.length);
+        for (const hex of special) {
+            const v = parseInt(hex.slice(1), 16);
+            bytes.push((v >> 16) & 0xff, (v >> 8) & 0xff, v & 0xff);
+        }
+        const blend = typeof palette.border === "number" ? palette.border : 0.65;
+        bytes.push(blend >= 1 ? 255 : blend <= 0 ? 0 : Math.floor(blend * 0x100));
+        bytes.push(palette.neon ? 1 : 0);
+        let bin = "";
+        for (const b of bytes) bin += String.fromCharCode(b);
+        return btoa(bin).replace(/=+$/, "");
+    }
+
+    const OV_BASE = "position:absolute;box-sizing:border-box;margin:0;border:3px solid #484848;border-radius:0;outline:none;pointer-events:auto";
+    const OV_STROKE = "color:#fff;-webkit-text-stroke:3px #484848;paint-order:stroke fill";
+    const OV_INPUT = OV_BASE + ";background:#fff;color:#000;text-align:left;font:14px Ubuntu,sans-serif;padding:0 7px";
+    const OV_ARROW = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23484848'/%3E%3C/svg%3E\")";
+    const OV_SELECT = OV_BASE + ";appearance:none;-webkit-appearance:none;background-color:#fff;background-image:" +
+        OV_ARROW + ";background-repeat:no-repeat;background-position:calc(100% - 9px) center;background-size:12px 7px;" +
+        OV_STROKE + ";text-align:left;font:bold 14px Ubuntu,sans-serif;padding:0 24px 0 7px;cursor:pointer";
+    const OV_BTN = OV_BASE + ";background:#8f8f8f;" + OV_STROKE + ";font:bold 14px Ubuntu,sans-serif;cursor:pointer";
+    const OV_COLOR = OV_BASE + ";width:27px;height:27px;padding:0;background:none;cursor:pointer";
+
+    function themeBlend() {
+        const c = gameDraw.color;
+        if (!c) return 0.65;
+        if (typeof c.border !== "number") c.border = 0.65;
+        return Math.max(0, Math.min(1, c.border));
+    }
+    global.ingameThemeSetBlend = (t) => {
+        if (!gameDraw.color) return;
+        gameDraw.color.border = Math.max(0, Math.min(1, t));
+        gameDraw.colorCache = {};
+        markThemeCustom();
+        refreshThemeCode();
+    };
+    global.ingameThemeToggleNeon = () => {
+        const wrap = global.themeOverlay;
+        if (!wrap) return;
+        const sel = wrap._ov.bordersSel;
+        sel.value = sel.value === "neon" ? "normal" : "neon";
+        sel.dispatchEvent(new Event("change"));
+    };
+
+    function ensureThemeOverlay() {
+        if (global.themeOverlay) return global.themeOverlay;
+        const wrap = document.createElement("div");
+        wrap.id = "ingameThemeOverlay";
+        wrap.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;display:none;z-index:20;pointer-events:none;font-family:Ubuntu,sans-serif";
+
+        const st = document.createElement("style");
+        st.textContent =
+            "#ingameThemeOverlay input[type=color]::-webkit-color-swatch-wrapper{padding:0}" +
+            "#ingameThemeOverlay input[type=color]::-webkit-color-swatch{border:none}" +
+            "#ingameThemeOverlay input[type=text]::placeholder{color:#8f8f8f}";
+        document.head.appendChild(st);
+
+        const mk = (tag, css, id) => {
+            const e = document.createElement(tag);
+            e.style.cssText = css;
+            if (id) e.id = id;
+            wrap.appendChild(e);
+            return e;
+        };
+
+        const name = mk("input", OV_INPUT, "ovName"); name.type = "text"; name.placeholder = "Theme Name";
+        const author = mk("input", OV_INPUT, "ovAuthor"); author.type = "text"; author.placeholder = "Author";
+        const code = mk("input", OV_INPUT, "ovCode"); code.type = "text"; code.spellcheck = false; code.autocomplete = "off";
+        const remove = mk("button", OV_BTN, "ovRemove"); remove.type = "button"; remove.textContent = "Remove";
+        const colorsSel = mk("select", OV_SELECT, "ovColors");
+        const bordersSel = mk("select", OV_SELECT, "ovBorders");
+        const borderColor = mk("input", OV_COLOR, "ovBorderColor"); borderColor.type = "color";
+        const swatches = THEME_SWATCHES.map(([key]) => {
+            const inp = mk("input", OV_COLOR);
+            inp.type = "color";
+            inp.dataset.key = key;
+            return inp;
+        });
+
+        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches };
+        document.body.appendChild(wrap);
+        global.themeOverlay = wrap;
+
+        for (const [value, label] of [["normal", "Light"], ["dark", "Dark"], ["neon", "Neon"], ["glass", "Glass"]]) {
+            const o = document.createElement("option");
+            o.value = value;
+            o.textContent = label;
+            bordersSel.appendChild(o);
+        }
+        bordersSel.value = config.graphical.neon ? "neon" : config.graphical.darkBorders ? "dark" : "normal";
+
+        loadThemes().then((list) => {
+            wrap._themes = Array.isArray(list) ? list : [];
+            wrap._personal = loadPersonalThemes();
+            rebuildThemeSelect();
+            const srcColors = document.getElementById("optColors");
+            if (srcColors && srcColors.value === "custom") {
+                colorsSel.value = "custom";
+                applyCustomTheme();
+            } else {
+                if (list.length) colorsSel.value = "t0";
+                syncThemeOverlay();
+            }
+        });
+
+        colorsSel.addEventListener("change", () => {
+            updateThemeButton();
+            if (colorsSel.value === "custom") {
+                applyCustomTheme();
+                return;
+            }
+            const theme = selectedTheme();
+            if (theme) applyTheme(theme);
+        });
+        bordersSel.addEventListener("change", () => {
+            config.graphical.darkBorders = bordersSel.value === "dark" || bordersSel.value === "neon";
+            config.graphical.neon = bordersSel.value === "neon" || bordersSel.value === "glass";
+            if (gameDraw.color) { gameDraw.color.neon = config.graphical.neon; gameDraw.colorCache = {}; }
+            const src = document.getElementById("optBorders");
+            if (src) src.value = bordersSel.value;
+            refreshThemeCode();
+        });
+        borderColor.addEventListener("input", (e) => {
+            if (gameDraw.color) { gameDraw.color.black = e.target.value; gameDraw.colorCache = {}; }
+            markThemeCustom();
+            refreshThemeCode();
+        });
+        swatches.forEach((inp) => {
+            inp.addEventListener("input", () => {
+                if (gameDraw.color) { gameDraw.color[inp.dataset.key] = inp.value; gameDraw.colorCache = {}; }
+                if (inp.dataset.key === "black") wrap._ov.borderColor.value = inp.value;
+                markThemeCustom();
+                refreshThemeCode();
+            });
+        });
+        remove.addEventListener("click", () => {
+            if (colorsSel.value === "custom") {
+                addCustomTheme();
+                return;
+            }
+            const mine = /^p(\d+)$/.exec(colorsSel.value);
+            if (mine) {
+                wrap._personal.splice(parseInt(mine[1], 10), 1);
+                savePersonalThemes(wrap._personal);
+                rebuildThemeSelect();
+            }
+            const list = wrap._themes;
+            if (list && list.length) {
+                colorsSel.value = "t0";
+                applyTheme(list[0]);
+            } else {
+                const c = colors["normal"];
+                gameDraw.color = c; gameDraw.colorCache = {}; global.currentColors = c;
+                syncThemeOverlay();
+            }
+        });
+        name.addEventListener("input", () => { markThemeCustom(); refreshThemeCode(); });
+        author.addEventListener("input", () => { markThemeCustom(); refreshThemeCode(); });
+        code.addEventListener("change", () => {
+            const parsed = parseTheme(code.value);
+            if (parsed && parsed.content) {
+                const c = Object.assign({}, colors["normal"], parsed.content);
+                c.border = parsed.content.border;
+                c.neon = !!parsed.content.neon;
+                gameDraw.color = c;
+                gameDraw.colorCache = {};
+                global.currentColors = c;
+                markThemeCustom();
+                syncThemeOverlay(parsed.name, parsed.author);
+            }
+        });
+        return wrap;
+    }
+
+    function rebuildThemeSelect() {
+        const wrap = global.themeOverlay;
+        if (!wrap) return;
+        const o = wrap._ov;
+        const previous = o.colorsSel.value;
+        o.colorsSel.textContent = "";
+        const add = (value, label) => {
+            const opt = document.createElement("option");
+            opt.value = value;
+            opt.textContent = label;
+            o.colorsSel.appendChild(opt);
+        };
+        (wrap._themes || []).forEach((theme, i) => add("t" + i, theme.name));
+        (wrap._personal || []).forEach((theme, i) => add("p" + i, theme.name));
+        add("custom", "Custom");
+        if (previous && o.colorsSel.querySelector(`option[value="${previous}"]`)) o.colorsSel.value = previous;
+        updateThemeButton();
+    }
+
+    function selectedTheme() {
+        const wrap = global.themeOverlay;
+        if (!wrap) return null;
+        const match = /^([tp])(\d+)$/.exec(wrap._ov.colorsSel.value);
+        if (!match) return null;
+        const list = match[1] === "t" ? wrap._themes : wrap._personal;
+        return (list && list[parseInt(match[2], 10)]) || null;
+    }
+
+    function updateThemeButton() {
+        const wrap = global.themeOverlay;
+        if (!wrap) return;
+        wrap._ov.remove.textContent = wrap._ov.colorsSel.value === "custom" ? "Add" : "Remove";
+    }
+
+    function addCustomTheme() {
+        const wrap = global.themeOverlay;
+        if (!wrap || !gameDraw.color) return;
+        const o = wrap._ov;
+        const c = gameDraw.color;
+        const content = {};
+        THEME_PALETTE_KEYS.forEach((key) => {
+            const v = c[key];
+            content[key] = typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
+        });
+        if (!wrap._personal) wrap._personal = [];
+        wrap._personal.push({
+            name: o.name.value.trim() || "Custom",
+            author: o.author.value.trim(),
+            content,
+            paletteSize: THEME_PALETTE_KEYS.length,
+            border: typeof c.border === "number" ? c.border : 0.6,
+            neon: !!c.neon,
+        });
+        savePersonalThemes(wrap._personal);
+        rebuildThemeSelect();
+        o.colorsSel.value = "p" + (wrap._personal.length - 1);
+        updateThemeButton();
+    }
+
+    function markThemeCustom() {
+        const wrap = global.themeOverlay;
+        if (wrap && wrap._ov.colorsSel.value !== "custom") {
+            wrap._ov.colorsSel.value = "custom";
+            updateThemeButton();
+        }
+    }
+
+    function applyCustomTheme() {
+        const src = document.getElementById("optCustom");
+        const code = (src && src.value) || localStorage.getItem("optCustomValue") || "";
+        const parsed = code ? parseTheme(code) : null;
+        if (parsed && parsed.content) {
+            const c = Object.assign({}, colors["normal"], parsed.content);
+            c.border = parsed.content.border;
+            c.neon = !!parsed.content.neon;
+            gameDraw.color = c;
+            gameDraw.colorCache = {};
+            global.currentColors = c;
+            config.graphical.darkBorders = !!parsed.content.neon;
+            config.graphical.neon = !!parsed.content.neon;
+            const wrap = global.themeOverlay;
+            if (wrap) wrap._ov.bordersSel.value = parsed.content.neon ? "neon" : "normal";
+            syncThemeOverlay(parsed.name, parsed.author);
+        } else {
+            syncThemeOverlay();
+        }
+    }
+
+    function applyTheme(theme) {
+        if (!theme || !theme.content) return;
+        const c = Object.assign({}, colors["normal"], theme.content);
+        c.paletteSize = theme.paletteSize || THEME_PALETTE_KEYS.length;
+        c.border = typeof theme.border === "number" ? theme.border : 0.6;
+        c.neon = !!theme.neon;
+        gameDraw.color = c;
+        gameDraw.colorCache = {};
+        global.currentColors = c;
+        config.graphical.darkBorders = !!theme.neon;
+        config.graphical.neon = !!theme.neon;
+        const wrap = global.themeOverlay;
+        if (wrap) wrap._ov.bordersSel.value = theme.neon ? "neon" : "normal";
+        const src = document.getElementById("optBorders");
+        if (src) src.value = theme.neon ? "neon" : "normal";
+        syncThemeOverlay(theme.name, theme.author);
+    }
+
+    function refreshThemeCode() {
+        const wrap = global.themeOverlay;
+        if (!wrap || !gameDraw.color) return;
+        const o = wrap._ov;
+        const name = o.name.value || "Custom";
+        const author = o.author.value || "";
+        if (document.activeElement !== o.code) o.code.value = themeCode(gameDraw.color, name, author);
+    }
+
+    function syncThemeOverlay(name, author) {
+        const wrap = global.themeOverlay;
+        if (!wrap || !gameDraw.color) return;
+        const o = wrap._ov;
+        const c = gameDraw.color;
+        o.swatches.forEach((inp) => {
+            const v = c[inp.dataset.key];
+            if (typeof v === "string" && /^#/.test(v) && inp.value.toLowerCase() !== v.toLowerCase()) inp.value = v;
+        });
+        if (typeof c.black === "string" && /^#/.test(c.black)) o.borderColor.value = c.black;
+        if (name === undefined) {
+            const theme = selectedTheme();
+            name = theme ? theme.name : o.name.value;
+            author = theme ? theme.author : o.author.value;
+        }
+        if (document.activeElement !== o.name) o.name.value = name || "";
+        if (document.activeElement !== o.author) o.author.value = author || "";
+        updateThemeButton();
+        refreshThemeCode();
+    }
+
+    function drawThemeTab(panelX, PANEL_Y, PANEL_WIDTH, clickableRatio) {
+        const wrap = global.themeOverlay || ensureThemeOverlay();
+        const o = wrap._ov;
+        if (wrap.style.display !== "block") syncThemeOverlay();
+        wrap.style.display = "block";
+        const r = clickableRatio;
+        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[1]
+            ? global.optionsMenu_Anim.scrollOffsets[1].get() : 0;
+        const L = panelX + OV_INSET_L, W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R, T = PANEL_Y - scrollY;
+        const hw = (W - OV_GAP) / 2;
+        const put = (el, x, y, w, h) => {
+            el.style.left = (x * r) + "px";
+            el.style.top = (y * r) + "px";
+            el.style.width = (w * r) + "px";
+            el.style.height = (h * r) + "px";
+            el.style.borderWidth = (3 * r) + "px";
+        };
+        put(o.name, L, T + OV_ROW1, hw, OV_CTRL_H);
+        put(o.author, L + hw + OV_GAP, T + OV_ROW1, hw, OV_CTRL_H);
+        put(o.code, L, T + OV_ROW2, W - OV_REMOVE_W - OV_CODE_GAP, OV_CTRL_H);
+        put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
+        put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
+        put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
+        put(o.borderColor, L + 2 * OV_COL_PITCH, T + OV_SLIDER_TOP - 2, OV_SWATCH, OV_SWATCH);
+        o.swatches.forEach((inp, i) => {
+            const col = i % 3, row = (i / 3) | 0;
+            put(inp, L + col * OV_COL_PITCH, T + OV_GRID_TOP + row * OV_GRID_PITCH, OV_SWATCH, OV_SWATCH);
+        });
+
+        const cx = panelX + PANEL_WIDTH / 2;
+        drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, color.guiwhite, "center", true);
+        drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, color.guiwhite, "center", true);
+        o.swatches.forEach((inp, i) => {
+            const col = i % 3, row = (i / 3) | 0;
+            drawText(THEME_SWATCHES[i][1], L + col * OV_COL_PITCH + OV_SWATCH + 9,
+                T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
+        });
+
+        const sx = L, sy = T + OV_SLIDER_TOP, SW = OV_SLIDER_W, SH = 20;
+        const sv = themeBlend();
+        ctx[2].fillStyle = color.guiwhite;
+        drawGuiRect(sx, sy + 2.5, SW, SH);
+        ctx[2].fillStyle = color.green;
+        ctx[2].globalAlpha *= 0.7;
+        drawGuiRect(sx, sy + 2.5, SW * sv, SH);
+        ctx[2].globalAlpha /= 0.7;
+        ctx[2].strokeStyle = color.black;
+        ctx[2].lineWidth = 3;
+        drawGuiRect(sx, sy + 2.5, SW, SH, true);
+        const knob = sx + (SW - 12.5) * sv;
+        ctx[2].fillStyle = color.green;
+        drawGuiRect(knob, sy, 12.5, SH + 5);
+        ctx[2].strokeStyle = color.black;
+        drawGuiRect(knob, sy, 12.5, SH + 5, true);
+        const midY = sy + SH / 2 + 2.5;
+        drawText("Blend Ratio", sx + SW + 8, midY, 13.5, color.guiwhite, "left", true);
+        drawText("Borders", sx + 2 * OV_COL_PITCH + OV_SWATCH + 9, midY, 13.5, color.guiwhite, "left", true);
+
+        const nx = L, ny = T + OV_NEON_TOP;
+        const on = !!config.graphical.neon;
+        ctx[2].lineWidth = 3;
+        gameDraw.setColor(ctx[2], on ? color.green : color.guiwhite);
+        drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH);
+        if (on) {
+            ctx[2].strokeStyle = "#FFFFFF";
+            ctx[2].lineWidth = 3;
+            ctx[2].beginPath();
+            ctx[2].moveTo(nx + 5.5, ny + OV_SWATCH / 1.8);
+            ctx[2].lineTo(nx + OV_SWATCH / 2 - 3, ny + OV_SWATCH - 7);
+            ctx[2].lineTo(nx + OV_SWATCH - 6, ny + 8);
+            ctx[2].stroke();
+        }
+        gameDraw.setColor(ctx[2], color.black);
+        drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH, true);
+        drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
+
+        global.ingameKeybindRects = null;
+        const cr = r * global.ratio;
+        global.ingameThemeSlider = { x: sx * cr, y: sy * cr, w: SW * cr, h: (SH + 5) * cr, track: SW };
+        global.ingameThemeNeon = { x: nx * cr, y: ny * cr, w: OV_SWATCH * cr, h: OV_SWATCH * cr };
+    }
+
+    function drawKeybindsTab(panelX, PANEL_Y, PANEL_WIDTH, clickableRatio) {
+        if (global.themeOverlay) global.themeOverlay.style.display = "none";
+        global.ingameThemeSlider = null;
+        global.ingameThemeNeon = null;
+        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[2]
+            ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
+        const L = panelX + 22, W = PANEL_WIDTH - 44;
+        const T = PANEL_Y - scrollY;
+        const cr = clickableRatio * global.ratio;
+        const colW = W / 2;
+        const entries = getKeybindEntries();
+        const rows = Math.max(1, Math.ceil(entries.length / 2));
+
+        drawText("Keybinds", panelX + PANEL_WIDTH / 2, PANEL_Y + 30, 16, color.guiwhite, "center");
+
+        const rects = [];
+        entries.forEach((e, i) => {
+            const col = (i / rows) | 0, row = i % rows;
+            const x = L + col * colW;
+            const y = T + KB_ROW_TOP + row * KB_ROW_PITCH;
+            const td = e.el.closest("td");
+            ctx[2].lineWidth = 3;
+            ctx[2].fillStyle = color.guiwhite;
+            drawGuiRect(x, y, OV_BADGE, OV_BADGE);
+            if (td && td.classList.contains("editing")) {
+                ctx[2].fillStyle = color.green;
+                drawGuiRect(x, y, OV_BADGE, OV_BADGE);
+            }
+            ctx[2].strokeStyle = color.black;
+            drawGuiRect(x, y, OV_BADGE, OV_BADGE, true);
+            drawText(e.el.textContent || "-", x + OV_BADGE / 2, y + OV_BADGE / 2, 13.5, color.black, "center", true, 1, false);
+            ctx[2].save();
+            ctx[2].beginPath();
+            ctx[2].rect(x + OV_BADGE + 10, y, colW - OV_BADGE - 18, OV_BADGE);
+            ctx[2].clip();
+            drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
+            ctx[2].restore();
+            rects.push({ el: e.el, x: x * cr, y: y * cr, w: colW * cr, h: OV_BADGE * cr });
+        });
+        global.ingameKeybindRects = rects;
+    }
+
     function drawOptionsMenu() {
         // Initialize tab offset for sliding animation and menu height animation
         if (!global.optionsMenu_Anim.tabOffset) {
@@ -4705,7 +5268,10 @@ import * as socketStuff from "./socketinit.js";
         ctx[2].translate(-RENDERX, -0);
 
         const mainMenuAnim = global.optionsMenu_Anim.mainMenu.get();
-        if (mainMenuAnim < -470) return; // fully hidden
+        if (mainMenuAnim < -470) { // fully hidden
+            if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
+            return;
+        }
         const extraLeftX = config.graphical.oldUIStyle ? 5 : 0;
         const extraTopY = config.graphical.oldUIStyle ? 6 : 0;
         const PANEL_WIDTH = 460;
@@ -4719,14 +5285,16 @@ import * as socketStuff from "./socketinit.js";
         const panelX = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
         const TAB_CONTENT_HEIGHTS = [
             (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
-            300,
-            300
+            THEME_PANEL_H,
+            keybindsPanelHeight()
         ];
         const TAB_CONTENT_MAX_SCROLL = [
             0,
-            300,
-            300
+            THEME_PANEL_H,
+            keybindsPanelHeight()
         ];
+        global.optionsMenu_Anim.tabs[1][1] = THEME_PANEL_H;
+        global.optionsMenu_Anim.tabs[2][1] = TAB_CONTENT_HEIGHTS[2];
         global.clickables.optionsMenu.mainMenuIdle.set(panelX * clickableRatio, PANEL_Y * clickableRatio, PANEL_WIDTH * clickableRatio, PANEL_HEIGHT * clickableRatio);
         const activeTab = global.optionsMenu_Anim.activeTab || 0;
         const scrollOffsetAnim = global.optionsMenu_Anim.scrollOffsets[activeTab];
@@ -5198,19 +5766,12 @@ import * as socketStuff from "./socketinit.js";
         ctx[2].save();
         ctx[2].globalAlpha *= fadeTheme;
         ctx[2].translate(0, -scrollY);
-        if (fadeTheme > 0.01) {
+        if (fadeTheme > 0.01 && activeTab === 1) {
             // THEME TAB
-
-            const CONTENT_Y = PANEL_Y + 50;
-            const CONTENT_X = panelX + 30;
-
-            ctx[2].fillStyle = color.guiwhite;
-            ctx[2].font = "bold 20px Ubuntu";
-            ctx[2].textAlign = "left";
-            ctx[2].textBaseline = "middle";
-
-            drawText("Theme", panelX + PANEL_WIDTH / 2, PANEL_Y + 30, 15.5, color.guiwhite, "center");
-            drawText("Coming soon™", CONTENT_X, CONTENT_Y, 20, color.guiwhite, "left");
+            drawText("Theme", panelX + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
+            drawThemeTab(panelX, PANEL_Y, PANEL_WIDTH, clickableRatio);
+        } else if (global.themeOverlay) {
+            global.themeOverlay.style.display = "none";
         }
         ctx[2].restore();
 
@@ -5219,17 +5780,7 @@ import * as socketStuff from "./socketinit.js";
         ctx[2].translate(0, -scrollY);
         if (fadeKeybinds > 0.01) {
             // KEYBINDS TAB
-
-            const CONTENT_Y = PANEL_Y + 50;
-            const CONTENT_X = panelX + 30;
-
-            ctx[2].fillStyle = color.guiwhite;
-            ctx[2].font = "bold 20px Ubuntu";
-            ctx[2].textAlign = "left";
-            ctx[2].textBaseline = "middle";
-
-            drawText("Keybinds", panelX + PANEL_WIDTH / 2, PANEL_Y + 30, 15.5, color.guiwhite, "center");
-            drawText("Coming soon™", CONTENT_X, CONTENT_Y, 20, color.guiwhite, "left");
+            drawKeybindsTab(panelX, PANEL_Y, PANEL_WIDTH, clickableRatio);
         }
         ctx[2].restore();
 
@@ -5300,7 +5851,8 @@ import * as socketStuff from "./socketinit.js";
         scaleScreenRatio(ratio, true);
         clearScreen(gameDraw.mixColors(color.red, color.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
         drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
-        if (global.message === "") global.message = "The connection closed due to an error.\n" + "Try reloading and clearing your cache, or joining another server.";
+        if (global.message === "") global.message = "The connection closed due to an error.\nTry reloading and clearing your cache, or joining another server.";
+        drawText(new Date(global.disconnectTimestamp || Date.now()).toISOString() + "", global.screenWidth / 2, global.screenHeight / 2 - 224, 8.125, color.guiwhite, "center");
         drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.orange, "center");
         lastPing = 0;
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
@@ -5411,6 +5963,7 @@ import * as socketStuff from "./socketinit.js";
             }
             if (global.dailyTankAd.renderUI) drawAdScreen();
             if (global.GUIStatus.renderIngameOptions) drawOptionsMenu(tick, 20, util.getScreenRatio());
+            else if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 
             //oh no we need to throw an error!

@@ -29,7 +29,8 @@ Class.moon = {
 Class.pumpkinLine = {
     LABEL: "Line",
     SHAPE: -1,
-    COLOR: "#ff9000"
+    COLOR: "#ff9000",
+    MIRROR_MASTER_ANGLE: true
 };
 Class.pumpkinCircle = {
     LABEL: "Circle",
@@ -39,7 +40,8 @@ Class.pumpkinCircle = {
 Class.pumpkinStar = {
     LABEL: "Star",
     SHAPE: -6,
-    COLOR: "#267524"
+    COLOR: "#267524",
+    MIRROR_MASTER_ANGLE: true
 };
 Class.pumpkin = {
     PARENT: "stone",
@@ -48,7 +50,7 @@ Class.pumpkin = {
     COLOR: "#ff9000",
     GUNS: [],
     SIZE: 63,
-    PROPS: [
+    TURRETS: [
         ...weaponArray({
             POSITION: [6, -4.5, 0, 0, 360, 1],
             TYPE: "pumpkinLine"

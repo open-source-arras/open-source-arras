@@ -1046,8 +1046,6 @@ Class.ghoster = {
                 setTimeout(() => {
                     body.SPEED = 1e-99
                     body.ACCEL = 1e-99
-                    body.FOV *= 2
-                    body.alpha = 1
                 }, 2000)
                 setTimeout(() => {
                     body.SPEED = base.SPEED

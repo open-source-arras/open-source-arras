@@ -858,6 +858,7 @@ let incoming = async function(message, socket) {
                 global.advanced.blackout.active = blackoutData.active;
                 global.advanced.blackout.color = blackoutData.color;
                 global.advanced.roundArena = m[6];
+                config.game.instantRespawn = m[7];
                 // Start syncing
                 socket.talk("S", getNow());
             } break;
@@ -868,11 +869,21 @@ let incoming = async function(message, socket) {
                 global.player.roomAnim.y.add(m[1]);
                 global.roomSetup = JSON.parse(m[2]);
             } break;
+            case "ru": {
+                let x = m[0], y = m[1];
+                if (global.roomSetup[y] && global.roomSetup[y][x]) {
+                    global.roomSetup[y][x].color = m[2];
+                    global.roomSetup[y][x].image = m[3];
+                }
+            } break;
             case "temporaryban": {
-                global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
+                global.message = "You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.";
+            } break;
+            case "moderatorban": {
+                global.message = "You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.";
             } break;
             case "permanentban": {
-                global.message = "You have been banned from the game.";
+                global.message = "You have been permanently banned from the game.";
             } break;
             case "svInfo": {
                 // For debugging.
@@ -1048,6 +1059,7 @@ let incoming = async function(message, socket) {
             0 < c && global.metrics.latency.push(c);
         } break;
         case "F": { // to pay respects
+            global.deathTimestamp = Date.now();
             global.deathAnimation = util.AdvancedSmoothBar(0, 4, 1);
             global.deathAnimation.set(4);
             global.finalScore = util.AdvancedSmoothBar(0, 1.5);
@@ -1056,6 +1068,15 @@ let incoming = async function(message, socket) {
             global.finalLifetime.set(m[1]);
             global.finalKills = [util.AdvancedSmoothBar(0, 4), util.AdvancedSmoothBar(0, 5.5), util.AdvancedSmoothBar(0, 2.5), util.AdvancedSmoothBar(0, 6)];
             global.respawnTimeout = m[2];
+            global.readyToRespawn = false;
+            if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+            if (config.game.instantRespawn) {
+                global.readyToRespawn = true;
+            } else {
+                global.respawnReadyTimeout = setTimeout(() => {
+                    global.readyToRespawn = true;
+                }, 3000);
+            }
             if (global.respawnTimeout > 0) {
                 global.cannotRespawn = true;
                 setTimeout(() => {
@@ -1339,11 +1360,13 @@ const socketInit = () => {
         if (global.dailyTankAd.render) global.dailyTankAd.exit();
         socket.open = false;
         global.disconnected = true;
+        global.disconnectTimestamp = Date.now();
     };
 
     socket.onerror = error => {
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
+        //global.message = "Socket timed out.";
     };
 
     return socket;

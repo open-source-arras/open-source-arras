@@ -103,11 +103,11 @@ const global = {
     KEY_AUTO_FIRE: "KeyE",
     KEY_AUTO_ALT: "KeyX",
     KEY_AUTO_SPIN: "KeyC",
-    KEY_SPIN_LOCK: "KeyG",
+    KEY_SPIN_LOCK: "KeyP",
     KEY_OVERRIDE: "KeyR",
     KEY_LEVEL_UP: "KeyN",
     KEY_ABILITY: "KeyF",
-    //KEY_PAUSE: "KeyG",
+    KEY_PAUSE: "KeyG",
     KEY_REVERSE_TANK: "KeyV",
     KEY_REVERSE_MOUSE: "KeyB",
     KEY_SCREENSHOT: "KeyQ",
@@ -183,6 +183,7 @@ const global = {
     KEY_SPECIAL_LEVEL_UP: "KeyN",
     KEY_SPECIAL_POLICE: "KeyP",
     KEY_SPECIAL_BLAST: "KeyB",
+    KEY_SPECIAL_POLYGON: "KeyF",
 
     KEY_SPECIAL_ATTRIBUTE: "KeyA",
     KEY_SPECIAL_ATTRIBUTE_MINIMAP_TEAM: "KeyT",
@@ -224,9 +225,12 @@ const global = {
     gameConnecting: false,
     gameUpdate: false,
     disconnected: false,
+    deathTimestamp: 0,
+    disconnectTimestamp: 0,
     autoSpin: false,
     syncingWithTank: false,
     respawnTimeout: false,
+    readyToRespawn: false,
     showDebug: false,
     died: false,
     kicked: false,
@@ -392,7 +396,7 @@ const global = {
             tabClickables: Region(10),  // Pre-initialize for up to 10 tabs
             themeClickables: Region(100),
             activeTab: 0, // 0=Options, 1=Theme, 2=Keybinds, 3=Secret
-            tabs: [["Options", 770], ["Theme", 610], ["Keybinds", 730]],
+            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838]],
             tabSlideAnim: util.Smoothbar(0, 0.3, 1.5, 0.03, 0.025, true),
             sliderMoving: false,
             currentOptionMenu: false
@@ -476,6 +480,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.entities = [];
         global.roomSetup = [];
         global.messages = [];
@@ -506,6 +512,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.gameConnecting = true;
         global.message = "";
         global.entities = [];

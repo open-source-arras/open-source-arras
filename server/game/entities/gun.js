@@ -36,6 +36,8 @@ class Gun extends EventEmitter {
         this.alpha = 1;
         this.strokeWidth = 1;
         this.canShoot = false;
+        this.wasPressed = false;
+        this.emitFireEvent = false;
         this.borderless = false;
         this.drawFill = true;
         this.drawAbove = false;
@@ -233,8 +235,15 @@ class Gun extends EventEmitter {
                 this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixed reload" ? 1 : sk.rld));
             }
         }
+        let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
+        if (currentlyPressed && !this.wasPressed) {
+            this.emitFireEvent = true;
+        } else {
+            this.emitFireEvent = false;
+        }
+        this.wasPressed = currentlyPressed;
         // Firing routines
-        if (this.autofire || (this.altFire ? this.body.control.alt : this.body.control.fire)) {
+        if (this.autofire || currentlyPressed) {
             if (this.body.settings.hasNoReloadDelay && shootPermission) {
                 return (
                     this.shoot(),
@@ -350,12 +359,15 @@ class Gun extends EventEmitter {
             o.life();
             this.onShootFunction();
             this.recoilDir = this.body.facing + this.angle;
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o
-            });
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o
+                });
+            }
             return;
         }
         if (this.independentChildren) {
@@ -369,13 +381,16 @@ class Gun extends EventEmitter {
                     break;
             }
             this.bulletInitIndependent(o);
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o,
-                body: this.master
-            });
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o,
+                    body: this.master
+                });
+            }
             return;
         }
     
@@ -392,15 +407,18 @@ class Gun extends EventEmitter {
         o.velocity = s;
         this.bulletInit(o);
         o.coreSize = o.SIZE;
-        this.master.emit(this.altFire ? "altFire" : "fire", {
-            body: this.master,
-            gun: this,
-            child: o,
-            masterStore: this.master.store,
-            globalMasterStore: this.master.globalStore,
-            gunStore: this.store,
-            globalGunStore: this.globalStore
-        });
+        if (this.emitFireEvent) {
+            this.emitFireEvent = false;
+            this.master.emit(this.altFire ? "altFire" : "fire", {
+                body: this.master,
+                gun: this,
+                child: o,
+                masterStore: this.master.store,
+                globalMasterStore: this.master.globalStore,
+                gunStore: this.store,
+                globalGunStore: this.globalStore
+            });
+        }
         if (this.body.master.settings.shakeProperties && this.master.socket) {
             this.body.master.settings.shakeProperties.forEach(info => {
                 if (info.applyOn.shoot) {
@@ -610,22 +628,24 @@ class Gun extends EventEmitter {
     }
 
     getPhotoInfo() {
-        return {
-            ...this.lastShot, 
-            color: this.color.compiled,
-            alpha: this.alpha,
-            strokeWidth: this.strokeWidth,
-            borderless: this.borderless, 
-            drawFill: this.drawFill, 
-            drawAbove: this.drawAbove,
-            length: this.length,
-            width: this.width,
-            aspect: this.aspect,
-            angle: this.angle,
-            direction: this.direction,
-            offset: this.offset,
-            layer: this.layer
-        };
+        if (!this.photoInfo) this.photoInfo = {};
+        let p = this.photoInfo;
+        p.time = this.lastShot.time;
+        p.power = this.lastShot.power;
+        p.color = this.color.compiled;
+        p.alpha = this.alpha;
+        p.strokeWidth = this.strokeWidth;
+        p.borderless = this.borderless;
+        p.drawFill = this.drawFill;
+        p.drawAbove = this.drawAbove;
+        p.length = this.length;
+        p.width = this.width;
+        p.aspect = this.aspect;
+        p.angle = this.angle;
+        p.direction = this.direction;
+        p.offset = this.offset;
+        p.layer = this.layer;
+        return p;
     }
 
     interpret() {

@@ -2305,7 +2305,7 @@ Class.maleficitor = {
     LABEL: "Maleficitor",
     DANGER: 7,
     NECRO: [4],
-    TOOLTIP: "Press R and wait to turn your drones invisible.",
+    TOOLTIP: `Press ${key("override")} and wait to turn your drones invisible.`,
     STAT_NAMES: statnames.necro,
     SHAPE: 4,
     MAX_CHILDREN: 20,

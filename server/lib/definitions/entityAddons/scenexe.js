@@ -5,7 +5,7 @@ const {combineStats, makeTurret, makeHat, weaponMirror, weaponArray, makeAuto} =
 // This addon is enabled by default. If you want to enable it, simply make the line below run.
 return //console.log("[scenexe.js]: Addon disabled.");
 
-let enableOnSpawn = false; // edit this to toggle spawning as a scenexe tank in the server
+let enableOnSpawn = true; // edit this to toggle spawning as a scenexe tank in the server
 
 let g = {
     // Bases
@@ -752,7 +752,7 @@ Class.scenexeFactory = {
             POSITION: [3, 9, 1, 20, 0, 0, 0],
             PROPERTIES: {
                 MAX_CHILDREN: 4,
-                SHOOT_SETTINGS: combineStats([g.minion, { size: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([g.spawner, { size: 1.2 }]),
                 TYPE: "scenexeMinion",
                 STAT_CALCULATOR: "drone",
                 AUTOFIRE: true,
