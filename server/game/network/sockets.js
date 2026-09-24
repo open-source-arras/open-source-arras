@@ -1349,7 +1349,7 @@ class socketManager {
                 body.sendMessage(msg[i]);
             }
             if (Config.dev_build) {
-                body.sendMessage("This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
+                socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
             }
         }
         // Move the client camera
