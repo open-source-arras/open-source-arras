@@ -57,7 +57,7 @@ class Domination {
     
                 for (let player of global.gameManager.socketManager.players) {
                     if (player.body && player.body.team === newTeam) {
-                        player.body.sendMessage("Press F to take control of the dominator.");
+                        player.body.sendMessage(`Press ${key("ability")} to take control of the dominator.`);
                     }
                 }
     
@@ -78,7 +78,7 @@ class Domination {
             }
     
             this.spawnDominators(tile, newTeam, newColor, type, true);
-            global.gameManager.socketManager.broadcastRoom();
+            global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
         });
     }
 

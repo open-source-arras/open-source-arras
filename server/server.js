@@ -69,7 +69,12 @@ try {
 
 // Log a warning if Access-Control-Allow-Origin is enabled
 if (Config.allow_ACAO && Config.startup_logs) {
-    util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the WebServer.");
+    util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the web server.");
+}
+
+// Show a warning about default API key
+if (process.env.API_KEY === "ChangeAPIKeyNow!") {
+    util.warn("You are using the default API key, which lets anyone submit server-travel players to this server. Set a unique API_KEY in server/.env.")
 }
 
 // Create an HTTP server to handle both API and static file requests
@@ -213,10 +218,10 @@ server = http.createServer((req, res) => {
             let fileToGet = path.join(publicRoot, pathname);
             let httpCode = 200;
 
-            // If the requested file doesn't exist or isn't a file, default to the main_menu file
+            // If the requested file doesn't exist or isn't a file, default to the index file
             if (!fileToGet.startsWith(publicRoot) || !fs.existsSync(fileToGet) || !fs.lstatSync(fileToGet).isFile()) {
                 httpCode = 404;
-                fileToGet = path.join(publicRoot, Config.main_menu);
+                fileToGet = path.join(publicRoot, Config.index);
             }
 
             // Determine the file's MIME type based on its extension and serve the file stream
@@ -299,7 +304,7 @@ global.onServerLoaded = () => {
         if (Config.startup_logs) {
             util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
-                console.log(`> ${Config.host}/#${game.id}`.padEnd(30, " ") + ` -> ${game.region.padEnd(10, " ")} (${game.serverhost.padEnd(8, " ")} - ${game.location.padEnd(10, " ")} - ${game.gameMode})`)
+                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.serverhost} - ${game.location} - ${game.gameMode}`)
             }
             console.log("\n");
         }

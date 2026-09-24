@@ -9,6 +9,7 @@ global.util = require("../lib/util.js");
 global.protocol = require("../lib/fasttalk.js");
 global.mazeGenerator = require("../miscFiles/mazeGenerator.js");
 global.grid = new HashGrid(7);
+global.viewGrid = new HashGrid(10, false);
 global.cannotRespawn = false;
 global.mockupData = [];
 global.mockupMap = {};
@@ -21,6 +22,8 @@ global.servers = [];
 global.chats = {};
 global.travellingPlayers = [];
 global.fps = "Unknown";
+
+global.key = (name) => `\x01${name}\x01`;
 
 global.loadedAddons = [];
 global.addonAuthorInfos = [];
@@ -38,7 +41,13 @@ global.TEAM_ENEMIES = -101;
 global.getSpawnableArea = (team, gameManager) => {
     gameManager = ensureIsManager(gameManager);
     let room = gameManager.room;
-    return ran.choose((team in room.spawnable && room.spawnable[team].length) ? room.spawnable[team] : room.spawnableDefault).randomInside();
+    let spawnables = (team in room.spawnable && room.spawnable[team].length) ? room.spawnable[team] : room.spawnableDefault;
+    let loc;
+    let attempts = 20;
+    do {
+        loc = ran.choose(spawnables).randomInside();
+    } while (attempts-- && dirtyCheck(loc, 0));
+    return loc;
 }
 global.teamNames = [
     "BLUE",
@@ -67,6 +76,17 @@ global.getTeamColor = (team, fixMode = false) => {
     return color;
 }
 global.isPlayerTeam = team => team < 0 || team > -11;
+global.setPermissionLevel = (socket, level) => {
+    if (!socket || !socket.status) return;
+    socket.status.permissionLevel = level;
+    let has = level > 0;
+    socket.status.hasOperator = has;
+    if (socket.player && socket.player.body) socket.player.body.hasOperator = has;
+};
+global.permissionLevelValue = (level) => {
+    if (typeof level === "number") return level;
+    return { player: 0, AC: 1, AS: 2, AO: 3 }[level];
+};
 global.getWeakestTeam = () => {
     let teamCounts = {};
     for (let i = -Config.teams; i < 0; i++) {

@@ -628,37 +628,193 @@ const process = (z = {}) => {
     // Return our monsterous creation
     return z;
 };
+const killEntity = (e, output) => {
+    e.render.status.set(e.health === 1 ? "dying" : "killed");
+    if (e.render.status.getFade() !== 0 && util.isInView(e.render.x - global.player.renderx, e.render.y - global.player.rendery, e.size, true)) {
+        output.push(e);
+    } else {
+        if (global.chats[e.id]) {
+            for (let o of global.chats[e.id]) {
+                util.remove(global.chats[e.id], global.chats[e.id].indexOf(o));
+            };
+            delete global.chats[e.id];
+        };
+        if (e.render.textobjs != null) {
+            for (let o of e.render.textobjs) {
+                o.remove();
+            }
+        }
+    }
+};
+const patch = (z, mask) => {
+    if (z) {
+        z.interval = global.metrics.rendergap;
+        z.render.lastRender = global.player.time;
+    }
+    if (mask & 0x0001) {
+        if (z) {
+            z.render.lastx = z.x;
+            z.render.lasty = z.y;
+        }
+        let x = get.next(),
+            y = get.next();
+        if (z) {
+            z.x = x;
+            z.y = y;
+        }
+    }
+    if (mask & 0x0002) {
+        if (z) {
+            z.render.lastvx = z.vx;
+            z.render.lastvy = z.vy;
+        }
+        let vx = get.next(),
+            vy = get.next();
+        if (z) {
+            z.vx = vx;
+            z.vy = vy;
+        }
+    }
+    if (mask & 0x0004) {
+        let size = get.next();
+        if (z) {
+            z.size = size;
+            z.render.size.add(z.size);
+        }
+    }
+    if (mask & 0x0008) {
+        if (z) z.render.lastf = z.facing;
+        let facing = get.next(),
+            vfacing = get.next();
+        if (z) {
+            z.facing = facing;
+            z.vfacing = vfacing;
+        }
+    }
+    if (mask & 0x0010) {
+        let health = get.next() / 65535,
+            shield = get.next() / 65535;
+        if (z) {
+            let hh = z.health,
+                ss = z.shield;
+            z.health = health;
+            z.shield = shield;
+            z.render.health.set(z.health);
+            z.render.shield.set(z.shield);
+            if (z.health < hh || z.shield < ss) {
+                z.render.status.set("injured");
+            } else if (z.render.status.getFade() !== 1) {
+                z.render.status.set("normal");
+            }
+        }
+    }
+    if (mask & 0x0020) {
+        let alpha = get.next() / 255;
+        if (z) z.alpha = alpha;
+    }
+    if (mask & 0x0040) {
+        // bit0 twiggle, bit1 invuln, bit2 borderless, bit3 drawFill
+        let flags = get.next();
+        if (z) {
+            z.twiggle = !!(flags & 1);
+            z.invuln = (flags & 2) ? (z.invuln || Date.now()) : 0;
+            z.borderless = !!(flags & 4);
+            z.drawFill = !!(flags & 8);
+            if (flags & 2) z.render.status.set("invuln");
+            else if (z.render.status.getState() === "invuln") z.render.status.set("normal");
+        }
+    }
+    if (mask & 0x0080) {
+        let color = get.next();
+        if (z) z.color = color;
+    }
+    if (mask & 0x0100) {
+        let name = get.next();
+        if (z) z.name = name;
+    }
+    if (mask & 0x0200) {
+        let score = get.next();
+        if (z) z.score = score;
+    }
+    if (mask & 0x0400) {
+        let layer = get.next();
+        if (z) z.layer = layer;
+    }
+    if (mask & 0x0800) {
+        let gunnumb = get.next();
+        if (z && gunnumb !== z.guns.length) z.guns = GunContainer(gunnumb);
+        for (let i = 0; i < gunnumb; i++) {
+            let gunMask = get.next();
+            let time = gunMask & 0x0001 ? get.next() : 0,
+                power = gunMask & 0x0002 ? get.next() : 0,
+                color = gunMask & 0x0004 ? get.next() : "",
+                alpha = gunMask & 0x0008 ? get.next() : 1,
+                strokeWidth = gunMask & 0x0010 ? get.next() : 1,
+                borderless = gunMask & 0x0020 ? get.next() : false,
+                drawFill = gunMask & 0x0040 ? get.next() : true,
+                drawAbove = gunMask & 0x0080 ? get.next() : false,
+                length = gunMask & 0x0100 ? get.next() : 0,
+                width = gunMask & 0x0200 ? get.next() : 0,
+                aspect = gunMask & 0x0400 ? get.next() : 0,
+                angle = gunMask & 0x0800 ? get.next() : 0,
+                direction = gunMask & 0x1000 ? get.next() : 0,
+                offset = gunMask & 0x2000 ? get.next() : 0,
+                layer = gunMask & 0x4000 ? get.next() : 0;
+            if (z) {
+                z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer});
+                if (time > global.player.lastUpdate - global.metrics.rendergap) z.guns.fire(i, power);
+            }
+        }
+    }
+    if (mask & 0x1000) {
+        let turnumb = get.next();
+        if (z && z.turrets.length !== turnumb) {
+            z.turrets = [];
+            for (let i = 0; i < turnumb; i++) z.turrets.push(process());
+        } else {
+            for (let i = 0; i < turnumb; i++) {
+                if (z) z.turrets[i] = process(z.turrets[i]);
+                else process();
+            }
+        }
+    }
+    if (z) {
+        z.render.xAnim.add(z.x);
+        z.render.yAnim.add(z.y);
+        z.render.faceAnim.add(z.facing);
+    }
+};
 // This is what we use to figure out what the hell the server is telling us to look at
 const convert = {
     begin: data => get.set(data),
     // Make a data convertor
     data: () => {
-        // Set up the output thingy+
         let output = [];
-        // Get the number of entities and work through them
-        for (let i = 0, len = get.next(); i < len; i++) {
-            output.push(process());
-        }
-        // Handle the dead/leftover entities
-        for (let e of global.entities) {
-            // Kill them
-            e.render.status.set(e.health === 1 ? "dying" : "killed");
-            // And only push them if they're not entirely dead and still visible
-            if (e.render.status.getFade() !== 0 && util.isInView(e.render.x - global.player.renderx, e.render.y - global.player.rendery, e.size, true)) {
-                output.push(e);
-            } else {
-                if (global.chats[e.id]) {
-                    for (let o of global.chats[e.id]) {
-                        util.remove(global.chats[e.id], global.chats[e.id].indexOf(o)); // Remove it properly
-                    };
-                    delete global.chats[e.id]; // Now we can delete it entirely
-                };
-                if (e.render.textobjs != null) {
-                    for (let o of e.render.textobjs) {
-                        o.remove();
-                    }
-                }
+        if (global.deltaEntities) {
+            for (let i = 0, len = get.next(); i < len; i++) {
+                output.push(process());
             }
+            for (let i = 0, len = get.next(); i < len; i++) {
+                let id = get.next(),
+                    mask = get.next(),
+                    index = global.entities.findIndex(x => x.id === id),
+                    z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
+                patch(z, mask);
+                if (z) output.push(z);
+            }
+            for (let i = 0, len = get.next(); i < len; i++) {
+                let id = get.next();
+                let index = global.entities.findIndex(x => x.id === id);
+                if (index !== -1) killEntity(global.entities.splice(index, 1)[0], output);
+            }
+            for (let e of global.entities) output.push(e);
+        } else {
+            // Get the number of entities and work through them
+            for (let i = 0, len = get.next(); i < len; i++) {
+                output.push(process());
+            }
+            // Handle the dead/leftover entities
+            for (let e of global.entities) killEntity(e, output);
         }
         // Save the new entities list
         global.entities = output;
@@ -828,7 +984,7 @@ let incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey);
+                socket.talk("k", global.playerKey, 1);
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);
@@ -841,6 +997,7 @@ let incoming = async function(message, socket) {
 
 
             case "w": { // welcome to the game
+                global.deltaEntities = m[1] === 1; // server tells us if it will send delta entity packets
                 if (m[0]) { // Ask to get the room data first
                     socket.talk("s", "", 1, 0, false, 0);
                 }
@@ -858,6 +1015,7 @@ let incoming = async function(message, socket) {
                 global.advanced.blackout.active = blackoutData.active;
                 global.advanced.blackout.color = blackoutData.color;
                 global.advanced.roundArena = m[6];
+                config.game.instantRespawn = m[7];
                 // Start syncing
                 socket.talk("S", getNow());
             } break;
@@ -868,11 +1026,21 @@ let incoming = async function(message, socket) {
                 global.player.roomAnim.y.add(m[1]);
                 global.roomSetup = JSON.parse(m[2]);
             } break;
+            case "ru": {
+                let x = m[0], y = m[1];
+                if (global.roomSetup[y] && global.roomSetup[y][x]) {
+                    global.roomSetup[y][x].color = m[2];
+                    global.roomSetup[y][x].image = m[3];
+                }
+            } break;
             case "temporaryban": {
-                global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
+                global.message = "You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.";
+            } break;
+            case "moderatorban": {
+                global.message = "You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.";
             } break;
             case "permanentban": {
-                global.message = "You have been banned from the game.";
+                global.message = "You have been permanently banned from the game.";
             } break;
             case "svInfo": {
                 // For debugging.
@@ -1048,6 +1216,7 @@ let incoming = async function(message, socket) {
             0 < c && global.metrics.latency.push(c);
         } break;
         case "F": { // to pay respects
+            global.deathTimestamp = Date.now();
             global.deathAnimation = util.AdvancedSmoothBar(0, 4, 1);
             global.deathAnimation.set(4);
             global.finalScore = util.AdvancedSmoothBar(0, 1.5);
@@ -1056,6 +1225,15 @@ let incoming = async function(message, socket) {
             global.finalLifetime.set(m[1]);
             global.finalKills = [util.AdvancedSmoothBar(0, 4), util.AdvancedSmoothBar(0, 5.5), util.AdvancedSmoothBar(0, 2.5), util.AdvancedSmoothBar(0, 6)];
             global.respawnTimeout = m[2];
+            global.readyToRespawn = false;
+            if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+            if (config.game.instantRespawn) {
+                global.readyToRespawn = true;
+            } else {
+                global.respawnReadyTimeout = setTimeout(() => {
+                    global.readyToRespawn = true;
+                }, 3000);
+            }
             if (global.respawnTimeout > 0) {
                 global.cannotRespawn = true;
                 setTimeout(() => {
@@ -1339,11 +1517,13 @@ const socketInit = () => {
         if (global.dailyTankAd.render) global.dailyTankAd.exit();
         socket.open = false;
         global.disconnected = true;
+        global.disconnectTimestamp = Date.now();
     };
 
     socket.onerror = error => {
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
+        //global.message = "Socket timed out.";
     };
 
     return socket;

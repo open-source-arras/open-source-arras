@@ -43,7 +43,7 @@ class Assault {
                     this.win(TEAM_BLUE);
                 }
             }
-            global.gameManager.socketManager.broadcastRoom();
+            global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
         })
     }
 

@@ -5,7 +5,7 @@ const preset = require("../presets.js");
 // Set the below variable to true to enable the flat 3D shapes from Old Dreadnoughts.
 const classic_3D_shapes = false;
 
-// Eggs
+// Base Polygons
 Class.egg = {
     PARENT: "food",
     LABEL: "Egg",
@@ -24,53 +24,11 @@ Class.egg = {
         ACCELERATION: 0.015
     },
     DRAW_HEALTH: false
-}
-Class.gem = {
-    PARENT: "food",
-    LABEL: "Gem",
-    VALUE: 2e3,
-    SHAPE: 6,
-    SIZE: 4.5,
-    COLOR: "aqua",
-    BODY: {
-        DAMAGE: basePolygonDamage / 4,
-        DENSITY: 4,
-        HEALTH: 10,
-        PENETRATION: 2,
-        RESIST: 2,
-        PUSHABILITY: 0.25,
-        ACCELERATION: 0.015
-    },
-    DRAW_HEALTH: true,
-    INTANGIBLE: false,
-    GIVE_KILL_MESSAGE: true
-}
-Class.jewel = {
-    PARENT: "food",
-    LABEL: "Jewel",
-    VALUE: 1e5,
-    SHAPE: 6,
-    SIZE: 8,
-    COLOR: "yellow",
-    BODY: {
-        DAMAGE: basePolygonDamage / 4,
-        DENSITY: 4,
-        HEALTH: 50,
-        PENETRATION: 2,
-        RESIST: 2,
-        PUSHABILITY: 0.25,
-        ACCELERATION: 0.015
-    },
-    DRAW_HEALTH: true,
-    INTANGIBLE: false,
-    GIVE_KILL_MESSAGE: true
-}
-
-// Squares
+};
 Class.square = {
     PARENT: "food",
     LABEL: "Square",
-    VALUE: 30,
+    VALUE: 20,
     SHAPE: 4,
     SIZE: 14,
     COLOR: "gold",
@@ -83,13 +41,11 @@ Class.square = {
     },
     DRAW_HEALTH: true,
     INTANGIBLE: false
-}
-
-// Triangles
+};
 Class.triangle = {
     PARENT: "food",
     LABEL: "Triangle",
-    VALUE: 120,
+    VALUE: 100,
     SHAPE: 3,
     SIZE: 10,
     COLOR: "orange",
@@ -102,13 +58,11 @@ Class.triangle = {
         ACCELERATION: 0.005
     },
     DRAW_HEALTH: true
-}
-
-// Pentagons
+};
 Class.pentagon = {
     PARENT: "food",
     LABEL: "Pentagon",
-    VALUE: 400,
+    VALUE: 500,
     SHAPE: 5,
     SIZE: 21,
     COLOR: "purple",
@@ -121,51 +75,11 @@ Class.pentagon = {
         ACCELERATION: 0.0035
     },
     DRAW_HEALTH: true
-}
-Class.betaPentagon = {
-    PARENT: "food",
-    LABEL: "Beta Pentagon",
-    VALUE: 2500,
-    SHAPE: 5,
-    SIZE: 30,
-    COLOR: "purple",
-    BODY: {
-        DAMAGE: 2 * basePolygonDamage,
-        DENSITY: 30,
-        HEALTH: 75 * basePolygonHealth,
-        RESIST: Math.pow(1.25, 2),
-        PENETRATION: 1.1,
-        SHIELD: 20 * basePolygonHealth,
-        ACCELERATION: 0.003
-    },
-    DRAW_HEALTH: true,
-    GIVE_KILL_MESSAGE: true
-}
-Class.alphaPentagon = {
-    PARENT: "food",
-    LABEL: "Alpha Pentagon",
-    VALUE: 15e3,
-    SHAPE: 5,
-    SIZE: 58,
-    COLOR: "purple",
-    BODY: {
-        DAMAGE: 2 * basePolygonDamage,
-        DENSITY: 80,
-        HEALTH: 562.5 * basePolygonHealth,
-        RESIST: Math.pow(1.25, 3),
-        PENETRATION: 1.1,
-        SHIELD: 40 * basePolygonHealth,
-        ACCELERATION: 0.0025
-    },
-    DRAW_HEALTH: true,
-    GIVE_KILL_MESSAGE: true
-}
-
-// Hexagons
+};
 Class.hexagon = {
     PARENT: "food",
     LABEL: "Hexagon",
-    VALUE: 500,
+    VALUE: 2500,
     SHAPE: 6,
     SIZE: 25,
     COLOR: "aqua",
@@ -179,9 +93,9 @@ Class.hexagon = {
         ACCELERATION: 0.003
     },
     DRAW_HEALTH: true
-}
+};
 
-// Crashers
+// Old Dreadnoughts Polygons
 Class.crasher = {
     TYPE: "crasher",
     LABEL: "Crasher",
@@ -208,13 +122,89 @@ Class.crasher = {
     HITS_OWN_TYPE: "hard",
     HAS_NO_MASTER: true,
     DRAW_HEALTH: true
-}
-
-// Old Dreadnoughts Polygons
+};
+Class.gem = {
+    PARENT: "food",
+    LABEL: "Gem",
+    VALUE: 2e3,
+    SHAPE: 6,
+    SIZE: 4.5,
+    COLOR: "aqua",
+    BODY: {
+        DAMAGE: basePolygonDamage / 4,
+        DENSITY: 4,
+        HEALTH: 10,
+        PENETRATION: 2,
+        RESIST: 2,
+        PUSHABILITY: 0.25,
+        ACCELERATION: 0.015
+    },
+    DRAW_HEALTH: true,
+    INTANGIBLE: false,
+    GIVE_KILL_MESSAGE: true
+};
+Class.jewel = {
+    PARENT: "food",
+    LABEL: "Jewel",
+    VALUE: 1e5,
+    SHAPE: 6,
+    SIZE: 8,
+    COLOR: "yellow",
+    BODY: {
+        DAMAGE: basePolygonDamage / 4,
+        DENSITY: 4,
+        HEALTH: 50,
+        PENETRATION: 2,
+        RESIST: 2,
+        PUSHABILITY: 0.25,
+        ACCELERATION: 0.015
+    },
+    DRAW_HEALTH: true,
+    INTANGIBLE: false,
+    GIVE_KILL_MESSAGE: true
+};
+Class.betaPentagon = {
+    PARENT: "food",
+    LABEL: "Beta Pentagon",
+    VALUE: 2500,
+    SHAPE: 5,
+    SIZE: 30,
+    COLOR: "purple",
+    BODY: {
+        DAMAGE: 2 * basePolygonDamage,
+        DENSITY: 30,
+        HEALTH: 75 * basePolygonHealth,
+        RESIST: Math.pow(1.25, 2),
+        PENETRATION: 1.1,
+        SHIELD: 20 * basePolygonHealth,
+        ACCELERATION: 0.003
+    },
+    DRAW_HEALTH: true,
+    GIVE_KILL_MESSAGE: true
+};
+Class.alphaPentagon = {
+    PARENT: "food",
+    LABEL: "Alpha Pentagon",
+    VALUE: 15e3,
+    SHAPE: 5,
+    SIZE: 58,
+    COLOR: "purple",
+    BODY: {
+        DAMAGE: 2 * basePolygonDamage,
+        DENSITY: 80,
+        HEALTH: 562.5 * basePolygonHealth,
+        RESIST: Math.pow(1.25, 3),
+        PENETRATION: 1.1,
+        SHIELD: 40 * basePolygonHealth,
+        ACCELERATION: 0.0025
+    },
+    DRAW_HEALTH: true,
+    GIVE_KILL_MESSAGE: true
+};
 Class.hexagon_old = {
     PARENT: "food",
     LABEL: "Hexagon",
-    VALUE: 21000,
+    VALUE: 21e3,
     SHAPE: 6,
     SIZE: 70,
     COLOR: "magenta",
@@ -229,11 +219,11 @@ Class.hexagon_old = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.septagon = {
     PARENT: "food",
     LABEL: "Septagon",
-    VALUE: 28000,
+    VALUE: 28e3,
     SHAPE: 7,
     SIZE: 80,
     COLOR: "green",
@@ -248,11 +238,11 @@ Class.septagon = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.octagon = {
     PARENT: "food",
     LABEL: "Octagon",
-    VALUE: 35000,
+    VALUE: 35e3,
     SHAPE: 8,
     SIZE: 90,
     COLOR: "lavender",
@@ -267,11 +257,11 @@ Class.octagon = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.nonagon = {
     PARENT: "food",
     LABEL: "Nonagon",
-    VALUE: 42000,
+    VALUE: 42e3,
     SHAPE: 9,
     SIZE: 100,
     COLOR: "white",
@@ -286,7 +276,7 @@ Class.nonagon = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 
 // Rarities
 makeRarities([
@@ -301,9 +291,9 @@ makeRarities([
     "septagon",
     "octagon",
     "nonagon"
-])
+]);
 
-// 3D
+// 3D/4D
 if (!classic_3D_shapes) {
     cube_shape = makePolyhedron({
         VERTEXES: [
@@ -602,7 +592,7 @@ if (!classic_3D_shapes) {
     dodecahedron_shape = preset.shape.flatDodecahedron
     icosahedron_shape = preset.shape.flatIcosahedron
     tesseract_shape = preset.shape.flatTesseract
-}
+};
 
 Class.sphere = {
     PARENT: "food",
@@ -645,7 +635,7 @@ Class.sphere = {
         POSITION: [6, 3, -3, 0, 1],
         TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: 9 }, BORDERLESS: true }]
     }]
-}
+};
 Class.cube = {
     PARENT: "food",
     LABEL: "Cube",
@@ -665,7 +655,7 @@ Class.cube = {
     DRAW_HEALTH: true,
     INTANGIBLE: false,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.tetrahedron = {
     PARENT: "food",
     LABEL: "Tetrahedron",
@@ -684,7 +674,7 @@ Class.tetrahedron = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.octahedron = {
     PARENT: "food",
     LABEL: "Octahedron",
@@ -703,7 +693,7 @@ Class.octahedron = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.dodecahedron = {
     PARENT: "food",
     LABEL: "Dodecahedron",
@@ -722,7 +712,7 @@ Class.dodecahedron = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.icosahedron = {
     PARENT: "food",
     LABEL: "Icosahedron",
@@ -741,9 +731,7 @@ Class.icosahedron = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
-
-// 4D
+};
 Class.tesseract = {
     PARENT: "food",
     LABEL: "Tesseract",
@@ -762,7 +750,7 @@ Class.tesseract = {
     },
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 
 // Presents (todo: make this a self-creating function)
 Class.presentRY = makePresent("red", "yellow")
@@ -811,7 +799,7 @@ for (let [gemColor, name] of [
 // Tiered Food
 let polyNames = ["egg", "square", "triangle", "pentagon", "hexagon"],
     shinyNames = ["", "shiny", "legendary", "shadow", "rainbow", "trans"];
-for (let tier = 0; tier < 6; tier++) {
+for (let tier = 0; tier < 4; tier++) {
     for (let poly in polyNames) {
         let polyName = polyNames[poly];
         polyName = polyName[0].toUpperCase() + polyName.slice(1);

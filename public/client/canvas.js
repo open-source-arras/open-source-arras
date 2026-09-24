@@ -66,6 +66,24 @@ class Canvas {
         );
         this.cv.addEventListener("keydown", (event) => {if (global.gameStart) this.keyDown(event)});
         this.cv.addEventListener("keyup", (event) => {if (global.gameStart) this.keyUp(event)});
+        window.addEventListener("keydown", (event) => {
+            const el = global.ingameRebind;
+            if (!el) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.code !== "Escape") {
+                const name = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+                el.textContent = name;
+                global[el.dataset.key] = event.code;
+                let kb = {};
+                try { kb = JSON.parse(localStorage.getItem("keybinds") || "{}"); } catch (e) { kb = {}; }
+                kb[el.dataset.key] = [name, event.code];
+                localStorage.setItem("keybinds", JSON.stringify(kb));
+            }
+            const td = el.closest("td");
+            if (td) td.classList.remove("editing");
+            global.ingameRebind = null;
+        }, true);
         window.addEventListener("gamepadconnected", (e) => {
             global.createMessage("Controller detected! Initalizing Gamepad mode...");
             this.runGamepad();
@@ -114,9 +132,13 @@ class Canvas {
     }
 
     respawn() {
-        if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
             this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, false, 1 * config.game.incognitoMode);
             global.died = false;
+            if (config.game.instantRespawn) {
+                global.cannotRespawn = false;
+                global.respawnTimeout = false;
+            }
         }
     }
 
@@ -194,7 +216,7 @@ class Canvas {
 
             case "Enter":
                 // Enter to respawn
-                if (global.died && !global.cannotRespawn) {
+                if (global.died && global.readyToRespawn && !global.cannotRespawn) {
                     this.respawn();
                     global.selfDestructed = false;
                     global.died = false;
@@ -437,6 +459,21 @@ class Canvas {
                     global.classTreeDrag.momentum = { x: 0, y: 0 };
                     break;
                 }
+                if (global.ingameThemeSlider && global.ingameThemeSetBlend) {
+                    const s = global.ingameThemeSlider;
+                    if (mpos.x >= s.x && mpos.x <= s.x + s.w && mpos.y >= s.y - 8 && mpos.y <= s.y + s.h + 8) {
+                        global.ingameThemeSliderDrag = true;
+                        global.ingameThemeSetBlend(mpos.x <= s.x ? 0 : (mpos.x - s.x) / s.w);
+                        return;
+                    }
+                }
+                if (global.ingameThemeNeon && global.ingameThemeToggleNeon) {
+                    const c = global.ingameThemeNeon;
+                    if (mpos.x >= c.x && mpos.x <= c.x + c.w && mpos.y >= c.y && mpos.y <= c.y + c.h) {
+                        global.ingameThemeToggleNeon();
+                        return;
+                    }
+                }
                 let statIndex = global.clickables.stat.check(mpos);
                 let upgradeCheck = global.clickables.upgrade.check(mpos);
                 let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
@@ -496,6 +533,10 @@ class Canvas {
         switch (mouse.button) {
             case 0:
                 global.optionsMenu_Anim.sliderMoving = false;
+                if (global.ingameThemeSliderDrag) {
+                    global.ingameThemeSliderDrag = false;
+                    return;
+                }
                 if (global.optionsMenu_Anim.currentOptionMenu) {
                     global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch = true;
                 };
@@ -522,6 +563,8 @@ class Canvas {
                     break;
                 }
                 if (optionsMenu_Switch === 1) {
+                    document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
+                    global.ingameRebind = null;
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
@@ -531,6 +574,17 @@ class Canvas {
                         global.optionsMenu_Anim._wheelHandler = undefined;
                     }
                     break;
+                }
+                if (global.ingameKeybindRects) {
+                    for (const r of global.ingameKeybindRects) {
+                        if (mpos.x >= r.x && mpos.x <= r.x + r.w && mpos.y >= r.y && mpos.y <= r.y + r.h) {
+                            document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
+                            const td = r.el.closest("td");
+                            if (td) td.classList.add("editing");
+                            global.ingameRebind = r.el;
+                            return;
+                        }
+                    }
                 }
                 if (optionsMenu_tabClick !== -1) {
                     global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
@@ -637,7 +691,10 @@ class Canvas {
         if (this.spinLock) return;
         global.mouse.x = mouse.clientX * global.ratio;
         global.mouse.y = mouse.clientY * global.ratio;
-        if (global.optionsMenu_Anim.sliderMoving) {
+        if (global.ingameThemeSliderDrag && global.ingameThemeSlider && global.ingameThemeSetBlend) {
+            const s = global.ingameThemeSlider;
+            global.ingameThemeSetBlend(global.mouse.x <= s.x ? 0 : (global.mouse.x - s.x) / s.w);
+        } else if (global.optionsMenu_Anim.sliderMoving) {
             global.optionsMenu_Anim.sliderMoving.trigger({}, global.optionsMenu_Anim.sliderMoving);
         }
         if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch) {
@@ -771,7 +828,7 @@ class Canvas {
     // Touchscreen Controls
     touchStart(e) {
         e.preventDefault();
-        if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
             this.respawn();
             global.resetTarget();
         } else {
@@ -1071,7 +1128,7 @@ class Canvas {
                 }
                 // Shoot
                 if (this.gamepad.buttons[7].pressed) {
-                    if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
                         this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp);
                         global.died = false;
                     } else {
