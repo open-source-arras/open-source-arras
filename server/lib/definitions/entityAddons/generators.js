@@ -20,7 +20,7 @@ const shapeGeneratorUpgrades = [
 Class.genBody = {
     PARENT: "spectator",
     BODY: {
-        SPEED: base.SPEED * 25
+        SPEED: 25
     },
     SKILL_CAP: [15, 0, 0, 0, 0, 0, 0, 0, 0, 15],
     LAYER: 1e99,
