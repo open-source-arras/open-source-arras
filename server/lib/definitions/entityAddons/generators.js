@@ -1,4 +1,5 @@
-const {combineStats, weaponArray, weaponMirror} = require("../facilitators.js")
+const { combineStats, weaponArray, weaponMirror } = require("../facilitators.js");
+const { base } = require("../constants.js");
 
 
 let suffix = "Gen"
