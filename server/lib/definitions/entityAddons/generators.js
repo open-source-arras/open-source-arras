@@ -2,7 +2,7 @@ const { combineStats, weaponArray, weaponMirror } = require("../facilitators.js"
 const { base } = require("../constants.js");
 
 
-let suffix = "Gen"
+let suffix = "Generator"
 // Generators
 const shapeGeneratorUpgrades = [
     ["wall", "egg", "gem"],

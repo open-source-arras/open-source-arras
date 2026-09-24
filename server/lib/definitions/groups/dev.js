@@ -15,7 +15,7 @@ Class.menu_special = makeMenu("Special Menu", {
     upgrades: [
         Config.spawn_class,
         //"menu_gameAdmin",
-        "eggGen",
+        "eggGenerator",
         "menu_specialTanks",
         "menu_bosses",
         "menu_nostalgia",
@@ -446,7 +446,7 @@ Class.menu_digdig = makeMenu("DigDig", {
 // Shiny Member Menu
 Class.menu_shinyMember = makeMenu("Shiny Member Menu", {
     upgrades: [
-        "eggGen",
+        "eggGenerator",
         "menu_specialTanks",
         "menu_bosses",
         "menu_nostalgia",
