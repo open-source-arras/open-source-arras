@@ -525,18 +525,21 @@ class gameHandler {
         this.active = true;
         let gameLoop = setInterval(() => {
             if (!this.active) return clearInterval(gameLoop);
-            if (this.checkUsers()) {
-                try {
+            try {
+                // Empty room skips physics, but tick callbacks still fire so
+                // deferred commands do not hang after the last client leaves.
+                // Arena close keeps simulating so closers can finish the map.
+                if (this.checkUsers() || global.gameManager.arenaClosed) {
                     this.gameloop();
-                    syncedDelaysLoop();
                     if (Config.enable_food) this.foodloop();
                     global.gameManager.roomLoop();
                     global.gameManager.gamemodeManager.request("quickloop");
-                } catch(e) {
-                    global.gameManager.gameSpeedCheckHandler.onError(e);
-                    this.stop();
-                };
-            }
+                }
+                syncedDelaysLoop();
+            } catch(e) {
+                global.gameManager.gameSpeedCheckHandler.onError(e);
+                this.stop();
+            };
         }, global.gameManager.room.cycleSpeed);
         let maintainloop = setInterval(() => {
             if (!this.active) return clearInterval(maintainloop);

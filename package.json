@@ -3,9 +3,12 @@
   "version": "2.1.2",
   "main": "index.js",
   "scripts": {
-    "start": "node --no-lazy index"
+    "start": "node --no-lazy index",
+    "control": "node server/control/main.js",
+    "test:control": "node --test \"server/control/test/*.test.js\""
   },
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "ws": "^8.18.3"
   },
   "engines": {

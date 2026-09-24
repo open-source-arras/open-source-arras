@@ -1002,6 +1002,14 @@ let incoming = async function(message, socket) {
                     socket.talk("s", "", 1, 0, false, 0);
                 }
             }; break;
+            case "key": { // keep the linked account secret for next login
+                let secret = (m[0] || "").toString().substring(0, 64);
+                if (secret) {
+                    localStorage.setItem("playerKeyInputValue", secret);
+                    let input = document.getElementById("playerKeyInput");
+                    if (input) input.value = secret;
+                }
+            }; break;
             case "R": { // room setup
                 global.gameWidth = m[0];
                 global.gameHeight = m[1];

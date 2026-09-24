@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Permission management for Open Source Arras control">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Permissions - Open Source Arras</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/3.0.2/css/dataTables.dataTables.min.css" integrity="sha384-IkYzSBi8dm4Cg6IWFobByqhtleZ+PI1q8HYZXz9QgfRw+9LiJ3uVKcGDIWZFa+0k" crossorigin="anonymous">
+    <script src="https://cdn.datatables.net/3.0.2/js/dataTables.min.js" integrity="sha384-c4yknMYbSSMth0KWquBHrA7U+cCWJgg4sdZ3R2KuLzCvc2FB1SFRK7JibRvpgwN1" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <header>
+        <h1>Control Permissions</h1>
+        <p id="status">Connecting…</p>
+        <button type="button" id="logout">Log out</button>
+    </header>
+    <section id="login" style="display: none">
+        <h2>Panel key</h2>
+        <p>The CONTROL_PANEL_KEY from server/.env. It lives in this tab only.</p>
+        <form id="loginForm">
+            <label>Key <input name="key" type="password" required autocomplete="off"></label>
+            <button type="submit">Log in</button>
+        </form>
+    </section>
+    <main id="panelMain" style="display: none">
+        <section>
+            <h2>Users</h2>
+            <table id="users">
+                <thead>
+                    <tr>
+                        <th>Discord id</th>
+                        <th>Type</th>
+                        <th>Flags</th>
+                        <th>State</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <h3>Add or edit user</h3>
+            <form id="userForm">
+                <label>Discord id <input name="discordId" required pattern="[0-9]+" title="Numeric discord id"></label>
+                <label>Type <select name="type"></select></label>
+                <fieldset id="flagEditor">
+                    <legend>Flags</legend>
+                </fieldset>
+                <button type="submit">Save user</button>
+            </form>
+            <h3>Mint $auth code</h3>
+            <p>Or use Code on a saved user. Type the code in game as <code>$auth CODE</code>.</p>
+            <form id="mintForm">
+                <label>Discord id <input name="mintId" required pattern="[0-9]+" title="Numeric discord id"></label>
+                <button type="submit">Mint code</button>
+            </form>
+            <p id="codeOut"></p>
+        </section>
+        <section>
+            <h2>Types</h2>
+            <p>Read only, loaded from server/control/types.json.</p>
+            <table id="types">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Rank</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <section>
+            <h2>Secrets</h2>
+            <table id="secrets">
+                <thead>
+                    <tr>
+                        <th>Hash</th>
+                        <th>Discord id</th>
+                        <th>Created</th>
+                        <th>Last used</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </section>
+        <p id="error"></p>
+    </main>
+    <script type="module" src="./admin.js"></script>
+</body>
+
+</html>

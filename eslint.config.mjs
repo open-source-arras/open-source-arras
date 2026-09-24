@@ -42,5 +42,11 @@ export default defineConfig([
         languageOptions: {
             sourceType: "commonjs"
         }
+    },
+    {
+        files: ["server/control/**/*.js"],
+        languageOptions: {
+            globals: globals.node
+        }
     }
 ]);

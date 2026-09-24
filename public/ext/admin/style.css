@@ -1,0 +1,176 @@
+body {
+    font-family: sans-serif;
+    background: #1a1a1a;
+    color: #e8e8e8;
+    margin: 0;
+    padding: 0 24px 48px;
+}
+
+header {
+    border-bottom: 1px solid #444;
+    margin-bottom: 16px;
+}
+
+header button {
+    margin-bottom: 12px;
+}
+
+#login {
+    max-width: 420px;
+}
+
+.dataTables_wrapper {
+    color: #e8e8e8;
+}
+
+table.dataTable thead th {
+    background: #2a2a2a;
+    color: #e8e8e8;
+    border-color: #444;
+}
+
+table.dataTable tbody td {
+    border-color: #333;
+}
+
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select {
+    background: #2a2a2a;
+    color: #e8e8e8;
+    border: 1px solid #444;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: #e8e8e8 !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: #2a4a2a !important;
+    border-color: #444 !important;
+}
+
+section {
+    margin-bottom: 32px;
+}
+
+table {
+    border-collapse: collapse;
+    margin-bottom: 16px;
+}
+
+th,
+td {
+    border: 1px solid #444;
+    padding: 6px 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background: #2a2a2a;
+}
+
+tr.revoked td {
+    color: #888;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: end;
+    margin-bottom: 16px;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    font-size: 13px;
+    gap: 4px;
+}
+
+input,
+select,
+button {
+    font-size: 14px;
+    padding: 6px 8px;
+}
+
+button {
+    cursor: pointer;
+}
+
+td button {
+    margin-right: 6px;
+    font-size: 12px;
+    padding: 3px 8px;
+}
+
+#error {
+    color: #f66;
+}
+
+#codeOut {
+    font-size: 18px;
+}
+
+code {
+    background: #2a2a2a;
+    padding: 2px 6px;
+}
+
+.pill {
+    display: inline-block;
+    background: #2a4a2a;
+    border-radius: 10px;
+    padding: 2px 8px;
+    margin: 1px 4px 1px 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.pill button {
+    font-size: 11px;
+    padding: 0 4px;
+    margin-left: 4px;
+}
+
+fieldset {
+    border: 1px solid #444;
+    flex: 1 1 100%;
+    box-sizing: border-box;
+}
+
+.flagGroup {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.flagGroup label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2a2a2a;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.flagGroup input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+}
+
+.flagGroup label small {
+    color: #999;
+}
+
+.flagGroup label.danger {
+    background: #4a2a2a;
+}

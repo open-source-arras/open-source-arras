@@ -12,6 +12,13 @@ module.exports = {
     startup_logs: true, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
 
+    // Control plane: game servers link here on boot for identity, bans,
+    // and remote commands. Loopback default works with no extra setup.
+    control: {
+        url: null, // Control websocket URL. Null means the loopback default. Override with CONTROL_URL for a remote control.
+        nodeKey: null // Node key. Null means CONTROL_NODE_KEY, then dev-keys.json. Prefer env, do not commit real keys.
+    },
+
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
         share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)

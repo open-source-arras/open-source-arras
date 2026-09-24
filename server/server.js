@@ -13,14 +13,17 @@ const { Worker } = require("worker_threads");
 // Increase the stack trace limit for better debugging
 Error.stackTraceLimit = Infinity;
 
-// Load environment variables from .env using a custom dotenv loader
+// Optional .env. Missing file is fine, defaults and generated keys cover it.
 const dotenv = require("./lib/dotenv.js");
-const envContent = fs.readFileSync(path.join(__dirname, "./.env")).toString();
-const environment = dotenv(envContent);
-
-// Set each environment variable in process.env
-for (const key in environment) {
-    process.env[key] = environment[key];
+try {
+    const envContent = fs.readFileSync(path.join(__dirname, "./.env")).toString();
+    const environment = dotenv(envContent);
+    // Exported env vars win over the file.
+    for (const key in environment) {
+        if (process.env[key] === undefined) process.env[key] = environment[key];
+    }
+} catch(err) {
+    console.log("No server/.env, using defaults. (" + err.message + ")");
 }
 
 // Load all necessary modules and files via the loader
@@ -56,6 +59,7 @@ const publicRoot = path.join(__dirname, "../public/"),
 
 let wsServer; // WebSocket server instance
 let server; // HTTP server instance
+global.controlHandle = null; // Embedded control server, if it booted
 
 // Attempt to create a WebSocket server instance using the 'ws' package
 try {
@@ -91,8 +95,26 @@ server = http.createServer((req, res) => {
     let readString = ""; // Response content for API endpoints
     let ok = true; // Flag to indicate whether we use default API response
     let serversIP = [];
-    let clientHeaders = ["/ext/custom-shape", "/ext/editor"];
+    let clientHeaders = ["/ext/custom-shape", "/ext/editor", "/ext/admin/"];
     let selectedHeader = null;
+
+    // Panel page needs the trailing slash or relative assets resolve wrong.
+    if (pathname === "/ext/admin") {
+        res.writeHead(302, { Location: "/ext/admin/" });
+        res.end();
+        return;
+    }
+
+    // Permission panel api, loopback only (enforced per request).
+    if (pathname.startsWith("/panel/")) {
+        if (!global.controlHandle) {
+            res.writeHead(503);
+            res.end("Control not ready");
+            return;
+        }
+        global.controlHandle.panelHandler(req, res);
+        return;
+    }
 
     // Set CORS headers if enabled in the configuration or allow only the children servers.
     for (let server of global.servers) {
@@ -114,26 +136,35 @@ server = http.createServer((req, res) => {
     // Handle specific API endpoints based on the request URL
     switch (pathname) {
         case "/getServers.json": {
-            // Serve a list of active servers (excluding hidden ones)
-            readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
-                ip: server.ip,
-                players: server.players,
-                maxPlayers: server.maxPlayers,
-                id: server.id,
-                featured: server.featured,
-                unlisted: server.unlisted,
-                private: server.private,
-                region: server.region,
-                serverhost: server.serverhost,
-                location: server.location,
-                gameMode: server.gameMode
-            })));
+            // Control registry covers local and remote nodes; fall back
+            // to local worker state when control is not up.
+            if (global.controlHandle) {
+                readString = JSON.stringify(require("./control/serverList.js").snapshotToList(global.controlHandle.registry.snapshot()));
+            } else {
+                readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
+                    ip: server.ip,
+                    players: server.players,
+                    maxPlayers: server.maxPlayers,
+                    id: server.id,
+                    featured: server.featured,
+                    unlisted: server.unlisted,
+                    private: server.private,
+                    region: server.region,
+                    serverhost: server.serverhost,
+                    location: server.location,
+                    gameMode: server.gameMode
+                })));
+            }
         } break;
         case "/getTotalPlayers": {
             let countPlayers = 0;
-            servers.forEach((s) => {
-                countPlayers += s.players;
-            });
+            if (global.controlHandle) {
+                countPlayers = require("./control/serverList.js").totalPlayers(global.controlHandle.registry.snapshot());
+            } else {
+                servers.forEach((s) => {
+                    countPlayers += s.players;
+                });
+            }
             readString = JSON.stringify(countPlayers);
         } break;
         case "/version": {
@@ -316,8 +347,9 @@ global.onServerLoaded = () => {
 
 // Start the HTTP Server & Load Game Servers
 server.listen(Config.port, () => {
+    startEmbeddedControl();
     Config.servers.forEach(server => {
-    // Load all of the servers.
+        // Load all of the servers.
         loadGameServer(
             server.share_client_server,
             server.host,
@@ -334,9 +366,35 @@ server.listen(Config.port, () => {
         );
     })
 });
+// Idle listener does not pin the process, live connections still do.
+server.unref();
+
+// Boot control in this process. Shares the web server: /control upgrades
+// go to the hub, /panel/* and /ext/admin serve the permission panel.
+async function startEmbeddedControl() {
+    try {
+        let { startControl, resolveKeysFromEnv, resolvePanelKey } = require("./control/index.js");
+        global.controlHandle = await startControl({
+            server,
+            panel: false,
+            dataDir: process.env.CONTROL_DATA_DIR || path.join(__dirname, "control/data"),
+            keys: resolveKeysFromEnv(),
+            panelKey: resolvePanelKey()
+        });
+        if (Config.startup_logs) {
+            let panel = resolvePanelKey() ? ", key gate on" : ", open";
+            console.log(`Control ready on this port. Panel: http://127.0.0.1:${Config.port}/ext/admin/ (loopback${panel})`);
+            console.log("Mint an $auth code from the panel (Code button), then type $auth CODE in game. Discord bot is optional.");
+        }
+    } catch(err) {
+        global.controlHandle = null;
+        console.warn("Control failed to start, continuing without it: " + (err && err.message));
+    }
+}
 
 // Upgrade HTTP connections to WebSocket connections if applicable
 server.on("upgrade", (req, socket, head) => {
+    if ((req.url || "").split("?")[0] === "/control") return; // Hub handles this path
     wsServer.handleUpgrade(req, socket, head, (ws) => {
         if (global.launchedOnMainServer) {
             for (let i = 0; i < global.servers.length; i++) {

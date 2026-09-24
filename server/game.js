@@ -12,6 +12,7 @@ let { LagLogger } = require("./game/debug/lagLogger.js");
 let { speedcheckloop } = require("./game/debug/speedLoop.js");
 let { gameHandler } = require("./game/index.js");
 let { gamemodeManager } = require("./game/gamemodeManager.js");
+let { NodeClient } = require("./game/nodeClient.js");
 
 // Gamemode names
 const getName = (name, gamemodeData) => {
@@ -116,6 +117,7 @@ class gameServer {
         this.unlisted = isUnlisted;
         this.private = isPrivate;
         this.parentPort = parentPort;
+        this.startedAt = Date.now();
         this.definitionsCombiner = new definitionCombiner(
             {
                 groups: path.join(__dirname, "./lib/definitions/groups"),
@@ -154,6 +156,15 @@ class gameServer {
         // Don't forget to bind our manager!
         this.gamemodeManager = new gamemodeManager(this);
 
+        // Link up to control. Game runs fine without it.
+        this.nodeClient = null;
+        try {
+            this.nodeClient = new NodeClient(this);
+            this.nodeClient.connect();
+        } catch(err) {
+            console.warn("Control link failed, continuing standalone: " + (err && err.message));
+        }
+
         // Start the party
         this.startServer();
     }
@@ -180,7 +191,7 @@ class gameServer {
 
     // Create a new web server class to handle incoming requests
     startWebServer(socketManager) {
-    // Create the socket
+        // Create the socket
         this.wsServer = new ws.WebSocketServer({ noServer: true });
         // Create the http server
         this.httpServer = http.createServer((req, res) => {
@@ -280,7 +291,11 @@ class gameServer {
 
     // Start our game
     start(softStart = false) {
-    // Are we starting for the first time?
+        // Uptime counts from the last (re)start, arena closes reset it too.
+        this.startedAt = Date.now();
+        // Fresh arena, fresh identities: drop whatever the last one cached.
+        if (this.nodeClient) this.nodeClient.refreshPerms();
+        // Are we starting for the first time?
         if (!softStart) {
             let overrideRoom = true;
             // Get gamemode
@@ -540,7 +555,6 @@ class gameServer {
 
     // Arena closers here we come
     closeArena() {
-    // Check if the arena is closed
         if (this.arenaClosed) return;
         // Log this
         util.saveToLog("Game Instance Ending", "Game running " + this.gamemode + " at `" + this.gamemode + "` is now closing.", 0xEE4132);
@@ -548,7 +562,17 @@ class gameServer {
         // And broadcast it
         this.socketManager.broadcast("Arena closed: No players may join!");
         this.arenaClosed = true;
-        // Wait 5 seconds first, then we actually spawn arena closers
+        // Closing arena drops temp bans and cached permissions with it.
+        if (this.nodeClient) {
+            this.nodeClient.clearTempBans();
+            this.nodeClient.refreshPerms();
+        }
+        // Nobody online, nothing to clear.
+        if (this.socketManager.clients.length === 0) {
+            this.close();
+            return;
+        }
+        // Wait half a second, then spawn arena closers
         let spawnTimeout = setTimeout(() => {
             for (let i = 0; i < 15; i++) {
                 // Decide where we are facing
@@ -589,6 +613,8 @@ class gameServer {
             ticks++;
             // If they fail, we close anyway
             if (ticks >= 50) return clearInterval(loop), this.close(spawnTimeout);
+            // Last client left, closers have nobody left to clear
+            if (this.socketManager.clients.length === 0) return clearInterval(loop), this.close(spawnTimeout);
 
             let alive = false;
             for (const instance of entities.values()) {

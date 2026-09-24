@@ -110,6 +110,56 @@ class socketManager {
 
         fs.writeFileSync(PERMABAN_FILE, JSON.stringify(permBans, null, 2));
     }
+
+    // Ask control to resolve an unknown key. False when there is no link,
+    // caller falls back to level 0 right away.
+    resolveKeyWithControl(socket, key) {
+        let nodeClient = global.gameManager.nodeClient;
+        if (!nodeClient || !nodeClient.connected) return false;
+        socket.key = key;
+        socket.status.awaitingKey = true;
+        socket.status.keyQueue = [];
+        socket.status.keyTimer = setTimeout(() => this.applyControlIdentity(socket, null), 1000);
+        nodeClient.resolveKey(key).then(
+            (identity) => this.applyControlIdentity(socket, identity),
+            () => this.applyControlIdentity(socket, null)
+        );
+        return true;
+    }
+
+    // Apply a resolved identity, then replay what the socket sent while
+    // waiting so spawn order stays correct.
+    applyControlIdentity(socket, identity) {
+        if (!socket.status.awaitingKey) return;
+        if (this.clients.indexOf(socket) === -1) return;
+        clearTimeout(socket.status.keyTimer);
+        socket.status.awaitingKey = false;
+        this.applyControlIdentityNow(socket, identity);
+        socket.status.verified = true;
+        let queue = socket.status.keyQueue || [];
+        socket.status.keyQueue = [];
+        for (let raw of queue) this.incoming(raw, socket);
+    }
+
+    // Same permissions without the queue, for $auth linking mid-game.
+    applyControlIdentityNow(socket, identity) {
+        if (this.clients.indexOf(socket) === -1) return;
+        if (identity) {
+            socket.permissions = {
+                permissionLevel: identity.rank ?? 0,
+                class: identity.class,
+                nameColor: identity.nameColor,
+                spawnAs: identity.spawnAs
+            };
+            socket.discordId = identity.discordId;
+            socket.typeName = identity.typeName || identity.type;
+            setPermissionLevel(socket, identity.rank ?? 0);
+            util.log("[INFO]: A socket was verified through control.");
+        } else {
+            socket.permissions = undefined;
+            setPermissionLevel(socket, 0);
+        }
+    }
     chatLoop() {
     // clean up expired messages
         let now = Date.now();
@@ -186,6 +236,11 @@ class socketManager {
         } else {
             util.log("[INFO]: A player disconnected before entering the game!");
         }
+        if (socket.status.announced) {
+            socket.status.announced = false;
+            let nodeClient = global.gameManager.nodeClient;
+            if (nodeClient) nodeClient.playerLeave(socket.id);
+        }
         // Free the view
         util.remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
         // Remove the socket
@@ -214,6 +269,12 @@ class socketManager {
             socket.kick("Malformed packet.");
             return 1;
         }
+        // Hold non-key frames until control answers the key.
+        if (socket.status.awaitingKey && m[0] !== "k") {
+            socket.status.keyQueue.push(message);
+            if (socket.status.keyQueue.length > 50) socket.kick("Key flood.");
+            return 1;
+        }
         // Handle the request
         if (socket.resolveResponse(m[0], m)) {
             return;
@@ -234,9 +295,12 @@ class socketManager {
                     // Use hasOwnProperty to avoid prototype chain lookup
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
                     if (socket.permissions) {
-                        util.log(`[INFO]: A socket was verified with the token: ${key}`);
+                        util.log("[INFO]: A socket was verified with a local token.");
+                    } else if (this.resolveKeyWithControl(socket, key)) {
+                        // Waiting on control; rest happens on arrival.
+                        return 1;
                     } else {
-                        util.log(`[WARNING]: A socket failed to verify with the token: ${key}`);
+                        util.log("[WARNING]: A socket failed to verify with a local token.");
                     }
                     socket.key = key;
                     setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
@@ -267,7 +331,7 @@ class socketManager {
                 }
                 let b = bans.find((ban) => ban.ip === socket.ip);
                 if (b) {
-                    socket.talk(b.reason === "Ban Hammer" ? "moderatorban" : "temporaryban"); // Important, kick the user after calling temporaryban in order to see the ban message.
+                    socket.talk(b.reason === "Ban Hammer" ? "moderatorban" : "temporaryban"); // Kick after this so the client sees the ban message.
                     socket.kick("Temporarily banned player detected!");
                     return 1;
                 }
@@ -278,6 +342,15 @@ class socketManager {
                     socket.talk("permanentban");
                     socket.permaban("Permanently banned player found!");
                     return 1;
+                }
+                let nodeClient = global.gameManager.nodeClient;
+                if (nodeClient) {
+                    let hit = nodeClient.checkBan(socket.ip);
+                    if (hit) {
+                        socket.talk("temporaryban"); // Kick after this so the client sees the ban message.
+                        socket.kick("Control banned player detected!");
+                        return 1;
+                    }
                 }
                 // Get data
                 if (m.length < 4) {
@@ -1176,6 +1249,12 @@ class socketManager {
         }
         // Log it 
         util.log(`[INFO]: ${name == "" ? "An unnamed player" : name} has spawned into the game on team ${socket.player.body.team}! Players: ${this.players.length}`);
+            // Announce once per connection, not on respawn.
+        if (!socket.status.announced && socket.player && socket.player.body) {
+            socket.status.announced = true;
+            let nodeClient = global.gameManager.nodeClient;
+            if (nodeClient) nodeClient.playerJoin(socket);
+        }
         // Stop the timeout
         socket.timeout.stop();
     }

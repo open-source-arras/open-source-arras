@@ -71,6 +71,63 @@ let commands = [
         }
     },
     {
+        command: ["auth"],
+        hidden: true,
+        permissionLevel: 0,
+        run: ({ socket, args, gameManager }) => {
+            let code = ((args[0] || "").trim() || "");
+            if (!code) {
+                socket.talk("m", 4_000, "Invalid command format.");
+                return;
+            }
+            let nodeClient = gameManager.nodeClient;
+            if (!nodeClient || !nodeClient.connected) {
+                socket.talk("m", 4_000, "Invalid token.");
+                return;
+            }
+            nodeClient.authCode(code).then((result) => {
+                if (!result || !result.ok) {
+                    socket.talk("m", 4_000, "Invalid token.");
+                    return null;
+                }
+                return nodeClient.resolveKey(result.secret).then((identity) => ({ result, identity }));
+            }).then((linked) => {
+                if (!linked) return;
+                if (global.gameManager.socketManager.clients.indexOf(socket) === -1) return;
+                let identity = linked.identity || {
+                    discordId: linked.result.discordId,
+                    type: "player",
+                    typeName: "Player",
+                    rank: 0,
+                    flags: [],
+                    class: null,
+                    nameColor: null,
+                    spawnAs: null
+                };
+                gameManager.socketManager.applyControlIdentityNow(socket, identity);
+                socket.talk("key", linked.result.secret);
+                socket.talk("Em", 8_000, JSON.stringify([
+                    "Authentication successful.",
+                    "Warning: Do not install any userscript or paste anything into the browser console, as they can cause your account to be stolen."
+                ]));
+            }).catch(() => {
+                socket.talk("m", 4_000, "Invalid token.");
+            });
+        }
+    },
+    {
+        command: ["i"],
+        description: "Show your linked Discord identity.",
+        permissionLevel: 0,
+        run: ({ socket }) => {
+            if (!socket.discordId) {
+                socket.talk("m", 4_000, "No linked account. Use $auth CODE.");
+                return;
+            }
+            socket.talk("m", 8_000, `Identity: User ${socket.discordId}; Access Level: ${socket.status.permissionLevel || 0};`);
+        }
+    },
+    {
         command: ["id"],
         description: "Show your player id.",
         permissionLevel: 0,

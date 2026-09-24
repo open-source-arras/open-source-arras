@@ -1,0 +1,7 @@
+[
+    { "id": "player", "name": "Player", "rank": 0 },
+    { "id": "beta-tester", "name": "Beta Tester", "rank": 4, "class": "menu_betaTester" },
+    { "id": "game-mod", "name": "Game Mod", "rank": 5, "class": "banHammer" },
+    { "id": "game-admin", "name": "Game Admin", "rank": 6, "class": "menu_gameAdmin" },
+    { "id": "developer", "name": "Developer", "rank": 7, "class": "menu_special", "nameColor": "#FFFFFF" }
+]
