@@ -11,19 +11,15 @@ class Canvas {
         this.target = global.target;
         this.socket = global.socket;
         this.directions = [];
-        this.chatListener = function(id, event) {
-            if (!["Enter", "Escape"].includes(event.code)) return;
+        this.chatListener = function(id, event) { // i changed 14 to 31
+            if (!["Enter", "Escape", "Send"].includes(event.code)) return;
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
-            setTimeout(() => {
-                if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
-            }, 50)
+            setTimeout(() => { if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false; }, 50)
             if (!this[id].value) return;
             if (event.code === "Enter") this.socket.talk("M", this[id].value);
-            this[id].value = "";
-        }
-
+            this[id].value = ""; }
         this.cv = document.getElementById("gameCanvas");
         this.cvb = document.getElementById("gameCanvas-background");
         this.cvg = document.getElementById("gameCanvas-gameplay");
@@ -106,7 +102,12 @@ class Canvas {
             this.chatInput = document.createElement("input");
             this.chatInput.id = "chatInput";
             this.chatInput.style.zIndex = 11;
+            this.chatInput.setAttribute("enterkeyhint", "send");
+            this.chatInput.setAttribute("autocomplete", "off");
             this.chatInput.addEventListener("keydown", event => this.chatListener("chatInput", event));
+            this.chatInput.addEventListener("beforeinput", event => {
+             if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
+            }); // i changed
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
         }
         this.chatInput.focus();
@@ -1130,3 +1131,4 @@ class Canvas {
     }
 }
 export { Canvas }
+
