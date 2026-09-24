@@ -364,30 +364,6 @@ function generatorMatrix(matrix, previous, next) {
         }
     }
 }
-function rarities(type = "") {
-    const rarities = ["shiny", "legendary", "shadow", "rainbow", "trans"];
-    return Array(rarities.length).fill().map((v, i) => rarities[i] + (type.at(0).toUpperCase() + type.slice(1, type.length)));
-}
-function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, variesInSize = true, spawnOffset = 0.5) {
-    if (!Class[entity]) return {PARENT: "spectator", LABEL: "Error"};
-    let found = {};
-    let toFind = [
-        "SHAPE", "LABEL", "COLOR", "SIZE", "VALUE"
-    ]
-    const findProperties = (type, ...properties) => {
-        let canContinue = true;
-        if (!Class[type]) canContinue = false
-        if (canContinue) {
-            if (!properties.length) properties = toFind; 
-            properties.forEach(k => {
-                if (Class[type][k] !== undefined) found[k] = Class[type][k]
-                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, k)
-                else found[k] = Class.genericTank[k];
-            })
-        }
-    }
-    findProperties(entity);
-    if (!displayEntity) displayEntity = entity;
 
 // SHAPE UPGRADES
 generatorMatrix(shapeGeneratorUpgrades);
