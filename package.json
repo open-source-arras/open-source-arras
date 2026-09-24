@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node --no-lazy index",
     "control": "node server/control/main.js",
+    "bot": "node bot/index.js",
     "test:control": "node --test \"server/control/test/*.test.js\""
   },
   "dependencies": {

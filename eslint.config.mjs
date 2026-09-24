@@ -44,7 +44,7 @@ export default defineConfig([
         }
     },
     {
-        files: ["server/control/**/*.js"],
+        files: ["server/control/**/*.js", "bot/**/*.js"],
         languageOptions: {
             globals: globals.node
         }
