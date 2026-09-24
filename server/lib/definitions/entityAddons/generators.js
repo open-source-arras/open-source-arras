@@ -48,7 +48,8 @@ for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
     Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
         TYPE: [],
         PARENT: def,
-        SIZE: Class.sentry.SIZE / 1.5,
+        VALUE: Class.sentry.VALUE,
+        SIZE: Class.sentry.SIZE,
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
     }
