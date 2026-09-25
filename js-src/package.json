@@ -1,0 +1,15 @@
+{
+  "name": "open-source-arras",
+  "version": "2.1.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --no-lazy index"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "license": "MIT License"
+}

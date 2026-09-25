@@ -1,0 +1,11 @@
+{
+	"name": "Fireworks",
+	"authors": [
+		"pr2000"
+	],
+	"addon-version": "v0.1.0",
+	"osa-version": {
+		"minimum": "v2.0.11",
+		"target": "v2.1.0"
+	}
+}

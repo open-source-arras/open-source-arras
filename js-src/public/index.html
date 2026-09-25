@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        <meta name="description" content="Level up and gain score by shooting at other players and bosses while keeping yourself alive!">
+        <meta name="robots" content="index, follow">
+        <meta property="og:image" content="/favicon/base.svg">
+        <meta property="og:image:width" content="54">
+        <meta property="og:image:height" content="54">
+        <title>Open Source Arras</title>
+        <link rel="stylesheet" href="./font.css"/>
+        <link rel="stylesheet" href="./style.css"/>
+        <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
+        <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/16x16.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/32x32.png">
+        <link rel="icon" type="image/png" sizes="64x64" href="/favicon/64x64.png">
+        <link rel="icon" type="image/png" sizes="96x96" href="/favicon/96x96.png">
+        <link rel="icon" type="image/png" sizes="128x128" href="/favicon/128x128.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/favicon/192x192.png">
+        <link rel="icon" type="image/png" sizes="256x256" href="/favicon/256x256.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/favicon/512x512.png">
+        <link rel="icon" type="image/png" sizes="1024x1024" href="/favicon/1024x1024.png">
+        <link rel="icon" type="image/png" sizes="2048x2048" href="/favicon/2048x2048.png">
+        <link rel="icon" type="image/svg+xml" sizes="400x400" href="/favicon/base.svg">
+        <link rel="manifest" href="/favicon/manifest.json">
+        <meta name="theme-color" content="#8abc3f">
+        <meta name="application-name" content="OSA">
+        <meta name="msapplication-TileColor" content="#8abc3f">
+    </head>
+    <body oncontextmenu="return false" id="mainBody">
+        <div id="gameAreaWrapper" style="display: none;">
+            <canvas id="gameCanvas" tabindex="1"></canvas>
+            <canvas id="gameCanvas-background" tabindex="2"></canvas>
+            <canvas id="gameCanvas-gameplay" tabindex="3"></canvas>
+            <canvas id="gameCanvas-gui" tabindex="4"></canvas>
+        </div>
+        <div class="mainWrapper">
+            <div id="startMenuWrapper">
+                <div id="menuTabs" class="menuTabs" style="text-align: center;">
+                    <!--<span class="menuTab achieve">
+                        <a>View Achievements</a>
+                    </span>
+                    <span class="menuTab achieve">
+                        <a>View Rules</a>
+                    </span>
+                    <span class="menuTab discord" style="display: none;">
+                        <a href="/logout">Log out</a>
+                    </span>
+                    <span class="menuTab stat" style="display: none;">
+                        <a href="/stats">View stats</a>
+                    </span>
+                    <span class="menuTab discord">
+                        <a href="/login">Log in via Discord</a>
+                    </span>-->
+                </div>
+                <div class="startMenu">
+                    <div class="startMenuHolder linkHolder">
+                        <div class="bannerHolder">
+                            <a id="banner-fallback" class="banner-fallback" href="https://example.com">
+                                <img src="img/ads/example_menu_ad.png" alt="Placeholder banner" width="336" height="280">
+                            </a>
+                        </div>
+                        <div class="bottomHolder">
+                            <a style="width: 40px; background: #7289da;" href="https://discord.gg/arras">
+                                <img src="img/discord.svg" alt="Discord" width="24" height="24">
+                            </a>
+                            <a style="width: 40px; background: #282038;" href="https://stt.gg/S4tqfeAK">
+                                <img src="img/stoat.svg" alt="Stoat" width="24" height="24">
+                            </a>
+                            <a style="width: 40px; background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
+                                <img src="img/youtube.svg" alt="YouTube" width="24" height="24">
+                            </a>
+                            <a style="width: 204px; background: #00b0e0;" href="https://github.com/open-source-arras/open-source-arras">
+                                <img src="img/source.svg" alt="Source Code" width="24" height="24">
+                                <span class="text">Source Code</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="startMenuHolder mainHolder">
+                        <div class="sliderHolder">
+                            <div class="slider startMenuSlidingContent">
+                                <div class="header">
+                                    <a href="/" class="icon" tabindex="-1">
+                                        <img src="/favicon/base.svg" alt="OSA icon">
+                                    </a>
+                                    <h1>arras.io</h1>
+                                </div>
+                                <div>
+                                    <div class="horizontalSelector" id="serverFilterRegion" style="display: none;"></div>
+                                    <div class="horizontalSelector" id="serverFilterMode" style="display: none;"></div>
+                                </div>
+                                <div class="serverSelector shadowScroll">
+                                    <table>
+                                        <tbody id="serverSelector"/>
+                                    </table>
+                                </div>
+                                <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
+                            </div>
+                            <div class="slider" id="startMenuSlidingTrigger">
+                                <h3><span id="viewOptionText">view options</span>&nbsp;&nbsp;<i class="arrow" id="optionArrow" style="transform: rotate(-45deg);"></i></h3>
+                            </div>
+                            <div class="slider startMenuSlidingContent">
+                                <div class="horizontalSelector" id="optionMenuTabs">
+                                    <span class="active">Appearance</span>
+                                    <span>Options</span>
+                                    <span class="mobile-hide">Controls</span>
+                                    <span>Links</span>
+                                    <span style="display: none;">Addons</span>
+                                </div>
+                                <div id="tabAppearance" class="shadowScroll" style="height: 88.5%;">
+                                    <div class="optionsHeader">Themes</div>
+                                    <select id="optColors" tabindex="-1" onchange="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'" onfocus="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'">
+                                        <option value="normal">Light (by Neph/CX)</option>
+                                        <option value="dark">Dark (by Neph/CX)</option>
+                                        <option value="classic">Classic (by Neph/CX)</option>
+                                        <option value="classicDark">Classic Dark (by Neph)</option>
+                                        <option value="natural">Natural (by Neph)</option>
+                                        <option value="discord">Discord (by Damocles)</option>
+                                        <option value="midnight">Midnight (by uoiea)</option>
+                                        <option value="solarizedDark">Solarized Dark (by Road)</option>
+                                        <option value="retro">Retro (by Damocles)</option>
+                                        <option value="snow">Snow (by Deolveopoler)</option>
+                                        <option value="navigator">Navigator (by Unknown)</option>
+                                        <option value="coralReef">Coral Reef (by Celestea)</option>
+                                        <option value="gruvbox">Gruvbox (by Road)</option>
+                                        <option value="eggplant">Eggplant (by Road)</option>
+                                        <option value="wrSheetTheme">World Record Sheet (by alettera)</option>
+                                        <option value="lyric">Lyric (by evil isopod)</option>
+                                        <option value="bleach">Bleach (by definitelynot.)</option>
+                                        <option value="nebula">Nebula (by Unknown)</option>
+                                        <option value="forest">Forest (by Sterlon)</option>
+                                        <option value="pastel">Pastel (by Damocles)</option>
+                                        <option value="descent">Descent (by Rog456)</option>
+                                        <option value="badlands">Badlands (by Incognious)</option>
+                                        <option value="pumpkinSkeleton">Pumpkin Skeleton (by Road)</option>
+                                        <option value="blindness">Blindness (by Damocles)</option>
+                                        <option value="custom">Custom</option>
+                                    </select>
+                                    <select id="optMobile" tabindex="-1">
+                                        <option value="mobile">Mobile</option>
+                                        <option value="mobileWithBigJoysticks">Mobile + Big Joysticks</option>
+                                        <option value="desktop">Desktop</option>
+                                    </select>
+                                    <select id="optBorders" tabindex="-1">
+                                        <option value="normal">Soft Borders</option>
+                                        <option value="dark">Dark Borders</option>
+                                        <option value="neon">Neon Mode</option>
+                                        <option value="glass">Glass Mode</option>
+                                    </select>
+                                    <input style="display: none;" placeholder="Insert Custom Theme" id="optCustom" />
+                                    <table>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optColoredNest" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Colored Nest</label></div></td>
+                                            <td><div><label class="container"><input id="optSharpEdges" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Polygons</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optNoGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hide Grid</label></div></td>
+                                            <td><div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Traps</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="separatedHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Separate Shield Bar</label></div></td>
+                                            <td><div><label class="container"><input id="optCurvyTraps" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Curvy Traps</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="coloredHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Colored Health Bars</label></div></td>
+                                            <td><div><label class="container"><input id="optPredictive" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Disable Hyperactivity</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optHexaGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Hexagonal Grid</label></div></td>
+                                            <td><div></div></td>
+                                        </tr>
+                                    </table>
+                                    <div class="optionsHeader">UI Elements</div>
+                                    <select id="optUiScale" tabindex="-1">
+                                        <option value="auto">UI Scale (Auto)</option>
+                                        <option value="small">UI Scale (Small)</option>
+                                        <option value="normal">UI Scale (Normal)</option>
+                                        <option value="large">UI Scale (Large)</option>
+                                        <option value="mobile">UI Scale (Mobile)</option>
+                                    </select>
+                                    <table>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optRenderGui" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>GUI</label></div></td>
+                                            <td><div><label class="container"><input id="optRenderLeaderboard" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Leaderboard</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optRenderNames" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Names</label></div></td>
+                                            <td><div><label class="container"><input id="optRenderHealth" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Health Bars</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optRenderScores" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Scores</label></div></td>
+                                            <td><div><label class="container"><input id="optReducedInfo" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Reduced Info Bar</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optRenderPlayerBars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Bars</label></div></td>
+                                            <td><div><label class="container"><input id="optRenderUpgrades" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Upgrades</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optRenderKillbar" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Kill Bar</label></div></td>
+                                            <td><div><label class="container"><input id="optRenderMinimap" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Minimap</label></div></td>
+                                        </tr>
+                                        <tr class="mobileRow">
+                                            <td><div><label class="container"><input id="showCrosshair" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Crosshair</label></div></td>
+                                            <td><div><label class="container"><input id="showJoystick" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Joystick</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optAllowIngameOptions" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Ingame Options</label></div></td>
+                                            <td><div><label class="container"><input id="optCenterMinimap" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Centered Minimap</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optOldUiStyle" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Classic UI Style</label></div></td>
+                                        </tr>
+                                    </table>
+                                    <div class="optionsHeader">Main Menu</div>
+                                    <table>
+                                        <tr>
+                                            <td><div><label class="container"><input id="unlimitedMenuHeight" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Uncapped Height</label></div></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div id="tabOptions" class="shadowScroll" style="height: 88.5%;">
+                                    <div class="optionsHeader">Performance</div>
+                                    <select id="optCanvas" tabindex="-1">
+                                        <option value="auto">Auto (Recommended)</option>
+                                        <option value="high">High (WebGL + MSAA)</option>
+                                        <option value="mid">Medium (WebGL + MSAA)</option>
+                                        <option value="low">Low (WebGL)</option>
+                                        <option value="canvas">High (Canvas2D)</option>
+                                        <option value="software">High (Software)</option>
+                                    </select>
+                                    <table>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optInterpolation" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Interpolation</label></div></td>
+                                            <td><div><label class="container"><input id="optLowResolution" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Low Resolution</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="smoothCamera" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Camera</label></div></td>
+                                            <td><div><label class="container"><input id="optFancy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Fancy Animations</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optLerpAnim" tabindex="-1" title="Smoothing animation" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Animations</label></div></td>
+                                            <td><div><label class="container"><input id="optFullHD" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Full HD</label></div></td>
+                                        </tr>
+                                        <tr>
+                                            <td><div><label class="container"><input id="optOptimizeMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Optimize Mode</label></div></td>
+                                            <td><div><label class="container"><input id="optSlowerFOV" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Slow FOV Animation</label></div></td>
+                                        </tr>
+                                    </table>
+                                    <div class="optionsHeader">Miscellaneous</div>
+                                    <select id="optNames" tabindex="-1">
+                                        <option value="none">No Filter</option>
+                                        <option value="offense">Filter Offensive Words Only</option>
+                                        <option value="swear">Filter Swear Words</option>
+                                        <option value="brainrot">Filter "Brainrot" Words</option>
+                                    </select>
+                                    <table>
+                                        <tr>
+                                            <td><div><label class="container"><input id="autoLevelUp" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Auto-Level Up</label></div></td>
+                                            <td><div><label class="container"><input id="optIncognitoMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Incognito Mode</label></div></td>
+                                        </tr>
+                                    </table>
+                                    <input type="text" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64"/>
+                                </div>
+                                <div id="tabControls">
+                                    <div class="horizontalSelector" id="controlsMenuTabs">
+                                        <span class="active">Gameplay</span>
+                                        <span>Sandbox</span>
+                                    </div>
+                                    <div id="controlSettingsScollbar" class="shadowScroll" style="height: 214px;">
+                                        <div id="tabGameplay">
+                                            <div class="controlTable optionsHeader" style="margin: 0px 0 3px;"> All Controls <i id="resetControls" class="reset resetControls" title="Reset controls"></i>
+                                            </div>
+                                            <table class="controlTable" id="controlSettings">
+                                                <tbody>
+                                                    <tr>
+                                                        <td><div></div></td>
+                                                        <td><div><b data-key="KEY_UP">W</b><span> - </span>move up</div></td>
+                                                        <td><div></div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_LEFT">A</b><span> - </span>move left</div></td>
+                                                        <td><div><b data-key="KEY_DOWN">S</b><span> - </span>move down</div></td>
+                                                        <td><div><b data-key="KEY_RIGHT">D</b><span> - </span>move right</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_AUTO_FIRE">E</b><span> - </span>auto-fire</div></td>
+                                                        <td><div><b data-key="KEY_AUTO_SPIN">C</b><span> - </span>auto-spin</div></td>
+                                                        <td><div><b data-key="KEY_OVERRIDE">R</b><span> - </span>disable AI</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_LEVEL_UP">N</b><span> - </span>level up</div></td>
+                                                        <td><div><b data-key="KEY_REVERSE_TANK">V</b><span> - </span>reverse tank</div></td>
+                                                        <td><div><b data-key="KEY_REVERSE_MOUSE">B</b><span> - </span>reverse mouse</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_SCREENSHOT">Q</b><span> - </span>screenshot</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_MAX">M</b><span> - </span>maximize stat</div></td>
+                                                        <td><div><b data-key="KEY_CLASS_TREE">T</b><span> - </span>show class tree</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_RECORD">Z</b><span> - </span>record video</div></td>
+                                                        <td><div><b data-key="KEY_SUICIDE">O</b><span> - </span>self-destruct</div></td>
+                                                        <td><div><b data-key="KEY_PING">L</b><span> - </span>debug info</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_SPIN_LOCK">G</b><span> - </span>spin lock</div></td>
+                                                        <td><div><b data-key="KEY_ABILITY">F</b><span> - </span>use action</div></td>
+                                                        <td><div><b data-key="KEY_SPECIAL">`</b><span> - </span>sandbox</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div></div></td>
+                                                        <td><div><b data-key="KEY_AUTO_ALT">X</b><span> - </span>auto-alt</div></td>
+                                                        <td><div></div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_UPGRADE_1">Y</b><span> - </span>upgrade 1</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_2">U</b><span> - </span>upgrade 2</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_3">I</b><span> - </span>upgrade 3</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_UPGRADE_4">H</b><span> - </span>upgrade 4</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_5">J</b><span> - </span>upgrade 5</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_6">K</b><span> - </span>upgrade 6</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_UPGRADE_7"></b><span> - </span>upgrade 7</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_8"></b><span> - </span>upgrade 8</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_9"></b><span> - </span>upgrade 9</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_UPGRADE_10"></b><span> - </span>upgrade 10</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_11"></b><span> - </span>upgrade 11</div></td>
+                                                        <td><div><b data-key="KEY_UPGRADE_12"></b><span> - </span>upgrade 12</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_SKILL_1">1</b><span> - </span>skill 1</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_2">2</b><span> - </span>skill 2</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_3">3</b><span> - </span>skill 3</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_SKILL_4">4</b><span> - </span>skill 4</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_5">5</b><span> - </span>skill 5</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_6">6</b><span> - </span>skill 6</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div><b data-key="KEY_SKILL_7">7</b><span> - </span>skill 7</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_8">8</b><span> - </span>skill 8</div></td>
+                                                        <td><div><b data-key="KEY_SKILL_9">9</b><span> - </span>skill 9</div></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><div></div></td>
+                                                        <td><div><b data-key="KEY_SKILL_10">0</b><span> - </span>skill 10</div></td>
+                                                        <td><div></div></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div id="tabSandbox">
+                                            <div class="horizontalSelector" id="sandboxControlsMenuTabs">
+                                                <span class="active">Main</span>
+                                                <span>Skill</span>
+                                                <span>Attribute</span>
+                                            </div>
+                                            <div id="tabSandboxMain">
+                                                <div class="controlTable optionsHeader" style="margin: 0px 0 3px;"> All Controls <i id="resetSandboxControls" class="reset resetControls" title="Reset controls"></i>
+                                                </div>
+                                                <table class="controlTable" id="sandboxControlSettings">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><div></div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_HELP">/</b><span> - </span>help menu</div></td>
+                                                            <td><div></div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_PRESET_1">1</b><span> - </span>spectator</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_PRESET_2">2</b><span> - </span>token tank</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_PRESET_3">3</b><span> - </span>healer</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_BASIC">Q</b><span> - </span>default tank</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_TELEPORT">E</b><span> - </span>teleport</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_KILL">K</b><span> - </span>kill</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_WHIRLPOOL">W</b><span> - </span>whirlpool</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_DRAG">D</b><span> - </span>drag</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_COLOR">C</b><span> - </span>color</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_WALL">X</b><span> - </span>create wall</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_WALL_TYPE">Z</b><span> - </span>wall type</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_VANISH">V</b><span> - </span>vanish</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_INVINCIBLE">I</b><span> - </span>invincible</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_TEAM">T</b><span> - </span>team</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_TEAM_INVITE">Y</b><span> - </span>team invite</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_HEAL">H</b><span> - </span>heal</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL">S</b><span> - </span>skill</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_DATA">G</b><span> - </span>get data</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_LEVEL_UP">N</b><span> - </span>inf. level up</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_POLICE">P</b><span> - </span>police</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_BLAST">B</b><span> - </span>blast</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_ZOOM_OUT">-</b><span> - </span>zoom out</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ZOOM_IN">=</b><span> - </span>zoom in</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ZOOM_CLEAR">0</b><span> - </span>clear zoom</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_SMALLER">,</b><span> - </span>smaller</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_BIGGER">.</b><span> - </span>bigger</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_BAN">O</b><span> - </span>ban</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_PROMOTE">;</b><span> - </span>promote user</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_DEMOTE">'</b><span> - </span>demote user</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE">A</b><span> - </span>attribute</div></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div id="tabSandboxSkill">
+                                                <div class="controlTable optionsHeader" style="margin: 0px 0 3px;"> All Controls <i id="resetSandboxSkillControls" class="reset resetControls" title="Reset controls"></i>
+                                                </div>
+                                                <table class="controlTable" id="sandboxSkillControlSettings">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_ADD">F</b><span> - </span>add skill</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_REMOVE">D</b><span> - </span>remove skill</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_RESET">R</b><span> - </span>reset skills</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_CAP_ADD">H</b><span> - </span>add point</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_CAP_REMOVE">G</b><span> - </span>remove point</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_CLEAR">C</b><span> - </span>clear points</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div></div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_SKILL_MAX">M</b><span> - </span>maximize stats</div></td>
+                                                            <td><div></div></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div id="tabSandboxAttribute">
+                                                <div class="controlTable optionsHeader" style="margin: 0px 0 3px;"> All Controls <i id="resetSandboxAttributeControls" class="reset resetControls" title="Reset controls"></i>
+                                                </div>
+                                                <table class="controlTable" id="sandboxAttributeControlSettings">
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_RELOAD">C</b><span> - </span>no reload</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_RECOIL">R</b><span> - </span>no recoil</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE">O</b><span> - </span>arena edge</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_MINIMAP_TEAM">T</b><span> - </span>team minimap</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_MINIMAP_HIDE">M</b><span> - </span>minimap</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_LEADERBOARD">L</b><span> - </span>leaderboard</div></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_WALL">W</b><span> - </span>wall collision</div></td>
+                                                            <td><div><b data-key="KEY_SPECIAL_ATTRIBUTE_SCORE">K</b><span> - </span>score accept</div></td>
+                                                            <td><div></div></td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="tabAbout" class="shadowScroll" style="height: 88.5%;">
+                                    <div class="optionsHeader">Original Game</div>
+                                    <div class="moreLinks">
+                                        <a tabindex="-1" href="https://arras.io">arras.io</a><br/>
+                                        <a tabindex="-1" href="https://github.com/nepphhh/arrasio">Original Source Code</a>
+                                    </div>
+                                    <div class="optionsHeader">Original Game's Proxy Sites</div>
+                                    <div class="moreLinks">
+                                        <a tabindex="-1" href="https://arrax.io">arrax.io</a>
+                                        <a tabindex="-1" href="https://arras.netlify.app">arras.netlify.app</a>
+                                        <a tabindex="-1" href="https://sites.google.com/view/arras-io">sites.google.com/view/arras-io</a>
+                                    </div>
+                                    <div class="optionsHeader">Resources</div>
+                                    <div class="moreLinks">
+                                        <span data-ccpa-link="1"></span>
+                                        <a tabindex="-1" href="https://codepen.io/road-to-100k/full/GRpvMzb">Road's Custom Theme Maker</a>
+                                        <a tabindex="-1" href="https://github.com/TheGreenSquare/arras-archive/tree/main/arras/arras-template">Old Official Private Server Template</a>
+                                        <a tabindex="-1" href="/ext/custom-shape">Custom Shape Builder</a>
+                                    </div>
+                                    <div class="optionsHeader">Open Source Arras is not affiliated with any of the linked external websites.</div>
+                                </div>
+                                <div id="tabAddons" class="shadowScroll" style="height: 88.5%;">
+                                    <div class="optionsHeader">There are no loaded addons.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="startButtonHolder">
+                            <button id="startButton" tabindex="2"><b><span class="playText">Play</span></b></button>
+                        </div>
+                    </div>
+                    <div class="startMenuHolder changelogHolder">
+                        <div class="horizontalSelector" id="changelogTabs">
+                            <span class="active" title="Updates, events, polls, and announcements" data-type="default">Bulletin&nbsp;Board</span>
+                            <span title="All major updates" data-type="updates">Updates</span>
+                            <span title="Every balance update, major or minor" data-type="balance">Balance</span>
+                            <span title="Every single update" data-type="changelog">Changelog</span>
+                        </div>
+                        <div id="patchNotes" class="shadowScroll default"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="module" src="./client/app.js"></script>
+        <script type="module" src="./client/config.js"></script>
+        <script type="module" src="./client/gameDraw.js"></script>
+        <script type="module" src="./client/protocol.js"></script>
+        <script type="module" src="./client/global.js"></script>
+        <script type="module" src="./client/socketinit.js"></script>
+        <script type="module" src="./client/color.js"></script>
+        <script type="module" src="./client/serverSelectorHandler.js"></script>
+        <script type="module" src="./client/keybindsHandler.js"></script>
+    </body>
+</html>

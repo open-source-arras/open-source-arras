@@ -1,5 +1,34 @@
+# --- OSA (JavaScript) ---
 node_modules/
 package-lock.json
 pnpm-lock.yaml
 *.lock
 *.lnk
+
+# --- Go port ---
+# Build output. Nothing here is ever a tracked binary, so one rule covers the root
+# binaries, gen/'s two, and the *.test.exe that go test leaves behind.
+*.exe
+
+/bin/
+/js-src/node_modules/
+
+# The copies tools/sync-embeds.sh writes so each package can go:embed its own. They come
+# from gen/, which is itself generated. Rebuild both with tools/regen.sh.
+/internal/config/data/
+/internal/defs/data/
+/internal/net/data/
+/internal/room/data/
+
+/tools/harness/js/
+
+# gen/ is generated from js-src by tools/regen.sh, so it is not tracked. A fresh clone
+# does not compile until that has run once, because the packages above embed its output.
+# Two files stay because nothing regenerates them: toint32-vectors.json has no generator,
+# and harness-sample.jsonl is a recorded run that internal/trace's interop test reads back.
+/gen/*
+!/gen/toint32-vectors.json
+!/gen/harness-sample.jsonl
+
+# Under Git Bash `> NUL` writes a real file here instead of discarding the output.
+/NUL

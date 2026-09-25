@@ -1,0 +1,43 @@
+const {
+    normal: ____,
+    wall: WALL,
+    base1: bas1,
+} = tileClass;
+
+let room_limbo = [
+    [ ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____ ],
+    [ ____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____ ],
+    [ ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____ ],
+]
+
+module.exports = room_limbo;
