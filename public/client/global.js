@@ -151,6 +151,8 @@ const global = {
     KEY_SPECIAL_PRESET_1: "Digit1",
     KEY_SPECIAL_PRESET_2: "Digit2",
     KEY_SPECIAL_PRESET_3: "Digit3",
+    KEY_SPECIAL_PRESET_4: "Digit4",
+    KEY_SPECIAL_PRESET_5: "Digit5",
     KEY_SPECIAL_BASIC: "KeyQ",
 
     KEY_SPECIAL_TELEPORT: "KeyE",
