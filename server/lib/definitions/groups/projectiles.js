@@ -75,7 +75,7 @@ Class.masterBullet = {
 }
 Class.satelliteBullet = {
     PARENT: "bullet",
-    ANGLE: 60,
+    ANGLE: 90,
     CONTROLLERS: [["whirlwind", {useOwnMaster: true}]],
     HAS_NO_RECOIL: true,
     AI: {
@@ -83,12 +83,12 @@ Class.satelliteBullet = {
     },
     GUNS: (() => { 
         let output = []
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 2; i++) {
             output.push({
                 POSITION: {WIDTH: 16, LENGTH: 1, DELAY: 0},
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.satellite, {reload: 0}]), 
-                    TYPE: ["satellite", {ANGLE: i * 120, INDEPENDENT: true}], 
+                    TYPE: ["satellite", {ANGLE: i * 180, INDEPENDENT: true}], 
                     MAX_CHILDREN: 1,   
                     AUTOFIRE: true,  
                     SYNCS_SKILLS: false,
