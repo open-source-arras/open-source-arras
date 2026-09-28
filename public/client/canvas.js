@@ -11,19 +11,15 @@ class Canvas {
         this.target = global.target;
         this.socket = global.socket;
         this.directions = [];
-        this.chatListener = function(id, event) {
-            if (!["Enter", "Escape"].includes(event.code)) return;
+        this.chatListener = function(id, event) { // i changed 14 to 31
+            if (!["Enter", "Escape", "Send"].includes(event.code)) return;
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
-            setTimeout(() => {
-                if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
-            }, 50)
+            setTimeout(() => { if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false; }, 50)
             if (!this[id].value) return;
             if (event.code === "Enter") this.socket.talk("M", this[id].value);
-            this[id].value = "";
-        }
-
+            this[id].value = ""; }
         this.cv = document.getElementById("gameCanvas");
         this.cvb = document.getElementById("gameCanvas-background");
         this.cvg = document.getElementById("gameCanvas-gameplay");
@@ -124,7 +120,12 @@ class Canvas {
             this.chatInput = document.createElement("input");
             this.chatInput.id = "chatInput";
             this.chatInput.style.zIndex = 11;
+            this.chatInput.setAttribute("enterkeyhint", "send");
+            this.chatInput.setAttribute("autocomplete", "off");
             this.chatInput.addEventListener("keydown", event => this.chatListener("chatInput", event));
+            this.chatInput.addEventListener("beforeinput", event => {
+             if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
+            }); // i changed
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
         }
         this.chatInput.focus();
@@ -838,6 +839,16 @@ class Canvas {
                     y: touch.clientY * global.ratio,
                 };
                 let id = touch.identifier;
+                // Sandbox mobile keys has priority over ui while its open
+                let operatorKeyIndex = global.clickables.operatorKeys.check(mpos);
+                if (operatorKeyIndex !== -1) {
+                   const heldKey = this.handleOperatorKeyboardTouch(operatorKeyIndex);
+                      if (heldKey) {
+                      if (!this.operatorKeyTouches) this.operatorKeyTouches = {};
+                        this.operatorKeyTouches[id] = heldKey;
+                      }
+                    continue;
+                }
                 let buttonIndex = global.clickables.mobileButtons.check(mpos);
                 if (buttonIndex !== -1) {
                     switch (buttonIndex) {
@@ -1008,26 +1019,46 @@ class Canvas {
         global.mouse = this.target;
     }
     touchEnd(e) {
-        e.preventDefault();
-        for (let touch of e.changedTouches) {
-            let id = touch.identifier;
-      
-            if (this.movementTouch === id) {
-                this.movementTouch = null;
-                this.movementTouchPos = { x: 0, y: 0 };
-                if (this.movementTop) this.socket.cmd.set(0, (this.movementTop = false));
-                if (this.movementBottom) this.socket.cmd.set(1, (this.movementBottom = false));
-                if (this.movementLeft) this.socket.cmd.set(2, (this.movementLeft = false));
-                if (this.movementRight) this.socket.cmd.set(3, (this.movementRight = false));
-            } else if (this.controlTouch === id) {
-                this.controlTouch = null;
-                this.controlTouchPos = { x: 0, y: 0 };
-                this.socket.cmd.set(4, false);
-                global.mobileStatus.showCrosshair = false;
+    e.preventDefault();
+    for (let touch of e.changedTouches) {
+        let id = touch.identifier;
+        if (this.operatorKeyTouches && this.operatorKeyTouches[id]) {
+            global.handleOperatorKeyUp(this.operatorKeyTouches[id]);
+            delete this.operatorKeyTouches[id];
+        }
+        if (this.movementTouch === id) {
+            this.movementTouch = null;
+            this.movementTouchPos = { x: 0, y: 0 };
+            if (this.movementTop) this.socket.cmd.set(0, (this.movementTop = false));
+            if (this.movementBottom) this.socket.cmd.set(1, (this.movementBottom = false));
+            if (this.movementLeft) this.socket.cmd.set(2, (this.movementLeft = false));
+            if (this.movementRight) this.socket.cmd.set(3, (this.movementRight = false));
+        } else if (this.controlTouch === id) {
+            this.controlTouch = null;
+            this.controlTouchPos = { x: 0, y: 0 };
+            this.socket.cmd.set(4, false);
+            global.mobileStatus.showCrosshair = false;
             }
         }
+   }
+ 
+    handleOperatorKeyboardTouch(index) {
+    if (index === 0) {
+        global.operatorKeyboard.open = !global.operatorKeyboard.open;
+        if (!global.operatorKeyboard.open) global.operatorKeyboard.prefix = null;
+        return null;
     }
-
+    let flatIndex = index - 1;
+    for (let row of global.operatorKeyboardRows) {
+        if (flatIndex < row.length) {
+            const key = row[flatIndex];
+            const isHeld = global.handleOperatorKeyDown(key);
+            return isHeld ? key : null;
+        }
+        flatIndex -= row.length;
+    }
+    return null;
+    }
     // Controller Controls
     runGamepad() {
         let sendHelp = () => {

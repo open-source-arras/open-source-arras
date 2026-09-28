@@ -231,10 +231,12 @@ class socketManager {
                 socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
-                    // Use hasOwnProperty to avoid prototype chain lookup
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
                     if (socket.permissions) {
                         util.log(`[INFO]: A socket was verified with the token: ${key}`);
+                        if (socket.permissions.level >= 1) {
+                            socket.status.hasOperator = true;
+                        }
                     } else {
                         util.log(`[WARNING]: A socket failed to verify with the token: ${key}`);
                     }
@@ -1243,6 +1245,8 @@ class socketManager {
         player.body = body;
         body.socket = socket;
         body.hasOperator = socket.status.hasOperator;
+        // socket talk thing lets client know to show the mobile sandbox cmd board
+        socket.talk("Op", body.hasOperator);
         socket.status.daily_tank_watched_ad = false;
         socket.status.daily_tank_watched_ad_client = false;
         // Decide how to color and team the body

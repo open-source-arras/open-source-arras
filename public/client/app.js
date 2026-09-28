@@ -3603,7 +3603,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
         if (global.GUIStatus.renderMinimap) {
             if (global.mobile) {
-                y += global.canUpgrade ? (alcoveSize / 1.5) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * (upgradeColumns + 1.55) + 9 : 0;
+                y += global.canUpgrade ? (alcoveSize / 1.5) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * + 1.55 + 9 : 0;
                 y += global.canSkill || global.showSkill ? statMenu.get() * alcoveSize / 2.6 + spacing / 0.75 : 0;
             }
 
@@ -4081,7 +4081,67 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[2].stroke();
         }
     }
+    //this operator mobile keyboard took me hours like glitches, goofy buttons and settings cant click bug ;-; (Mehmet303j)
+    function drawOperatorKeyboard(spacing, alcoveSize) {
+    global.clickables.operatorKeys.hide();
+    if (!global.hasOperator) return;
 
+    let index = 1;
+    let clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
+    let upgradeColumns = Math.ceil(gui.upgrades.length / 9);
+
+    let yOffset = 0;
+    yOffset += global.canUpgrade ? (alcoveSize / 1.5) * mobileUpgradeGlide.get() * upgradeColumns / 1.5 + spacing * (upgradeColumns + 1.55) + -17.5 : 0;
+    yOffset += global.canSkill || global.showSkill ? statMenu.get() * alcoveSize / 2.6 + spacing / 0.75 : 0;
+
+    let baseSize = (alcoveSize - spacing * 2) / 3;
+    const toggleSize = baseSize;
+    const toggleX = alcoveSize + spacing * 2 + baseSize + spacing;
+    const toggleY = yOffset + spacing;
+
+    // Toggle butonu, operatorKeys grubunda ama index 0 sabit (tuşlar 1'den başlıyor, çakışmıyor)
+    global.clickables.operatorKeys.place(0, toggleX * clickableRatio, toggleY * clickableRatio, toggleSize * clickableRatio, toggleSize * clickableRatio);
+
+    ctx[2].fillStyle = global.operatorKeyboard.open ? color.guiwhite : color.grey;
+    drawGuiRect(toggleX, toggleY, toggleSize, toggleSize);
+    ctx[2].globalAlpha = 1;
+    drawText("`", toggleX + toggleSize / 2, toggleY + toggleSize / 2, toggleSize * 0.6, color.guiwhite, "center", true);
+    ctx[2].strokeStyle = color.black;
+    ctx[2].lineWidth = 3;
+    drawGuiRect(toggleX, toggleY, toggleSize, toggleSize, true);
+
+    if (!global.operatorKeyboard.open) return;
+
+    const columns = 12;
+    const startX = toggleX + toggleSize + spacing;
+    const startY = toggleY;
+    const keySize = Math.min(38, (global.screenWidth - startX - spacing) / columns - spacing);
+    const rowHeight = keySize + spacing;
+
+    for (let row = 0; row < global.operatorKeyboardRows.length; row++) {
+        const keys = global.operatorKeyboardRows[row];
+        for (let col = 0; col < keys.length; col++) {
+            const key = keys[col];
+            const x = startX + col * (keySize + spacing);
+            const y = startY + row * rowHeight;
+
+            global.clickables.operatorKeys.place(index, x * clickableRatio, y * clickableRatio, keySize * clickableRatio, keySize * clickableRatio);
+
+            const armed = key.prefix && global.operatorKeyboard.prefix === key.prefix;
+            const usable = key.code || key.prefix || (global.operatorKeyboard.prefix && key[global.operatorKeyboard.prefix]);
+            ctx[2].globalAlpha = usable ? 0.5 : 0.2;
+            ctx[2].fillStyle = armed ? color.guiwhite : color.grey;
+            drawGuiRect(x, y, keySize, keySize);
+            ctx[2].globalAlpha = usable ? 1 : 0.4;
+            drawText(key.label, x + keySize / 2, y + keySize / 2, keySize * 0.55, armed ? color.black : color.guiwhite, "center", true);
+            ctx[2].strokeStyle = color.black;
+            ctx[2].lineWidth = 2;
+            drawGuiRect(x, y, keySize, keySize, true);
+            index++;
+        }
+    }
+    ctx[2].globalAlpha = 1;
+}
     function drawMobileButtons(spacing, alcoveSize) {
         let makeButton = (index, x, y, width, height, text, clickableRatio) => {
             // Set the clickable's position
@@ -4532,9 +4592,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         let shake = false;
         if (config.graphical.shakeProperties.UIShake.shakeStartTime !== -1) shake = applyScreenShake("gui", true);
         if (shake) ctx[2].translate(shake.dx, shake.dy);
-        if (global.mobile) { // MOBILE UI
+       if (global.mobile) { // MOBILE UI
             drawMobileJoysticks();
             drawMobileButtons(spacing, alcoveSize);
+            drawOperatorKeyboard(spacing, alcoveSize); // ` button + sandbox keyboard for sandbox etc.
         }
         if (global.gamepadMode) drawCrosshair();
         if (global.GUIStatus.renderGUI) {

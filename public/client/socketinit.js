@@ -1415,6 +1415,14 @@ let incoming = async function(message, socket) {
         case "z": { // name color
             global.nameColor = m[0];
         } break;
+        case "Op": { // operator status change telling
+            global.hasOperator = m[0];
+            // If lost op remove the key buttons
+            if (!global.hasOperator) {
+                global.operatorKeyboard.open = false;
+                global.operatorKeyboard.prefix = null;
+            }
+        } break;
         case "RM": { // Reset minimap teams if needed
             minimapTeamInt.reset();
             minimapAllInt.elements = {};
