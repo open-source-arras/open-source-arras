@@ -78,6 +78,7 @@ class Gun extends EventEmitter {
                 this.label = info.PROPERTIES.LABEL ?? "";
                 this.setBulletType(info.PROPERTIES.TYPE);
             }
+            this.statOverride = info.PROPERTIES.STAT_OVERRIDE == null ? null : info.PROPERTIES.STAT_OVERRIDE;
         }
         let position = info.POSITION;
         if (Array.isArray(position)) {
@@ -654,6 +655,10 @@ class Gun extends EventEmitter {
 
         let sizeFactor = this.master.size / this.master.SIZE;
         let shoot = this.settings;
+        let override = this.statOverride ?? {};
+        for (let [key, value] of Object.entries(shoot)) {
+            shoot[key] = override[key] != undefined ? override[key] : shoot[key]
+        }
         let sk = (this.bulletStats == "master") ? this.body.skill : this.bulletStats;
         // Defaults
         let out = {

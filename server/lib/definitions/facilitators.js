@@ -1855,3 +1855,11 @@ exports.makeSnake = (type, count = 2, name = -1, options = {}) => {
     ];
     return output;
 }
+
+exports.getStatFrom = (stat = [], types = []) => {
+    let totalStats = {}
+    for (let i = 0; i < types.length; i++) {
+        totalStats[types[i]] = exports.combineStats(stat)[types[i]]
+    }
+    return totalStats
+}
