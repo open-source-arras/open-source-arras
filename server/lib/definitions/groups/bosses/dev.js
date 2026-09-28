@@ -121,7 +121,7 @@ Class.taureonBoss = {
     LABEL: "Diamond Marauder",
     NAME: "Taureon",
     COLOR: "#2B339B",
-    UPGRADE_COLOR: "spaceGem",
+    UPGRADE_COLOR: "#226ef6",
     DANGER: 10,
     SHAPE: 4.5,
     SIZE: 50,
