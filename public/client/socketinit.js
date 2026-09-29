@@ -1041,14 +1041,27 @@ let incoming = async function(message, socket) {
                     global.roomSetup[y][x].image = m[3];
                 }
             } break;
-            case "temporaryban": {
-                global.message = "You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.";
+            /*
+                TODO:
+                - Display ban ID when trying to connect under any of these circumstances (right now just a "XXXXXXXX" placeholder)
+                - Ban IDs are always 8 chars long, in hex, and (seemingly) randomly generated
+                - Each IP ban generates a different code, each temp/perm ban uses the same one from the ban it's referring to
+                - Try to avoid duplicate ban IDs just in case of a 1 in 4 billion chance
+            */
+            case "ipBan": {
+                global.message = `Your IP address has been blacklisted due to suspicious activities.\nIf you are using a VPN, please turn it off.\nConnection ID: C-${"XXXXXXXX"}`;
             } break;
-            case "moderatorban": {
-                global.message = "You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.";
+            case "temporaryBan": {
+                global.message = `You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.\nBan ID: B-${"XXXXXXXX"}`;
             } break;
-            case "permanentban": {
+            case "tempModBan": {
+                global.message = `You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.\nBan ID: M-${"XXXXXXXX"}`;
+            } break;
+            case "permanentBan": {
                 global.message = "You have been permanently banned from the game.";
+            } break;
+            case "permaModBan": {
+                global.message = "You have been permanently banned by a game moderator.";
             } break;
             case "svInfo": {
                 // For debugging.
@@ -1409,6 +1422,14 @@ let incoming = async function(message, socket) {
         } break;
         case "z": { // name color
             global.nameColor = m[0];
+        } break;
+        case "Op": { // operator status change telling
+            global.hasOperator = m[0];
+            // If lost op remove the key buttons
+            if (!global.hasOperator) {
+                global.operatorKeyboard.open = false;
+                global.operatorKeyboard.prefix = null;
+            }
         } break;
         case "RM": { // Reset minimap teams if needed
             minimapTeamInt.reset();

@@ -1,7 +1,7 @@
 let crypto = require("crypto"),
     net = require("net"),
     fs = require("fs");
-PERMABAN_FILE = "./permanentBans.json";
+PERMABAN_FILE = "./server/permanentBans.json";
 let bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
 global.chatID = 0;
@@ -58,7 +58,7 @@ class socketManager {
     };
     ban(socket, reason) {
         let time = Date.now();
-        util.warn((reason || "No reason given.") + " Banning.");
+        util.warn((reason || "No reason given.") + " Temporarily banning.");
 
         let s = this.clients.filter((c) => c.ip === socket.ip);
 
@@ -85,7 +85,7 @@ class socketManager {
 
     permaban(socket, reason) {
         let time = Date.now();
-        util.warn((reason || "No reason given.") + " Permanent Banning.");
+        util.warn((reason || "No reason given.") + " Permanently banning.");
 
         let s = this.clients.filter((c) => c.ip === socket.ip);
         for (let i = 0; i < s.length; i++) {
@@ -292,7 +292,6 @@ class socketManager {
                 socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
-                    // Use hasOwnProperty to avoid prototype chain lookup
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
                     if (socket.permissions) {
                         util.log("[INFO]: A socket was verified with a local token.");
@@ -331,7 +330,7 @@ class socketManager {
                 }
                 let b = bans.find((ban) => ban.ip === socket.ip);
                 if (b) {
-                    socket.talk(b.reason === "Ban Hammer" ? "moderatorban" : "temporaryban"); // Kick after this so the client sees the ban message.
+                    socket.talk(b.reason === "Ban Hammer" ? "tempModBan" : "temporaryBan");
                     socket.kick("Temporarily banned player detected!");
                     return 1;
                 }
@@ -339,8 +338,8 @@ class socketManager {
                     (bannedIP) => bannedIP.ip === socket.ip
                 );
                 if (permB) {
-                    socket.talk("permanentban");
-                    socket.permaban("Permanently banned player found!");
+                    socket.talk(b.reason === "Ban Hammer" ? "permaModBan" : "permanentBan"); 
+                    socket.permaban("Permanently banned player detected!");
                     return 1;
                 }
                 let nodeClient = global.gameManager.nodeClient;
@@ -1322,6 +1321,8 @@ class socketManager {
         player.body = body;
         body.socket = socket;
         body.hasOperator = socket.status.hasOperator;
+        // socket talk thing lets client know to show the mobile sandbox cmd board
+        socket.talk("Op", body.hasOperator);
         socket.status.daily_tank_watched_ad = false;
         socket.status.daily_tank_watched_ad_client = false;
         // Decide how to color and team the body
@@ -1426,6 +1427,9 @@ class socketManager {
             let msg = Config.spawn_message.split("\n");
             for (let i = 0; i < msg.length; i++) {
                 body.sendMessage(msg[i]);
+            }
+            if (Config.dev_build) {
+                socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
             }
         }
         // Move the client camera
@@ -2526,7 +2530,7 @@ class socketManager {
             if (fs.existsSync(PERMABAN_FILE)) {
                 permBans = JSON.parse(fs.readFileSync(PERMABAN_FILE));
                 if (permBans.some(b => b.ip === socket.ip)) {
-                    socket.talk("permanentban");
+                    socket.talk("permanentBan");
                     socket.kick("Permanent Banned player found!");
                     return;
                 }

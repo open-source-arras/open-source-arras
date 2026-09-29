@@ -917,7 +917,7 @@ function init() {
                     let target = o.socket.status.permissionLevel;
                     if (target >= 3 || (role === 2 && target !== 0)) return player.body.sendMessage("You do not have sufficient permission to promote this player!");
                     setPermissionLevel(o.socket, target + 1);
-                    o.socket.talk("m", 8_000, "You have been promoted to " + permissionLevelNames[target + 1] + ".");
+                    o.socket.talk("m", 8_000, "You have been promoted to " + permissionLevelNames[target + 1] + "!");
                     player.body.sendMessage("Player promoted to " + permissionLevelNames[target + 1] + "!");
                 });
             }
@@ -934,7 +934,7 @@ function init() {
                     let target = o.socket.status.permissionLevel;
                     if (!target || (target > 3 && target >= role) || (role === 2 && target !== 1)) return player.body.sendMessage("You do not have sufficient permission to demote this player!");
                     setPermissionLevel(o.socket, target - 1);
-                    o.socket.talk("m", 8_000, "You have been demoted to " + permissionLevelNames[target - 1] + ".");
+                    o.socket.talk("m", 8_000, "You have been demoted to " + permissionLevelNames[target - 1] + "!");
                     player.body.sendMessage("Player demoted to " + permissionLevelNames[target - 1] + "!");
                 });
             }

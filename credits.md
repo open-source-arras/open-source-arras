@@ -1,20 +1,17 @@
 # Active Developers
-Developers who are actively contributing to this project at the time of writing.
 - `TGS`: Current Project Owner, Creator of `aps-template` (original OSA)\
 - `Dogeiscut`: TODO\
 - `Toothless`: TODO\
 - `ZyraFAQ`: TODO\
 
 # Former Developers
-Developers who used to be active but have either quit or stopped developing.
 - `AE0Hello`: Former Project Owner, Mobile Controls, Daily Tanks, In-Game UI\
 - `Frostbyte`: Split upgrades, Dreadnoughts (V1 + V2 + V2AR)\
 - `Helena`: March Madness\
-- `Taureon`: Project Founder, Major Project Refactoring\
+- `Taureon`: Founder of `aps-plus-plus` (pre-rewrite OSA), Major Refactoring\
 - `Trioplane`: TODO\
 
 # Notable Contributors
-People who have submitted code to the project but are not official developers.
 - `Anguisj`: Oroboros\
 - `DenisC!!!`: Hexagonal Grid, Growth Curve, 3D and 4D shapes\
 - `Dolan the Protogen`: Arms Race content, Meme tanks, Team Walls, Labyrinth\
@@ -26,4 +23,9 @@ People who have submitted code to the project but are not official developers.
 - `LA3T`: Custom Wall Collisions\
 - `Overlord K`: Meme tanks\
 - `pr2000`: Fireworks, Multiple GameServer instances via `worker_threads`, Editor\
-- `Wait What!?`: Snake code for Cocci/Rocket and Spiral branch bullets
+- `Wait What!?`: Snake code for Cocci/Rocket and Spiral branch bullets\
+
+# Special Thanks
+- `CX`: arras.io Developer\
+- `Damocles`: Former arras.io Developer, founder of `aps-plus`\
+- `nepphhh`: Original creator of arras.io

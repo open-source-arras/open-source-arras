@@ -72,7 +72,7 @@ try {
 }
 
 // Log a warning if Access-Control-Allow-Origin is enabled
-if (Config.allow_ACAO && Config.startup_logs) {
+if (Config.allow_ACAO) {
     util.warn("Access-Control-Allow-Origin is enabled, which allows any server/client to access data from the web server.");
 }
 
@@ -332,7 +332,7 @@ global.onServerLoaded = () => {
     // Once all servers are loaded, log the status and routing table
     if (loadedServers >= global.servers.length) {
         util.saveToLog("Servers up", "All servers booted up.", 0x37F554);
-        if (Config.startup_logs) {
+        if (Config.verbose_logs) {
             util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
                 console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.serverhost} - ${game.location} - ${game.gameMode}`)
@@ -418,4 +418,4 @@ let bunLoop = setInterval(() => {
 }, 1000);
 
 // Log that the web server has been initialized if logging is enabled
-if (Config.startup_logs) console.log("Web Server initialized.");
+if (Config.verbose_logs) console.log("Web Server initialized.");

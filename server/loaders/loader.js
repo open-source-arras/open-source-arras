@@ -38,9 +38,9 @@ let fs = require("fs"),
     groups = fs.readdirSync(path.resolve(__dirname, "../game/roomSetup/tiles/")),
     loadRooms = (log = false) => {
     // Now we need to define every tile.
-        if (Config.startup_logs && log) console.log("Importing tile definitions...");
+        if (Config.verbose_logs && log) console.log("Importing tile definitions...");
         for (let filename of groups) {
-            if (Config.startup_logs && log) console.log(`Loading tile file: ${filename}`);
+            if (Config.verbose_logs && log) console.log(`Loading tile file: ${filename}`);
             require("../game/roomSetup/tiles/" + filename);
         }
 

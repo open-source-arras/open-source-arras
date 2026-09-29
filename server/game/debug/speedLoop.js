@@ -26,7 +26,7 @@ class speedcheckloop {
         }
         if (sum > 1000 / global.gameManager.roomSpeed / 30) {
             this.fails++;
-            if (Config.startup_logs) {
+            if (Config.verbose_logs) {
                 util.warn(`Last server tick took too long to calculate! Info: [Loops: ${loops}, Total Entities: ${entities.size}, Clients: ${global.gameManager.clients.length} Backlogged: ${(sum * global.gameManager.roomSpeed * 3).toFixed(3)}%]`)
                 util.warn("Total activation time: " + activationtime);
                 util.warn("Total collision time: " + collidetime);

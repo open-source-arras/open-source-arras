@@ -149,7 +149,7 @@ Class.maelstrom_bent = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, {reload: 5/3}]),
                 TYPE: "satelliteBullet",
                 INDEPENDENT_MASTER: true
             }

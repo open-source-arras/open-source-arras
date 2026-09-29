@@ -93,6 +93,8 @@ const ACTION_KEYS = {
     preset1: "KEY_SPECIAL_PRESET_1",
     preset2: "KEY_SPECIAL_PRESET_2",
     preset3: "KEY_SPECIAL_PRESET_3",
+    preset4: "KEY_SPECIAL_PRESET_4",
+    preset5: "KEY_SPECIAL_PRESET_5",
     basic: "KEY_SPECIAL_BASIC",
     teleport: "KEY_SPECIAL_TELEPORT",
     kill: "KEY_SPECIAL_KILL",
