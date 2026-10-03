@@ -69,12 +69,13 @@
 </head>
 
 <body oncontextmenu="return false" id="mainBody">
-    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=INSERT_DESMOS_API_KEY_HERE"></script>
     <script>
-        if (document.querySelector("script[src*=\"apiKey=INSERT_DESMOS_API_KEY_HERE\"]")) {
-            alert("The owner of this server has not added a Desmos API key.\n\nThe Custom Shape Builder will not run. Please return to the main menu.")
-        }
+        function error() {
+            alert("Could not connect to Desmos. This is most likely because the owner of this server has not added a valid API key, or JavaScript is disabled/not available in your browser.\n\nThe Custom Shape Builder will not run.");
+            history.back();
+        };
     </script>
+    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=INSERT_DESMOS_API_KEY_HERE" onerror="error()"></script>
     <div class="mainWrapper">
         <div id="startMenuWrapper">
             <div id="menuTabs" class="menuTabs" style="text-align: center;">
