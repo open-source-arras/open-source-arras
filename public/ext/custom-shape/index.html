@@ -69,7 +69,12 @@
 </head>
 
 <body oncontextmenu="return false" id="mainBody">
-    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=__DESMOS_API_KEY__"></script>
+    <script>
+        if (document.querySelector('script[src*="apiKey=__DESMOS_API_KEY__"]')) {
+            alert("The owner of this server has not added a Desmos API key.\n\nThe Custom Shape Builder will not run. Please return to the main menu.")
+        }
+    </script>
     <div class="mainWrapper">
         <div id="startMenuWrapper">
             <div id="menuTabs" class="menuTabs" style="text-align: center;">
