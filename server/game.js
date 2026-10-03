@@ -257,7 +257,7 @@ class gameServer {
                 let server = global.servers[i];
                 if (server.loadedViaMainServer) global.servers[i] = this.getInfo(true);
             }
-            console.log(global.servers.length == 1 ? "Your game server has successfully started." : "Game server " + this.name + " successfully booted up via main server (port " + this.port + ")");
+            console.log(global.servers.length == 1 ? `Your game server (${this.name}) has successfully started. Listening on port ${this.port}` : `Game server #${this.webProperties.id} (${this.name}) successfully started via main server. Listening on port ${this.port}`);
             onServerLoaded();
             return;
         };
@@ -269,7 +269,7 @@ class gameServer {
         this.start();
 
         // If no errors has accoured then annouce that the game server has succssfully booted up.
-        console.log("Game server " + this.name + " successfully started. Listening on port", this.port);
+        console.log(`Game server #${this.webProperties.id} (${this.name}) successfully started. Listening on port ${this.port}`);
 
         // Send the info to the main server so the client can get the info.
         this.parentPort.postMessage([false, this.getInfo()]);
