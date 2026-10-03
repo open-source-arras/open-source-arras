@@ -21,5 +21,8 @@
     "@stylistic/eslint-plugin": "^5.10.0",
     "eslint": "^10.10.0",
     "globals": "^17.12.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true
   }
 }
