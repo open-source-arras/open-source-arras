@@ -204,7 +204,13 @@ server = http.createServer((req, res) => {
             // Determine the file's MIME type based on its extension and serve the file stream
             const extension = fileToGet.split(".").pop();
             res.writeHead(200, { "Content-Type": mimeSet[extension] || "text/html" });
-            fs.createReadStream(fileToGet).pipe(res);
+            if (extension === "html") {
+                // Inject secrets (e.g. the Desmos API key) at serve time instead of hard-coding them in the HTML source
+                let html = fs.readFileSync(fileToGet, "utf8").replace(/__DESMOS_API_KEY__/g, process.env.DESMOS_API_KEY || "");
+                res.end(html);
+            } else {
+                fs.createReadStream(fileToGet).pipe(res);
+            }
         } break;
 
         default: {
