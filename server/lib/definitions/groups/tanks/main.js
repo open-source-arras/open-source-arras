@@ -142,7 +142,7 @@ Class.sniper = {
             }
         }
     ],
-    UPGRADES_TIER_2: ["assassin", "hunter", "minigun", "rifle"],
+    UPGRADES_TIER_2: ["assassin", "hunter", "minigun", "rifle", "marksman"],
     UPGRADES_TIER_3: ["bushwhacker"]
 };
 Class.trapper = {
