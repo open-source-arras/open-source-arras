@@ -120,12 +120,16 @@ class Canvas {
             this.chatInput = document.createElement("input");
             this.chatInput.id = "chatInput";
             this.chatInput.style.zIndex = 11;
-            this.chatInput.setAttribute("enterkeyhint", "send");
-            this.chatInput.setAttribute("autocomplete", "off");
+            if (global.mobile) {
+                this.chatInput.setAttribute("enterkeyhint", "send");
+                this.chatInput.setAttribute("autocomplete", "off");
+            };
             this.chatInput.addEventListener("keydown", event => this.chatListener("chatInput", event));
-            this.chatInput.addEventListener("beforeinput", event => {
-             if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
-            }); // i changed
+            if (global.mobile) {
+                this.chatInput.addEventListener("beforeinput", event => {
+                 if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
+                }); // i changed
+            };
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
         }
         this.chatInput.focus();
