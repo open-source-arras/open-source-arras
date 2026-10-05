@@ -1,4 +1,4 @@
-const {combineStats, addUpgrades, removeUpgrades, weaponMirror} = require("../../facilitators.js");
+const { combineStats, addUpgrades, removeUpgrades, weaponMirror } = require("../../facilitators.js");
 const g = require("../../gunvals.js");
 
 // Remove the below return instruction to enable the addon

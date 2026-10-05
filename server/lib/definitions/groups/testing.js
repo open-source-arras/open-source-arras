@@ -37,36 +37,8 @@ Class.menu_testing = makeMenu("Testing", {upgrades: [
     "airblast",
     "anglemancer",
     "backwardsExports",
-    "overrideTest",
-    "piercer"
+    "overrideTest"
 ], tooltip: "A large selection of tanks that use many of the features of Open Source Arras.\n" + "WARNING: There are a lot of entities in here and having this menu open may cause noticeable frame drops!"})
-
-Class.piercer = {
-    PARENT: "genericTank",
-    LABEL: "Piercer",
-    DANGER: 7,
-    BODY: Class.minigun.BODY,
-    GUNS: [
-        ...weaponStack({
-            POSITION: {
-                LENGTH: 13,
-                WIDTH: 5,
-                ASPECT: 2.2,
-                X: 7
-            }
-        }, 3, { xPosOffset: 5 }),
-        ...weaponStack({
-            POSITION: {
-                LENGTH: 21,
-                WIDTH: 8
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.marksman]),
-                TYPE: "bullet",
-            }
-        }, 3, { lengthOffset: 2, delayIncrement: 1 / 3 })
-    ]
-};
 
 const tessFaceColors = Array.from({ length: 20 }, (_, i) =>
     ["red", "orange", "yellow", "green", "blue", "purple"][i % 6]
