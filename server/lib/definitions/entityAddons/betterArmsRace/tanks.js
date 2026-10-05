@@ -1,4 +1,4 @@
-const { combineStats, addUpgrades, removeUpgrades, weaponMirror, weaponStack, makeAuto, makeGuard, makeOver } = require("../../facilitators.js");
+const { combineStats, addUpgrades, removeUpgrades, weaponMirror, weaponStack, makeAuto, makeGuard, makeGunner, makeOver } = require("../../facilitators.js");
 const { base } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -252,6 +252,179 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
 };
 
 Class.brushguard = makeGuard("crossfire", "Brushguard");
+Class.handgun = {
+    PARENT: "genericTank",
+    LABEL: "Handgun",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 12
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single, g.rifle]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5.5,
+                WIDTH: 7,
+                ASPECT: -1.8,
+                X: 6.5
+            }
+        }
+    ]
+};
+Class.jaywalker = {
+    PARENT: "genericTank",
+    LABEL: "Jaywalker",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 8,
+                WIDTH: 8,
+                ASPECT: 1.5,
+                X: 7
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 8,
+                WIDTH: 2,
+                ASPECT: -1.35,
+                Y: -15,
+                ANGLE: 90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { speed: 0.7, maxSpeed: 0.7 }, g.flankGuard]),
+                TYPE: "bullet"
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5.5,
+                WIDTH: 8,
+                ASPECT: -1.8,
+                X: 6.5
+            }
+        }
+    ]
+};
+Class.orifice = makeGunner("single", "Orifice");
+Class.pistol = {
+    PARENT: "genericTank",
+    LABEL: "Pistol",
+    DANGER: 8,
+    GUNS: [
+        ...weaponStack({
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 5,
+                ASPECT: 2.2,
+                X: 4
+            }
+        }, 2, { xPosOffset: 5 }),
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single, g.marksman]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5.5,
+                WIDTH: 8,
+                ASPECT: -1.8,
+                X: 6.5
+            }
+        }
+    ]
+}
+Class.spy = {
+    PARENT: "genericTank",
+    LABEL: "Spy",
+    DANGER: 8,
+    INVISIBLE: Class.stalker.INVISIBLE,
+    TOOLTIP: "Stay still to turn invisible.",
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 12.5,
+                WIDTH: 8,
+                ASPECT: -1.8,
+                X: 6.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+};
+Class.subduer = {
+    PARENT: "genericTank",
+    LABEL: "Subduer",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.125
+    },
+    CONTROLLERS: ["zoom"],
+    TOOLTIP: "Hold right click to zoom.",
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single, g.hunter, g.hunterSecondary]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 11,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.single, g.hunter]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 5.5,
+                WIDTH: 11,
+                ASPECT: -1.3,
+                X: 6.5
+            }
+        }
+    ]
+};
 
 // Existing Upgrade Management
 const enable_missing_tanks = require("../../groups/tanks/armsRace.js");
@@ -267,4 +440,5 @@ if (Config.arms_race) {
     addUpgrades("autoAssassin", 4, ["autoVigilante"]);
     addUpgrades("bushwhacker", 4, ["brushguard"]);
     addUpgrades("hitman", 4, ["bodyguard"]);
+    Class.single.UPGRADES_TIER_4.push("spy", "pistol", "orifice", "handgun", "subduer", "jaywalker");
 };

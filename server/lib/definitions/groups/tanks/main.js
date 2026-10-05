@@ -2332,9 +2332,7 @@ Class.maleficitor = {
 Class.medic = {
     PARENT: "genericHealer",
     LABEL: "Medic",
-    BODY: {
-        FOV: base.FOV * 1.2
-    },
+    BODY: Class.sniper.BODY,
     GUNS: [
         {
             POSITION: {

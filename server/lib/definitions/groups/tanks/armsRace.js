@@ -310,10 +310,10 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     };
 };
 
-Class.autoAuto3.UPGRADES_TIER_4 = ["Auto5", "Mega3", "Auto4", "Banshee", "Sniper3", "Crowbar", "Combo"].map(x => `auto${x}`);
+Class.autoAuto3.UPGRADES_TIER_4.push(...["Auto5", "Mega3", "Auto4", "Banshee", "Sniper3", "Crowbar", "Combo"].map(x => `auto${x}`));
 Class.autoDirectordrive = makeAuto("directordrive", "Auto-Directordrive", preset.makeAuto.drive);
 Class.autoDirectordrive.UPGRADES_TIER_4 = [...["mega", "triple"].map(x => `${x}AutoDirectordrive`)];
-Class.autoHexaTank.UPGRADES_TIER_4 = ["OctoTank", "Cyclone", "DeathStar", "Mingler", "Combo"].map(x => `auto${x}`);
+Class.autoHexaTank.UPGRADES_TIER_4.push(...["OctoTank", "Cyclone", "DeathStar", "Mingler", "Combo"].map(x => `auto${x}`));
 Class.bentGunner = {
     PARENT: "genericTank",
     LABEL: "Bent Gunner",
@@ -1294,6 +1294,7 @@ const autoTanksT4 = [
     "banshee",
     "bentDouble",
     "bentHybrid",
+    "bulwark",
     "buttbuttin",
     "combo",
     "crowbar",
@@ -2790,6 +2791,31 @@ Class.hipwatch = {
         }
     }, 2)
 };
+Class.intern = {
+    PARENT: "genericHealer",
+    LABEL: "Intern",
+    BODY: Class.assassin.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 9,
+                ASPECT: -0.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 25,
+                WIDTH: 10
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper, g.assassin]),
+                TYPE: "healerBullet"
+            }
+        }
+    ]
+};
 Class.marine = makeGunner("ranger", "Marine");
 Class.megaAutoDirectordrive = makeAuto("directordrive", "Mega Auto-Directordrive", preset.makeAuto.driveMega);
 Class.megaAutoDouble = makeAuto("doubleTwin", "Mega Auto-Double", preset.makeAuto.mega);
@@ -3863,6 +3889,7 @@ Class.bentDouble.UPGRADES_TIER_4 = ["bentTriple", "flexedDouble", "autoBentDoubl
 Class.bentHybrid.UPGRADES_TIER_4 = ["flexedHybrid", "smearer"/*, "splitHybrid"*/, "autoBentHybrid"/*, "spambrid", "junker"*/, "triprid"/*, "bentCatcher"*/];
 Class.builder.UPGRADES_TIER_4 = [/*"blockade"*/];
 Class.buttbuttin.UPGRADES_TIER_4 = [/*"baton", */"marine", "harpy", "tailer"/*, "fang", "barber"*/, "mercenary", "autoButtbuttin"/*, "armament", "sifter"*/];
+Class.bulwark.UPGRADES_TIER_4 = ["autoBulwark"];
 Class.cruiser.UPGRADES_TIER_4 = [/*"superintendent"*/];
 Class.cyclone.UPGRADES_TIER_4 = ["tornado_AR", "dustStorm", "autoCyclone", "tempest_AR", "gale", "whirlwind_AR", "trove"];
 Class.deathStar.UPGRADES_TIER_4 = ["demise", "designer", "orbitalStrike", "autoDeathStar", "unity", "sequence"];
@@ -3879,7 +3906,7 @@ Class.hexaTrapper.UPGRADES_TIER_4 = [...["mega", "auto"].map(x => `${x}HexaTrapp
 Class.hunter.UPGRADES_TIER_4 = [/*"butcher", "reverberator"*/];
 Class.launcher.UPGRADES_TIER_4 = [/*"seriemas", "supplant", "pumper"*/];
 Class.machineGun.UPGRADES_TIER_4 = ["gadgetGun"];
-Class.medic.UPGRADES_TIER_4 = [/*"intern", "ointment", "injection", "actuary"*/];
+Class.medic.UPGRADES_TIER_4 = ["intern"/*, "ointment", "injection", "actuary"*/];
 Class.mega3.UPGRADES_TIER_4 = [/*"ultra3", "queller3", "hurler3", "slinker3", "mega5", "volley4", "spirit", "crank", */"autoMega3", "sequence"];
 Class.minigun.UPGRADES_TIER_4 = [/*"tommy", "machgun"*/];
 Class.musket.UPGRADES_TIER_4 = ["doubleMusket"/*, "flintlock", "arbalest"*/, "matchlock", "autoMusket"/*, "duelist", "bifold"*/];
@@ -3923,6 +3950,8 @@ if (!enable_missing_tanks) {
 } else {
     removeUpgrades("trapper", 3, ["barricade"]);
     removeUpgrades("twin", 3, ["bulwark"]);
+
+    removeUpgrades("single", 4, ["custodian"]);
 
     try {
         require("../../entityAddons/betterArmsRace/tanks.js");
