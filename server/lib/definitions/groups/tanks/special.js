@@ -2101,17 +2101,11 @@ Class.theConglomerate = {
     TURRETS: [
         {
             POSITION: [6, 40, 0, 0, 180, 1],
-            TYPE: [
-                "crowbarTurretTank",
-                { INDEPENDENT: true }
-            ]
+            TYPE: "crowbarTurretTank"
         },
         {
             POSITION: [6, 30, 0, 0, 180, 1],
-            TYPE: [
-                "crowbarTurretTank",
-                { INDEPENDENT: true }
-            ]
+            TYPE: "crowbarTurretTank"
         },
         ...weaponMirror({
             POSITION: [13, 8, 0, -90, 190, 0],

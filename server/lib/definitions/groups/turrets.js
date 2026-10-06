@@ -1452,6 +1452,7 @@ Class.ihdtiBolt3 = {
 Class.crowbarTurretTank = {
     PARENT: "genericTank",
     COLOR: 16,
+    INDEPENDENT: true,
     BODY: {
         FOV: 1
     },

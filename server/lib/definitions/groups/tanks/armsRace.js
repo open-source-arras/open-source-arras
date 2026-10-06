@@ -521,7 +521,7 @@ Class.crowbar = {
     ],
     TURRETS: [
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 19.5,
@@ -530,7 +530,7 @@ Class.crowbar = {
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 29.75,
@@ -539,7 +539,7 @@ Class.crowbar = {
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 40,
@@ -2139,7 +2139,7 @@ Class.dualbar = {
     ], 2),
     TURRETS: weaponArray([
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 19.5,
@@ -2149,7 +2149,7 @@ Class.dualbar = {
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 29.75,
@@ -2159,7 +2159,7 @@ Class.dualbar = {
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
                 X: 40,
@@ -3957,7 +3957,7 @@ Class.wrench = {
     GUNS: [
         {
             POSITION: {
-                LENGTH: 40,
+                LENGTH: 75,
                 WIDTH: 7
             }
         },
@@ -3971,28 +3971,28 @@ Class.wrench = {
     ],
     TURRETS: [
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
-                X: 19.5,
+                X: 54.5,
                 ARC: 180,
                 LAYER: 1
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
-                X: 29.75,
+                X: 64.75,
                 ARC: 180,
                 LAYER: 1
             }
         },
         {
-            TYPE: ["crowbarTurretTank", {INDEPENDENT: true}],
+            TYPE: "crowbarTurretTank",
             POSITION: {
                 SIZE: 6,
-                X: 40,
+                X: 75,
                 ARC: 180,
                 LAYER: 1
             }

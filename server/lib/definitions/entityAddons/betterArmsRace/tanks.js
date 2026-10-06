@@ -756,6 +756,63 @@ Class.jaywalker = {
         }
     ]
 };
+Class.jimmy = {
+    PARENT: "genericTank",
+    LABEL: "Jimmy",
+    DANGER: 8,
+    BODY: {
+        ...Class.crowbar.BODY,
+        ...Class.triAngle.BODY //Class.quadAngle.BODY
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 29.75,
+                WIDTH: 7
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 9,
+                ASPECT: -2
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 8,
+                ANGLE: 150,
+                DELAY: 0.1
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                TYPE: "bullet",
+                LABEL: "Thruster"
+            }
+        })
+    ],
+    TURRETS: [
+        {
+            TYPE: "crowbarTurretTank",
+            POSITION: {
+                SIZE: 6,
+                X: 19.5,
+                ARC: 180,
+                LAYER: 1
+            }
+        },
+        {
+            TYPE: "crowbarTurretTank",
+            POSITION: {
+                SIZE: 6,
+                X: 29.75,
+                ARC: 180,
+                LAYER: 1
+            }
+        }
+    ]
+};
 Class.longbow = {
     PARENT: "genericTank",
     LABEL: "Longbow",
@@ -1191,6 +1248,7 @@ if (Config.arms_race) {
     Class.buttbuttin.UPGRADES_TIER_4.push("backlash");
     Class.bushwhacker.UPGRADES_TIER_4.push("brushguard");
     Class.cropDuster.UPGRADES_TIER_4.push("saxton", "ph_spitfireH");
+    Class.crowbar.UPGRADES_TIER_4.push("jimmy");
     Class.falcon.UPGRADES_TIER_4.push("talon");
     Class.hitman.UPGRADES_TIER_4.push("bodyguard");
     Class.railgun.UPGRADES_TIER_4.push("hailshot");

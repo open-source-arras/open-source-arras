@@ -447,11 +447,6 @@ exports.makeBird = (type, name = -1, options = {}) => {
 
     // Thrusters
     let backRecoil = 0.5 * backRecoilFactor;
-    let thrusterProperties = {
-        SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
-        TYPE: "bullet",
-        LABEL: "thruster"
-    };
     let shootyBois = [
         ...exports.weaponMirror({
             POSITION: {
@@ -460,7 +455,11 @@ exports.makeBird = (type, name = -1, options = {}) => {
                 ANGLE: 153,
                 DELAY: 0.1
             },
-            PROPERTIES: thrusterProperties
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }/*, g.bitsmall*/]), // leaked jimmy (bird crowbar) code has "g.bitsmall" (whatever that does) on the side birds
+                TYPE: "bullet",
+                LABEL: "thruster"
+            }
         }),
         {
             POSITION: {
@@ -469,7 +468,11 @@ exports.makeBird = (type, name = -1, options = {}) => {
                 ANGLE: 180,
                 DELAY: 0.6
             },
-            PROPERTIES: thrusterProperties
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
+                TYPE: "bullet",
+                LABEL: "thruster"
+            }
         }
     ];
     if (options.super) {
@@ -480,7 +483,11 @@ exports.makeBird = (type, name = -1, options = {}) => {
                 ANGLE: 130,
                 DELAY: 0.6
             },
-            PROPERTIES: thrusterProperties
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }/*, g.bitsmall*/]), // leaked jimmy (bird crowbar) code has "g.bitsmall" (whatever that does) on the side birds
+                TYPE: "bullet",
+                LABEL: "thruster"
+            }
         }))
     }
     // Assign thruster color
