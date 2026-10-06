@@ -8,8 +8,7 @@ const free_tier_4 = true;
 
 // Set the below variable to true to enable tanks that would otherwise be inaccessible in Arms Race.
 // This will also enable the Better Arms Race addon if it is present.
-const enable_missing_tanks = false;
-module.exports = enable_missing_tanks;
+const enable_missing_tanks = true;
 
 // Tier 2 (Level 30)
 Class.diesel = {
@@ -1022,7 +1021,8 @@ Class.railgun = {
                 X: 6.5
             }
         }
-    ]
+    ],
+    UPGRADES_TIER_4: []
 };
 Class.rimfire = {
     PARENT: "genericTank",
@@ -1300,6 +1300,7 @@ const autoTanksT4 = [
     "bentDouble",
     "bentHybrid",
     "bulwark",
+    "bushwhacker",
     "buttbuttin",
     "combo",
     "crowbar",
@@ -1307,6 +1308,7 @@ const autoTanksT4 = [
     "deathStar",
     "doubleGunner",
     "dual",
+    "falcon",
     "hewnDouble",
     "jalopy",
     "mega3",
@@ -1316,6 +1318,8 @@ const autoTanksT4 = [
     "single",
     "sniper3",
     "sprayer",
+    "stalker",
+    "streamliner",
     "warkwark"
 ];
 for (let i = 0; i < autoTanksT4.length; i++) {
@@ -4040,6 +4044,7 @@ Class.banshee.UPGRADES_TIER_4 = [/*"spectre", "spirit", "wraith", "phantom", */"
 Class.bentDouble.UPGRADES_TIER_4 = ["bentTriple", "flexedDouble", "autoBentDouble", "doubleTriplet", "cleft", "doubleSpreadshot", "bentFlankDouble", "bentDoubleGunner", "bentDoubleMinigun", "splitDouble", "waarrkwaarrk"];
 Class.bentHybrid.UPGRADES_TIER_4 = ["flexedHybrid", "smearer"/*, "splitHybrid"*/, "autoBentHybrid"/*, "spambrid", "junker"*/, "triprid"/*, "bentCatcher"*/];
 Class.builder.UPGRADES_TIER_4 = [/*"blockade"*/];
+Class.bushwhacker.UPGRADES_TIER_4 = ["autoBushwhacker"];
 Class.buttbuttin.UPGRADES_TIER_4 = [/*"baton", */"marine", "harpy", "tailer"/*, "fang", "barber"*/, "mercenary", "autoButtbuttin"/*, "armament", "sifter"*/];
 Class.bulwark.UPGRADES_TIER_4 = ["autoBulwark"];
 Class.cruiser.UPGRADES_TIER_4 = [/*"superintendent"*/];
@@ -4049,6 +4054,7 @@ Class.destroyer.UPGRADES_TIER_4 = [/*"harrier", "toppler"*/];
 Class.director.UPGRADES_TIER_4 = ["coordinator"];
 Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwin"];
 Class.dual.UPGRADES_TIER_4 = [/*"threefold", */"doubleDual", "ravisher"/*, "vulture_AR", "nimrod_AR"*/, "autoDual"/*, "bifold", "dyadic"*/];
+Class.falcon.UPGRADES_TIER_4 = ["autoFalcon"];
 Class.flankGuard.UPGRADES_TIER_4 = ["ternion"];
 Class.gunner.UPGRADES_TIER_4 = ["dam"];
 Class.healer.UPGRADES_TIER_4 = [/*"renovater", */"physician"];
@@ -4070,6 +4076,8 @@ Class.rifle.UPGRADES_TIER_4 = ["ransacker"/*, "thunderclap"*/];
 Class.single.UPGRADES_TIER_4 = ["duo", "sharpshooter", "gadgetGun", "ternion", "coordinator", "bruiser", "tricker", "mono", "avian", "custodian", "assistant", "autoSingle"];
 Class.sniper.UPGRADES_TIER_4 = ["sharpshooter"];
 Class.spawner.UPGRADES_TIER_4 = [/*"handler"*/];
+Class.stalker.UPGRADES_TIER_4 = ["autoStalker"];
+Class.streamliner.UPGRADES_TIER_4 = ["autoStreamliner"];
 Class.trapGuard.UPGRADES_TIER_4 = [/*"garrison", "maw", "overtrapGuard", */"custodian"];
 Class.trapper.UPGRADES_TIER_4 = ["megaTrapper"/*, "sawedOff"*/, "tricker"];
 Class.triAngle.UPGRADES_TIER_4 = ["avian"/*, "raven"*/, "phoenix"/*, "shoebill"*/];
@@ -4078,6 +4086,7 @@ Class.tripleTwin.UPGRADES_TIER_4 = ["quadTwin", "autoTriple", "bentTriple", "hew
 Class.twin.UPGRADES_TIER_4 = ["duo"];
 Class.underseer.UPGRADES_TIER_4 = [/*"conductor"*/];
 
+module.exports = enable_missing_tanks;
 if (!enable_missing_tanks) {
     removeUpgrades("basic", 1, ["desmos"]);
 

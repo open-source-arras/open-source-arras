@@ -518,7 +518,7 @@ Class.marksman = {
                 ASPECT: 2.2,
                 X: 10
             }
-        }, 3, {xPosOffset: 5}),
+        }, 3, { xPosOffset: 5 }),
         {
             POSITION: {
                 LENGTH: 24,
@@ -1071,7 +1071,7 @@ Class.barricade = {
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
-        }, 3, {xPosOffset: 4, delayIncrement: 1/3})
+        }, 3, { xPosOffset: 4, delayIncrement: 1/3 })
     ]
 };
 Class.battleship = {
@@ -1726,7 +1726,7 @@ Class.deadeye = {
                 ASPECT: 2.2,
                 X: 7
             }
-        }, 2, {xPosOffset: 5}),
+        }, 2, { xPosOffset: 5 }),
         {
             POSITION: {
                 LENGTH: 24,
@@ -2034,7 +2034,7 @@ Class.fork = {
                 ASPECT: 2.2,
                 X: 15
             }
-        }, 4, {xPosOffset: 5}),
+        }, 4, { xPosOffset: 5 }),
         {
             POSITION: {
                 LENGTH: 29,
@@ -3060,7 +3060,7 @@ Class.revolver = {
                 ASPECT: 2.2,
                 X: 5
             }
-        }, 2, {xPosOffset: 5}),
+        }, 2, { xPosOffset: 5 }),
         {
             POSITION: {
                 LENGTH: 20,
@@ -3511,7 +3511,7 @@ Class.streamliner = {
             SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.streamliner]),
             TYPE: "bullet"
         }
-    }, 5, {lengthOffset: 2, delayIncrement: 0.2})
+    }, 5, { lengthOffset: 2, delayIncrement: 0.2 })
 };
 Class.surfer = {
     PARENT: "genericTank",
