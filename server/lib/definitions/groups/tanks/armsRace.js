@@ -255,7 +255,9 @@ for (let i = 0; i < autoTanksT3.length; i++) {
     Class[`tripleAuto${type.charAt(0).toUpperCase() + type.slice(1)}`] = makeAuto(type, `Triple Auto-${Class[type].LABEL}`, preset.makeAuto.triple);
 
     if (Config.arms_race) {
-        addUpgrades(`auto${type.charAt(0).toUpperCase() + type.slice(1)}`, 4, [...["mega", "triple"].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`)]);
+        Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`].UPGRADES_TIER_4 = ["mega", "triple"].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`);
+    } else {
+        Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`].UPGRADES_TIER_4 = [];
     };
 };
 
@@ -278,6 +280,9 @@ const hybridTanksT3 = [
 ];
 for (let i = 0; i < hybridTanksT3.length; i++) {
     let type = hybridTanksT3[i][0];
+    function typeify(x) {
+        return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, "");
+    };
 
     let director      = hybridTanksT3[i][1];
     let cruiser       = hybridTanksT3[i][2];
@@ -286,9 +291,7 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     let overseer      = hybridTanksT3[i][5] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
     let directordrive = hybridTanksT3[i][6] ??= `${director}drive`;
 
-    function typeify(x) {
-        return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, "");
-    };
+
     let typeDirector = typeify(director);
     let typeOverseer = typeify(overseer);
     let typeCruiser = typeify(cruiser);
@@ -296,9 +299,7 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     let typeHoncho = typeify(honcho);
     let typeDirectordrive = typeify(directordrive);
 
-    if (Class[typeDirector] == undefined) {
-        Class[typeDirector] = makeOver(type, director, preset.hybrid);
-    }
+    if (!Class[typeDirector]) Class[typeDirector] = makeOver(type, director, preset.hybrid);
     Class[typeOverseer] = makeOver(type, overseer);
     Class[typeCruiser] = makeBattle(type, cruiser, preset.hybrid);
     Class[typeSpawner] = makeCap(type, spawner, preset.hybrid);
@@ -306,7 +307,9 @@ for (let i = 0; i < hybridTanksT3.length; i++) {
     Class[typeDirectordrive] = makeOver(type, directordrive, { ...preset.hybrid, drive: true });
 
     if (Config.arms_race) {
-        addUpgrades(typeDirector, 4, [typeOverseer, typeCruiser, typeSpawner, typeDirectordrive, typeHoncho]);
+        Class[typeDirector].UPGRADES_TIER_4 = [typeOverseer, typeCruiser, typeSpawner, typeDirectordrive, typeHoncho];
+    } else {
+        Class[typeDirector].UPGRADES_TIER_4 = [];
     };
 };
 
