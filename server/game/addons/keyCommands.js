@@ -134,15 +134,30 @@ function init() {
             }
         },
         {
-            name: "Preset Tank #2",
-            description: "Defines you as healer",
+            name: "Preset Tank #3",
             keys: [[["KEY_SPECIAL_PRESET_3", "3"]]],
             permissionLevel: 1,
             hidden: true,
             run: ({ socket, player }) => {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                    player.body.define("healer");
+                    if (Config.teams == 1) {
+                        player.body.define("smasher");
+                    } else {
+                        player.body.define("healer");
+                    }
+                }
+            }
+        },
+        {
+            name: "Preset Tank #4",
+            keys: [[["KEY_SPECIAL_PRESET_4", "4"]]],
+            permissionLevel: 1,
+            hidden: true,
+            run: ({ socket, player }) => {
+                if (Config.teams == 1 && socket.permissions?.class) {
+                    player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
+                    player.body.define("underseer");
                 }
             }
         },
