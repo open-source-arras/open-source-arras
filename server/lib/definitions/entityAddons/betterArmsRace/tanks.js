@@ -1,4 +1,4 @@
-const { combineStats, addUpgrades, removeUpgrades, weaponMirror, weaponStack, makeAuto, makeBird, makeGuard, makeGunner, makeOver } = require("../../facilitators.js");
+const { combineStats, addUpgrades, removeUpgrades, weaponMirror, weaponStack, makeAuto, makeBattle, makeBird, makeCap, makeFore, makeGuard, makeGunner, makeOver } = require("../../facilitators.js");
 const { base } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -42,7 +42,7 @@ Class.crossfire = {
             }
         }
     ],
-    UPGRADES_TIER_3: ["caltrop", "vigilante", "forager", "spitfire", "quickdraw", "quagmire", "autoCrossfire"],
+    UPGRADES_TIER_3: ["caltrop", "vigilante", "forager", "spitfire", "quickdraw", "quagmire", "ph_crossfireH", "autoCrossfire"],
     UPGRADES_TIER_4: ["brushguard", "hailshot"]
 };
 
@@ -61,6 +61,46 @@ for (let i = 0; i < autoTanksT3.length; i++) {
         Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`].UPGRADES_TIER_4 = ["mega", "triple"].map(x => `${x}Auto${type.charAt(0).toUpperCase() + type.slice(1)}`);
     } else {
         Class[`auto${type.charAt(0).toUpperCase() + type.slice(1)}`].UPGRADES_TIER_4 = [];
+    };
+};
+
+const hybridTanksT3 = [
+    // Base Tank  //Director       //Cruiser         //Spawner         //Honcho          //Overseer  //Directordrive
+    ["crossfire", "ph_crossfireH", "ph_crossfireHC", "ph_crossfireHS", "ph_crossfireHO", undefined,  "ph_crossfireHD"]
+    // The last two are optional and will be filled out automatically so long as the Base Tank and Director are defined.
+];
+for (let i = 0; i < hybridTanksT3.length; i++) {
+    let type = hybridTanksT3[i][0];
+    function typeify(x) {
+        return x.charAt(0).toLowerCase() + x.slice(1).replace(/[\s-]+/g, "");
+    };
+
+    let director      = hybridTanksT3[i][1];
+    let cruiser       = hybridTanksT3[i][2];
+    let spawner       = hybridTanksT3[i][3];
+    let honcho        = hybridTanksT3[i][4];
+    let overseer      = hybridTanksT3[i][5] ??= `Over${Class[type].LABEL.charAt(0).toLowerCase() + Class[type].LABEL.slice(1)}`;
+    let directordrive = hybridTanksT3[i][6] ??= `${director}drive`;
+
+
+    let typeDirector = typeify(director);
+    let typeOverseer = typeify(overseer);
+    let typeCruiser = typeify(cruiser);
+    let typeSpawner = typeify(spawner);
+    let typeHoncho = typeify(honcho);
+    let typeDirectordrive = typeify(directordrive);
+
+    if (!Class[typeDirector]) Class[typeDirector] = makeOver(type, director, preset.hybrid);
+    Class[typeOverseer] = makeOver(type, overseer);
+    Class[typeCruiser] = makeBattle(type, cruiser, preset.hybrid);
+    Class[typeSpawner] = makeCap(type, spawner, preset.hybrid);
+    Class[typeHoncho] = makeFore(type, honcho, preset.makeFore.hybrid);
+    Class[typeDirectordrive] = makeOver(type, directordrive, { ...preset.hybrid, drive: true });
+
+    if (Config.arms_race) {
+        Class[typeDirector].UPGRADES_TIER_4 = [typeOverseer, typeCruiser, typeSpawner, typeDirectordrive, typeHoncho];
+    } else {
+        Class[typeDirector].UPGRADES_TIER_4 = [];
     };
 };
 
@@ -243,7 +283,7 @@ Class.quagmire = {
             }
         }
     ],
-    UPGRADES_TIER_4: ["ph_quagmire2", "autoQuagmire"]
+    UPGRADES_TIER_4: ["ph_quagmire2", "ph_quagmireH", "autoQuagmire"]
 };
 Class.quickdraw = {
     PARENT: "genericTank",
@@ -289,7 +329,7 @@ Class.quickdraw = {
             }
         }
     ],
-    UPGRADES_TIER_4: ["ph_quickdraw2", "autoQuickdraw"]
+    UPGRADES_TIER_4: ["ph_quickdraw2", "ph_quickdrawH", "autoQuickdraw"]
 };
 Class.spitfire = {
     PARENT: "genericTank",
@@ -376,8 +416,11 @@ Class.vigilante = {
             }
         }
     ],
-    [`UPGRADES_TIER_${4}`]: ["desperado", "longbow", "talon", "crosswind", "autoVigilante", "backlash", "bodyguard"]
+    [`UPGRADES_TIER_${4}`]: ["desperado", "longbow", "talon", "crosswind", "autoVigilante", "jaywalker", "backlash", "bodyguard"]
 };
+
+Class.ph_crossfireH.LABEL = "";
+Class.ph_crossfireH.UPGRADES_TIER_4.push("bodyguard", "snarer", "ph_spitfireH", "ph_quickdrawH", "ph_quagmireH", "autoPh_crossfireH");
 
 // Tier 4 (Level 60)
 const autoTanksT4 = [
@@ -387,7 +430,8 @@ const autoTanksT4 = [
     "quagmire",
     "quickdraw",
     "spitfire",
-    "vigilante"
+    "vigilante",
+    "ph_crossfireH"
 ];
 for (let i = 0; i < autoTanksT4.length; i++) {
     let type = autoTanksT4[i];
@@ -398,6 +442,8 @@ const hybridTanksT4 = [
     // Base Tank  //Director
     ["forager",   "Snarer"],
     ["piercer",   "Saxton"],
+    ["quagmire",  "ph_quagmireH"],
+    ["quickdraw", "ph_quickdrawH"],
     ["spitfire",  "ph_spitfireH"],
     ["vigilante", "Bodyguard"]
 ];
@@ -414,7 +460,7 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
     Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
-Class.autoCrossfire.UPGRADES_TIER_4.push(...["Caltrop", "Vigilante", "Forager", "Spitfire", "Quickdraw", "Quagmire"].map(x => `auto${x}`))
+Class.autoCrossfire.UPGRADES_TIER_4.push(...["Caltrop", "Vigilante", "Forager", "Spitfire", "Quickdraw", "Quagmire", "Ph_crossfireH"].map(x => `auto${x}`))
 Class.backlash = makeGunner("vigilante", "Backlash");
 Class.blade = {
     PARENT: "genericTank",
@@ -945,6 +991,11 @@ Class.trailblazer = {
     ]
 };
 
+Class.autoPh_crossfireH.LABEL = "";
+Class.ph_crossfireHC.LABEL = "";
+Class.ph_crossfireHD.LABEL = "";
+Class.ph_crossfireHO.LABEL = "";
+Class.ph_crossfireHS.LABEL = "";
 Class.ph_quagmire2 = {
     PARENT: "genericTank",
     LABEL: "",
@@ -1006,6 +1057,7 @@ Class.ph_quagmire2 = {
         }
     ]
 };
+Class.ph_quagmireH.LABEL = "";
 Class.ph_quickdraw2 = {
     PARENT: "genericTank",
     LABEL: "",
@@ -1065,6 +1117,7 @@ Class.ph_quickdraw2 = {
         }
     ]
 };
+Class.ph_quickdrawH.LABEL = "";
 Class.ph_spitfire2 = {
     PARENT: "genericTank",
     LABEL: "",
