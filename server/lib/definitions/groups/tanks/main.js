@@ -548,7 +548,7 @@ Class.minigun = {
             SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
             TYPE: "bullet"
         }
-    }, 3, {lengthOffset: 2, delayIncrement: 1/3}),
+    }, 3, { lengthOffset: 2, delayIncrement: 1/3 }),
     UPGRADES_TIER_3: ["streamliner", "nailgun", "cropDuster", "barricade", "vulture"]
 };
 Class.overseer = {

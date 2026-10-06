@@ -1176,6 +1176,8 @@ Class.splitShot = {
         }
     ]
 };
+Class.triHealer = makeFlank("healer", 3, "Tri-Healer", { extraStats: [g.flankGuard] });
+Class.triHealer.UPGRADES_TIER_4 = ["hexaHealer"];
 Class.underdrive = {
     PARENT: "genericTank",
     LABEL: "Underdrive",
@@ -1363,6 +1365,31 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
     Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
+Class.actuary = {
+    PARENT: "genericHealer",
+    LABEL: "Actuary",
+    BODY: Class.minigun.BODY,
+    GUNS: weaponStack([
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 7,
+                ASPECT: -0.4,
+                X: 9.5,
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 21,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.minigun]),
+                TYPE: "healerBullet"
+            }
+        }
+    ], 3, { lengthOffset: 2, delayIncrement: 1/3 })
+};
 Class.alloy = {
     PARENT: "genericTank",
     LABEL: "Alloy",
@@ -2602,6 +2629,53 @@ Class.hewnTriple = {
         }, {delayIncrement: 0.5}), 3)
     ]
 };
+Class.hexaHealer = makeFlank("healer", 6, "Hexa-Healer", { extraStats: [g.flankGuard] });
+Class.hexaHealer = {
+    PARENT: "genericHealer",
+    LABEL: "Hexa-Healer",
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 11,
+                WIDTH: 9,
+                ASPECT: -0.4,
+                X: 9.5,
+                ANGLE: 180,
+                DELAY: 0.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 10,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.flankGuard, g.flankGuard]),
+                TYPE: "healerBullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 11,
+                WIDTH: 9,
+                ASPECT: -0.4,
+                X: 9.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 10
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.flankGuard, g.flankGuard]),
+                TYPE: "healerBullet"
+            }
+        }
+    ], 3)
+};
 Class.hexaMachine = makeAuto(makeFlank({
     PARENT: "genericTank",
     STAT_NAMES: statnames.trap,
@@ -2794,6 +2868,50 @@ Class.hipwatch = {
         }
     }, 2)
 };
+Class.injection = {
+    PARENT: "genericHealer",
+    LABEL: "Injection",
+    BODY: Class.hunter.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 6,
+                ASPECT: -0.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 7,
+                ASPECT: -0.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 24,
+                WIDTH: 8,
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper, g.hunter, g.hunterSecondary]),
+                TYPE: "healerBullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 21,
+                WIDTH: 11,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper, g.hunter]),
+                TYPE: "healerBullet"
+            }
+        }
+    ]
+};
 Class.intern = {
     PARENT: "genericHealer",
     LABEL: "Intern",
@@ -2855,6 +2973,37 @@ Class.mono = {
     ]
 };
 Class.octoTrapper = makeAuto(makeFlank("trapper", 8, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Octo-Trapper");
+Class.ointment = {
+    PARENT: "genericHealer",
+    LABEL: "Ointment",
+    BODY: Class.rifle.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 13
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 11,
+                WIDTH: 7,
+                ASPECT: -0.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 22,
+                WIDTH: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper, g.rifle]),
+                TYPE: "healerBullet"
+            }
+        }
+    ]
+};
 Class.orbitalStrike = {
     PARENT: "genericTank",
     LABEL: "Orbital Strike",
@@ -2913,7 +3062,7 @@ Class.physician = {
     PARENT: "genericSmasher",
     LABEL: "Physician",
     HEALING_TANK: true,
-    FACING_TYPE: ["spin", {speed: 0.05}],
+    FACING_TYPE: ["spin", {speed: 0.02}],
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 0,
@@ -3865,7 +4014,7 @@ removeUpgrades("director", 3, ["bigCheese"]);
 Class.doubleTwin.UPGRADES_TIER_3.push("doubleFlankTwin", "doubleGunner", "warkwark");
 Class.gunner.UPGRADES_TIER_3.push("buttbuttin", "blower", "rimfire", "volley", "doubleGunner", "bentGunner", "equalizer")
 removeUpgrades("healer", 3, ["ambulance", "surgeon", "paramedic"]);
-Class.healer.UPGRADES_TIER_3.push(/*"scientist", "nurse", "triHealer", "analyzer", "psychiatrist", "soother"*/);
+Class.healer.UPGRADES_TIER_3.push(/*"scientist", "nurse", */"triHealer"/*, "analyzer", "psychiatrist", "soother"*/);
 Class.hexaTank.UPGRADES_TIER_3.push("autoHexaTank", "mingler", "combo")
 Class.hunter.UPGRADES_TIER_3.push("autoHunter"/*, "megaHunter", "prober", "courser"*/);
 Class.launcher.UPGRADES_TIER_3.push("rocketeer"/*, "pitcher", "cluster", "projector"*/, "heaver", "autoLauncher"/*, "hurler", "inception"*/);
@@ -3902,14 +4051,14 @@ Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwi
 Class.dual.UPGRADES_TIER_4 = [/*"threefold", */"doubleDual", "ravisher"/*, "vulture_AR", "nimrod_AR"*/, "autoDual"/*, "bifold", "dyadic"*/];
 Class.flankGuard.UPGRADES_TIER_4 = ["ternion"];
 Class.gunner.UPGRADES_TIER_4 = ["dam"];
-Class.healer.UPGRADES_TIER_4 = [/*"renovater", "physician"*/];
+Class.healer.UPGRADES_TIER_4 = [/*"renovater", */"physician"];
 Class.hewnDouble.UPGRADES_TIER_4 = ["hewnTriple", "autoHewnDouble", "cleft", "skewnDouble", "hewnFlankDouble", "hewnGunner", "warkwawarkrk"];
 Class.hexaTank.UPGRADES_TIER_4 = ["tripleFlankTwin"];
 Class.hexaTrapper.UPGRADES_TIER_4 = [...["mega", "auto"].map(x => `${x}HexaTrapper`), "hexaMachine", "octoTrapper", "designer", "cozen", "refuge", "coop", "hexaMech", "hexaTrapGuard", "band"];
 Class.hunter.UPGRADES_TIER_4 = [/*"butcher", "reverberator"*/];
 Class.launcher.UPGRADES_TIER_4 = [/*"seriemas", "supplant", "pumper"*/];
 Class.machineGun.UPGRADES_TIER_4 = ["gadgetGun"];
-Class.medic.UPGRADES_TIER_4 = ["intern"/*, "ointment", "injection", "actuary"*/];
+Class.medic.UPGRADES_TIER_4 = ["intern", "ointment", "injection", "actuary"];
 Class.mega3.UPGRADES_TIER_4 = [/*"ultra3", "queller3", "hurler3", "slinker3", "mega5", "volley4", "spirit", "crank", */"autoMega3", "sequence"];
 Class.minigun.UPGRADES_TIER_4 = [/*"tommy", "machgun"*/];
 Class.musket.UPGRADES_TIER_4 = ["doubleMusket"/*, "flintlock", "arbalest"*/, "matchlock", "autoMusket"/*, "duelist", "bifold"*/];
