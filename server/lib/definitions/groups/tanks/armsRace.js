@@ -988,6 +988,46 @@ Class.productionist = {
         }
     ], {delayIncrement: 0.5})
 };
+Class.quadAngle = {
+    PARENT: "genericTank",
+    LABEL: "Quad-Angle",
+    DANGER: 7,
+    BODY: Class.triAngle.BODY,
+    TURRETS: [
+        {
+            POSITION: {
+                SIZE: 9,
+                X: 8,
+                ANGLE: 45,
+                ARC: 190
+            },
+            TYPE: "autoTankGun",
+        },
+        {
+            POSITION: {
+                SIZE: 9,
+                X: 8,
+                ANGLE: -45,
+                ARC: 190
+            },
+            TYPE: "autoTankGun",
+        }
+    ],
+    GUNS: weaponMirror({
+        POSITION: {
+            LENGTH: 16,
+            WIDTH: 8,
+            ANGLE: 150,
+            DELAY: 0.1
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+            TYPE: "bullet",
+            LABEL: "thruster"
+        }
+    }),
+    UPGRADES_TIER_4: ["scrimmer", /*"aspirer", "fleeter", */"autoQuadAngle"/*, "glider", "conformer", "spoiler", "mandible", "waster"*/]
+};
 Class.railgun = {
     PARENT: "genericTank",
     LABEL: "Railgun",
@@ -1309,12 +1349,14 @@ const autoTanksT4 = [
     "doubleGunner",
     "dual",
     "falcon",
+    "fighter",
     "hewnDouble",
     "jalopy",
     "mega3",
     "mingler",
     "musket",
     "octoTank",
+    "quadAngle",
     "single",
     "sniper3",
     "sprayer",
@@ -3244,6 +3286,35 @@ Class.scatterer = {
         }
     ]
 };
+Class.scrimmer = {
+    PARENT: "genericTank",
+    LABEL: "Scrimmer",
+    DANGER: 8,
+    BODY: Class.triAngle.BODY,
+    TURRETS: [
+        {
+            POSITION: {
+                SIZE: 9,
+                X: 8,
+                Y: -1,
+                ANGLE: 90,
+                ARC: 170
+            },
+            TYPE: "autoTankGun",
+        },
+        {
+            POSITION: {
+                SIZE: 9,
+                X: 8,
+                Y: 1,
+                ANGLE: -90,
+                ARC: 170
+            },
+            TYPE: "autoTankGun",
+        }
+    ],
+    GUNS: Class.triAngle.GUNS
+};
 Class.scuffler = makeFlank({
     PARENT: "genericTank",
     DANGER: 7,
@@ -4030,7 +4101,7 @@ Class.smasher.UPGRADES_TIER_3.push(/*"banger", "drifter"*/);
 Class.sniper.UPGRADES_TIER_3.push("railgun");
 Class.spawner.UPGRADES_TIER_3.push("megaSpawner", "productionist", "spawnerdrive", "captain"/*, "hangar", "laborer", "foundry", "issuer"*/);
 Class.trapGuard.UPGRADES_TIER_3.push("peashooter"/*, "incarcerator", "mechGuard"*/, "autoTrapGuard"/*, "machineGuard", "triTrapGuard"*/);
-Class.triAngle.UPGRADES_TIER_3.push(/*"taser", "cockatiel", */"integrator", "defect"/*, "quadAngle"*/);
+Class.triAngle.UPGRADES_TIER_3.push(/*"taser", "cockatiel", */"integrator", "defect", "quadAngle");
 Class.triTrapper.UPGRADES_TIER_3.push(/*"triPen", "triMech", "triMachine", "triTrapGuard"*/);
 Class.tripleShot.UPGRADES_TIER_3.push("splitShot", "autoTripleShot", "bentGunner", "bentMinigun", "defect", "waarrk");
 Class.underseer.UPGRADES_TIER_3.push("autoUnderseer", "underdrive"/*, "pentaseer"*/);
@@ -4055,6 +4126,7 @@ Class.director.UPGRADES_TIER_4 = ["coordinator"];
 Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwin"];
 Class.dual.UPGRADES_TIER_4 = [/*"threefold", */"doubleDual", "ravisher"/*, "vulture_AR", "nimrod_AR"*/, "autoDual"/*, "bifold", "dyadic"*/];
 Class.falcon.UPGRADES_TIER_4 = ["autoFalcon"];
+Class.fighter.UPGRADES_TIER_4 = [/*"boxer", "brawler", "sparrow", "blitz", */"autoFighter", /*"strider", "griffin", "shocker", "cockatoo", "pug", "mangle", */"scrimmer"];
 Class.flankGuard.UPGRADES_TIER_4 = ["ternion"];
 Class.gunner.UPGRADES_TIER_4 = ["dam"];
 Class.healer.UPGRADES_TIER_4 = [/*"renovater", */"physician"];
