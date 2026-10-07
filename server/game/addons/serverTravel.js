@@ -92,6 +92,18 @@ if (loadedAddons.includes("chatCommands")) {
             global.gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
         }
     })
+    addChatCommand({
+        command: ["nexus", "n"],
+        permissionLevel: 0,
+        hidden: true,
+        run: ({ args, socket }) => {
+            if (!Config.sandbox) {
+                socket.talk("m", 5_000, "You can only use this command in Sandbox.");
+                return;
+            }
+            socket.talk("m", 5_000, "This command is WIP. :)");
+        }
+    })
 }
 
 module.exports = { serverTravelHandler }
