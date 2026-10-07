@@ -116,7 +116,7 @@ let commands = [
         permissionLevel: 0,
         hidden: true,
         run: ({ socket }) => {
-            socket.talk("m", 4_000, `${socket.id}`);
+            socket.talk("m", 4_000, `Your ID is ${socket.id}.`);
         }
     },
     {
