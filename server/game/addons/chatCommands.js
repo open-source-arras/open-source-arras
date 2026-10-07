@@ -70,6 +70,23 @@ let commands = [
             socket.talk("m", 3_000, `In-game chat ${socket.status.disablechat ? "disabled" : "enabled"}.`);
         }
     },
+    // PLACEHOLDER
+    {
+        command: ["channel", "chat", "c"],
+        description: "Select the channel your messages are sent to (PLACEHOLDER, NOT WORKING)",
+        permissionLevel: 0,
+        run: ({ socket, args }) => {
+            const channels = ["global", "team"];
+            const choice = args[0];
+
+            if (channels.includes(choice)) {
+                socket.status.selectedChannel = choice;
+                socket.talk("m", 3_000, `Channel changed to ${choice}.`);
+            } else {
+                socket.talk("m", 3_000, "Invalid chat.");
+            }
+        }
+    },
     {
         command: ["id"],
         description: "Show your player id.",
