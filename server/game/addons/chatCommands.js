@@ -111,6 +111,37 @@ let commands = [
         }
     },
     {
+        command: ["clan"],
+        permissionLevel: 0,
+        hidden: true,
+        run: ({ socket, args }) => {
+            if (!Config.clan_wars) {
+                socket.talk("m", 5_000, "This command is not available in this game mode!");
+                return;
+            }
+            if (!args[0]) {
+                socket.talk("m", 5_000, "Invalid clan tag.");
+                return;
+            }
+            let input = args.join(" ").replace(/[\[\]]/g, "").trim();
+            if (!input) {
+                socket.talk("m", 5_000, "Invalid clan tag.");
+                return;
+            }
+            let name = socket.player.body.name;
+            let match = name.match(/\[(.+?)\]/);
+            let newName = match
+                ? name.replace(/\[(.+?)\]/, `[${input}]`)
+                : name ? `[${input}] ${name}` : `[${input}]`;
+            if (newName.length >= 25) {
+                socket.talk("m", 5_000, "This clan tag will make your name too long!");
+                return;
+            }
+            socket.player.body.name = newName;
+            if (socket.player.body.originalName !== undefined) socket.player.body.originalName = newName;
+        }
+    },
+    {
         command: ["id"],
         description: "Show your player id.",
         permissionLevel: 0,
