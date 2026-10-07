@@ -121,6 +121,8 @@ class socketManager {
         for (let view of global.gameManager.views) {
             let nearby = view.getNearby(),
                 array = [];
+            let viewerChannel = view.socket.status.selectedChannel ?? "global";
+            let viewerTeam = view.socket.player?.body?.team;
 
             for (let entity of nearby.values()) {
                 if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) continue;
@@ -129,6 +131,9 @@ class socketManager {
                     array.push({ id: id, messages: [] });
                     let index = array.length - 1;
                     for (let chat of chats[id].messages) {
+                        let chatChannel = chat.channel ?? "global";
+                        if (chatChannel !== viewerChannel) continue;
+                        if (chatChannel === "team" && chat.team !== viewerTeam) continue;
                         array[index].messages.push({ text: chat.message, id: chat.id });
                     }
                 }
@@ -721,7 +726,7 @@ class socketManager {
                     chats[id].messages = [];
                 }
 
-                chats[id].messages.unshift({ message, expires: Date.now() + Config.chat_message_duration, id: global.chatID++ });
+                chats[id].messages.unshift({ message, channel: socket.status.selectedChannel ?? "global", team: player.body.team, expires: Date.now() + Config.chat_message_duration, id: global.chatID++ });
     
                 // do one tick of the chat loop so they don't need to wait 100ms to receive it.
                 this.chatLoop();
@@ -2384,6 +2389,7 @@ class socketManager {
             needsNewBroadcast: true,
             forceNewBroadcast: false,
             selectedLeaderboard: false,
+            selectedChannel: "global",
             seesAllTeams: false,
             daily_tank_watched_ad: false,
             readyToSpawn: true,

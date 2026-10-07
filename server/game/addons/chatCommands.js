@@ -70,10 +70,9 @@ let commands = [
             socket.talk("m", 3_000, `In-game chat ${socket.status.disablechat ? "disabled" : "enabled"}.`);
         }
     },
-    // PLACEHOLDER
     {
         command: ["channel", "chat", "c"],
-        description: "Select the channel your messages are sent to (PLACEHOLDER, NOT WORKING)", // TODO: Finish this.
+        description: "Select the channel your messages are sent to",
         permissionLevel: 0,
         run: ({ socket, args }) => {
             const channels = ["global", "team"];
