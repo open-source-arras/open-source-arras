@@ -116,7 +116,7 @@ let commands = [
         }
     },
     {
-        command: ["i"],
+        command: ["identity", "i"],
         description: "Show your linked Discord identity.",
         permissionLevel: 0,
         run: ({ socket }) => {
