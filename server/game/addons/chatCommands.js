@@ -73,7 +73,7 @@ let commands = [
     // PLACEHOLDER
     {
         command: ["channel", "chat", "c"],
-        description: "Select the channel your messages are sent to (PLACEHOLDER, NOT WORKING)",
+        description: "Select the channel your messages are sent to (PLACEHOLDER, NOT WORKING)", // TODO: Finish this.
         permissionLevel: 0,
         run: ({ socket, args }) => {
             const channels = ["global", "team"];
@@ -104,7 +104,7 @@ let commands = [
             if (m > 0) parts.push(`${m}m`);
             if (s > 0 || parts.length === 0) parts.push(`${s}s`);
             let lines = [
-                `The arena has been open for ${parts.join(" ")} and can remain open for at most PLACEHOLDER.`,
+                `The arena has been open for ${parts.join(" ")} and can remain open for at most PLACEHOLDER.`, // TODO: Add a maximum amount of time a server can be open for.
                 "Note that the arena may close sooner if it's inactive or if a minigame is won."
             ];
             socket.talk("Em", 15_000, JSON.stringify(lines));
