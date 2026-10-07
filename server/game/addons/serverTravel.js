@@ -96,7 +96,7 @@ if (loadedAddons.includes("chatCommands")) {
         command: ["nexus", "n"],
         permissionLevel: 0,
         hidden: true,
-        run: ({ args, socket }) => {
+        run: ({ socket }) => {
             if (!Config.sandbox) {
                 socket.talk("m", 5_000, "You can only use this command in Sandbox.");
                 return;
