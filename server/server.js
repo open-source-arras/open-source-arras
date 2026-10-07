@@ -124,7 +124,6 @@ server = http.createServer((req, res) => {
                 unlisted: server.unlisted,
                 private: server.private,
                 region: server.region,
-                serverhost: server.serverhost,
                 location: server.location,
                 gameMode: server.gameMode
             })));
@@ -239,7 +238,7 @@ server = http.createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, port, gamemode, region, serverHost, location, webProperties, properties, isFeatured, isUnlisted, isPrivate) {
+function loadGameServer(loadViaMain = false, host, port, gamemode, region, location, webProperties, properties, isFeatured, isUnlisted, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
     if (!loadViaMain) {
         let index = global.servers.length;
@@ -252,7 +251,6 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, serve
                 port: port, // Increment port for each server
                 gamemode,
                 region,
-                serverHost,
                 location,
                 webProperties,
                 properties,
@@ -289,7 +287,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, serve
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, serverHost, location, webProperties, properties, isFeatured, isUnlisted, isPrivate, false);
+            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isUnlisted, isPrivate, false);
         }, 10)
     }
 }
@@ -304,7 +302,7 @@ global.onServerLoaded = () => {
         if (Config.verbose_logs) {
             util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
-                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.serverhost} - ${game.location} - ${game.gameMode}`)
+                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.location} - ${game.gameMode}`)
             }
             console.log("\n");
         }
@@ -324,7 +322,6 @@ server.listen(Config.port, () => {
             server.port,
             server.gamemode,
             server.region,
-            server.serverhost,
             server.location,
             { id: server.id, maxPlayers: server.player_cap },
             server.properties,

@@ -51,7 +51,7 @@ global.loadServerSelector = (serverData, text) => {
             tr.appendChild(td1);
             tr.appendChild(td2);
             tr.appendChild(td3);
-            tr.title = `${server.serverhost} - ${server.location} - #${server.id} (${td2.textContent})`;
+            tr.title = `${server.location} - #${server.id} (${td2.textContent})`;
             server.featured && tr.classList.add("featured");
             if (server.unlisted) tr.style.display = "none";
             tr.onclick = () => {

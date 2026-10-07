@@ -97,7 +97,7 @@ const getName = (name, gamemodeData) => {
 
 // Here is our actual game server
 class gameServer {
-    constructor(host, port, gamemode, region, serverHost, location, webProperties, serverProperties, isfeatured, isUnlisted, isPrivate, parentPort, loaderGlobal) {
+    constructor(host, port, gamemode, region, location, webProperties, serverProperties, isfeatured, isUnlisted, isPrivate, parentPort, loaderGlobal) {
     // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
@@ -107,7 +107,6 @@ class gameServer {
         this.port = port;
         this.gamemode = gamemode;
         this.region = region;
-        this.serverhost = serverHost;
         this.location = location;
         this.webProperties = webProperties;
         this.serverProperties = serverProperties;
@@ -171,7 +170,6 @@ class gameServer {
             unlisted: this.unlisted,
             private: this.private,
             region: this.region,
-            serverhost: this.serverhost,
             location: this.location,
             gameMode: this.name,
             gameManager: includegameManager ? this : false

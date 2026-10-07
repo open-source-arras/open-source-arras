@@ -23,9 +23,7 @@ module.exports = {
         id          - (<host>/#<id>)
 
         region      - The region tab the server is sorted into on the main menu.
-        serverhost  - The host of the server in the server list tooltip.
         location    - The location of the server in the server list tooltip.
-
         gamemode    - The selected gamemode.
         player_cap  - Not including bots. Set to 0 to disable.
 
@@ -45,7 +43,6 @@ module.exports = {
             id: "la",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["ffa"],
             player_cap: 80,
@@ -80,7 +77,6 @@ module.exports = {
             id: "lb",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["maze"],
             player_cap: 80,
@@ -100,7 +96,6 @@ module.exports = {
             id: "lc",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["tdm"],
             player_cap: 80,
@@ -134,7 +129,6 @@ module.exports = {
             id: "ld",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["mothership"],
             player_cap: 80,
@@ -156,7 +150,6 @@ module.exports = {
             id: "lz",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["sandbox"],
             player_cap: 80,
@@ -174,7 +167,6 @@ module.exports = {
             id: "lzz",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["arms_race", "sandbox"],
             player_cap: 80,
