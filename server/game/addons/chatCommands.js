@@ -133,7 +133,7 @@ let commands = [
             let newName = match
                 ? name.replace(/\[(.+?)\]/, `[${input}]`)
                 : name ? `[${input}] ${name}` : `[${input}]`;
-            if (newName.length >= 25) { // For some reason arras doesn't allow 25 characters long names, TGS said it gotta be 100% arras so here you go :)
+            if (newName.length > 24) {
                 socket.talk("m", 5_000, "This clan tag will make your name too long!");
                 return;
             }
