@@ -1096,6 +1096,10 @@ class Entity extends EventEmitter {
             this.health.amount -= healthDamage;
         }
         this.damageReceived = 0;
+        if (this.spared) {
+            this.spared = false;
+            if (this.health.amount < 1) this.health.amount = 1;
+        }
 
         // Check for death
         if (this.readyToDie) return 1;
