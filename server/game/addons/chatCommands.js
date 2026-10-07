@@ -87,6 +87,29 @@ let commands = [
             }
         }
     },
+    // PLACEHOLDER
+    {
+        command: ["status", "s"],
+        description: "Check when exactly is the arena guaranteed to close",
+        permissionLevel: 0,
+        run: ({ socket }) => {
+            let uptime = Math.floor(util.time() / 1000);
+            let d = Math.floor(uptime / 86400);
+            let h = Math.floor((uptime % 86400) / 3600);
+            let m = Math.floor((uptime % 3600) / 60);
+            let s = uptime % 60;
+            let parts = [];
+            if (d > 0) parts.push(`${d}d`);
+            if (h > 0) parts.push(`${h}h`);
+            if (m > 0) parts.push(`${m}m`);
+            if (s > 0 || parts.length === 0) parts.push(`${s}s`);
+            let lines = [
+                `The arena has been open for ${parts.join(" ")} and can remain open for at most PLACEHOLDER.`,
+                "Note that the arena may close sooner if it's inactive or if a minigame is won."
+            ];
+            socket.talk("Em", 15_000, JSON.stringify(lines));
+        }
+    },
     {
         command: ["id"],
         description: "Show your player id.",
