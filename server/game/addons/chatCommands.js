@@ -81,7 +81,7 @@ let commands = [
 
             if (channels.includes(choice)) {
                 socket.status.selectedChannel = choice;
-                socket.talk("m", 3_000, `Channel changed to ${choice}.`);
+                socket.talk("m", 3_000, `You have switched to ${choice} chat.`);
             } else {
                 socket.talk("m", 3_000, "Invalid chat.");
             }
