@@ -158,7 +158,9 @@ module.exports = {
             unlisted: false,
             private: false,
 
-            properties: {}
+            properties: {
+                allow_server_travel: true
+            }
         },
         {
             share_client_server: false,
@@ -175,7 +177,47 @@ module.exports = {
             unlisted: false,
             private: false,
 
-            properties: {}
+            properties: {
+                allow_server_travel: true
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3098",
+            port: 3098,
+            id: "lzzz",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["sandbox_nexus"],
+            player_cap: 80,
+
+            featured: false,
+            unlisted: true,
+            private: false,
+
+            properties: {
+                server_travel_properties: {
+                    loop_interval: 60_000,
+                    portals: 1
+                },
+                server_travel: [
+                    {
+                        ip: "localhost:3099",
+                        portal_properties: {
+                            spawn_chance: 2,
+                            color: "cyan"
+                        }
+                    },
+                    {
+                        ip: "localhost:3999",
+                        portal_properties: {
+                            spawn_chance: 2,
+                            color: "mustard"
+                        }
+                    }
+                ]
+            }
         }
     ],
 
