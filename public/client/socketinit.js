@@ -990,7 +990,7 @@ let incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey, 1);
+                socket.talk("k", global.playerKey, config.game.deltaEntities ? 1 : 0);
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);

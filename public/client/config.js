@@ -52,6 +52,7 @@ const config = {
         autoLevelUp: false,
         centeredMinimap: false,
         incognitoMode: false,
+        deltaEntities: true,
     }
 };
 export { config }

@@ -149,6 +149,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("optOldUiStyle");
         // Game
         util.retrieveFromLocalStorage("optIncognitoMode");
+        util.retrieveFromLocalStorage("optDeltaEntities");
+        // Default to true
+        if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
+            document.getElementById("optDeltaEntities").checked = true;
+            util.submitToLocalStorage("optDeltaEntities");
+        }
         // Set default theme
         if (document.getElementById("optColors").value === "") {
             document.getElementById("optColors").value = "normal";
@@ -176,6 +182,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             document.getElementById("smoothCamera").checked = true;
             document.getElementById("optFancy").checked = true;
             document.getElementById("autoLevelUp").checked = true;
+            document.getElementById("optDeltaEntities").checked = true;
             if (global.mobile) document.getElementById("showCrosshair").checked = true, document.getElementById("showJoystick").checked = true;
             // Dont forget to save it.
             util.submitToLocalStorage("optRenderGui");
@@ -193,6 +200,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("smoothCamera");
             util.submitToLocalStorage("optFancy");
             util.submitToLocalStorage("autoLevelUp");
+            util.submitToLocalStorage("optDeltaEntities");
             localStorage.setItem("loadedForFirstTime", "true");
             localStorage.setItem("uiScaleSettings", null);
         }
@@ -1176,6 +1184,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
+        config.game.deltaEntities = document.getElementById("optDeltaEntities").checked;
         switch (document.getElementById("optBorders").value) {
             case "normal":
                 config.graphical.darkBorders = config.graphical.neon = false;
@@ -1283,6 +1292,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.submitToLocalStorage("optOldUiStyle");
         // Game
         util.submitToLocalStorage("optIncognitoMode");
+        util.submitToLocalStorage("optDeltaEntities");
         loadSettings();
         global.optionsCheckboxes = undefined;
         // Other more important stuff
@@ -5552,6 +5562,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     },
                     { type: "checkbox",  id: "smoothCamera",           label: "Smooth Camera",         column: 0, row: 1, section: "extra", tooltip: "Make the camera follow your tank instead of being fixed at it." },
                     { type: "checkbox",  id: "autoLevelUp",            label: "Auto-Level Up",         column: 0, row: 2, section: "extra", tooltip: "Automatically level you up to level 45 upon joining the game." },
+                    { type: "checkbox",  id: "optDeltaEntities",       label: "Delta Entities",        column: 0, row: 0, section: "perf", tooltip: "Support delta entity updates from the server.\nTakes effect on next connection." },
 
                     { type: "checkbox",  id: "optFancy",               label: "Fading Animation",      column: 1, row: 1, section: "extra", tooltip: "Make dying entities fade out instead of shrinking until disappearing.\n" + "May slightly lower the frame rate." },
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
