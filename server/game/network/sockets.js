@@ -457,6 +457,11 @@ class socketManager {
                     player.command.lmb = (commands & 16) >> 4;
                     player.command.mmb = (commands & 32) >> 5;
                     player.command.rmb = (commands & 64) >> 6;
+                    if (socket.status.isAFK) {
+                        // AFK players may rotate but cannot move or shoot themselves.
+                        player.command.up = player.command.down = player.command.left = player.command.right = 0;
+                        player.command.lmb = player.command.mmb = player.command.rmb = 0;
+                    }
                 }
             } break;
             case "#": {
@@ -493,6 +498,8 @@ class socketManager {
                     socket.kick("Bad toggle.");
                     return 1;
                 }
+                // AFK players may only toggle autospin.
+                if (socket.status.isAFK && given !== "autospin") return;
                 // Apply a good request.
                 if (player.command != null && player.body != null) {
                     player.command[given] = !player.command[given];
@@ -1759,6 +1766,7 @@ class socketManager {
                         }
                         let die = () => { // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
+                            socket.status.isAFK = false;
                             let delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
                             if (delay > 0) {
                                 socket.status.readyToSpawn = false;
