@@ -9,7 +9,7 @@ module.exports = {
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    delta_entities: false, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
+    delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
     editor: true, // Enable the editor at '[host]/ext/editor'.
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
