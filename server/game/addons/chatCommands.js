@@ -222,7 +222,7 @@ let commands = [
     {
         command: ["broadcast"],
         description: "Broadcast a message to all players.",
-        permissionLevel: 2,
+        permissionLevel: 4,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
