@@ -101,7 +101,16 @@ if (loadedAddons.includes("chatCommands")) {
                 socket.talk("m", 5_000, "You can only use this command in Sandbox.");
                 return;
             }
-            socket.talk("m", 5_000, "This command is WIP. :)");
+
+            let nexusServer = Config.servers.find(s => s.id === "lzzz" || (s.gamemode && s.gamemode.includes("sandbox_nexus")));
+            if (!nexusServer) {
+                socket.talk("m", 5_000, "Unable to find Sandbox Nexus.");
+                return;
+            }
+
+            let host = nexusServer.host;
+            let destination = `http://${host}`;
+            global.gameManager.socketManager.sendToServer(socket, destination);
         }
     });
 }
