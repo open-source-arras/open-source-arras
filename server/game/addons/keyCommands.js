@@ -74,7 +74,7 @@ function init() {
     }
     
     // This is your commands does things.
-    let permissionLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Beta Tester", "Game Mod", "Game Admin", "Developer"];
+    let permissionLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Shiny Member", "Beta Tester", "Game Mod", "Game Admin", "Developer"];
     let commands = [
         {
             name: "Help",
@@ -830,7 +830,7 @@ function init() {
         {
             name: "Ban",
             keys: [[["KEY_SPECIAL_BAN", "O"]]],
-            permissionLevel: 5,
+            permissionLevel: 6,
             run: ({ socket, player }) => {
                 const types = 2,
                     typeNames = [["permanent", "permanently"], ["temporary", "temporarily"]];
@@ -852,7 +852,7 @@ function init() {
                 }
                 let selected = selectPlayer(player);
                 if (selected && selected.socket) {
-                    if (selected.socket.status.permissionLevel >= 4) {
+                    if (selected.socket.status.permissionLevel >= 5) {
                         socket.talk("m", 5_000, "You cannot ban this player!");
                         return;
                     }

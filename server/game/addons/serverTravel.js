@@ -75,7 +75,7 @@ if (loadedAddons.includes("chatCommands")) {
     addChatCommand({
         command: ["join", "j"],
         description: "Connects you to another server",
-        permissionLevel: 7,
+        permissionLevel: 8,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {

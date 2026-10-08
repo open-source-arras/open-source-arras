@@ -235,7 +235,7 @@ let commands = [
     {
         command: ["define"],
         description: "Change your tank.",
-        permissionLevel: 7,
+        permissionLevel: 8,
         hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
@@ -278,7 +278,7 @@ let commands = [
     {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
-        permissionLevel: 7,
+        permissionLevel: 8,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [

@@ -3,10 +3,11 @@
 // - 1 // Arena Conductor
 // - 2 // Arena Supervisor
 // - 3 // Arena Operator
-// - 4 // Beta Tester
-// - 5 // Game Mod (old)
-// - 6 // Game Admin (old)
-// - 7 // Developer
+// - 4 // Shiny Member / YouTuber
+// - 5 // Beta Tester
+// - 6 // Game Mod (old)
+// - 7 // Game Admin (old)
+// - 8 // Developer
 
 module.exports = [
     /* TOKEN PERMISSIONS INFORMATION
@@ -21,15 +22,17 @@ module.exports = [
     */
     {
         key: process.env.SHINY,
+        permissionLevel: 4,
         class: "menu_shinyMember"
     },
     {
         key: process.env.YOUTUBER,
+        permissionLevel: 4,
         class: "menu_youtuber"
     },
     {
         key: process.env.BETA_TESTER,
-        permissionLevel: 4,
+        permissionLevel: 5,
         class: "menu_betaTester"
     },
     {
@@ -38,7 +41,7 @@ module.exports = [
     },
     {
         key: process.env.DEVELOPER,
-        permissionLevel: 7,
+        permissionLevel: 8,
         class: "menu_special",
         nameColor: "#FFFFFF",
         allowEditor: true
