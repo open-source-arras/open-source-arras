@@ -533,6 +533,7 @@ const process = (z = {}) => {
             }
         }
         z.alpha = get.next() / 255;
+        let hit = get.next();
         z.drawsHealth = !!(type & 0x02); // force to boolean
         // Nameplates
         if (type & 0x04) { // has a nameplate
@@ -579,6 +580,7 @@ const process = (z = {}) => {
         z.render.xAnim.add(z.x);
         z.render.yAnim.add(z.y);
         z.render.faceAnim.add(z.facing);
+        if (hit) z.render.status.set("injured");
         // Figure out if the class changed (and if so, refresh the guns and turrets)
         if (!isNew && z.oldIndex !== z.index) isNew = true;
         z.oldIndex = z.index;
@@ -777,6 +779,10 @@ const patch = (z, mask) => {
                 else process();
             }
         }
+    }
+    if (mask & 0x2000) {
+        let hit = get.next();
+        if (z && hit) z.render.status.set("injured");
     }
     if (z) {
         z.render.xAnim.add(z.x);

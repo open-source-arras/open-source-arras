@@ -769,6 +769,7 @@ class Entity extends EventEmitter {
         cameraInfo.realSize = this.realSize;
         cameraInfo.health = this.health.display();
         cameraInfo.shield = this.shield.display();
+        cameraInfo.hit = this.blend.amount;
         cameraInfo.alpha = this.alpha;
         cameraInfo.facing = this.facing;
         cameraInfo.vfacing = this.vfacing;
@@ -1094,7 +1095,7 @@ class Entity extends EventEmitter {
             let healthDamage = this.health.getDamage(this.damageReceived);
             this.blend.amount = 1;
             this.health.amount -= healthDamage;
-        }
+        } else this.blend.amount = 0;
         this.damageReceived = 0;
         if (this.spared) {
             this.spared = false;

@@ -1398,7 +1398,8 @@ class socketManager {
                 /* 12 */ data.color,
                 /* 14 */ Math.ceil(65535 * data.health),
                 /* 15 */ Math.round(65535 * data.shield),
-                /* 16 */ Math.round(255 * data.alpha)
+                /* 16 */ Math.round(255 * data.alpha),
+                /* 17 */ data.hit
             );
         } else {
             output.push(
@@ -1419,7 +1420,8 @@ class socketManager {
                 /* 16 */ data.invuln,
                 /* 17 */ Math.ceil(65535 * data.health),
                 /* 18 */ Math.round(65535 * data.shield),
-                /* 19 */ Math.round(255 * data.alpha)
+                /* 19 */ Math.round(255 * data.alpha),
+                /* 20 */ data.hit
             );
             if (data.type & 0x04) {
                 output.push(
@@ -1507,19 +1509,21 @@ class socketManager {
             if (prev[14] !== now[14]) mask |= 0x0020;
             if (prev[11] !== now[11]) mask |= 0x0080;
             if (prev[10] !== now[10]) mask |= 0x0400;
+            if (prev[15] !== now[15]) mask |= 0x2000;
         } else {
             if (prev[16] !== now[16] || prev[17] !== now[17]) mask |= 0x0010;
             if (prev[18] !== now[18]) mask |= 0x0020;
             if (prev[10] !== now[10] || prev[13] !== now[13] || prev[14] !== now[14] || prev[15] !== now[15]) mask |= 0x0040;
             if (prev[12] !== now[12]) mask |= 0x0080;
             if (prev[11] !== now[11]) mask |= 0x0400;
+            if (prev[19] !== now[19]) mask |= 0x2000;
             if (type & 0x04) {
-                if (prev[19] !== now[19]) mask |= 0x0100;
-                if (prev[20] !== now[20]) mask |= 0x0200;
+                if (prev[20] !== now[20]) mask |= 0x0100;
+                if (prev[21] !== now[21]) mask |= 0x0200;
             }
         }
         // Guns come next. Only send the fields that actually changed per gun.
-        const gunStart = limited ? 15 : ((type & 0x04) ? 21 : 19);
+        const gunStart = limited ? 16 : ((type & 0x04) ? 22 : 20);
         const gunLen = now[gunStart];
         const countChanged = prev[gunStart] !== gunLen;
         let anyGunChanged = countChanged;
@@ -1550,8 +1554,8 @@ class socketManager {
         if (mask & 0x0020) out.push(limited ? now[14] : now[18]);
         if (mask & 0x0040) out.push((now[10] ? 1 : 0) | (now[15] ? 2 : 0) | (now[13] ? 4 : 0) | (now[14] ? 8 : 0));
         if (mask & 0x0080) out.push(limited ? now[11] : now[12]);
-        if (mask & 0x0100) out.push(now[19]);
-        if (mask & 0x0200) out.push(now[20]);
+        if (mask & 0x0100) out.push(now[20]);
+        if (mask & 0x0200) out.push(now[21]);
         if (mask & 0x0400) out.push(limited ? now[10] : now[11]);
         if (mask & 0x0800) {
             out.push(gunLen);
@@ -1575,6 +1579,7 @@ class socketManager {
             out.push(now[turretStart]);
             for (let i = turretStart + 1; i < now.length; i++) out.push(now[i]);
         }
+        if (mask & 0x2000) out.push(limited ? now[15] : now[19]);
         return true;
     }
 
