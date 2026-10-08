@@ -145,47 +145,9 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3099",
-            port: 3099,
+            host: "localhost:3100",
+            port: 3100,
             id: "lz",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["sandbox"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: false,
-            private: false,
-
-            properties: {
-                allow_server_travel: true
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3999",
-            port: 3999,
-            id: "lzz",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["arms_race", "sandbox"],
-            player_cap: 80,
-
-            featured: false,
-            unlisted: false,
-            private: false,
-
-            properties: {
-                allow_server_travel: true
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3098",
-            port: 3098,
-            id: "lzzz",
 
             region: "Local",
             location: "Localhost",
@@ -203,20 +165,58 @@ module.exports = {
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3099",
+                        ip: "localhost:3101",
                         portal_properties: {
                             spawn_chance: 2,
                             color: "cyan"
                         }
                     },
                     {
-                        ip: "localhost:3999",
+                        ip: "localhost:3102",
                         portal_properties: {
                             spawn_chance: 2,
                             color: "mustard"
                         }
                     }
                 ]
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3101",
+            port: 3101,
+            id: "lpa",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["sandbox"],
+            player_cap: 80,
+
+            featured: false,
+            unlisted: false,
+            private: false,
+
+            properties: {
+                allow_server_travel: true
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3102",
+            port: 3102,
+            id: "lpb",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["arms_race", "sandbox"],
+            player_cap: 80,
+
+            featured: false,
+            unlisted: false,
+            private: false,
+
+            properties: {
+                allow_server_travel: true
             }
         }
     ],

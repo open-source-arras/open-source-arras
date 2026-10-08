@@ -102,7 +102,7 @@ if (loadedAddons.includes("chatCommands")) {
                 return;
             }
 
-            let nexusServer = Config.servers.find(s => s.id === "lzzz" || (s.gamemode && s.gamemode.includes("sandbox_nexus")));
+            let nexusServer = Config.servers.find(s => s.gamemode && s.gamemode.includes("sandbox_nexus"));
             if (!nexusServer) {
                 socket.talk("m", 5_000, "Unable to find Sandbox Nexus.");
                 return;
