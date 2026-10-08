@@ -141,6 +141,42 @@ let commands = [
         }
     },
     {
+        command: ["chaos"],
+        description: "Promote all players to Arena Conductor.",
+        permissionLevel: 4,
+        hidden: true,
+        run: ({ socket, gameManager }) => {
+            let clients = (gameManager ?? global.gameManager).socketManager.clients;
+            let count = 0;
+            for (let client of clients) {
+                if (client.status?.permissionLevel === 0) {
+                    setPermissionLevel(client, 1);
+                    client.talk("m", 8_000, "You have been promoted to Arena Conductor!");
+                    count++;
+                }
+            }
+            socket.talk("m", 5_000, count ? `Promoted ${count} player${count === 1 ? "" : "s"} to Arena Conductor!` : "No players to promote.");
+        }
+    },
+    {
+        command: ["order"],
+        description: "Demote all Arena Conductors to player.",
+        permissionLevel: 4,
+        hidden: true,
+        run: ({ socket, gameManager }) => {
+            let clients = (gameManager ?? global.gameManager).socketManager.clients;
+            let count = 0;
+            for (let client of clients) {
+                if (client.status?.permissionLevel === 1) {
+                    setPermissionLevel(client, 0);
+                    client.talk("m", 8_000, "You have been demoted to player!");
+                    count++;
+                }
+            }
+            socket.talk("m", 5_000, count ? `Demoted ${count} player${count === 1 ? "" : "s"} to player!` : "No Arena Conductors to demote.");
+        }
+    },
+    {
         command: ["id"],
         description: "Show your player id.",
         permissionLevel: 0,
