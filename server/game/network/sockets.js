@@ -1575,6 +1575,7 @@ class socketManager {
                     for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
                         if (prev[off + f] !== now[off + f]) gunMask |= (1 << f);
                     }
+                    if (gunMask & 1) gunMask |= 1 << 1;
                 }
                 out.push(gunMask);
                 for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
