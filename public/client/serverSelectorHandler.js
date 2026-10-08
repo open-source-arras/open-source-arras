@@ -107,11 +107,9 @@ let initializeFilter = () => {
     global.filters = {
         regions: {
             all: [],
-            america: [],
+            usa: [],
             europe: [],
-            asia: [],
-            oceania: [],
-            other: []
+            asia: []
         },
         gamemodes: {
             all: [],
@@ -142,31 +140,15 @@ let initializeFilter = () => {
         // Regions
         global.filters.regions.all.push(s);
 
-        // USA
-        if (
-            s.region.toLowerCase() === "usa" ||
-            s.region.toLowerCase() === "us west" ||
-            s.region.toLowerCase() === "us central" ||
-            s.region.toLowerCase() === "us east"
-        ) global.filters.regions.america.push(s);
-
         // Europe
         if (s.region.toLowerCase() === "europe") global.filters.regions.europe.push(s);
 
         // Asia
-        if (s.region.toLowerCase() === "asia") global.filters.regions.asia.push(s);
+        if (s.region.toLowerCase() === "asia" || s.region.toLowerCase() === "oceania") global.filters.regions.asia.push(s);
 
-        // Oceania
-        if (s.region.toLowerCase() === "oceania") global.filters.regions.oceania.push(s);
-
-        // Other
-        if (
-            !global.filters.regions.america.includes(s) &&
-            !global.filters.regions.europe.includes(s) &&
-            !global.filters.regions.asia.includes(s) &&
-            !global.filters.regions.oceania.includes(s)
-        ) {
-            global.filters.regions.other.push(s);
+        // USA
+        if (!global.filters.regions.europe.includes(s) && !global.filters.regions.asia.includes(s)) {
+            global.filters.regions.usa.push(s); // Arras lumps the default Local region localhost:5000 "server" entry with USA
         }
 
         // Gamemodes
@@ -265,10 +247,9 @@ let initializeFilter = () => {
     }
     createFilter(svFilterRegionDoc, [
         { name: "All", filter: (h) => { return checkFilter(h, global.filters.regions.all) } },
-        { name: "USA", filter: (h) => { return checkFilter(h, global.filters.regions.america) } },
+        { name: "USA", filter: (h) => { return checkFilter(h, global.filters.regions.usa) } },
         { name: "Europe", filter: (h) => { return checkFilter(h, global.filters.regions.europe) } },
-        { name: "Asia", filter: (h) => { return checkFilter(h, global.filters.regions.asia) } },
-        { name: "Oceania", filter: (h) => { return checkFilter(h, global.filters.regions.oceania) } }
+        { name: "Asia", filter: (h) => { return checkFilter(h, global.filters.regions.asia) } }
     ]);
     createFilter(svFilterModeDoc, [
         { name: "All", filter: (h) => { return checkFilter(h, global.filters.gamemodes.all) } },
