@@ -186,6 +186,7 @@ let initializeFilter = () => {
             s.gameMode.includes("Squads") ||
             s.gameMode.includes("Wars") ||
             s.gameMode.includes("TDM") ||
+            s.gameMode.includes("Forge") ||
             s.gameMode.includes("Nexus") ||
             s.gameMode.includes("Labyrinth")
         )) global.filters.gamemodes.normal.push(s);
