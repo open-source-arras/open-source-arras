@@ -269,21 +269,6 @@ let commands = [
         }
     },
     {
-        command: ["define"],
-        description: "Change your tank.",
-        permissionLevel: 8,
-        hidden: true,
-        run: ({ args, socket }) => {
-            if (!args[0]) {
-                socket.talk("m", 5_000, "No entity specified.");
-            } else {
-                socket.player.body.define({RESET_UPGRADES: true, BATCH_UPGRADES: false});
-                socket.player.body.define(args[0]);
-                socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
-            }
-        }
-    },
-    {
         command: ["level"],
         description: "Change your level.",
         permissionLevel: 2,
@@ -319,12 +304,21 @@ let commands = [
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    "- $ (developer / dev) reloaddefs - reloads definitions."
+                    "- $ (developer / dev) reloaddefs - reloads definitions.",
+                    "- $ (developer / dev) define <entity> - change your tank."
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             }
             let command = args[0];
-            if (command === "reloaddefs" || command === "redefs" || command === "r") {
+            if (command === "define") {
+                if (!args[1]) {
+                    socket.talk("m", 5_000, "No entity specified.");
+                } else {
+                    socket.player.body.define({RESET_UPGRADES: true, BATCH_UPGRADES: false});
+                    socket.player.body.define(args[1]);
+                    socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
+                }
+            } else if (command === "reloaddefs" || command === "redefs" || command === "r") {
                 /* IMPORT FROM (defsReloadCommand.js) */
                 if (!global.reloadDefinitionsInfo) {
                     global.reloadDefinitionsInfo = {
