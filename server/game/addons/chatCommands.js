@@ -4,7 +4,7 @@ const prefix = "$";
 let commands = [
     {
         command: ["help"],
-        description: "Show this help menu.",
+        //description: "Show this help menu.",
         permissionLevel: 0,
         run: ({ socket }) => {
             let useOldMenu = false;
@@ -137,6 +137,14 @@ let commands = [
         }
     },
     {
+        command: ["report", "r"],
+        description: "Report the last 10 minutes of chat messages",
+        permissionLevel: 0,
+        run: ({ socket }) => {
+            socket.talk("m", 15_000, "Placeholder command!!!");
+        }
+    },
+    {
         command: ["clan"],
         permissionLevel: 0,
         hidden: true,
@@ -225,7 +233,9 @@ let commands = [
                     `- ${prefix} arena size <width> <height> - Set the size of the arena`,
                     `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
                     `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn by default`,
-                    `- ${prefix} arena close - Close the arena`
+                    `- ${prefix} arena close - Close the arena`,
+                    `- ${prefix} arena public - Allow this server to be displayed in the Sandbox Nexus`,
+                    `- ${prefix} arena private - Prevent this server from being displayed`
                 ];
                 if (!Config.sandbox) lines.splice(1, 1)
                 socket.talk("Em", 10_000, JSON.stringify(lines));
@@ -331,13 +341,13 @@ let commands = [
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    "- $ (developer / dev) reloaddefs - reloads definitions.",
-                    "- $ (developer / dev) define <entity> - change your tank."
+                    `- ${prefix} developer reload - reloads definitions.`,
+                    `- ${prefix} developer define <entity> - change your tank.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             }
             let command = args[0];
-            if (command === "define") {
+            if (command === "define" || command === "d") {
                 if (!args[1]) {
                     socket.talk("m", 5_000, "No entity specified.");
                 } else {
@@ -345,7 +355,7 @@ let commands = [
                     socket.player.body.define(args[1]);
                     socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
                 }
-            } else if (command === "reloaddefs" || command === "redefs" || command === "r") {
+            } else if (command === "reload" || command === "reloaddefs" || command === "redefs" || command === "r") {
                 /* IMPORT FROM (defsReloadCommand.js) */
                 if (!global.reloadDefinitionsInfo) {
                     global.reloadDefinitionsInfo = {

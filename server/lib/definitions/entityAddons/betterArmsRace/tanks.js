@@ -231,7 +231,7 @@ Class.piercer = {
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.marksman]),
-                TYPE: "bullet",
+                TYPE: "bullet"
             }
         }, 3, { lengthOffset: 2, delayIncrement: 1/3 })
     ],
@@ -782,7 +782,7 @@ Class.hexaAngle = {
                 ANGLE: 30,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         },
         {
             POSITION: {
@@ -791,7 +791,7 @@ Class.hexaAngle = {
                 ANGLE: -30,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         },
         {
             POSITION: {
@@ -800,7 +800,7 @@ Class.hexaAngle = {
                 ANGLE: 90,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         },
         {
             POSITION: {
@@ -809,7 +809,7 @@ Class.hexaAngle = {
                 ANGLE: -90,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         }
     ],
     GUNS: weaponMirror({
@@ -1104,7 +1104,7 @@ Class.stiletto = {
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.streamliner, g.marksman]),
-                TYPE: "bullet",
+                TYPE: "bullet"
             }
         }, 5, { lengthOffset: 2, delayIncrement: 0.2 })
     ]

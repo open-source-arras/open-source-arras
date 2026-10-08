@@ -1001,7 +1001,7 @@ Class.quadAngle = {
                 ANGLE: 45,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         },
         {
             POSITION: {
@@ -1010,7 +1010,7 @@ Class.quadAngle = {
                 ANGLE: -45,
                 ARC: 190
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         }
     ],
     GUNS: weaponMirror({
@@ -1421,7 +1421,7 @@ Class.actuary = {
                 LENGTH: 18,
                 WIDTH: 7,
                 ASPECT: -0.4,
-                X: 9.5,
+                X: 9.5
             }
         },
         {
@@ -2938,7 +2938,7 @@ Class.injection = {
         {
             POSITION: {
                 LENGTH: 24,
-                WIDTH: 8,
+                WIDTH: 8
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.healer, g.sniper, g.hunter, g.hunterSecondary]),
@@ -3300,7 +3300,7 @@ Class.scrimmer = {
                 ANGLE: 90,
                 ARC: 170
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         },
         {
             POSITION: {
@@ -3310,7 +3310,7 @@ Class.scrimmer = {
                 ANGLE: -90,
                 ARC: 170
             },
-            TYPE: "autoTankGun",
+            TYPE: "autoTankGun"
         }
     ],
     GUNS: Class.triAngle.GUNS
@@ -4188,7 +4188,7 @@ if (!enable_missing_tanks) {
 
     try {
         require("../../entityAddons/betterArmsRace/tanks.js");
-    } catch (error) {
+    } catch(error) {
         if (error.code !== "MODULE_NOT_FOUND") {
             throw error;
         }
