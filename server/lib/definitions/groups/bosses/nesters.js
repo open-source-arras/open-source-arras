@@ -1,6 +1,6 @@
-const { combineStats, weaponArray } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
+const { combineStats, weaponArray } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
 
 Class.nester = {
     PARENT: "miniboss",
@@ -17,7 +17,7 @@ Class.nester = {
         DAMAGE: base.DAMAGE * 2.5
     },
     VALUE: 3e5
-}
+};
 
 Class.nestKeeper = {
     PARENT: "nester",
@@ -43,7 +43,7 @@ Class.nestKeeper = {
             TYPE: ["boomerTurret", { INDEPENDENT: true, COLOR: -1 }]
         }
     ]
-}
+};
 Class.nestWarden = {
     PARENT: "nester",
     LABEL: "Nest Warden",
@@ -69,7 +69,7 @@ Class.nestWarden = {
             TYPE: ["cruiserTurret", { INDEPENDENT: true, COLOR: -1 }]
         }, 5)
     ]
-}
+};
 Class.nestGuardian = {
     PARENT: "nester",
     LABEL: "Nest Guardian",
@@ -91,7 +91,7 @@ Class.nestGuardian = {
             TYPE: ["swarmerTurret", { INDEPENDENT: true, COLOR: -1 }]
         }, 5)
     ]
-}
+};
 
 // Nesters (Arms Race)
 Class.nester_AR = {
@@ -101,7 +101,7 @@ Class.nester_AR = {
         HEALTH: base.HEALTH * 18
     },
     VALUE: 8e5
-}
+};
 Class.nestCurator = {
     PARENT: "nester_AR",
     LABEL: "Nest Curator",
@@ -144,7 +144,7 @@ Class.nestCurator = {
             TYPE: ["ultraBoomerTurret", { INDEPENDENT: true, COLOR: -1 }]
         }
     ]
-}
+};
 Class.nestDeacon = {
     PARENT: "nester_AR",
     LABEL: "Nest Deacon",
@@ -170,7 +170,7 @@ Class.nestDeacon = {
             TYPE: ["carrierTurret", { INDEPENDENT: true, COLOR: -1 }]
         }, 5)
     ]
-}
+};
 Class.nestChampion = {
     PARENT: "nester_AR",
     LABEL: "Nest Champion",
@@ -192,4 +192,4 @@ Class.nestChampion = {
             TYPE: ["hyperSwarmerTurret", { INDEPENDENT: true, COLOR: -1 }]
         }, 5)
     ]
-}
+};

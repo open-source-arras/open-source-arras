@@ -15,7 +15,7 @@ class Sandbox {
             this.ygrid -= 20;
             changed = true;
         }
-        if (changed && !global.gameManager.room.settings.sandbox.do_not_change_arena_size) global.gameManager.updateBounds(this.xgrid * 30, this.ygrid * 30)
+        if (changed && !global.gameManager.room.settings.sandbox.do_not_change_arena_size) global.gameManager.updateBounds(this.xgrid * 30, this.ygrid * 30);
     }
     redefine(theshit) {
         this.clients = theshit.clients;

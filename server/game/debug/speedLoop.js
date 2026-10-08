@@ -27,7 +27,7 @@ class speedcheckloop {
         if (sum > 1000 / global.gameManager.roomSpeed / 30) {
             this.fails++;
             if (Config.verbose_logs) {
-                util.warn(`Last server tick took too long to calculate! Info: [Loops: ${loops}, Total Entities: ${entities.size}, Clients: ${global.gameManager.clients.length} Backlogged: ${(sum * global.gameManager.roomSpeed * 3).toFixed(3)}%]`)
+                util.warn(`Last server tick took too long to calculate! Info: [Loops: ${loops}, Total Entities: ${entities.size}, Clients: ${global.gameManager.clients.length} Backlogged: ${(sum * global.gameManager.roomSpeed * 3).toFixed(3)}%]`);
                 util.warn("Total activation time: " + activationtime);
                 util.warn("Total collision time: " + collidetime);
                 util.warn("Total cycle time: " + movetime);
@@ -45,10 +45,10 @@ class speedcheckloop {
                 global.gameManager.socketManager.broadcast("Server overloaded! Restarting...");
                 global.gameManager.gameHandler.stop();
                 setTimeout(() => {
-                    global.gameManager.close() 
+                    global.gameManager.close(); 
                 }, 900);
                 setTimeout(() => {
-                    this.isRestarting = false 
+                    this.isRestarting = false; 
                 }, 3000);
             }
         } else {
@@ -61,10 +61,10 @@ class speedcheckloop {
         util.error("FAILURE!");
         global.gameManager.socketManager.broadcast("Server Error! Restarting...");
         setTimeout(() => {
-            global.gameManager.close() 
+            global.gameManager.close(); 
         }, 900);
         setTimeout(() => {
-            this.isRestarting = false 
+            this.isRestarting = false; 
         }, 3000);
         console.error(error);
     }

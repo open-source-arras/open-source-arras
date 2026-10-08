@@ -2,7 +2,7 @@ const { combineStats, weaponArray, weaponMirror } = require("../facilitators.js"
 const { base } = require("../constants.js");
 
 
-let suffix = "Generator"
+let suffix = "Generator";
 // Generators
 const shapeGeneratorUpgrades = [
     ["wall", "egg", "gem"],
@@ -15,7 +15,7 @@ const shapeGeneratorUpgrades = [
     [null, "sentrySwarm", "shinySentrySwarm"],
     [null, "sentryGun", "shinySentryGun"],
     [null, "sentryTrap", "shinySentryTrap"]
-].map(array => array.map(x => x + suffix))
+].map(array => array.map(x => x + suffix));
 
 Class.genBody = {
     PARENT: "spectator",
@@ -30,7 +30,7 @@ Class.genBody = {
 Class.genWall = {
     PARENT: "wall",
     SIZE: Class.wall.SIZE * 2
-}
+};
 Class.genCrasher = {
     TYPE: [],
     PARENT: "crasher",
@@ -42,7 +42,7 @@ for (let def of ["sentryTrap", "sentryGun", "sentrySwarm"]) {
         PARENT: def,
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-    }
+    };
 }
 for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
     Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
@@ -52,71 +52,71 @@ for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
         SIZE: Class.sentry.SIZE,
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
-    }
+    };
     Class["genDisplay" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
         PARENT: def,
         SIZE: Class.sentry.SIZE
-    }
+    };
 }
 
 Class["gaybabyjail" + suffix + "arrow"] = {
     PARENT: "genericTank",
     SHAPE: "M -1 -0.3 L 1 -0.3 L 1 -0.9 L 2 0 L 1 0.9 L 1 0.3 L -1 0.3 Z",
     INDEPENDENT: true
-}
+};
 Class["gaybabyjail" + suffix + "ring"] = {
     PARENT: "genericTank",
     SHAPE: "M0-1A1 1 0 000 1 1 1 0 000-1M0-.7A.7 .7 0 010 .7 .7 .7 0 010-.7",
     INDEPENDENT: true
-}
+};
 
 //EGG GENERATOR
 Class[`egg${suffix}`] = makeGenerator("egg");
 //SQUARE GENERATORS
-Class[`square${suffix}`] = makeGenerator("square")
-Class[`shinySquare${suffix}`] = makeGenerator("shinySquare", "square", 1, 2)
-Class[`legendarySquare${suffix}`] = makeGenerator("legendarySquare", "square", 1, 4)
-Class[`shadowSquare${suffix}`] = makeGenerator("shadowSquare", "square", 1, 6)
-Class[`rainbowSquare${suffix}`] = makeGenerator("rainbowSquare", "square", 1, 8)
-Class[`transSquare${suffix}`] = makeGenerator("transSquare", "square", 1, 10)
+Class[`square${suffix}`] = makeGenerator("square");
+Class[`shinySquare${suffix}`] = makeGenerator("shinySquare", "square", 1, 2);
+Class[`legendarySquare${suffix}`] = makeGenerator("legendarySquare", "square", 1, 4);
+Class[`shadowSquare${suffix}`] = makeGenerator("shadowSquare", "square", 1, 6);
+Class[`rainbowSquare${suffix}`] = makeGenerator("rainbowSquare", "square", 1, 8);
+Class[`transSquare${suffix}`] = makeGenerator("transSquare", "square", 1, 10);
 
 //TRIANGLE GENERATORS
-Class[`triangle${suffix}`] = makeGenerator("triangle")
-Class[`shinyTriangle${suffix}`] = makeGenerator("shinyTriangle", "triangle", 1, 3)
-Class[`legendaryTriangle${suffix}`] = makeGenerator("legendaryTriangle", "triangle", 1, 6)
-Class[`shadowTriangle${suffix}`] = makeGenerator("shadowTriangle", "triangle", 1, 9)
-Class[`rainbowTriangle${suffix}`] = makeGenerator("rainbowTriangle", "triangle", 1, 12)
-Class[`transTriangle${suffix}`] = makeGenerator("transTriangle", "triangle", 1, 15)
+Class[`triangle${suffix}`] = makeGenerator("triangle");
+Class[`shinyTriangle${suffix}`] = makeGenerator("shinyTriangle", "triangle", 1, 3);
+Class[`legendaryTriangle${suffix}`] = makeGenerator("legendaryTriangle", "triangle", 1, 6);
+Class[`shadowTriangle${suffix}`] = makeGenerator("shadowTriangle", "triangle", 1, 9);
+Class[`rainbowTriangle${suffix}`] = makeGenerator("rainbowTriangle", "triangle", 1, 12);
+Class[`transTriangle${suffix}`] = makeGenerator("transTriangle", "triangle", 1, 15);
 
 //PENTAGON GENERATORS
-Class[`pentagon${suffix}`] = makeGenerator("pentagon")
-Class[`shinyPentagon${suffix}`] = makeGenerator("shinyPentagon", "pentagon", 1, 4)
-Class[`legendaryPentagon${suffix}`] = makeGenerator("legendaryPentagon", "pentagon", 1, 8)
-Class[`shadowPentagon${suffix}`] = makeGenerator("shadowPentagon", "pentagon", 1, 12)
-Class[`rainbowPentagon${suffix}`] = makeGenerator("rainbowPentagon", "pentagon", 1, 16)
-Class[`transPentagon${suffix}`] = makeGenerator("transPentagon", "pentagon", 1, 20)
+Class[`pentagon${suffix}`] = makeGenerator("pentagon");
+Class[`shinyPentagon${suffix}`] = makeGenerator("shinyPentagon", "pentagon", 1, 4);
+Class[`legendaryPentagon${suffix}`] = makeGenerator("legendaryPentagon", "pentagon", 1, 8);
+Class[`shadowPentagon${suffix}`] = makeGenerator("shadowPentagon", "pentagon", 1, 12);
+Class[`rainbowPentagon${suffix}`] = makeGenerator("rainbowPentagon", "pentagon", 1, 16);
+Class[`transPentagon${suffix}`] = makeGenerator("transPentagon", "pentagon", 1, 20);
 //beta
-Class[`betaPentagon${suffix}`] = makeGenerator("betaPentagon", null, 1, 15)
-Class[`shinyBetaPentagon${suffix}`] = makeGenerator("shinyBetaPentagon", "betaPentagon", 1, 20)
-Class[`legendaryBetaPentagon${suffix}`] = makeGenerator("legendaryBetaPentagon", "betaPentagon", 1, 25)
-Class[`shadowBetaPentagon${suffix}`] = makeGenerator("shadowBetaPentagon", "betaPentagon", 1, 30)
-Class[`rainbowBetaPentagon${suffix}`] = makeGenerator("rainbowBetaPentagon", "betaPentagon", 1, 35)
-Class[`transBetaPentagon${suffix}`] = makeGenerator("transBetaPentagon", "betaPentagon", 1, 40)
+Class[`betaPentagon${suffix}`] = makeGenerator("betaPentagon", null, 1, 15);
+Class[`shinyBetaPentagon${suffix}`] = makeGenerator("shinyBetaPentagon", "betaPentagon", 1, 20);
+Class[`legendaryBetaPentagon${suffix}`] = makeGenerator("legendaryBetaPentagon", "betaPentagon", 1, 25);
+Class[`shadowBetaPentagon${suffix}`] = makeGenerator("shadowBetaPentagon", "betaPentagon", 1, 30);
+Class[`rainbowBetaPentagon${suffix}`] = makeGenerator("rainbowBetaPentagon", "betaPentagon", 1, 35);
+Class[`transBetaPentagon${suffix}`] = makeGenerator("transBetaPentagon", "betaPentagon", 1, 40);
 //alpha
-Class[`alphaPentagon${suffix}`] = makeGenerator("alphaPentagon", null, 1, 25)
-Class[`shinyAlphaPentagon${suffix}`]  = makeGenerator("shinyAlphaPentagon", "alphaPentagon", 1, 31)
-Class[`legendaryAlphaPentagon${suffix}`]  = makeGenerator("legendaryAlphaPentagon", "alphaPentagon", 1, 37)
-Class[`shadowAlphaPentagon${suffix}`]  = makeGenerator("shadowAlphaPentagon", "alphaPentagon", 1, 43)
-Class[`rainbowAlphaPentagon${suffix}`]  = makeGenerator("rainbowAlphaPentagon", "alphaPentagon", 1, 49)
-Class[`transAlphaPentagon${suffix}`]  = makeGenerator("transAlphaPentagon", "alphaPentagon", 1, 55)
+Class[`alphaPentagon${suffix}`] = makeGenerator("alphaPentagon", null, 1, 25);
+Class[`shinyAlphaPentagon${suffix}`]  = makeGenerator("shinyAlphaPentagon", "alphaPentagon", 1, 31);
+Class[`legendaryAlphaPentagon${suffix}`]  = makeGenerator("legendaryAlphaPentagon", "alphaPentagon", 1, 37);
+Class[`shadowAlphaPentagon${suffix}`]  = makeGenerator("shadowAlphaPentagon", "alphaPentagon", 1, 43);
+Class[`rainbowAlphaPentagon${suffix}`]  = makeGenerator("rainbowAlphaPentagon", "alphaPentagon", 1, 49);
+Class[`transAlphaPentagon${suffix}`]  = makeGenerator("transAlphaPentagon", "alphaPentagon", 1, 55);
 //MISC GENERATORS
 
-Class[`gem${suffix}`] = makeGenerator("gem", null, 0, 0)
-Class[`wall${suffix}`] = makeGenerator("genWall", null, 0, 0, false, 1)
-Class[`gravel${suffix}`] = makeGenerator("gravel", null, 0, 0, false)
-Class[`stone${suffix}`] = makeGenerator("stone", null, 0, 0, false)
-Class[`rock${suffix}`] = makeGenerator("rock", null, 0, 0, false)
-Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false)
+Class[`gem${suffix}`] = makeGenerator("gem", null, 0, 0);
+Class[`wall${suffix}`] = makeGenerator("genWall", null, 0, 0, false, 1);
+Class[`gravel${suffix}`] = makeGenerator("gravel", null, 0, 0, false);
+Class[`stone${suffix}`] = makeGenerator("stone", null, 0, 0, false);
+Class[`rock${suffix}`] = makeGenerator("rock", null, 0, 0, false);
+Class[`pumpkin${suffix}`] = makeGenerator("pumpkin", null, 0, 0, false);
 Class[`gaybabyjail${suffix}`] = {
     PARENT: "genBody",
     LABEL: "Gay Baby Jail Creator",
@@ -232,15 +232,15 @@ Class[`gaybabyjail${suffix}`] = {
 
 //HOSTILE POLYGONS GENERATORS
 //crasher
-Class[`crasher${suffix}`] = makeGenerator("crasher", null, 0, 0, false)
+Class[`crasher${suffix}`] = makeGenerator("crasher", null, 0, 0, false);
 //sentries
-Class[`sentrySwarm${suffix}`] = makeGenerator("genSentrySwarm", null, 1, 0, 0, false)
-Class[`sentryGun${suffix}`] = makeGenerator("genSentryGun", null, 1, 0, 0, false)
-Class[`sentryTrap${suffix}`] = makeGenerator("genSentryTrap", null, 1, 0, 0, false)
+Class[`sentrySwarm${suffix}`] = makeGenerator("genSentrySwarm", null, 1, 0, 0, false);
+Class[`sentryGun${suffix}`] = makeGenerator("genSentryGun", null, 1, 0, 0, false);
+Class[`sentryTrap${suffix}`] = makeGenerator("genSentryTrap", null, 1, 0, 0, false);
 //shiny sentries
-Class[`shinySentrySwarm${suffix}`] = makeGenerator("genShinySentrySwarm", "genDisplayShinySentrySwarm", 1, 0, 0, false)
-Class[`shinySentryGun${suffix}`] = makeGenerator("genShinySentryGun", "genDisplayShinySentryGun", 1, 0, 0, false)
-Class[`shinySentryTrap${suffix}`] = makeGenerator("genShinySentryTrap", "genDisplayShinySentryTrap", 1, 0, 0, false)
+Class[`shinySentrySwarm${suffix}`] = makeGenerator("genShinySentrySwarm", "genDisplayShinySentrySwarm", 1, 0, 0, false);
+Class[`shinySentryGun${suffix}`] = makeGenerator("genShinySentryGun", "genDisplayShinySentryGun", 1, 0, 0, false);
+Class[`shinySentryTrap${suffix}`] = makeGenerator("genShinySentryTrap", "genDisplayShinySentryTrap", 1, 0, 0, false);
 
 function rarities(type = "") {
     const rarities = ["shiny", "legendary", "shadow", "rainbow", "trans"];
@@ -251,19 +251,19 @@ function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, va
     let found = {entity: {}, displayEntity: {}};
     let toFind = [
         "SHAPE", "LABEL", "COLOR", "SIZE", "VALUE"
-    ]
+    ];
     const findProperties = (type, returnTo, ...properties) => {
         let canContinue = true;
-        if (!Class[type]) canContinue = false
+        if (!Class[type]) canContinue = false;
         if (canContinue) {
             if (!properties.length) properties = toFind; 
             properties.forEach(k => {
-                if (Class[type][k] !== undefined) returnTo[k] = Class[type][k]
-                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, returnTo, k)
+                if (Class[type][k] !== undefined) returnTo[k] = Class[type][k];
+                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, returnTo, k);
                 else returnTo[k] = Class.genericTank[k];
-            })
+            });
         }
-    }
+    };
     if (!displayEntity) displayEntity = entity;
     findProperties(entity, found.entity);
     findProperties(displayEntity, found.displayEntity);

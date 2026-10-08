@@ -1,6 +1,6 @@
-const { combineStats, skillSet, makeAuto, weaponMirror } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
+const { combineStats, skillSet, makeAuto, weaponMirror } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
 
 // Sentries
 Class.sentry = {
@@ -43,7 +43,7 @@ Class.sentry = {
     HAS_NO_MASTER: true,
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true
-}
+};
 Class.sentrySwarm = {
     PARENT: "sentry",
     UPGRADE_LABEL: "Swarm Sentry",
@@ -58,17 +58,17 @@ Class.sentrySwarm = {
             }
         }
     ]
-}
+};
 Class.sentryGun = makeAuto("sentry", "Sentry", {
     type: "megaAutoTankGun",
     size: 12
-})
-Class.sentryGun.UPGRADE_LABEL = "Gun Sentry"
+});
+Class.sentryGun.UPGRADE_LABEL = "Gun Sentry";
 Class.sentryTrap = makeAuto("sentry", "Sentry", {
     type: "trapTurret",
     size: 12
-})
-Class.sentryTrap.UPGRADE_LABEL = "Trap Sentry"
+});
+Class.sentryTrap.UPGRADE_LABEL = "Trap Sentry";
 Class.sentrySwarmMinion = {
     PARENT: "drone",
     LABEL: "sentry",
@@ -77,7 +77,7 @@ Class.sentrySwarmMinion = {
     DRAW_HEALTH: true,
     HAS_NO_RECOIL: true,
     GUNS: Class.sentrySwarm.GUNS
-}
+};
 Class.sentryGunMinion = {
     PARENT: "drone",
     LABEL: "sentry",
@@ -89,7 +89,7 @@ Class.sentryGunMinion = {
         POSITION: [12, 0, 0, 0, 360, 1],
         TYPE: ["megaAutoTankGun", {GUN_STAT_SCALE: {health: 0.8}}]
     }]
-}
+};
 Class.sentryTrapMinion = {
     PARENT: "drone",
     LABEL: "sentry",
@@ -101,7 +101,7 @@ Class.sentryTrapMinion = {
         POSITION: [12, 0, 0, 0, 360, 1],
         TYPE: "trapTurret"
     }]
-}
+};
 
 // Shiny Sentries
 Class.shinySentry = {
@@ -115,7 +115,7 @@ Class.shinySentry = {
     BODY: {
         HEALTH: 0.6 * base.HEALTH
     }
-}
+};
 Class.shinySentrySwarm = {
     PARENT: "shinySentry",
     UPGRADE_LABEL: "Shiny Swarm Sentry",
@@ -130,17 +130,17 @@ Class.shinySentrySwarm = {
             }
         }
     ]
-}
+};
 Class.shinySentryGun = makeAuto("shinySentry", "Sentry", {
     type: "artilleryTurret",
     size: 12
-})
-Class.shinySentryGun.UPGRADE_LABEL = "Shiny Gun Sentry"
+});
+Class.shinySentryGun.UPGRADE_LABEL = "Shiny Gun Sentry";
 Class.shinySentryTrap = makeAuto("shinySentry", "Sentry", {
     type: "barricadeTurret",
     size: 12
-})
-Class.shinySentryTrap.UPGRADE_LABEL = "Shiny Trap Sentry"
+});
+Class.shinySentryTrap.UPGRADE_LABEL = "Shiny Trap Sentry";
 
 // Sentinels
 Class.sentinel = {
@@ -179,7 +179,7 @@ Class.sentinel = {
     MOTION_TYPE: "motor",
     FACING_TYPE: "smoothToTarget",
     HITS_OWN_TYPE: "hard"
-}
+};
 Class.sentinelLauncher = {
     PARENT: "sentinel",
     UPGRADE_LABEL: "Missile Sentinel",
@@ -198,7 +198,7 @@ Class.sentinelLauncher = {
             POSITION: [18.55, 20.25, 0.25, 1, 0, 0, 0]
         }
     ]
-}
+};
 Class.sentinelCrossbow = {
     PARENT: "sentinel",
     UPGRADE_LABEL: "Crossbow Sentinel",
@@ -239,7 +239,7 @@ Class.sentinelCrossbow = {
             }
         }
     ]
-}
+};
 Class.sentinelMinigun = {
     PARENT: "sentinel",
     UPGRADE_LABEL: "Minigun Sentinel",
@@ -289,7 +289,7 @@ Class.sentinelMinigun = {
             }
         }
     ]
-}
+};
 
 // Sentinels (Arms Race)
 Class.sentinelSwarm = {
@@ -305,14 +305,14 @@ Class.sentinelSwarm = {
             STAT_CALCULATOR: "swarm"
         }
     }, {delayIncrement: 0.5})
-}
+};
 Class.sentinelGun = makeAuto("sentry", "Sentinel", {
     type: "ultraAutoTankGun",
     size: 12
-})
-Class.sentinelGun.UPGRADE_LABEL = "Gun Sentinel"
+});
+Class.sentinelGun.UPGRADE_LABEL = "Gun Sentinel";
 Class.sentinelTrap = makeAuto("sentry", "Sentinel", {
     type: "megaTrapTurret",
     size: 12
-})
-Class.sentinelTrap.UPGRADE_LABEL = "Trap Sentinel"
+});
+Class.sentinelTrap.UPGRADE_LABEL = "Trap Sentinel";

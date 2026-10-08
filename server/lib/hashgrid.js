@@ -59,4 +59,4 @@ module.exports = class HashGrid {
         }
         for (const cell of this.cells.values()) cell.length = 0;
     }
-}
+};

@@ -1,21 +1,21 @@
-const { combineStats, LayeredBoss, setTurretProjectileRecoil } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
-const preset = require("../../presets.js")
+const { combineStats, LayeredBoss, setTurretProjectileRecoil } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
+const preset = require("../../presets.js");
 
 // Since this is the first file loaded from groups, we'll also load the important stuff we need for every other file before this so nothing breaks
-require("../generics.js")
-require("../food.js")
-require("../projectiles.js")
-require("../tanks/main.js")
-require("../tanks/special.js")
-require("../tanks/nostalgia.js")
-require("../tanks/scrapped.js")
-require("../tanks/retrograde.js")
-require("../tanks/armsRace.js")
-require("../dev.js")
-require("../turrets.js")
-require("../hats.js")
+require("../generics.js");
+require("../food.js");
+require("../projectiles.js");
+require("../tanks/main.js");
+require("../tanks/special.js");
+require("../tanks/nostalgia.js");
+require("../tanks/scrapped.js");
+require("../tanks/retrograde.js");
+require("../tanks/armsRace.js");
+require("../dev.js");
+require("../turrets.js");
+require("../hats.js");
 
 Class.celestial = {
     PARENT: "miniboss",
@@ -34,12 +34,12 @@ Class.celestial = {
         DAMAGE: 12
     },
     ON: [preset.on.retrograde_self_destruct]
-}
+};
 Class.rogueCelestial = {
     PARENT: "celestial",
     LABEL: "Rogue Celestial",
     COLOR: "darkGrey"
-}
+};
 
 let paladin = new LayeredBoss(null, "Paladin", "celestial", 9, "purple", "baseTrapTurret", 6.5, 5.5);
 paladin.addLayer({gun: {

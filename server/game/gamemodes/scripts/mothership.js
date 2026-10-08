@@ -10,7 +10,7 @@ class Mothership {
         this.defineProperties();
         Config.mothership_data = {
             getData: () => this.globalMotherships
-        }
+        };
     };
     defineProperties() {
         this.motherships = [];
@@ -70,7 +70,7 @@ class Mothership {
             this.globalMotherships.push(o);
             o.on("dead", () => {
                 this.death(o, team);
-            })
+            });
         }
     };
 
@@ -94,7 +94,7 @@ class Mothership {
     winner(teamId) {
         global.gameManager.socketManager.broadcast(getTeamName(teamId) + " has won the game!");
         setTimeout(() => {
-            global.gameManager.closeArena() 
+            global.gameManager.closeArena(); 
         }, 3000);
     };
 
@@ -111,7 +111,7 @@ class Mothership {
         if (aliveNow.length === 1) {
             this.teamWon = true;
             setTimeout(() => {
-                this.winner(aliveNow[0][1]) 
+                this.winner(aliveNow[0][1]); 
             }, 2500);
         }
         this.motherships = aliveNow;

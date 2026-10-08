@@ -460,7 +460,7 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
     Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
-Class.autoCrossfire.UPGRADES_TIER_4.push(...["Dispute", "Vigilante", "Forager", "Spitfire", "Quickdraw", "Quagmire", "Ph_crossfireH"].map(x => `auto${x}`))
+Class.autoCrossfire.UPGRADES_TIER_4.push(...["Dispute", "Vigilante", "Forager", "Spitfire", "Quickdraw", "Quagmire", "Ph_crossfireH"].map(x => `auto${x}`));
 Class.backlash = makeGunner("vigilante", "Backlash");
 Class.blade = {
     PARENT: "genericTank",

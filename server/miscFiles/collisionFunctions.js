@@ -362,7 +362,7 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
 
 function mooncollide(moon, bounce) {
     let collisionRadius = util.getDistance(moon, bounce);
-    let properCollisionRadius = moon.size + bounce.size
+    let properCollisionRadius = moon.size + bounce.size;
     // Exit if too far
     if (collisionRadius >= properCollisionRadius) return;
     

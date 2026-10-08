@@ -1,11 +1,11 @@
-"use strict"
+"use strict";
 
-let u32 = new Uint32Array(1)
-let c32 = new Uint8Array(u32.buffer)
-let f32 = new Float32Array(u32.buffer)
+let u32 = new Uint32Array(1);
+let c32 = new Uint8Array(u32.buffer);
+let f32 = new Float32Array(u32.buffer);
 
-let u16 = new Uint16Array(1)
-let c16 = new Uint8Array(u16.buffer)
+let u16 = new Uint16Array(1);
+let c16 = new Uint8Array(u16.buffer);
 
 /** Header Codes
  * S = sign bit, 0 = positive or 0, 1 = negative
@@ -41,63 +41,63 @@ let c16 = new Uint8Array(u16.buffer)
  */
 
 let encode = message => {
-    let headers = []
-    let headerCodes = []
-    let contentSize = 0
-    let lastTypeCode = 0b1111
-    let repeatTypeCount = 0
+    let headers = [];
+    let headerCodes = [];
+    let contentSize = 0;
+    let lastTypeCode = 0b1111;
+    let repeatTypeCount = 0;
     for (let block of message) {
-        let typeCode = 0
+        let typeCode = 0;
         if (block === 0 || block === false) {
-            typeCode = 0b0000
+            typeCode = 0b0000;
         } else if (block === 1 || block === true) {
-            typeCode = 0b0001
+            typeCode = 0b0001;
         } else if (typeof block === "number") {
             if (!Number.isInteger(block) || block < -0x100000000 || block >= 0x100000000) {
-                typeCode = 0b1000
-                contentSize += 4
+                typeCode = 0b1000;
+                contentSize += 4;
             } else if (block >= 0) {
                 if (block < 0x100) {
-                    typeCode = 0b0010
-                    contentSize++
+                    typeCode = 0b0010;
+                    contentSize++;
                 } else if (block < 0x10000) {
-                    typeCode = 0b0100
-                    contentSize += 2
+                    typeCode = 0b0100;
+                    contentSize += 2;
                 } else if (block < 0x100000000) {
-                    typeCode = 0b0110
-                    contentSize += 4
+                    typeCode = 0b0110;
+                    contentSize += 4;
                 }
             } else {
                 if (block >= -0x100) {
-                    typeCode = 0b0011
-                    contentSize++
+                    typeCode = 0b0011;
+                    contentSize++;
                 } else if (block >= -0x10000) {
-                    typeCode = 0b0101
-                    contentSize += 2
+                    typeCode = 0b0101;
+                    contentSize += 2;
                 } else if (block >= -0x100000000) {
-                    typeCode = 0b0111
-                    contentSize += 4
+                    typeCode = 0b0111;
+                    contentSize += 4;
                 }
             }
         } else if (typeof block === "string") {
-            let hasUnicode = false
+            let hasUnicode = false;
             for (let i = 0; i < block.length; i++) {
                 if (block.charAt(i) > "\xff") {
-                    hasUnicode = true
+                    hasUnicode = true;
                 } else if (block.charAt(i) === "\x00") {
-                    console.error(`Null containing string ${block}`)
-                    throw new Error("Null containing string")
+                    console.error(`Null containing string ${block}`);
+                    throw new Error("Null containing string");
                 }
             }
             if (!hasUnicode && block.length <= 1) {
-                typeCode = 0b1001
-                contentSize++
+                typeCode = 0b1001;
+                contentSize++;
             } else if (hasUnicode) {
-                typeCode = 0b1011
-                contentSize += block.length * 2 + 2
+                typeCode = 0b1011;
+                contentSize += block.length * 2 + 2;
             } else {
-                typeCode = 0b1010
-                contentSize += block.length + 1
+                typeCode = 0b1010;
+                contentSize += block.length + 1;
             }
         } else {
             console.error(`Unencodable data type: ${block}`);
@@ -111,252 +111,252 @@ let encode = message => {
             }
             throw "Unencodable data type";
         }
-        headers.push(typeCode)
+        headers.push(typeCode);
         if (typeCode === lastTypeCode) {
-            repeatTypeCount++
+            repeatTypeCount++;
         } else {
-            headerCodes.push(lastTypeCode)
+            headerCodes.push(lastTypeCode);
             if (repeatTypeCount >= 1) {
                 while (repeatTypeCount > 19) {
-                    headerCodes.push(0b1110)
-                    headerCodes.push(15)
-                    repeatTypeCount -= 19
+                    headerCodes.push(0b1110);
+                    headerCodes.push(15);
+                    repeatTypeCount -= 19;
                 }
                 if (repeatTypeCount === 1) {
-                    headerCodes.push(lastTypeCode) 
+                    headerCodes.push(lastTypeCode); 
                 } else if (repeatTypeCount === 2) {
-                    headerCodes.push(0b1100) 
+                    headerCodes.push(0b1100); 
                 } else if (repeatTypeCount === 3) {
-                    headerCodes.push(0b1101) 
+                    headerCodes.push(0b1101); 
                 } else if (repeatTypeCount < 20) {
-                    headerCodes.push(0b1110)
-                    headerCodes.push(repeatTypeCount - 4)
+                    headerCodes.push(0b1110);
+                    headerCodes.push(repeatTypeCount - 4);
                 }
             }
-            repeatTypeCount = 0
-            lastTypeCode = typeCode
+            repeatTypeCount = 0;
+            lastTypeCode = typeCode;
         }
     }
-    headerCodes.push(lastTypeCode)
+    headerCodes.push(lastTypeCode);
     if (repeatTypeCount >= 1) {
         while (repeatTypeCount > 19) {
-            headerCodes.push(0b1110)
-            headerCodes.push(15)
-            repeatTypeCount -= 19
+            headerCodes.push(0b1110);
+            headerCodes.push(15);
+            repeatTypeCount -= 19;
         }
         if (repeatTypeCount === 1) {
-            headerCodes.push(lastTypeCode) 
+            headerCodes.push(lastTypeCode); 
         } else if (repeatTypeCount === 2) {
-            headerCodes.push(0b1100) 
+            headerCodes.push(0b1100); 
         } else if (repeatTypeCount === 3) {
-            headerCodes.push(0b1101) 
+            headerCodes.push(0b1101); 
         } else if (repeatTypeCount < 20) {
-            headerCodes.push(0b1110)
-            headerCodes.push(repeatTypeCount - 4)
+            headerCodes.push(0b1110);
+            headerCodes.push(repeatTypeCount - 4);
         }
     }
-    headerCodes.push(0b1111)
+    headerCodes.push(0b1111);
     if (headerCodes.length % 2 === 1) {
-        headerCodes.push(0b1111) 
+        headerCodes.push(0b1111); 
     }
 
-    let output = new Uint8Array((headerCodes.length >> 1) + contentSize)
+    let output = new Uint8Array((headerCodes.length >> 1) + contentSize);
     for (let i = 0; i < headerCodes.length; i += 2) {
-        let upper = headerCodes[i]
-        let lower = headerCodes[i + 1]
-        output[i >> 1] = (upper << 4) | lower
+        let upper = headerCodes[i];
+        let lower = headerCodes[i + 1];
+        output[i >> 1] = (upper << 4) | lower;
     }
-    let index = headerCodes.length >> 1
+    let index = headerCodes.length >> 1;
     for (let i = 0; i < headers.length; i++) {
-        let block = message[i]
+        let block = message[i];
         switch (headers[i]) {
             case 0b0000:
             case 0b0001:
-                break
+                break;
             case 0b0010:
             case 0b0011:
-                output[index++] = block
-                break
+                output[index++] = block;
+                break;
             case 0b0100:
             case 0b0101:
-                u16[0] = block
-                output.set(c16, index)
-                index += 2
-                break
+                u16[0] = block;
+                output.set(c16, index);
+                index += 2;
+                break;
             case 0b0110:
             case 0b0111:
-                u32[0] = block
-                output.set(c32, index)
-                index += 4
-                break
+                u32[0] = block;
+                output.set(c32, index);
+                index += 4;
+                break;
             case 0b1000:
-                f32[0] = block
-                output.set(c32, index)
-                index += 4
-                break
+                f32[0] = block;
+                output.set(c32, index);
+                index += 4;
+                break;
             case 0b1001:
                 {
-                    let byte = block.length === 0 ? 0 : block.charCodeAt(0)
-                    output[index++] = byte
+                    let byte = block.length === 0 ? 0 : block.charCodeAt(0);
+                    output[index++] = byte;
                 }
-                break
+                break;
             case 0b1010:
                 for (let i = 0; i < block.length; i++) {
-                    output[index++] = block.charCodeAt(i)
+                    output[index++] = block.charCodeAt(i);
                 }
-                output[index++] = 0
-                break
+                output[index++] = 0;
+                break;
             case 0b1011:
                 for (let i = 0; i < block.length; i++) {
-                    let charCode = block.charCodeAt(i)
-                    output[index++] = charCode & 0xff
-                    output[index++] = charCode >> 8
+                    let charCode = block.charCodeAt(i);
+                    output[index++] = charCode & 0xff;
+                    output[index++] = charCode >> 8;
                 }
-                output[index++] = 0
-                output[index++] = 0
-                break
+                output[index++] = 0;
+                output[index++] = 0;
+                break;
         }
     }
 
-    return output
-}
+    return output;
+};
 
 let decode = packet => {
-    let data = new Uint8Array(packet)
+    let data = new Uint8Array(packet);
     if (data[0] >> 4 !== 0b1111) {
-        return null 
+        return null; 
     }
 
-    let headers = []
-    let lastTypeCode = 0b1111
-    let index = 0
-    let consumedHalf = true
+    let headers = [];
+    let lastTypeCode = 0b1111;
+    let index = 0;
+    let consumedHalf = true;
     while (true) {
         if (index >= data.length) {
-            return null 
+            return null; 
         }
-        let typeCode = data[index]
+        let typeCode = data[index];
 
         if (consumedHalf) {
-            typeCode &= 0b1111
-            index++
+            typeCode &= 0b1111;
+            index++;
         } else {
-            typeCode >>= 4
+            typeCode >>= 4;
         }
-        consumedHalf = !consumedHalf
+        consumedHalf = !consumedHalf;
 
         if ((typeCode & 0b1100) === 0b1100) {
             if (typeCode === 0b1111) {
                 if (consumedHalf) {
-                    index++ 
+                    index++; 
                 }
-                break
+                break;
             }
 
-            let repeat = typeCode - 10 // 0b1100 - 2
+            let repeat = typeCode - 10; // 0b1100 - 2
             if (typeCode === 0b1110) {
                 if (index >= data.length) {
-                    return null 
+                    return null; 
                 }
-                let repeatCode = data[index]
+                let repeatCode = data[index];
 
                 if (consumedHalf) {
-                    repeatCode &= 0b1111
-                    index++
+                    repeatCode &= 0b1111;
+                    index++;
                 } else {
-                    repeatCode >>= 4
+                    repeatCode >>= 4;
                 }
-                consumedHalf = !consumedHalf
+                consumedHalf = !consumedHalf;
 
-                repeat += repeatCode
+                repeat += repeatCode;
             }
 
             for (let i = 0; i < repeat; i++) {
-                headers.push(lastTypeCode) 
+                headers.push(lastTypeCode); 
             }
         } else {
-            headers.push(typeCode)
-            lastTypeCode = typeCode
+            headers.push(typeCode);
+            lastTypeCode = typeCode;
         }
     }
 
-    let output = []
+    let output = [];
     for (let header of headers) {
         switch (header) {
             case 0b0000:
-                output.push(0)
-                break
+                output.push(0);
+                break;
             case 0b0001:
-                output.push(1)
-                break
+                output.push(1);
+                break;
             case 0b0010:
-                output.push(data[index++])
-                break
+                output.push(data[index++]);
+                break;
             case 0b0011:
-                output.push(data[index++] - 0x100)
-                break
+                output.push(data[index++] - 0x100);
+                break;
             case 0b0100:
-                c16[0] = data[index++]
-                c16[1] = data[index++]
-                output.push(u16[0])
-                break
+                c16[0] = data[index++];
+                c16[1] = data[index++];
+                output.push(u16[0]);
+                break;
             case 0b0101:
-                c16[0] = data[index++]
-                c16[1] = data[index++]
-                output.push(u16[0] - 0x10000)
-                break
+                c16[0] = data[index++];
+                c16[1] = data[index++];
+                output.push(u16[0] - 0x10000);
+                break;
             case 0b0110:
-                c32[0] = data[index++]
-                c32[1] = data[index++]
-                c32[2] = data[index++]
-                c32[3] = data[index++]
-                output.push(u32[0])
-                break
+                c32[0] = data[index++];
+                c32[1] = data[index++];
+                c32[2] = data[index++];
+                c32[3] = data[index++];
+                output.push(u32[0]);
+                break;
             case 0b0111:
-                c32[0] = data[index++]
-                c32[1] = data[index++]
-                c32[2] = data[index++]
-                c32[3] = data[index++]
-                output.push(u32[0] - 0x100000000)
-                break
+                c32[0] = data[index++];
+                c32[1] = data[index++];
+                c32[2] = data[index++];
+                c32[3] = data[index++];
+                output.push(u32[0] - 0x100000000);
+                break;
             case 0b1000:
-                c32[0] = data[index++]
-                c32[1] = data[index++]
-                c32[2] = data[index++]
-                c32[3] = data[index++]
-                output.push(f32[0])
-                break
+                c32[0] = data[index++];
+                c32[1] = data[index++];
+                c32[2] = data[index++];
+                c32[3] = data[index++];
+                output.push(f32[0]);
+                break;
             case 0b1001:
                 {
-                    let byte = data[index++]
-                    output.push(byte === 0 ? "" : String.fromCharCode(byte))
+                    let byte = data[index++];
+                    output.push(byte === 0 ? "" : String.fromCharCode(byte));
                 }
-                break
+                break;
             case 0b1010:
                 {
-                    let string = ""
-                    let byte = 0
+                    let string = "";
+                    let byte = 0;
                     while (byte = data[index++]) {
-                        string += String.fromCharCode(byte)
+                        string += String.fromCharCode(byte);
                     }
-                    output.push(string)
+                    output.push(string);
                 }
-                break
+                break;
             case 0b1011:
                 {
-                    let string = ""
-                    let byte = 0
+                    let string = "";
+                    let byte = 0;
                     while (byte = data[index++] | (data[index++] << 8)) {
-                        string += String.fromCharCode(byte)
+                        string += String.fromCharCode(byte);
                     }
-                    output.push(string)
+                    output.push(string);
                 }
-                break
+                break;
         }
     }
 
-    return output
-}
+    return output;
+};
 
-exports.encode = encode
-exports.decode = decode
+exports.encode = encode;
+exports.decode = decode;

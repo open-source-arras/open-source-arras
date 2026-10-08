@@ -5,7 +5,7 @@ class Outbreak {
             zombify: (o) => {
                 this.zombify(o);
             }
-        }
+        };
     }
     zombify(liveEntity) {
         if (!liveEntity.defs) {
@@ -38,7 +38,7 @@ class Outbreak {
             zombieEntity.invuln = false;
             zombieEntity.color.base = zombieColor;
             zombieEntity.define({ FACING_TYPE: Class.FACING_TYPE != null ? Class.FACING_TYPE : "looseToTarget" });
-        }, 1000)
+        }, 1000);
     }
     start() {
         this.gameActive = true; 

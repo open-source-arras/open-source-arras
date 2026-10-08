@@ -375,4 +375,4 @@ module.exports = {
 
     // Development
     dev_build: true // Whether this version is unstable and should be clearly marked as such.
-}
+};

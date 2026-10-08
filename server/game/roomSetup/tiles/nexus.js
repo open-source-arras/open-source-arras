@@ -17,7 +17,7 @@ tileClass.nexus = new Tile({
             }
         }
     }
-})
+});
 tileClass.nexus_portal_tile = new Tile({
     COLOR: "white",
     NAME: "Portal tile",
@@ -28,4 +28,4 @@ tileClass.nexus_portal_tile = new Tile({
         if (!room.portalTiles) room.portalTiles = [];
         room.portalTiles.push(tile);
     }
-})
+});

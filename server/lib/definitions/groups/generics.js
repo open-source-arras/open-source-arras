@@ -1,6 +1,6 @@
-const { combineStats, skillSet, makePolyhedron } = require("../facilitators.js")
-const { base, dfltskl, smshskl, statnames } = require("../constants.js")
-const g = require("../gunvals.js")
+const { combineStats, skillSet, makePolyhedron } = require("../facilitators.js");
+const { base, dfltskl, smshskl, statnames } = require("../constants.js");
+const g = require("../gunvals.js");
 
 // Set the below variable to true to enable the flat ball from arras.io.
 const classic_ball = false;
@@ -383,8 +383,8 @@ Class.ball = {
     GIVE_KILL_MESSAGE: true
 };
 if (classic_ball) {
-    Class.ball.SHAPE = 0
-    Class.ball.COLOR = "black"
+    Class.ball.SHAPE = 0;
+    Class.ball.COLOR = "black";
     Class.ball.PROPS = [
         {
             TYPE: "ballHat",
@@ -393,7 +393,7 @@ if (classic_ball) {
                 LAYER: 1
             }
         }
-    ]
+    ];
 };
 
 // Projectiles

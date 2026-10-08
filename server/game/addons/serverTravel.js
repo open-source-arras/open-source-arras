@@ -51,7 +51,7 @@ let Portal = class {
             if (loc.data) loc.data.has_portal = false;
         }, duration);
     }
-}
+};
 class serverTravelHandler {
     constructor(self, spawnChance, color) {
         this.self = self;
@@ -91,7 +91,7 @@ if (loadedAddons.includes("chatCommands")) {
             }
             global.gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
         }
-    })
+    });
     addChatCommand({
         command: ["nexus", "n"],
         permissionLevel: 0,
@@ -103,7 +103,7 @@ if (loadedAddons.includes("chatCommands")) {
             }
             socket.talk("m", 5_000, "This command is WIP. :)");
         }
-    })
+    });
 }
 
-module.exports = { serverTravelHandler }
+module.exports = { serverTravelHandler };

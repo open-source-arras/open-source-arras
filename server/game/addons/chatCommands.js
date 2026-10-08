@@ -12,7 +12,7 @@ let commands = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
                     let cmdData = [c.command];
-                    let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ")
+                    let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ");
                     let description = c.description ?? false;
                     let text = `- ${prefix} ${commandText}`;
                     if (description) text += ` - ${description}`;
@@ -237,9 +237,9 @@ let commands = [
                     `- ${prefix} arena public - Allow this server to be displayed in the Sandbox Nexus`,
                     `- ${prefix} arena private - Prevent this server from being displayed`
                 ];
-                if (!Config.sandbox) lines.splice(1, 1)
+                if (!Config.sandbox) lines.splice(1, 1);
                 socket.talk("Em", 10_000, JSON.stringify(lines));
-            }
+            };
             if (!args[0]) sendAvailableArenaMessage(); else {
                 switch (args[0]) {
                     case "size":
@@ -345,7 +345,7 @@ let commands = [
                     `- ${prefix} developer define <entity> - change your tank.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
-            }
+            };
             let command = args[0];
             if (command === "define" || command === "d") {
                 if (!args[1]) {
@@ -460,11 +460,11 @@ let commands = [
                     // Log it again.
                     util.log("[INFO]: Successfully reloaded all definitions");
                     gameManager.gameHandler.run();
-                }, 1000)
+                }, 1000);
             } else sendAvailableDevCommandsMessage();
         }
     }
-]
+];
 
 /** COMMANDS RUN FUNCTION **/
 function runCommand(socket, message, gameManager) {
@@ -498,7 +498,7 @@ global.addChatCommand = function(command) {
         throw new Error("A command with this name already exists.");
     }
     commands.push(command);
-}
+};
 
 
 /** CHAT MESSAGE EVENT **/

@@ -316,7 +316,7 @@ if (!classic_3D_shapes) {
         ],
         SCALE: 7.5,
         VERTEXES_SCALE: 0.1
-    })
+    });
     tetrahedron_shape = makePolyhedron({
         FACES: [
             [[1, 1, 1], [-1, 1, -1], [1, -1, -1]],
@@ -326,7 +326,7 @@ if (!classic_3D_shapes) {
         ],
         SCALE: 5,
         VERTEXES_SCALE: 0.1
-    })
+    });
     octahedron_shape = makePolyhedron({
         FACES: (function() {
             const x = 3 / (2 * Math.sqrt(2));
@@ -344,7 +344,7 @@ if (!classic_3D_shapes) {
         })(),
         SCALE: 7.5,
         VERTEXES_SCALE: 0.1
-    })
+    });
     dodecahedron_shape = makePolyhedron({
         FACES: (function() {
             let phi = (1 + Math.sqrt(5)) / 2,
@@ -445,7 +445,7 @@ if (!classic_3D_shapes) {
         })(),
         SCALE: 6.5,
         VERTEXES_SCALE: 0.1
-    })
+    });
     icosahedron_shape = makePolyhedron({
         FACES: (function() {
             let phi = (1 + Math.sqrt(5)) / 2, // golden ratio
@@ -559,7 +559,7 @@ if (!classic_3D_shapes) {
         })(),
         SCALE: 20,
         VERTEXES_SCALE: 0.03
-    })
+    });
     tesseract_shape = makePolychoron({
         VERTEXES: [
             [-1, 1, 1, 1],   [1, 1, 1, 1],
@@ -584,14 +584,14 @@ if (!classic_3D_shapes) {
         ],
         VERTEXES_SCALE: 0.1,
         SCALE: 6
-    })
+    });
 } else {
-    cube_shape = preset.shape.flatCube
-    tetrahedron_shape = preset.shape.flatTetrahedron
-    octahedron_shape = preset.shape.flatOctahedron
-    dodecahedron_shape = preset.shape.flatDodecahedron
-    icosahedron_shape = preset.shape.flatIcosahedron
-    tesseract_shape = preset.shape.flatTesseract
+    cube_shape = preset.shape.flatCube;
+    tetrahedron_shape = preset.shape.flatTetrahedron;
+    octahedron_shape = preset.shape.flatOctahedron;
+    dodecahedron_shape = preset.shape.flatDodecahedron;
+    icosahedron_shape = preset.shape.flatIcosahedron;
+    tesseract_shape = preset.shape.flatTesseract;
 };
 
 Class.sphere = {
@@ -753,15 +753,15 @@ Class.tesseract = {
 };
 
 // Presents (todo: make this a self-creating function)
-Class.presentRY = makePresent("red", "yellow")
-Class.presentRP = makePresent("red", "purple")
-Class.presentRW = makePresent("red", "white")
-Class.presentGY = makePresent("green", "yellow")
-Class.presentGP = makePresent("green", "purple")
-Class.presentGW = makePresent("green", "white")
-Class.presentBY = makePresent("blue", "yellow")
-Class.presentBP = makePresent("blue", "purple")
-Class.presentBW = makePresent("blue", "white")
+Class.presentRY = makePresent("red", "yellow");
+Class.presentRP = makePresent("red", "purple");
+Class.presentRW = makePresent("red", "white");
+Class.presentGY = makePresent("green", "yellow");
+Class.presentGP = makePresent("green", "purple");
+Class.presentGW = makePresent("green", "white");
+Class.presentBY = makePresent("blue", "yellow");
+Class.presentBP = makePresent("blue", "purple");
+Class.presentBW = makePresent("blue", "white");
 
 // Relics
 for (let [gemColor, name] of [
@@ -780,20 +780,20 @@ for (let [gemColor, name] of [
             LABEL: `${name} Gem`,
             SHAPE: 6,
             COLOR: gemColor
-        }
+        };
     }
 
-    Class[name + "EggRelic"] = makeRelic("egg", 0.5, gem, 7)
-    Class[name + "SquareRelic"] = makeRelic("square", 1, gem)
-    Class[name + "TriangleRelic"] = makeRelic("triangle", 1.45, gem)
-    Class[name + "PentagonRelic"] = makeRelic("pentagon", -0.6, gem)
-    Class[name + "BetaPentagonRelic"] = makeRelic("betaPentagon", -0.6, gem)
-    Class[name + "AlphaPentagonRelic"] = makeRelic("alphaPentagon", -0.6, gem)
-    Class[name + "HexagonRelic"] = makeRelic("hexagon", -0.4, gem, undefined, 6.25)
-    Class[name + "Hexagon_oldRelic"] = makeRelic("hexagon_old", -0.4, gem, undefined, 6.25)
-    Class[name + "SeptagonRelic"] = makeRelic("septagon", -0.325, gem, undefined, 5.25)
-    Class[name + "OctagonRelic"] = makeRelic("octagon", -0.3, gem, undefined, 4.75)
-    Class[name + "NonagonRelic"] = makeRelic("nonagon", -0.25, gem, undefined, 4)
+    Class[name + "EggRelic"] = makeRelic("egg", 0.5, gem, 7);
+    Class[name + "SquareRelic"] = makeRelic("square", 1, gem);
+    Class[name + "TriangleRelic"] = makeRelic("triangle", 1.45, gem);
+    Class[name + "PentagonRelic"] = makeRelic("pentagon", -0.6, gem);
+    Class[name + "BetaPentagonRelic"] = makeRelic("betaPentagon", -0.6, gem);
+    Class[name + "AlphaPentagonRelic"] = makeRelic("alphaPentagon", -0.6, gem);
+    Class[name + "HexagonRelic"] = makeRelic("hexagon", -0.4, gem, undefined, 6.25);
+    Class[name + "Hexagon_oldRelic"] = makeRelic("hexagon_old", -0.4, gem, undefined, 6.25);
+    Class[name + "SeptagonRelic"] = makeRelic("septagon", -0.325, gem, undefined, 5.25);
+    Class[name + "OctagonRelic"] = makeRelic("octagon", -0.3, gem, undefined, 4.75);
+    Class[name + "NonagonRelic"] = makeRelic("nonagon", -0.25, gem, undefined, 4);
 }
 
 // Tiered Food

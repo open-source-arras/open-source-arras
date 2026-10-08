@@ -67,7 +67,7 @@ class Domination {
                     this.gameWon = true;
                     setTimeout(() => {
                         global.gameManager.socketManager.broadcast(teamName + " has won the game!");
-                    }, 1500)
+                    }, 1500);
                     setTimeout(() => {
                         global.gameManager.closeArena();
                     }, 4500);

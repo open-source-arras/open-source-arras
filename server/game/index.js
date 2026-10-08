@@ -7,7 +7,7 @@ class gameHandler {
         this.foods = [];
         this.nestFoods = [];
         this.enemyFoods = [];
-        this.auraCollideTypes = ["miniboss", "tank", "food", "crasher"]
+        this.auraCollideTypes = ["miniboss", "tank", "food", "crasher"];
         this.naturallySpawnedBosses = [];
         this.bossTimer = 0;
         this.active = false;
@@ -445,11 +445,11 @@ class gameHandler {
                 loc;
             do {
                 loc = getSpawnableArea(team, global.gameManager);
-            } while (limit-- && dirtyCheck(loc, 50, global.gameManager))
+            } while (limit-- && dirtyCheck(loc, 50, global.gameManager));
 
             this.spawnBots(loc, team);
         }
-    }
+    };
 
     spawnBots(loc, team) {
         let botName = Config.bot_name_prefix + ran.chooseBotName();
@@ -471,7 +471,7 @@ class gameHandler {
                 o.skill.score += o.skill.levelScore;
                 o.skill.maintain();
             } else clearInterval(leveling);
-        }, 100)
+        }, 100);
         o.refreshBodyAttributes();
         if (team) o.team = team;
         this.bots.push(o);
@@ -485,7 +485,7 @@ class gameHandler {
                 CONTROLLERS: CC.CONTROLLERS ? [...Class.bot.CONTROLLERS, ...CC.CONTROLLERS] : Class.bot.CONTROLLERS,
                 FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
                 AI: Class.bot.AI
-            }, false, true, false)
+            }, false, true, false);
             if (CC && CC.HEALING_TANK) {
                 o.controllers = [];
                 o.define({
@@ -507,8 +507,8 @@ class gameHandler {
                         AI: Class.bot.AI
                     }, false, true, false);
                 }
-                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: Class.bot.AI }, false, true, false) // Just reoverride the facing type.
-            })
+                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: Class.bot.AI }, false, true, false); // Just reoverride the facing type.
+            });
         }, 3000 + Math.floor(Math.random() * 7000));
         o.on("dead", () => {
             setTimeout(() => {
@@ -516,7 +516,7 @@ class gameHandler {
                     let loc = getSpawnableArea(global.nextTagBotTeam, global.gameManager);
                     this.spawnBots(loc, global.nextTagBotTeam);
                 }
-            }, 10)
+            }, 10);
             util.remove(this.bots, this.bots.indexOf(o));
         });
     };
@@ -548,7 +548,7 @@ class gameHandler {
             if (!this.active) return clearInterval(otherloop);
             this.quickMaintainLoop();
             global.gameManager.socketManager.chatLoop();
-        }, 200)
+        }, 200);
         let healingLoop = setInterval(() => {
             if (!this.active) return clearInterval(healingLoop);
             this.regenHealthAndShield();

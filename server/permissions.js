@@ -46,4 +46,4 @@ module.exports = [
         nameColor: "#FFFFFF",
         allowEditor: true
     }
-]
+];

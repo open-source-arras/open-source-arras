@@ -6,7 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const http = require("http");
 const url = require("url");
-const pjson = require("../package.json")
+const pjson = require("../package.json");
 
 const { Worker } = require("worker_threads");
 
@@ -74,7 +74,7 @@ if (Config.allow_ACAO) {
 
 // Show a warning about default API key
 if (process.env.API_KEY === "ChangeAPIKeyNow!") {
-    util.warn("You are using the default API key, which lets anyone submit server-travel players to this server. Set a unique API_KEY in server/.env.")
+    util.warn("You are using the default API key, which lets anyone submit server-travel players to this server. Set a unique API_KEY in server/.env.");
 }
 
 // Create an HTTP server to handle both API and static file requests
@@ -288,7 +288,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
             }
             global.launchedOnMainServer = true;
             new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isUnlisted, isPrivate, false);
-        }, 10)
+        }, 10);
     }
 }
 
@@ -302,7 +302,7 @@ global.onServerLoaded = () => {
         if (Config.verbose_logs) {
             util.log("Dumping endpoint -> gamemode/region routing table");
             for (const game of global.servers) {
-                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.location} - ${game.gameMode}`)
+                console.log(`> ${Config.host}/#${game.id} -> ${game.region} | ${game.location} - ${game.gameMode}`);
             }
             console.log("\n");
         }
@@ -329,7 +329,7 @@ server.listen(Config.port, () => {
             server.unlisted,
             server.private
         );
-    })
+    });
 });
 
 // Upgrade HTTP connections to WebSocket connections if applicable

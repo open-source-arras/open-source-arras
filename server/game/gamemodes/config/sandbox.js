@@ -7,4 +7,4 @@ module.exports = {
     enable_food: false, //food cap 12, nest cap 2, enemy cap 1
     sandbox: true,
     enable_bosses: false
-}
+};

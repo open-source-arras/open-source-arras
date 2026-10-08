@@ -1,12 +1,12 @@
-const { combineStats, makeAura, makeHat, skillSet, weaponArray, weaponMirror } = require("../../facilitators.js")
-const { base, smshskl } = require("../../constants.js")
-const g = require("../../gunvals.js")
+const { combineStats, makeAura, makeHat, skillSet, weaponArray, weaponMirror } = require("../../facilitators.js");
+const { base, smshskl } = require("../../constants.js");
+const g = require("../../gunvals.js");
 
 // Taureon
 Class.taureonCoreBase = {
     SHAPE: 4,
     COLOR: "#00A2E8"
-}
+};
 Class.taureonCore = {
     PARENT: "genericTank",
     LABEL: "Core Turret",
@@ -28,18 +28,18 @@ Class.taureonCore = {
         POSITION: [20 * Math.SQRT2, 0, 0, 0, 0, 0],
         TYPE: "taureonCoreBase"
     }]
-}
+};
 Class.taureonBase = {
     SHAPE: 4.5,
     COLOR: "#161B54",
     MIRROR_MASTER_ANGLE: true
-}
+};
 let d = 1/4;
 Class.taureonStar = {
     SHAPE: [[0, 1], [d, d], [1, 0], [d, -d], [0, -1], [-d, -d], [-1, 0], [-d, d]],
     COLOR: "#3F48CC",
     MIRROR_MASTER_ANGLE: true
-}
+};
 Class.taureonRailgunTurret = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -57,7 +57,7 @@ Class.taureonRailgunTurret = {
     }, {
         POSITION: [5, 7.5, -1.6, 8, 0, 0, 0]
     }]
-}
+};
 Class.taureonThruster = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -76,7 +76,7 @@ Class.taureonThruster = {
             TYPE: ["bullet", { ALPHA: 0.5 }]
         }
     }]
-}
+};
 Class.taureonMissile = {
     PARENT: "bullet",
     LABEL: "Missile",
@@ -115,7 +115,7 @@ Class.taureonMissile = {
             SHOOT_ON_DEATH: true
         }
     }))]
-}
+};
 Class.taureonBoss = {
     PARENT: "miniboss",
     LABEL: "Diamond Marauder",
@@ -192,7 +192,7 @@ Class.taureonBoss = {
     }, {
         POSITION: [2, 7, 1, 14.5, 0, 0, 0]
     }]
-}
+};
 
 // TGS
 Class.tgsSunchip = {
@@ -217,7 +217,7 @@ Class.tgsSunchip = {
         POSITION: [20 * Math.SQRT1_2 ** 3, 0, 0, 45, 1],
         TYPE: "squareHat"
     }]
-}
+};
 Class.tgsEggchip = {
     PARENT: "drone",
     LABEL: "Beta Sunchip",
@@ -239,7 +239,7 @@ Class.tgsEggchip = {
             }
         }
     ]
-}
+};
 Class.tgsBoss = {
     PARENT: "miniboss",
     LABEL: "Shiny Omega Thaumaturge",
@@ -307,14 +307,14 @@ Class.tgsBoss = {
         POSITION: [20 * Math.SQRT1_2 ** 3, 0, 0, 45, 0, 1],
         TYPE: "squareHat"
     }]
-}
+};
 
 // DogeisCut
 Class.dogeiscutBody = {
     PARENT: "genericTank",
     COLOR: "grey",
     SHAPE: [[1, 0], [-0.7, 0.7], [-0.35, 0], [-0.7, -0.7]]
-}
+};
 Class.dogeiscutTurret = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -338,7 +338,7 @@ Class.dogeiscutTurret = {
             TYPE: ["genericTank",  { MIRROR_MASTER_ANGLE: true, COLOR: "pink"}]
         }
     ]
-}
+};
 function createDogeiscutMissileTurret(color) {
     return {
         PARENT: "genericTank",
@@ -366,7 +366,7 @@ function createDogeiscutMissileTurret(color) {
             }
         }
         ]
-    }
+    };
 }
 function createDogeiscutMissile(color) {
     return {
@@ -391,22 +391,22 @@ function createDogeiscutMissile(color) {
                 TYPE: ["genericTank", {COLOR: "grey"}]
             }
         ]
-    }
+    };
 }
-Class.dogeiscutMissileTurret_red = createDogeiscutMissileTurret("red")
-Class.dogeiscutMissile_red = createDogeiscutMissile("red")
-Class.dogeiscutMissileTurret_orange = createDogeiscutMissileTurret("orange")
-Class.dogeiscutMissile_orange = createDogeiscutMissile("orange")
-Class.dogeiscutMissileTurret_yellow = createDogeiscutMissileTurret("yellow")
-Class.dogeiscutMissile_yellow = createDogeiscutMissile("yellow")
-Class.dogeiscutMissileTurret_green = createDogeiscutMissileTurret("green")
-Class.dogeiscutMissile_green = createDogeiscutMissile("green")
-Class.dogeiscutMissileTurret_cyan = createDogeiscutMissileTurret("cyan")
-Class.dogeiscutMissile_cyan = createDogeiscutMissile("cyan")
-Class.dogeiscutMissileTurret_blue = createDogeiscutMissileTurret("blue")
-Class.dogeiscutMissile_blue = createDogeiscutMissile("blue")
-Class.dogeiscutMissileTurret_purple = createDogeiscutMissileTurret("purple")
-Class.dogeiscutMissile_purple = createDogeiscutMissile("purple")
+Class.dogeiscutMissileTurret_red = createDogeiscutMissileTurret("red");
+Class.dogeiscutMissile_red = createDogeiscutMissile("red");
+Class.dogeiscutMissileTurret_orange = createDogeiscutMissileTurret("orange");
+Class.dogeiscutMissile_orange = createDogeiscutMissile("orange");
+Class.dogeiscutMissileTurret_yellow = createDogeiscutMissileTurret("yellow");
+Class.dogeiscutMissile_yellow = createDogeiscutMissile("yellow");
+Class.dogeiscutMissileTurret_green = createDogeiscutMissileTurret("green");
+Class.dogeiscutMissile_green = createDogeiscutMissile("green");
+Class.dogeiscutMissileTurret_cyan = createDogeiscutMissileTurret("cyan");
+Class.dogeiscutMissile_cyan = createDogeiscutMissile("cyan");
+Class.dogeiscutMissileTurret_blue = createDogeiscutMissileTurret("blue");
+Class.dogeiscutMissile_blue = createDogeiscutMissile("blue");
+Class.dogeiscutMissileTurret_purple = createDogeiscutMissileTurret("purple");
+Class.dogeiscutMissile_purple = createDogeiscutMissile("purple");
 Class.dogeiscutBomb = {
     PARENT: "trap",
     LABEL: "Bomb",
@@ -439,7 +439,7 @@ Class.dogeiscutBomb = {
             TYPE: ["genericTank", {COLOR: "grey"}]
         }
     ]
-}
+};
 Class.dogeiscutBoss = {
     PARENT: "miniboss",
     LABEL: "DOG",
@@ -609,10 +609,10 @@ Class.dogeiscutBoss = {
             TYPE: ["genericTank",  {COLOR: "black"}]
         }
     ]
-}
+};
 
 // Trioplane
-Class.trplnrBossAuraBulletAura = makeAura(1, 0.8)
+Class.trplnrBossAuraBulletAura = makeAura(1, 0.8);
 Class.trplnrBossAuraBullet = {
     PARENT: "genericTank",
     LABEL: "Nest",
@@ -644,7 +644,7 @@ Class.trplnrBossAuraBullet = {
             TYPE: "trplnrBossAuraBulletAura"
         }
     ]
-}
+};
 const trplnrBossDecor = {
     COLOR: "#F49EFF",
     UPGRADE_COLOR: "lavender",
@@ -670,7 +670,7 @@ const trplnrBossDecor = {
         POSITION: { SIZE: 25 },
         TYPE: ["triangle", { COLOR: "black", MIRROR_MASTER_ANGLE: true }]
     }]
-}
+};
 Class.trplnrBoss = {
     PARENT: "miniboss",
     ...trplnrBossDecor,
@@ -693,34 +693,34 @@ Class.trplnrBoss = {
         {
             event: "fire",
             handler: ({ body, gun }) => {
-                if (gun.identifier != "onHandler") return
+                if (gun.identifier != "onHandler") return;
                 const messages = [
                     "Attack my little swarms!",
                     "Deploying, Attack swarms",
                     "You really think you can defeat me? Heres a little challenge for you.",
                     "This thing is really gonna annoy you HAHA!",
                     "I don\'t know what to say uhhh, die i guess."
-                ]
-                global.gameManager.socketManager.broadcast(messages[Math.floor(Math.random() * messages.length)])
-                global.gameManager.socketManager.broadcast("Lavender will turn into `BULL3T HELL F0rM`, Run!")
+                ];
+                global.gameManager.socketManager.broadcast(messages[Math.floor(Math.random() * messages.length)]);
+                global.gameManager.socketManager.broadcast("Lavender will turn into `BULL3T HELL F0rM`, Run!");
                 for (let i = 0; i < 24; i++) {
                     i < 12 ?
                         setTimeout(() => {
-                            body.SIZE /= 1.1; body.alpha /= 1.2 
+                            body.SIZE /= 1.1; body.alpha /= 1.2; 
                         }, i * 50)
                         :
                         setTimeout(() => {
-                            body.SIZE *= 1.1; body.alpha *= 1.2 
-                        }, i * 50)
+                            body.SIZE *= 1.1; body.alpha *= 1.2; 
+                        }, i * 50);
                 }
                 setTimeout(() => {
-                    let range = 500
-                    let whereToGoX = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range)
-                    let whereToGoY = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range)
-                    body.x += whereToGoX
-                    body.y += whereToGoY
+                    let range = 500;
+                    let whereToGoX = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range);
+                    let whereToGoY = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range);
+                    body.x += whereToGoX;
+                    body.y += whereToGoY;
                 }, 12 * 50);
-                setTimeout(() => body.define("trplnrBossBulletHellForm"), 24 * 50)
+                setTimeout(() => body.define("trplnrBossBulletHellForm"), 24 * 50);
             }
         }
     ],
@@ -765,7 +765,7 @@ Class.trplnrBoss = {
             }
         ], 3)
     ]
-}
+};
 Class.trplnrBossBulletHellFormPentagonsAuraBullet = {
     PARENT: "bullet",
     PERSISTS_AFTER_DEATH: true,
@@ -773,7 +773,7 @@ Class.trplnrBossBulletHellFormPentagonsAuraBullet = {
         POSITION: {SIZE: 13, LAYER: 1},
         TYPE: "trplnrBossAuraBulletAura"
     }]
-} 
+}; 
 Class.trplnrBossBulletHellFormPentagons = {
     PARENT: "bullet",
     LABEL: "Pentagon",
@@ -791,7 +791,7 @@ Class.trplnrBossBulletHellFormPentagons = {
             COLOR: "white"
         }
     }, 5)
-}
+};
 Class.trplnrBossBulletHellForm = {
     PARENT: "miniboss",
     ...trplnrBossDecor,
@@ -803,39 +803,39 @@ Class.trplnrBossBulletHellForm = {
         {
             event: "fire",
             handler: ({ body, masterStore, gun }) => {
-                if (gun.identifier != "onHandler") return
-                masterStore.shotsFired ??= 0
-                masterStore.shotsFired++
+                if (gun.identifier != "onHandler") return;
+                masterStore.shotsFired ??= 0;
+                masterStore.shotsFired++;
 
                 for (let i = 0; i < 24; i++) {
                     i < 12 ?
                         setTimeout(() => {
-                            body.SIZE /= 1.1; body.alpha /= 1.2 
+                            body.SIZE /= 1.1; body.alpha /= 1.2; 
                         }, i * 50)
                         :
                         setTimeout(() => {
-                            body.SIZE *= 1.1; body.alpha *= 1.2 
-                        }, i * 50)
+                            body.SIZE *= 1.1; body.alpha *= 1.2; 
+                        }, i * 50);
                 }
                 setTimeout(() => {
-                    let range = 500
-                    let whereToGoX = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range)
-                    let whereToGoY = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range)
-                    body.x += whereToGoX
-                    body.y += whereToGoY
-                }, 12 * 50)
+                    let range = 500;
+                    let whereToGoX = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range);
+                    let whereToGoY = Math.random() > 0.5 ? Math.floor(Math.random() * -range) : Math.floor(Math.random() * range);
+                    body.x += whereToGoX;
+                    body.y += whereToGoY;
+                }, 12 * 50);
 
                 if (masterStore.shotsFired > 5) {
-                    body.define("trplnrBossVulnerableForm")
+                    body.define("trplnrBossVulnerableForm");
                     const messages = [
                         "I\'m a little tired right now",
                         "Ouch my leg!",
                         "i sleep",
                         "Bruh my keyboard isn\'t working",
                         "Omg bruh I chose the wrong form"
-                    ]
-                    global.gameManager.socketManager.broadcast(messages[Math.floor(Math.random() * messages.length)])
-                    global.gameManager.socketManager.broadcast("Lavender is in its `VULN3RABLE F0RM`, Attack!")
+                    ];
+                    global.gameManager.socketManager.broadcast(messages[Math.floor(Math.random() * messages.length)]);
+                    global.gameManager.socketManager.broadcast("Lavender is in its `VULN3RABLE F0RM`, Attack!");
                 }
             }
         }
@@ -883,7 +883,7 @@ Class.trplnrBossBulletHellForm = {
             }
         }
     ]
-}
+};
 Class.trplnrBossVulnerableForm = {
     PARENT: "miniboss",
     ...trplnrBossDecor,
@@ -896,24 +896,24 @@ Class.trplnrBossVulnerableForm = {
         {
             event: "tick",
             handler: ({ body }) => {
-                body.store.ticks ??= 0
-                body.store.ticks++
-                const spawnCrashers = body.store.ticks % 3 == 0
-                const spawnSentries = body.store.ticks % 60 == 0
-                const sentries = ["sentrySwarm", "sentryGun", "sentryTrap"]
-                if (spawnCrashers) new Entity(body, body).define("crasher")
-                if (spawnSentries) new Entity(body, body).define(sentries[Math.floor(Math.random() * sentries.length)])
+                body.store.ticks ??= 0;
+                body.store.ticks++;
+                const spawnCrashers = body.store.ticks % 3 == 0;
+                const spawnSentries = body.store.ticks % 60 == 0;
+                const sentries = ["sentrySwarm", "sentryGun", "sentryTrap"];
+                if (spawnCrashers) new Entity(body, body).define("crasher");
+                if (spawnSentries) new Entity(body, body).define(sentries[Math.floor(Math.random() * sentries.length)]);
             }
         },
         {
             event: "fire",
             handler: ({ body, gun }) => {
-                if (gun.identifier != "onHandler") return
+                if (gun.identifier != "onHandler") return;
                 setTimeout(() => {
-                    body.define("trplnrBoss")
-                    global.gameManager.socketManager.broadcast("im awake")
-                }, 15000)
-                setTimeout(() => global.gameManager.socketManager.broadcast("Lavender will activate in 10 seconds and turn into S4nctuary F0rM"), 5000)
+                    body.define("trplnrBoss");
+                    global.gameManager.socketManager.broadcast("im awake");
+                }, 15000);
+                setTimeout(() => global.gameManager.socketManager.broadcast("Lavender will activate in 10 seconds and turn into S4nctuary F0rM"), 5000);
             }
         }
     ],
@@ -927,7 +927,7 @@ Class.trplnrBossVulnerableForm = {
             ALPHA: 0
         }
     }]
-}
+};
 
 // Frostbyte
 Class.frostAuraSmall = {
@@ -940,7 +940,7 @@ Class.frostAuraSmall = {
         POSITION: [20, 0, 0, 0, 0, 1],
         TYPE: "frostAuraSmallOutline"
     }]
-}
+};
 Class.frostAuraSmallOutline = {
     PARENT: "aura",
     MIRROR_MASTER_ANGLE: true,
@@ -948,7 +948,7 @@ Class.frostAuraSmallOutline = {
     SHAPE: "M 1 0 L 0.715 0.519 L 0.309 0.951 L -0.273 0.84 L -0.809 0.588 L -0.883 0 L -0.809 -0.588 L -0.273 -0.84 L 0.309 -0.951 L 0.715 -0.519 L 1 0" + 
         "L 0.309 0.951 L -0.809 0.588 L -0.809 -0.588 L 0.309 -0.951 L 1 0" + 
         "L 0 0 L 0.309 0.951 M 0 0 L -0.809 0.588 M 0 0 L -0.809 -0.588 M 0 0 L 0.309 -0.951"
-}
+};
 Class.frostAuraLarge = {
     PARENT: "aura",
     LAYER: 30,
@@ -959,7 +959,7 @@ Class.frostAuraLarge = {
         POSITION: [20, 0, 0, 0, 0, 1],
         TYPE: "frostAuraLargeOutline"
     }]
-}
+};
 Class.frostAuraLargeOutline = {
     PARENT: "aura",
     MIRROR_MASTER_ANGLE: true,
@@ -975,7 +975,7 @@ Class.frostAuraLargeOutline = {
         "M 0.292 0 L 0.413 0.3 L 0.09 0.277 L -0.158 0.485 L -0.236 0.171 L -0.51 0 L -0.236 -0.171 L -0.158 -0.485 L 0.09 -0.277 L 0.413 -0.3 L 0.292 0 L 0.09 0.277" + 
         "L -0.236 0.171 L -0.236 -0.171 L 0.09 -0.277 L 0.292 0 M 0 0 L 0.949 0" + 
         "M 0 0 L 0.293 0.902 M 0 0 L -0.768 0.558 M 0 0 L -0.768 -0.558 M 0 0 L 0.293 -0.902"
-}
+};
 Class.frostAuraSymbol = {
     PARENT: "genericTank",
     CONTROLLERS: [["spin", { speed: -0.04 }]],
@@ -987,14 +987,14 @@ Class.frostAuraSymbol = {
         POSITION: [20, 0, 0, 0, 0, 1],
         TYPE: "frostAuraSymbolOutline"
     }]
-}
+};
 Class.frostAuraSymbolOutline = {
     PARENT: "genericTank",
     MIRROR_MASTER_ANGLE: true,
     DRAW_FILL: false,
     SHAPE: "M 1 0 L 0.797 0.46 L 0.5 0.866 L 0 0.92 L -0.5 0.866 L -0.797 0.46 L -1 0 L -0.797 -0.46 L -0.5 -0.866 L 0 -0.92 L 0.5 -0.866 L 0.797 -0.46 L 1 0 Z" +
         "M 0.52 0.3 L 0.52 -0.3 L 0.797 -0.46 M 0.52 -0.3 L 0 -0.6 L 0 -0.92 M 0 -0.6 L -0.52 -0.3 L -0.797 -0.46 M -0.52 -0.3 L -0.52 0.3 L -0.797 0.46 M -0.52 0.3 L 0 0.6 L 0 0.92 M 0 0.6 L 0.52 0.3 L 0.797 0.46"
-}
+};
 function addIcosphereAura(damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraSize = "Medium") {
     let auraType = "frostAura" + auraSize;
     return {
@@ -1026,7 +1026,7 @@ Class.frostAuraBlockTop = {
     SHAPE: "M -1.3 -0.15 L -1.3 0.15 L -0.3 0.3 L -0.15 1.3 L 0.15 1.3 L 0.3 0.3 L 1.3 0.15 L 1.3 -0.15 L 0.3 -0.3 L 0.15 -1.3 L -0.15 -1.3 L -0.3 -0.3 Z",
     COLOR: { BASE: 17, BRIGHTNESS_SHIFT: 5 },
     MIRROR_MASTER_ANGLE: true
-}
+};
 Class.frostAuraBlockTurret = {
     PARENT: "genericTank",
     INDEPENDENT: true,
@@ -1061,7 +1061,7 @@ Class.frostAuraBlockTurret = {
             }
         }
     ]
-}
+};
 Class.frostAuraBlockAura = addIcosphereAura(0.25, 1.6, 0.15, "Small");
 Class.frostAuraBlock = {
     PARENT: "unsetTrap",
@@ -1077,7 +1077,7 @@ Class.frostAuraBlock = {
             TYPE: "frostAuraBlockAura"
         }
     ]
-}
+};
 Class.frostBossBigAura = addIcosphereAura(1.5, 1.45, 0.3, "Large");
 Class.frostBossAutoTurret = {
     PARENT: "autoTankGun",
@@ -1113,7 +1113,7 @@ Class.frostBossAutoTurret = {
             TYPE: ["egg", {COLOR: -1, BORDERLESS: true}]
         }
     ]
-}
+};
 Class.frostBossBaseDeco = {
     SHAPE: "M -1.1 0 L -0.956 0.292 L -0.669 0.205 L -0.669 -0.205 L -0.956 -0.292 Z" +
         "M -0.55 0.952 L -0.225 0.974 L -0.157 0.682 L -0.512 0.477 L -0.731 0.682 Z" +
@@ -1132,7 +1132,7 @@ Class.frostBossBaseDeco = {
             PROPERTIES: { COLOR: { BASE: -1, BRIGHTNESS_SHIFT: 10, SATURATION_SHIFT: 1.15 } }
         }
     ], 6)
-}
+};
 Class.frostBossBaseDeco2 = {
     COLOR: {BASE: -1, BRIGHTNESS_SHIFT: 7.5},
     GUNS: weaponArray([
@@ -1144,7 +1144,7 @@ Class.frostBossBaseDeco2 = {
             PROPERTIES: {COLOR: {BASE: 9, BRIGHTNESS_SHIFT: 10}, DRAW_ABOVE: true}
         }
     ], 6)
-}
+};
 const trebuchetStats = [g.basic, g.sniper, g.predator, g.predator, g.predator, g.predator, {speed: 0.93, maxSpeed: 0.93, reload: 2, health: 1.7, damage: 1.4, size: 2}];
 const hielamanStats = [g.trap, g.setTrap, g.hexaTrapper, {reload: 2.85, health: 3.2, range: 1.2}];
 Class.frostBoss = {
@@ -1276,7 +1276,7 @@ Class.frostBoss = {
             TYPE: "frostBossBaseDeco"
         }
     ]
-}
+};
 
 // Toothless
 Class.toothlessBase = {
@@ -1452,7 +1452,7 @@ Class.MKDrone = {
             TYPE: "MKDoneAura"
         }
     ]
-}
+};
 Class.MKMinion = {
     PARENT: "minion",
     LABEL: "MKShip Minion",
@@ -1462,7 +1462,7 @@ Class.MKMinion = {
             TYPE: "MKMinionAura"
         }
     ]
-}
+};
 Class.MKTurretFactoryWithController = {
     PARENT: "MKTurretFactory",
     CONTROLLERS: ["nearestDifferentMaster"],
@@ -1476,7 +1476,7 @@ Class.MKTurretFactoryWithController = {
             TYPE: "MKFactoryAura"
         }
     ]
-}
+};
 Class.MKTurretFactory = {
     PARENT: "genericTank",
     LABEL: "MKTurret factory",
@@ -1503,7 +1503,7 @@ Class.MKTurretFactory = {
             POSITION: [12, 14, 1, 0, 0, 0, 0]
         }
     ]
-}
+};
 Class.MKTurretCarrier = {
     PARENT: "carrier",
     LABEL: "MKTurret carrier",
@@ -1538,7 +1538,7 @@ Class.MKTurretCarrier = {
     COLOR: 16,
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false
-}
+};
 Class.MKTurretCarrierWithController = {
     PARENT: "MKTurretCarrier",
     CONTROLLERS: ["nearestDifferentMaster"],
@@ -1552,7 +1552,7 @@ Class.MKTurretCarrierWithController = {
             TYPE: "MKCarrierAura"
         }
     ]
-}
+};
 Class.MKTurretThruster = {
     PARENT: "genericTank",
     LABEL: "MKTurret Thruster",
@@ -1573,7 +1573,7 @@ Class.MKTurretThruster = {
             TYPE: "bullet"
         }
     }]
-}
+};
 Class.MKTurret = {
     PARENT: "genericTank",
     FACING_TYPE: "toTarget",
@@ -1629,7 +1629,7 @@ Class.MKTurret = {
             TYPE: "MKTurretThruster"
         }
     ]
-}
+};
 Class.AEMKShipBoss = {
     PARENT: "genericTank",
     LABEL: "MKShip",
@@ -1717,10 +1717,10 @@ Class.AEMKShipBoss = {
         }
         return e;
     })()
-}
+};
 
 // Helena
-Class.helenaBossBaseAura = makeAura(2, 2, 0)
+Class.helenaBossBaseAura = makeAura(2, 2, 0);
 Class.helenaBossBase = {
     PARENT: "genericTank",
     COLOR: "crasher",
@@ -1755,9 +1755,9 @@ Class.helenaBossBase = {
             TYPE: "helenaBossBaseAura"
         }
     ]
-}
-Class.helenaDpProp = makeHat(3.5, { color: "crasher" })
-Class.helenaBossDpProp2 = makeHat(3.5, { color: "black" })
+};
+Class.helenaDpProp = makeHat(3.5, { color: "crasher" });
+Class.helenaBossDpProp2 = makeHat(3.5, { color: "black" });
 Class.helenaBossDpPropArmed = {
     PARENT: "genericTank",
     COLOR: "crasher",
@@ -1770,11 +1770,11 @@ Class.helenaBossDpPropArmed = {
             }
         }, 3
     )
-}
-Class.helenaBossProp = makeHat(3.5, { color: "darkGrey" })
-Class.helenaBossPropMiddle = makeHat(3.5, { color: "white" })
-Class.helenaBossProp2 = makeHat(3.5, { color: "crasher" })
-Class.helenaBossMinionProp = makeHat(3.5, { color: "black" })
+};
+Class.helenaBossProp = makeHat(3.5, { color: "darkGrey" });
+Class.helenaBossPropMiddle = makeHat(3.5, { color: "white" });
+Class.helenaBossProp2 = makeHat(3.5, { color: "crasher" });
+Class.helenaBossMinionProp = makeHat(3.5, { color: "black" });
 Class.helenaBossMinion = {
     PARENT: "minion",
     LABEL: "CMM-64-XX", // CrasherMachinery Minion 64-bit Xtra Xtra
@@ -1808,8 +1808,8 @@ Class.helenaBossMinion = {
         ], 3
         )
     ]
-}
-Class.helenaBossAuraBulletAura = makeAura(0.32, 1.5, 0.3, "crasher")
+};
+Class.helenaBossAuraBulletAura = makeAura(0.32, 1.5, 0.3, "crasher");
 Class.helenaBossAuraBullet = {
     PARENT: "swarm",
     SHAPE: 0,
@@ -1834,7 +1834,7 @@ Class.helenaBossAuraBullet = {
             TYPE: "helenaBossAuraBulletAura"
         }
     ]
-}
+};
 Class.helenaBossChip = {
     PARENT: "drone",
     LABEL: "CMD-16-XX", //CrasherMachinery Dorito 16-bit Xtra Xtra
@@ -1846,7 +1846,7 @@ Class.helenaBossChip = {
             TYPE: "helenaBossPropMiddle"
         }
     ]
-}
+};
 Class.helenaBoss = {
     PARENT: "helenaBossBase",
     UPGRADE_TOOLTIP: "CrasherMachinery's Top Secret project. A crasher that will return glory to the crasher race.\nEngineered with binary-system weapons for a faster and faultless combat experience.\nProject name: \"Helena\".\nModel name: \"CrasherMachinery X 2048-bit Xtra Xtra\".\nPlease report all sightings to CrasherMachinery Corp.!",
@@ -1955,20 +1955,20 @@ Class.helenaBoss = {
         {
             event: "tick",
             handler: ({ body }) => {
-                body.store.ticks ??= 0
-                body.store.ticks++
-                const spawnSentries = body.store.ticks % 128 === 0
-                const spawnLegions = body.store.ticks % 256 === 0
-                const endGame = body.store.ticks % 1024 === 0
-                const sentries = ["sentrySwarm", "sentryGun", "sentryTrap", "shinySentrySwarm", "shinySentryGun", "shinySentryTrap"]
-                const legions = ["eliteDestroyer", "eliteGunner", "sprayerLegion", "eliteBattleship", "eliteSpawner", "eliteTrapGuard", "eliteSpinner"]
-                if (spawnSentries) new Entity(body, body, body.gameManager).define(sentries[Math.floor(Math.random() * sentries.length)])
-                if (spawnLegions) new Entity(body, body, body.gameManager).define(legions[Math.floor(Math.random() * legions.length)])
-                if (endGame) new Entity(body, body, body.gameManager).define("legionaryCrasher")
+                body.store.ticks ??= 0;
+                body.store.ticks++;
+                const spawnSentries = body.store.ticks % 128 === 0;
+                const spawnLegions = body.store.ticks % 256 === 0;
+                const endGame = body.store.ticks % 1024 === 0;
+                const sentries = ["sentrySwarm", "sentryGun", "sentryTrap", "shinySentrySwarm", "shinySentryGun", "shinySentryTrap"];
+                const legions = ["eliteDestroyer", "eliteGunner", "sprayerLegion", "eliteBattleship", "eliteSpawner", "eliteTrapGuard", "eliteSpinner"];
+                if (spawnSentries) new Entity(body, body, body.gameManager).define(sentries[Math.floor(Math.random() * sentries.length)]);
+                if (spawnLegions) new Entity(body, body, body.gameManager).define(legions[Math.floor(Math.random() * legions.length)]);
+                if (endGame) new Entity(body, body, body.gameManager).define("legionaryCrasher");
             }
         }
     ]
-}
+};
 
 // ZyraFAQ
 Class.zyrafaqBossAura = makeAura(2.5, 1.2, 0.3, "#226ef6");
@@ -1979,7 +1979,7 @@ Class.zyrafaqBossHexagon = {
     COLOR: "mirror",
     MIRROR_MASTER_ANGLE: true,
     CONTROLLERS: [["spin", {speed: 0.04, independent: true}]]
-}
+};
 Class.zyrafaqBossTurret = {
     PARENT: "genericTank",
     COLOR: "#fff",
@@ -1989,14 +1989,14 @@ Class.zyrafaqBossTurret = {
         POSITION: [20, 7, 1, 0, 0, 0, 0],
         PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.op]), TYPE: "developerBullet"}
     }]
-}
+};
 Class.zyrafaqBossDrone = {
     PARENT: "drone",
     SHAPE: [[-1, -1], [1, -1], [2, 0], [1, 1], [-1, 1]],
     COLOR: "#226ef6",
     BODY: {FOV: 1.5, SPEED: 2.5 * base.SPEED},
     TURRETS: [{POSITION: [13, 0, 0, 0, 360, 1], TYPE: "zyrafaqBossMiniAura"}]
-}
+};
 Class.zyrafaqBoss = {
     PARENT: "miniboss",
     LABEL: "Developer",
@@ -2024,4 +2024,4 @@ Class.zyrafaqBoss = {
         {POSITION: [18, 0, 0, 0, 360, 0], TYPE: "zyrafaqBossAura"},
         {POSITION: [24, 0, 0, 0, 360, 0], TYPE: "zyrafaqBossAura"}
     ]
-}
+};

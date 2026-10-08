@@ -8,17 +8,17 @@ Class.casing = {
     PARENT: "bullet",
     LABEL: "Shell",
     TYPE: "swarm"
-}
-Class.developerBullet = {PARENT: "bullet", SHAPE: [[-1, -1], [1, -1], [2, 0], [1, 1], [-1, 1]]}
+};
+Class.developerBullet = {PARENT: "bullet", SHAPE: [[-1, -1], [1, -1], [2, 0], [1, 1], [-1, 1]]};
 Class.flare = {
     PARENT: "growBullet",
     LABEL: "Flare",
     SHAPE: 4
-}
+};
 Class.growBullet = {
     PARENT: "bullet",
     MOTION_TYPE: ["grow", {speed: 0.75}]
-}
+};
 Class.masterBullet = {
     PARENT: "missile",
     FACING_TYPE: ["spin", {speed: 2}],
@@ -72,7 +72,7 @@ Class.masterBullet = {
             }
         }
     ]
-}
+};
 Class.satelliteBullet = {
     PARENT: "bullet",
     ANGLE: 90,
@@ -82,7 +82,7 @@ Class.satelliteBullet = {
         SPEED: 2 
     },
     GUNS: (() => { 
-        let output = []
+        let output = [];
         for (let i = 0; i < 2; i++) {
             output.push({
                 POSITION: {WIDTH: 16, LENGTH: 1, DELAY: 0},
@@ -94,19 +94,19 @@ Class.satelliteBullet = {
                     SYNCS_SKILLS: false,
                     WAIT_TO_CYCLE: true
                 }
-            })
+            });
         }
-        return output
+        return output;
     })()
-}
+};
 Class.speedBullet = {
     PARENT: "bullet",
     MOTION_TYPE: ["glide", {damp: -0.0125}]
-}
+};
 Class.spiralBulletSegment = {
     PARENT: "bullet",
     CLEAR_ON_MASTER_UPGRADE: true
-}
+};
 Class.spiralBullet = {
     PARENT: "bullet",
     ON: [
@@ -129,7 +129,7 @@ Class.spiralBullet = {
                     seg.define(segmentClass);
                     body.store.snakeSegments.push(seg);
                 }
-                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead())
+                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead());
                 let previous = body;
                 const children = body.store.snakeSegments;
             
@@ -149,7 +149,7 @@ Class.spiralBullet = {
             }
         }
     ]
-}
+};
 Class.pythonBullet = {
     PARENT: "bullet",
     ON: [
@@ -171,7 +171,7 @@ Class.pythonBullet = {
                     seg.define(segmentClass);
                     body.store.snakeSegments.push(seg);
                 }
-                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead())
+                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead());
                 let previous = body;
                 const children = body.store.snakeSegments;
             
@@ -191,7 +191,7 @@ Class.pythonBullet = {
             }
         }
     ]
-}
+};
 Class.undertowBullet = {
     PARENT: "bullet",
     ON: [
@@ -205,17 +205,17 @@ Class.undertowBullet = {
                     if (dist2 <= ((body.size / 12)*250) ** 1.9) {
                         if ((instance.team != body.team || (instance.type == "undertowEffect" && instance.master.id == body.master.id)) && instance.type != "wall" && instance.isTurret != true) {
                             if (instance.type == "undertowEffect") {
-                                forceMulti = 1
+                                forceMulti = 1;
                             } else if (instance.type == "food") {
-                                forceMulti = (6 / instance.size)
+                                forceMulti = (6 / instance.size);
                             } else {
-                                forceMulti = (2 / instance.size)
+                                forceMulti = (2 / instance.size);
                             }
                             instance.velocity.x += util.clamp(body.x - instance.x, -90, 90) * instance.damp * forceMulti;//0.05
                             instance.velocity.y += util.clamp(body.y - instance.y, -90, 90) * instance.damp * forceMulti;//0.05
                             if (instance.type != "undertowEffect" && instance.type != "bullet" && instance.type != "swarm" && instance.type != "drone" && instance.type != "trap" && instance.type != "dominator") {
-                                let o = new Entity({x: instance.x, y: instance.y})
-                                o.define("undertowEffect")
+                                let o = new Entity({x: instance.x, y: instance.y});
+                                o.define("undertowEffect");
                                 o.team = body.team;
                                 o.color = instance.color;
                                 o.alpha = 0.3;
@@ -234,7 +234,7 @@ Class.undertowBullet = {
             }
         }
     ]
-}
+};
 Class.undertowEffect = {
     PARENT: "genericTank",
     TYPE: "undertowEffect",
@@ -251,7 +251,7 @@ Class.undertowEffect = {
         RANGE: 5,
         PUSHABILITY: 0
     }
-}
+};
 Class.assemblerEffect = {
     PARENT: "bullet",
     MOTION_TYPE: "assembler",
@@ -261,11 +261,11 @@ Class.assemblerEffect = {
         RANGE: 10
     },
     ALPHA: 0.8
-}
+};
 Class.cxATMGBullet = {
     PARENT: "bullet",
     SHAPE: preset.shape.flatCube
-}
+};
 
 // Missiles
 Class.missile = {
@@ -295,7 +295,7 @@ Class.missile = {
             }
         }
     ]
-}
+};
 Class.hypermissile = {
     PARENT: "missile",
     GUNS: [
@@ -335,7 +335,7 @@ Class.hypermissile = {
             }
         }
     ]
-}
+};
 Class.launcherMissile = {
     PARENT: "missile",
     GUNS: [
@@ -349,7 +349,7 @@ Class.launcherMissile = {
             }
         }
     ]
-}
+};
 Class.spinmissile = {
     PARENT: "missile",
     FACING_TYPE: ["spin", {speed: 0.2}],
@@ -363,7 +363,7 @@ Class.spinmissile = {
             WAIT_TO_CYCLE: true
         }
     }, 2)
-}
+};
 Class.hyperspinmissile = {
     PARENT: "spinmissile",
     GUNS: weaponArray({
@@ -375,7 +375,7 @@ Class.hyperspinmissile = {
             STAT_CALCULATOR: "thruster"
         }
     }, 4)
-}
+};
 Class.hive = {
     PARENT: "bullet",
     LABEL: "Hive",
@@ -398,7 +398,7 @@ Class.hive = {
             AUTOFIRE: true
         }
     }, 5, {delayIncrement: 0.2})
-}
+};
 Class.protoHive = {
     PARENT: "bullet",
     LABEL: "Proto-Hive",
@@ -419,7 +419,7 @@ Class.protoHive = {
             AUTOFIRE: true
         }
     }, 3, {delayIncrement: 1/3})
-}
+};
 Class.hyperHive = {
     PARENT: "bullet",
     LABEL: "Hyper-Hive",
@@ -440,7 +440,7 @@ Class.hyperHive = {
             AUTOFIRE: true
         }
     }, 7, {delayIncrement: 1/7})
-}
+};
 Class.snake = {
     PARENT: "missile",
     LABEL: "Snake",
@@ -465,7 +465,7 @@ Class.snake = {
             }
         }
     ]
-}
+};
 Class.rocketeerMissile = {
     PARENT: "missile",
     GUNS: [
@@ -479,7 +479,7 @@ Class.rocketeerMissile = {
             }
         }
     ]
-}
+};
 Class.sentinelMissile = {
     PARENT: "bullet",
     LABEL: "Missile",
@@ -515,7 +515,7 @@ Class.sentinelMissile = {
             }
         }
     ]
-}
+};
 Class.kronosMissile = {
     PARENT: "missile",
     GUNS: [
@@ -557,7 +557,7 @@ Class.kronosMissile = {
             POSITION: [13, 6, 1, 0, 0, -90, 0]
         }
     ]
-}
+};
 Class.autoSmasherMissile = {
     PARENT: "missile",
     HITS_OWN_TYPE: "never",
@@ -571,7 +571,7 @@ Class.autoSmasherMissile = {
             TYPE: "autoSmasherMissileTurret"
         }
     ]
-}
+};
 
 // Healer Projectiles
 Class.healerBullet = {
@@ -587,7 +587,7 @@ Class.healerBullet = {
         PUSHABILITY: Class.bullet.BODY.PENETRATION
     },
     HEALER: true
-}
+};
 Class.healerSatellite = {
     PARENT: "satellite",
     HITS_OWN_TYPE: "push",
@@ -610,14 +610,14 @@ Class.healerSatellite = {
             TYPE: "healerHat"
         }
     ]
-}
+};
 Class.healerSanctuaryBullet = {
     PARENT: "healerBullet",
     HITS_OWN_TYPE: "never"
-}
+};
 
 // Drones
-Class.bigBall = {PARENT: "drone", SHAPE: 8}
+Class.bigBall = {PARENT: "drone", SHAPE: 8};
 Class.sunchip = {
     PARENT: "drone",
     SHAPE: 4,
@@ -631,18 +631,18 @@ Class.sunchip = {
         FARMER: true
     },
     DRAW_HEALTH: false
-}
-Class.eggchip = {PARENT: "sunchip", NECRO: [0], SHAPE: 0}
+};
+Class.eggchip = {PARENT: "sunchip", NECRO: [0], SHAPE: 0};
 
 // Mystical Drones
-Class.summonerDrone = {PARENT: "sunchip", NECRO: false}
-Class.sorcererDrone = {...Class.summonerDrone, SHAPE: 0}
-Class.enchantressDrone = {...Class.summonerDrone, SHAPE: 3}
-Class.exorcistorDrone = {...Class.summonerDrone, SHAPE: 5}
-Class.shamanDrone = {...Class.summonerDrone, SHAPE: 6}
-Class.sangomaDrone = {...Class.summonerDrone, SHAPE: 7}
-Class.preacherDrone = {...Class.summonerDrone, SHAPE: 8}
-Class.herbalistDrone = {...Class.summonerDrone, SHAPE: 9}
+Class.summonerDrone = {PARENT: "sunchip", NECRO: false};
+Class.sorcererDrone = {...Class.summonerDrone, SHAPE: 0};
+Class.enchantressDrone = {...Class.summonerDrone, SHAPE: 3};
+Class.exorcistorDrone = {...Class.summonerDrone, SHAPE: 5};
+Class.shamanDrone = {...Class.summonerDrone, SHAPE: 6};
+Class.sangomaDrone = {...Class.summonerDrone, SHAPE: 7};
+Class.preacherDrone = {...Class.summonerDrone, SHAPE: 8};
+Class.herbalistDrone = {...Class.summonerDrone, SHAPE: 9};
 
 // Minions
 Class.genericMinion = {
@@ -675,7 +675,7 @@ Class.genericMinion = {
         "canRepel",
         "hangOutNearMaster"
     ]
-}
+};
 Class.minion = {
     PARENT: "genericMinion",
     GUNS: [
@@ -691,7 +691,7 @@ Class.minion = {
             }
         }
     ]
-}
+};
 Class.tinyMinion = {
     PARENT: "minion",
     LABEL: "Swarm Minion",
@@ -723,7 +723,7 @@ Class.tinyMinion = {
     ],
     DIE_AT_RANGE: true,
     BUFF_VS_FOOD: true
-}
+};
 Class.megaMinion = {
     PARENT: "minion",
     LABEL: "Mega Minion",
@@ -748,7 +748,7 @@ Class.megaMinion = {
             }
         }
     ]
-}
+};
 Class.desmosMinion = {
     PARENT: "minion",
     GUNS: [
@@ -774,7 +774,7 @@ Class.desmosMinion = {
             }
         })
     ]
-}
+};
 Class.wranglerMinion = {
     PARENT: "minion",
     ON: [
@@ -796,7 +796,7 @@ Class.wranglerMinion = {
                     seg.define(segmentClass);
                     body.store.snakeSegments.push(seg);
                 }
-                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead())
+                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead());
                 let previous = body;
                 const children = body.store.snakeSegments;
             
@@ -816,7 +816,7 @@ Class.wranglerMinion = {
             }
         }
     ]
-}
+};
 
 // Satellites
 Class.satellite_old = {
@@ -827,8 +827,8 @@ Class.satellite_old = {
             POSITION: { SIZE: 28 }
         }
     ]
-}
-Class.squareSatellite = { PARENT: "satellite", SHAPE: 4 }
+};
+Class.squareSatellite = { PARENT: "satellite", SHAPE: 4 };
 
 // Traps
 Class.satelliteTrap = {
@@ -840,7 +840,7 @@ Class.satelliteTrap = {
         SPEED: 2 
     },
     GUNS: (() => { 
-        let output = []
+        let output = [];
         for (let i = 0; i < 3; i++) {
             output.push({
                 POSITION: {WIDTH: 16, LENGTH: 1, DELAY: 0},
@@ -853,11 +853,11 @@ Class.satelliteTrap = {
                     WAIT_TO_CYCLE: true,
                     ALPHA: 0
                 }
-            })
+            });
         }
-        return output
+        return output;
     })()
-}
+};
 Class.setTrap = {
     PARENT: "trap",
     LABEL: "Set Trap",
@@ -868,7 +868,7 @@ Class.setTrap = {
         SPEED: 1,
         DENSITY: 5
     }
-}
+};
 Class.unsetTrap = {
     PARENT: "trap",
     LABEL: "Set Trap",
@@ -878,7 +878,7 @@ Class.unsetTrap = {
         SPEED: 1,
         DENSITY: 5
     }
-}
+};
 Class.assemblent = {
     PARENT: "setTrap",
     LABEL: "Assemblent",
@@ -895,7 +895,7 @@ Class.assemblent = {
         }
     ],
     HITS_OWN_TYPE: "assembler"
-}
+};
 Class.boomerang = {
     PARENT: "trap",
     LABEL: "Boomerang",
@@ -907,17 +907,17 @@ Class.boomerang = {
         SPEED: 1.25,
         RANGE: 120
     }
-}
+};
 Class.shotTrapBox = {
     PARENT: "unsetTrap",
     MOTION_TYPE: "glide"
-}
+};
 Class.oroborosTrapSegment = {
     PARENT: "unsetTrap",
     COLOR: "mirror",
     DIE_AT_RANGE: false,
     CLEAR_ON_MASTER_UPGRADE: true
-}
+};
 Class.oroborosTrap = {
     PARENT: "unsetTrap",
     ON: [
@@ -935,17 +935,17 @@ Class.oroborosTrap = {
                     seg.master = body;
                     seg.source = body;
                     seg.SIZE = body.SIZE;
-                    seg.skill.raw = body.skill.raw
-                    seg.skill = body.skill
-                    seg.DAMAGE = body.DAMAGE
-                    seg.HEALTH = body.HEALTH
-                    seg.PENETRATION = body.PENETRATION
-                    seg.refreshBodyAttributes()
-                    seg.refreshSkills()
+                    seg.skill.raw = body.skill.raw;
+                    seg.skill = body.skill;
+                    seg.DAMAGE = body.DAMAGE;
+                    seg.HEALTH = body.HEALTH;
+                    seg.PENETRATION = body.PENETRATION;
+                    seg.refreshBodyAttributes();
+                    seg.refreshSkills();
 
                     body.store.snakeSegments.push(seg);
                 }
-                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead())
+                body.store.snakeSegments = body.store.snakeSegments.filter((x) => !x.isDead());
                 let previous = body;
                 const children = body.store.snakeSegments;
             
@@ -965,7 +965,7 @@ Class.oroborosTrap = {
             }
         }
     ]
-}
+};
 Class.beemanTrap = {
     PARENT: "setTrap",
     SHAPE: 9,
@@ -981,7 +981,7 @@ Class.beemanTrap = {
             SHOOT_ON_DEATH: true
         }
     }, 100)
-}
+};
 
 // Pillboxes
 Class.pillbox = {
@@ -995,7 +995,7 @@ Class.pillbox = {
             TYPE: "pillboxTurret"
         }
     ]
-}
+};
 Class.legionaryPillbox = {
     PARENT: "unsetTrap",
     LABEL: "Pillbox",
@@ -1010,7 +1010,7 @@ Class.legionaryPillbox = {
             TYPE: "legionaryTwin"
         }
     ]
-}
+};
 Class.unsetPillbox = {
     PARENT: "unsetTrap",
     LABEL: "Pillbox",
@@ -1022,7 +1022,7 @@ Class.unsetPillbox = {
             TYPE: "pillboxTurret"
         }
     ]
-}
+};
 Class.medkit = {
     PARENT: "trap",
     LABEL: "Medkit",
@@ -1054,14 +1054,14 @@ Class.autoswarm = {
         FARMER: true
     },
     INDEPENDENT: true
-}
+};
 Class.bee = {
     PARENT: "swarm",
     PERSISTS_AFTER_DEATH: true,
     SHAPE: 4,
     LABEL: "Drone",
     HITS_OWN_TYPE: "hardWithBuffer"
-}
+};
 Class.baseSwarmTurret_swarm = {
     PARENT: "swarm",
     MOTION_TYPE: ["swarm", { turnVelocity: 10 }],
@@ -1079,21 +1079,21 @@ Class.baseSwarmTurret_swarm = {
         FOV: 1.7,
         KNOCKBACK: 15
     }
-}
+};
 Class.homingBullet = {
     PARENT: "bullet",
     LABEL: "Homing Bullet",
     MOTION_TYPE: "swarm",
     FACING_TYPE: "smoothWithMotion",
     CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal"]
-}
+};
 Class.autoHomingBullet = {
     PARENT: "homingBullet",
     AI: {
         FARMER: true
     },
     INDEPENDENT: true
-}
+};
 Class.splitterBullet = {
     PARENT: "bullet",
     INDEPENDENT: true,
@@ -1132,7 +1132,7 @@ Class.splitterBullet = {
             }
         }
     ]
-}
+};
 Class.superSplitterBullet = {
     PARENT: "bullet",
     INDEPENDENT: true,
@@ -1174,7 +1174,7 @@ Class.superSplitterBullet = {
             }
         }
     ]
-}
+};
 
 // -Drive projectiles
 Class.autoDrone = makeAuto("drone", "Auto-Drone", {type: "droneAutoTurret"});
@@ -1365,7 +1365,7 @@ Class.averageL39HuntOctoTank = {
     PARENT: "average4tdmScoreOctoTank",
     NAME: "[L-39]",
     TURRETS: [] // need to reapply for it to work again
-}
+};
 Class.averageL39HuntSidewinder = {
     PARENT: "genericTank",
     LABEL: "Sidewinder",

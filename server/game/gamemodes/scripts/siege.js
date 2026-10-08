@@ -204,7 +204,7 @@ class Siege {
                                 `Your team will lose in ${timeRemaining} Secon${timeRemaining == 1 ? "d" : "ds"}.`
                             );
                         }
-                    }, 1000) // 1 Second.
+                    }, 1000); // 1 Second.
                 }
             }
             global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
@@ -228,14 +228,14 @@ class Siege {
             this.gameActive = false;
             global.gameManager.socketManager.broadcast("Your team has won the game!");
             setTimeout(() => {
-                global.gameManager.closeArena() 
+                global.gameManager.closeArena(); 
             }, 1500);
         }
     }
     bossWin() {
         global.gameManager.socketManager.broadcast("Team boss has won the game!");
         setTimeout(() => {
-            global.gameManager.closeArena() 
+            global.gameManager.closeArena(); 
         }, 1500);
     }
     playerLose() {
@@ -243,7 +243,7 @@ class Siege {
             this.gameActive = false;
             global.gameManager.socketManager.broadcast("Your team has lost the game.");
             setTimeout(() => {
-                this.bossWin() 
+                this.bossWin(); 
             }, 3000);
         }
     }
@@ -273,7 +273,7 @@ class Siege {
     spawnWave(waveId) {
     //yell at everyone
         global.gameManager.socketManager.broadcast(`Wave ${waveId + 1} has started!`);
-        util.log(`Wave ${waveId + 1} has started!`)
+        util.log(`Wave ${waveId + 1} has started!`);
 
         //spawn bosses
         for (let boss of this.waves[waveId]) {
@@ -320,7 +320,7 @@ class Siege {
                 let wall = new Entity({
                     x: global.gameManager.room.width / width * element.x - global.gameManager.room.width / 2 + global.gameManager.room.width / width / 2 * element.size, 
                     y: global.gameManager.room.height / height * element.y - global.gameManager.room.height / 2 + global.gameManager.room.height / height / 2 * element.size
-                })
+                });
                 wall.define("wall");
                 wall.SIZE = global.gameManager.room.width / width / 2 * element.size / lazyRealSizes[4] * Math.SQRT2 - 2;
                 wall.life();
@@ -329,9 +329,9 @@ class Siege {
                 walls.push(wall);
                 if (Config.spooky_theme) {
                     let eyeSize = 12 * (Math.random() + 0.45);
-                    let spookyEye = new Entity({ x: wall.x + (wall.size - eyeSize * 2) * Math.random() - wall.size / 2, y: wall.y + (wall.size - eyeSize * 2) * Math.random() - wall.size / 2 })
+                    let spookyEye = new Entity({ x: wall.x + (wall.size - eyeSize * 2) * Math.random() - wall.size / 2, y: wall.y + (wall.size - eyeSize * 2) * Math.random() - wall.size / 2 });
                     spookyEye.define("hwEye");
-                    spookyEye.define({FACING_TYPE: ["manual", {angle: ran.randomAngle()}]})
+                    spookyEye.define({FACING_TYPE: ["manual", {angle: ran.randomAngle()}]});
                     spookyEye.SIZE = eyeSize;
                     spookyEye.minimapColor = 18;
                 }

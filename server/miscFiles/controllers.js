@@ -14,7 +14,7 @@ let compressMovementOffsets = [
         return {
             x: current.x + offset.x,
             y: current.y + offset.y
-        }
+        };
     },
     CLLonSegment = (p0, p1, q0, q1, r0, r1) => {
         return q0 <= Math.max(p0, r0) && q0 >= Math.min(p0, r0) && q1 <= Math.max(p1, r1) && q1 >= Math.min(p1, r1);
@@ -86,8 +86,8 @@ let compressMovementOffsets = [
 // Define IOs (AI)
 class IO {
     constructor(body) {
-        this.body = body
-        this.acceptsFromTop = true
+        this.body = body;
+        this.acceptsFromTop = true;
     }
     think() {
         return {
@@ -97,7 +97,7 @@ class IO {
             main: null,
             alt: null,
             power: null
-        }
+        };
     }
 }
 class io_siegeAI extends IO {
@@ -114,14 +114,14 @@ class io_siegeAI extends IO {
         if (this.enabled) {
             return {
                 goal: this.goalDefault
-            }
+            };
         }
     }
 }
 class io_doNothing extends IO {
     constructor(body) {
-        super(body)
-        this.acceptsFromTop = false
+        super(body);
+        this.acceptsFromTop = false;
     }
     think() {
         return {
@@ -132,34 +132,34 @@ class io_doNothing extends IO {
             main: false,
             alt: false,
             fire: false
-        }
+        };
     }
 }
 class io_moveInCircles extends IO {
     constructor(body, opts = {}) {
         super(body);
-        this.acceptsFromTop = false
-        this.timer = ran.irandom(5) + 3
+        this.acceptsFromTop = false;
+        this.timer = ran.irandom(5) + 3;
         this.pathAngle = ran.random(2 * Math.PI);
         this.goal = {
             x: this.body.x + 10 * Math.cos(this.pathAngle),
             y: this.body.y + 10 * Math.sin(this.pathAngle)
-        }
+        };
     }
     think() {
         if (!this.timer--) {
-            this.timer = 5
+            this.timer = 5;
             this.goal = {
                 x: this.body.x + 10 * Math.cos(this.pathAngle),
                 y: this.body.y + 10 * Math.sin(this.pathAngle)
-            }
+            };
             // turnWithSpeed turn speed (but condensed over 5 ticks)
             this.pathAngle -= ((this.body.velocity.length / 90) * Math.PI) / global.gameManager.runSpeed * 5;
         }
         return {
             goal: this.goal,
             power: this.body.ACCELERATION > 0.1 ? 0.2 : 1
-        }
+        };
     }
 }
 class io_listenToPlayer extends IO {
@@ -216,7 +216,7 @@ class io_listenToPlayer extends IO {
 }
 class io_mapTargetToGoal extends IO {
     constructor(b) {
-        super(b)
+        super(b);
     }
     think(input) {
         if (input.main || input.alt) {
@@ -226,28 +226,28 @@ class io_mapTargetToGoal extends IO {
                     y: input.target.y + this.body.y
                 },
                 power: 1
-            }
+            };
         }
     }
 }
 class io_boomerang extends IO {
     constructor(b) {
-        super(b)
-        this.r = 0
-        this.b = b
-        this.m = b.master
-        this.turnover = false
+        super(b);
+        this.r = 0;
+        this.b = b;
+        this.m = b.master;
+        this.turnover = false;
         let len = 10 * util.getDistance({
             x: 0,
             y: 0
-        }, b.master.control.target)
+        }, b.master.control.target);
         this.myGoal = {
             x: 3 * b.master.control.target.x + b.master.x,
             y: 3 * b.master.control.target.y + b.master.y
-        }
+        };
     }
     think(input) {
-        if (this.b.range > this.r) this.r = this.b.range
+        if (this.b.range > this.r) this.r = this.b.range;
         let t = 1; //1 - Math.sin(2 * Math.PI * this.b.range / this.r) || 1
         if (!this.turnover) {
             if (this.r && this.b.range < this.r * 0.5) {
@@ -256,7 +256,7 @@ class io_boomerang extends IO {
             return {
                 goal: this.myGoal,
                 power: t
-            }
+            };
         } else {
             return {
                 goal: {
@@ -264,36 +264,36 @@ class io_boomerang extends IO {
                     y: this.m.y
                 },
                 power: t
-            }
+            };
         }
     }
 }
 class io_goToMasterTarget extends IO {
     constructor(body) {
-        super(body)
+        super(body);
 
-        const master = body.master
+        const master = body.master;
 
         // Start with the raw mouse/input offset
-        let offsetX = master.control.target.x
-        let offsetY = master.control.target.y
+        let offsetX = master.control.target.x;
+        let offsetY = master.control.target.y;
 
         // Match how facing/turrets handle reverse:
         // reverse = 1 if reverseTargetWithTank is true,
         // otherwise use reverseTank (usually 1 or -1)
-        const reverseTank = master.reverseTank != null ? master.reverseTank : 1
-        const reverseTargetWithTank = !!master.reverseTargetWithTank
-        const reverse = reverseTargetWithTank ? 1 : reverseTank
+        const reverseTank = master.reverseTank != null ? master.reverseTank : 1;
+        const reverseTargetWithTank = !!master.reverseTargetWithTank;
+        const reverse = reverseTargetWithTank ? 1 : reverseTank;
 
         // If reverseTank is -1 (and reverseTargetWithTank is false),
         // this flips the offset across the tank
-        offsetX *= reverse
-        offsetY *= reverse
+        offsetX *= reverse;
+        offsetY *= reverse;
 
         this.myGoal = {
             x: master.x + offsetX,
             y: master.y + offsetY
-        }
+        };
         this.countdown = 5;
     }
     think() {
@@ -306,18 +306,18 @@ class io_goToMasterTarget extends IO {
                     x: this.myGoal.x,
                     y: this.myGoal.y
                 }
-            }
+            };
         }
     }
 }
 class io_canRepel extends IO {
     constructor(b) {
-        super(b)
+        super(b);
     }
     think(input) {
         if (input.alt && input.target) {
-            let x = this.body.master.master.x - this.body.x
-            let y = this.body.master.master.y - this.body.y
+            let x = this.body.master.master.x - this.body.x;
+            let y = this.body.master.master.y - this.body.y;
             // if (x * x + y * y < 2250000) // (50 * 30) ^ 2
             return {
                 target: {
@@ -325,23 +325,23 @@ class io_canRepel extends IO {
                     y: -input.target.y
                 },
                 main: true
-            }
+            };
         }
     }
 }
 class io_alwaysFire extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
     think() {
         return {
             fire: true
-        }
+        };
     }
 }
 class io_targetSelf extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
     think() {
         return {
@@ -350,18 +350,18 @@ class io_targetSelf extends IO {
                 x: 0,
                 y: 0
             }
-        }
+        };
     }
 }
 class io_mapAltToFire extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
     think(input) {
         if (input.alt) {
             return {
                 fire: true
-            }
+            };
         }
     }
 }
@@ -372,13 +372,13 @@ class io_mapFireToAlt extends IO {
     }
     think(input) {
         if (input.fire && this.body.gunsArrayed) {
-            for (let i = 0; i < this.body.gunsArrayed.length; i++) if (!this.onlyIfHasAltFireGun || this.body.gunsArrayed[i].altFire) return { alt: true }
+            for (let i = 0; i < this.body.gunsArrayed.length; i++) if (!this.onlyIfHasAltFireGun || this.body.gunsArrayed[i].altFire) return { alt: true };
         }
     }
 }
 class io_onlyAcceptInArc extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
     think(input) {
         if (input.target && this.body.firingArc != null) {
@@ -387,7 +387,7 @@ class io_onlyAcceptInArc extends IO {
                     fire: false,
                     alt: false,
                     main: false
-                }
+                };
             }
         }
     }
@@ -730,46 +730,46 @@ class io_healTeamMasters extends IO {
 }
 class io_avoid extends IO {
     constructor(body) {
-        super(body)
+        super(body);
     }
     think(input) {
-        let masterId = this.body.master.id
-        let range = this.body.size * this.body.size * 100
+        let masterId = this.body.master.id;
+        let range = this.body.size * this.body.size * 100;
         this.avoid = nearest(entities, {
             x: this.body.x,
             y: this.body.y
         }, function(test, sqrdst) {
             return (test.master.id !== masterId && (test.type === "bullet" || test.type === "drone" || test.type === "swarm" || test.type === "trap" || test.type === "block") && sqrdst < range);
-        })
+        });
         // Aim at that target
         if (this.avoid != null) {
             // Consider how fast it's moving.
-            let delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y)
+            let delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y);
             let diff = new Vector(this.avoid.x - this.body.x, this.avoid.y - this.body.y);
-            let comp = (delt.x * diff.x + delt.y * diff.y) / delt.length / diff.length
-            let goal = {}
+            let comp = (delt.x * diff.x + delt.y * diff.y) / delt.length / diff.length;
+            let goal = {};
             if (comp > 0) {
                 if (input.goal) {
-                    let goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y))
+                    let goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y));
                     goal = {
                         x: input.goal.x * goalDist - diff.x * comp,
                         y: input.goal.y * goalDist - diff.y * comp
-                    }
+                    };
                 } else {
                     goal = {
                         x: -diff.x * comp,
                         y: -diff.y * comp
-                    }
+                    };
                 }
-                return goal
+                return goal;
             }
         }
     }
 }
 class io_minion extends IO {
     constructor(body, opts = {}) {
-        super(body)
-        this.turnwise = 1
+        super(body);
+        this.turnwise = 1;
         this.opts = opts;
     }
     think(input) {
@@ -777,68 +777,68 @@ class io_minion extends IO {
             this.turnwise = -1 * this.turnwise;
         }
         if (input.target != null && (input.alt || input.main)) {
-            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE)
-            let leash = 82 * sizeFactor
-            let orbit = this.opts.turnwiserange ?? 140 * sizeFactor
-            let repel = 142 * sizeFactor
-            let goal
-            let power = 1
-            let target = new Vector(input.target.x, input.target.y)
+            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE);
+            let leash = 82 * sizeFactor;
+            let orbit = this.opts.turnwiserange ?? 140 * sizeFactor;
+            let repel = 142 * sizeFactor;
+            let goal;
+            let power = 1;
+            let target = new Vector(input.target.x, input.target.y);
             if (input.alt) {
                 // Leash
                 if (target.length < leash) {
                     goal = {
                         x: this.body.x + target.x,
                         y: this.body.y + target.y
-                    }
+                    };
                     // Spiral repel
                 } else if (target.length < repel) {
-                    let dir = -this.turnwise * target.direction + Math.PI / 5
+                    let dir = -this.turnwise * target.direction + Math.PI / 5;
                     goal = {
                         x: this.body.x + Math.cos(dir),
                         y: this.body.y + Math.sin(dir)
-                    }
+                    };
                     // Free repel
                 } else {
                     goal = {
                         x: this.body.x - target.x,
                         y: this.body.y - target.y
-                    }
+                    };
                 }
             } else if (input.main) {
                 // Orbit point
-                let dir = this.turnwise * target.direction + 0.01
+                let dir = this.turnwise * target.direction + 0.01;
                 goal = {
                     x: this.body.x + target.x - orbit * Math.cos(dir),
                     y: this.body.y + target.y - orbit * Math.sin(dir)
-                }
+                };
                 if (Math.abs(target.length - orbit) < this.body.size * 2) {
-                    power = 0.7
+                    power = 0.7;
                 }
             }
             return {
                 goal: goal,
                 power: power
-            }
+            };
         }
     }
 }
 class io_hangOutNearMaster extends IO {
     constructor(body) {
-        super(body)
-        this.acceptsFromTop = false
-        this.orbit = 30
+        super(body);
+        this.acceptsFromTop = false;
+        this.orbit = 30;
         this.currentGoal = {
             x: this.body.source.x,
             y: this.body.source.y
-        }
-        this.timer = 0
+        };
+        this.timer = 0;
     }
     think(input) {
-        if (this.body.invisible[1]) return {}
+        if (this.body.invisible[1]) return {};
         if (this.body.source !== this.body) {
-            let bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size
-            let bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size
+            let bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size;
+            let bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size;
             let dist = util.getDistance(this.body, this.body.source) + Math.PI / 8;
             let output = {
                 target: {
@@ -850,26 +850,26 @@ class io_hangOutNearMaster extends IO {
             };
             // Set a goal
             if (dist > bound2 || this.timer > 30) {
-                this.timer = 0
+                this.timer = 0;
                 let dir = util.getDirection(this.body, this.body.source) + Math.PI * ran.random(0.5);
-                let len = ran.randomRange(bound1, bound2)
-                let x = this.body.source.x - len * Math.cos(dir)
-                let y = this.body.source.y - len * Math.sin(dir)
+                let len = ran.randomRange(bound1, bound2);
+                let x = this.body.source.x - len * Math.cos(dir);
+                let y = this.body.source.y - len * Math.sin(dir);
                 this.currentGoal = { x: x, y: y };
             }
             if (dist < bound2) {
-                output.power = 0.15
+                output.power = 0.15;
                 if (ran.chance(0.3)) {
                     this.timer++;
                 }
             }
-            return output
+            return output;
         }
     }
 }
 class io_spin extends IO {
     constructor(b, opts = {}) {
-        super(b)
+        super(b);
         this.a = opts.startAngle || 0;
         this.speed = opts.speed ?? 0.04;
         this.onlyWhenIdle = opts.onlyWhenIdle;
@@ -920,7 +920,7 @@ class io_spin2 extends IO {
 }
 class io_fleeAtLowHealth extends IO {
     constructor(b) {
-        super(b)
+        super(b);
         this.fear = util.clamp(ran.gauss(0.7, 0.15), 0.1, 0.9);
         b.fear = this.fear;
     }
@@ -931,7 +931,7 @@ class io_fleeAtLowHealth extends IO {
                     x: this.body.x - input.target.x,
                     y: this.body.y - input.target.y
                 }
-            }
+            };
         }
     }
 }
@@ -1012,18 +1012,18 @@ class io_wanderAroundMap extends IO {
                 }, {
                     x: global.gameManager.room.width / this.howFarAwayFromEdgeOfMap, // bottom left
                     y: global.gameManager.room.height - (global.gameManager.room.height / this.howFarAwayFromEdgeOfMap)
-                }]
-                this.tick++
-                this.currentGoal = points[this.i]
-                let distanceFromPoint = util.getDistance(this.body, this.currentGoal)
+                }];
+                this.tick++;
+                this.currentGoal = points[this.i];
+                let distanceFromPoint = util.getDistance(this.body, this.currentGoal);
                 if (this.tick >= 100 + distanceFromPoint + (this.body.SPEED < 5 ? 1000 : 0)) {
-                    this.tick = 0
+                    this.tick = 0;
                     if (this.i >= points.length - 1) {
-                        this.i = 0
+                        this.i = 0;
                     } else {
-                        this.i++
+                        this.i++;
                     }
-                    this.currentGoal = points[this.i]
+                    this.currentGoal = points[this.i];
                 }
                 return {
                     goal: {
@@ -1034,7 +1034,7 @@ class io_wanderAroundMap extends IO {
                         x: this.currentGoal.x,
                         y: this.currentGoal.y
                     } : null
-                }
+                };
             }
             if (new Vector(this.body.x - this.spot.x, this.body.y - this.spot.y).isShorterThan(50) || wouldHitWall(this.body, this.spot, true)) {
                 this.spot = ran.choose(global.gameManager.room.spawnableDefault).randomInside();
@@ -1141,22 +1141,22 @@ class io_advancedOrbit extends IO {
         this.realDist = 0;
         this.invertRotation = opts.invertRotation ?? false;
         this.invertDistance = opts.invertDistance ?? false;
-        this.offset = opts.offset ?? 0 // you can offset the satilites with this, make some of them further out than others, or closer
+        this.offset = opts.offset ?? 0; // you can offset the satilites with this, make some of them further out than others, or closer
         this.spinMulti = opts.spinMulti ?? 1; // you can increase or decrease spin speed with this.
-        this.ovalLengthMulti = opts.ovalLengthMulti ?? 0
-        this.ovalWidthMulti = opts.ovalWidthMulti ?? 0
-        this.rotation = opts.rotation ?? 0 // this is for oval, this sets where the long side is.
-        this.gradualSpin = opts.gradualSpin ?? 0 // this is for ovals, it makes the oval rotate.
-        this.centerOffset = opts.centerOffset ?? 0
-        this.centerOffsetAngle = opts.centerOffsetAngle ?? 0
-        this.distanceMulti = opts.distanceMulti ?? 1 // this changes how far the satiletties go when you repel them
-        this.minDistanceForFix = opts.minDistForFix ?? 3.5 // just min distance for whirlwind
-        this.fixDistance = opts.fixDistance ?? 0 // this works with distance multi, it moves the bullets back to the min distance
-        this.speedWithDistance = opts.speedWithDistance ?? 0 //the tempory increase of spin speed when you change the orbit distance in game
-        this.changeMaster = opts.changeMaster ?? false // make it so bullet whirlwinds work
-        this.mirrorMasterVelocity = opts.mirrorVelocity ?? false // adds the bodies velocity to the satellites
-        this.mirrorMasterAcceleration = opts.mirrorAcceleration ?? false // adds the bodies acceleration to the satellites
-        this.accountForVelocity = opts.accountForVelocity ?? false // fixes satellites that trail 
+        this.ovalLengthMulti = opts.ovalLengthMulti ?? 0;
+        this.ovalWidthMulti = opts.ovalWidthMulti ?? 0;
+        this.rotation = opts.rotation ?? 0; // this is for oval, this sets where the long side is.
+        this.gradualSpin = opts.gradualSpin ?? 0; // this is for ovals, it makes the oval rotate.
+        this.centerOffset = opts.centerOffset ?? 0;
+        this.centerOffsetAngle = opts.centerOffsetAngle ?? 0;
+        this.distanceMulti = opts.distanceMulti ?? 1; // this changes how far the satiletties go when you repel them
+        this.minDistanceForFix = opts.minDistForFix ?? 3.5; // just min distance for whirlwind
+        this.fixDistance = opts.fixDistance ?? 0; // this works with distance multi, it moves the bullets back to the min distance
+        this.speedWithDistance = opts.speedWithDistance ?? 0; //the tempory increase of spin speed when you change the orbit distance in game
+        this.changeMaster = opts.changeMaster ?? false; // make it so bullet whirlwinds work
+        this.mirrorMasterVelocity = opts.mirrorVelocity ?? false; // adds the bodies velocity to the satellites
+        this.mirrorMasterAcceleration = opts.mirrorAcceleration ?? false; // adds the bodies acceleration to the satellites
+        this.accountForVelocity = opts.accountForVelocity ?? false; // fixes satellites that trail 
     }
     think(input) {
         let invertRotationFactor = this.invertRotation ? -1 : 1,
@@ -1172,7 +1172,7 @@ class io_advancedOrbit extends IO {
         } else if (this.realDist < dist) {
             this.realDist += Math.min(10, Math.abs(dist - this.realDist));
         }
-        let fixAmount = this.minDistanceForFix * (this.distanceMulti - 1) * -1
+        let fixAmount = this.minDistanceForFix * (this.distanceMulti - 1) * -1;
         let radiusSizeMulti = master.size * this.offset,
             ovalLengthMultiplier = (this.ovalLengthMulti * master.size),
             ovalWidthMultiplier = (this.ovalWidthMulti * master.size),
@@ -1181,8 +1181,8 @@ class io_advancedOrbit extends IO {
             xDistance = (Math.cos(angle) * (distanceMulti + radiusSizeMulti + ovalLengthMultiplier + fixAmountMulti)),
             yDistance = (Math.sin(angle) * (distanceMulti + radiusSizeMulti + ovalWidthMultiplier + fixAmountMulti));
 
-        let addedX = this.accountForVelocity ? this.body.velocity.x : 0
-        let addedY = this.accountForVelocity ? this.body.velocity.y : 0
+        let addedX = this.accountForVelocity ? this.body.velocity.x : 0;
+        let addedY = this.accountForVelocity ? this.body.velocity.y : 0;
         let centerX = master.x + ((this.centerOffset * Math.cos(this.centerOffsetAngle * (Math.PI / 180))) * master.size),
             centerY = master.y + ((this.centerOffset * Math.sin(this.centerOffsetAngle * (Math.PI / 180))) * master.size);
 
@@ -1190,12 +1190,12 @@ class io_advancedOrbit extends IO {
         this.body.y = (centerY + addedY) + (xDistance * Math.sin(finalRotation) + yDistance * Math.cos(finalRotation));
 
         if (this.mirrorMasterVelocity) {
-            this.body.velocity.x = master.velocity.x
-            this.body.velocity.y = master.velocity.y
+            this.body.velocity.x = master.velocity.x;
+            this.body.velocity.y = master.velocity.y;
         }
         if (this.mirrorMasterAcceleration) {
-            this.body.accel.x = master.accel.x
-            this.body.accel.y = master.accel.y
+            this.body.accel.x = master.accel.x;
+            this.body.accel.y = master.accel.y;
         }
         this.body.facing = angle;
     }
@@ -1231,7 +1231,7 @@ class io_snake extends IO {
         this.body.x = util.lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
         this.body.y = util.lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
         // Accelerate after spawning
-        this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed)
+        this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed);
     }
 }
 
@@ -1273,7 +1273,7 @@ class io_scaleWithMaster extends IO {
     constructor(body) {
         super(body);
         this.storedSize = 0;
-        this.ratio = this.body.SIZE * 4.1
+        this.ratio = this.body.SIZE * 4.1;
     }
     think(input) {
         let masterSize = this.body.master.size;
@@ -1303,7 +1303,7 @@ class io_snakeTillNot extends IO {
         // Clamp scale to [45, 75]
         // Attempts to get the bullets to intersect with the cursor
         this.waveHorizontalScale = util.clamp(util.getDistance(this.body.master.master.control.target, {x: 0, y: 0}) / Math.PI, 45, 75);
-        this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit ??= false
+        this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit ??= false;
     }
     think(input) {
         if (!this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit) {
@@ -1317,36 +1317,36 @@ class io_snakeTillNot extends IO {
             this.body.x = util.lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
             this.body.y = util.lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
             // Accelerate after spawning
-            this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed)
+            this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed);
         }
     }
 }
 class io_oroboros extends IO {
     constructor(body, opts = {}) {
         super(body);
-        this.masterX = body.master.control.target.x // Airstrike bullshit js ignore it
-        this.masterY = body.master.control.target.y // Airstrike bullshit js ignore it
-        this.masterBodyX = body.master.x            // Airstrike bullshit js ignore it
-        this.masterBodyY = body.master.y            // Airstrike bullshit js ignore it
+        this.masterX = body.master.control.target.x; // Airstrike bullshit js ignore it
+        this.masterY = body.master.control.target.y; // Airstrike bullshit js ignore it
+        this.masterBodyX = body.master.x;            // Airstrike bullshit js ignore it
+        this.masterBodyY = body.master.y;            // Airstrike bullshit js ignore it
         this.myGoal = {
             x: body.master.control.target.x + body.master.x,
             y: body.master.control.target.y + body.master.y
-        }
-        this.range = opts.range ??= 5
-        this.range = Math.max(this.range, 0)
-        this.x = 0
-        this.gonnaGoInFUCKINGCircles = false
-        this.speed = opts.speed ??= Math.PI / 8
-        this.speed *= (body.skill.raw[4] / 9) + 1
+        };
+        this.range = opts.range ??= 5;
+        this.range = Math.max(this.range, 0);
+        this.x = 0;
+        this.gonnaGoInFUCKINGCircles = false;
+        this.speed = opts.speed ??= Math.PI / 8;
+        this.speed *= (body.skill.raw[4] / 9) + 1;
         this.lerpTimer = 0;
-        body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = false
+        body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = false;
     };
     think(input) {
-        this.x += this.speed
+        this.x += this.speed;
         if (util.getDistance({x: this.masterBodyX, y: this.masterBodyY}, {x: this.body.x, y: this.body.y}) > util.getDistance({x: 0, y: 0}, {x: this.masterX, y: this.masterY}) || this.gonnaGoInFUCKINGCircles) {
             this.lerpTimer = Math.min(1, this.lerpTimer + 0.02);
-            this.gonnaGoInFUCKINGCircles = true
-            this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = true
+            this.gonnaGoInFUCKINGCircles = true;
+            this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = true;
             
             this.body.x = lerp(this.body.x, (this.range * Math.sin(-this.x)) + this.myGoal.x, this.lerpTimer);
             this.body.y = lerp(this.body.y, (this.range * Math.cos(-this.x)) + this.myGoal.y, this.lerpTimer);
@@ -1364,7 +1364,7 @@ class io_oroboros extends IO {
                     x: this.myGoal.x,
                     y: this.myGoal.y
                 }
-            }
+            };
         }
     }
 }

@@ -29,6 +29,6 @@ let nexus_room = [
     [____, WALL, ____, ____, ____, WALL, ____, ____, ____, ____, ____, ____, ____, WALL, ____, ____, ____, WALL, ____, ____, ____, WALL, ____],
     [____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____, ____, ____, WALL, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____]
-]
+];
 
 module.exports = nexus_room;

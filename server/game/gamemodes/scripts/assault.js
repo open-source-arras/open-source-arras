@@ -44,7 +44,7 @@ class Assault {
                 }
             }
             global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
-        })
+        });
     }
 
     defineProperties() {
@@ -61,7 +61,7 @@ class Assault {
         this.gameActive = false;
         setTimeout(() => {
             global.gameManager.closeArena();
-        }, 3000)
+        }, 3000);
     }
 
     start() {
@@ -88,7 +88,7 @@ class Assault {
             if (this.minuteTimer == 0) {
                 clearInterval(this.timerInterval);
             }
-        }, 60000)
+        }, 60000);
         this.secondaryTimeInterval = setInterval(() => {
             if (global.gameManager.arenaClosed) clearInterval(this.secondaryTimeInterval);
             if (!this.gameActive || this.timerPaused) return;
@@ -120,7 +120,7 @@ class Assault {
                     );
                 }
             }
-        }, 1000)
+        }, 1000);
     }
 
     reset() {

@@ -9,4 +9,4 @@ module.exports = {
     disable_base_check: true,
     disable_guns: true,
     room_setup: ["room_nexus"]
-}
+};

@@ -111,7 +111,7 @@ module.exports = {
                     body.sendMessage("WARNING: This tank will self-destruct in 10 seconds!");
                     setTimeout(() => {
                         body.destroy();
-                    }, 10_000)
+                    }, 10_000);
                 }
             }
         }

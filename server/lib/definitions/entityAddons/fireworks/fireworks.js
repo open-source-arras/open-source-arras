@@ -1,9 +1,9 @@
-const fireworkShapes = [0, 3, 4, "M 0 -1 L 0.3 -0.4 L 1 -0.4 L 0.6 0.3 L 0.8 1 L 0 0.6 L -0.8 1 L -0.6 0.2 L -1 -0.4 L -0.4 -0.4 Z"]
-const fireworkColors = [["blue", "red"], ["red", "orange"], ["blue", "cyan"], ["purple", "pink"], ["lime", "green"]]
-const fireworkCountMin = 6
-const fireworkCountMax = 22
-const fireworkSpeed = 7
-const fireworkRange = 25
+const fireworkShapes = [0, 3, 4, "M 0 -1 L 0.3 -0.4 L 1 -0.4 L 0.6 0.3 L 0.8 1 L 0 0.6 L -0.8 1 L -0.6 0.2 L -1 -0.4 L -0.4 -0.4 Z"];
+const fireworkColors = [["blue", "red"], ["red", "orange"], ["blue", "cyan"], ["purple", "pink"], ["lime", "green"]];
+const fireworkCountMin = 6;
+const fireworkCountMax = 22;
+const fireworkSpeed = 7;
+const fireworkRange = 25;
 
 Class.firework = {
     PARENT: "bullet",
@@ -13,7 +13,7 @@ Class.firework = {
         HEALTH: 10,
         DAMAGE: 10
     }
-}
+};
 
 let fireworkShapesClasses = [];
 for (let i = 0; i < fireworkShapes.length; i++) {
@@ -54,6 +54,6 @@ module.exports = ({ Events }) => {
             if (Config.fireworks && !body.isFirework) {
                 spawnFireworks({x: body.x, y: body.y});
             }
-        })
-    })
-}
+        });
+    });
+};

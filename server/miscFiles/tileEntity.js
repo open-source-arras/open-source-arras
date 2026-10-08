@@ -31,7 +31,7 @@ class tileEntity {
         return {
             x: global.gameManager.room.tileWidth * (this.gridLoc.x + Math.random()) - global.gameManager.room.width / 2,
             y: global.gameManager.room.tileHeight * (this.gridLoc.y + Math.random()) - global.gameManager.room.height / 2
-        }
+        };
     }
 };
 

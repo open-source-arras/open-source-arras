@@ -171,10 +171,10 @@ for (let tier of sancHealerTiers) {
                 }
             }
         ], tier)
-    }
+    };
 };
 for (let tier of sancTiers) {
-    let sancIndex = sancTiers.indexOf(tier)
+    let sancIndex = sancTiers.indexOf(tier);
     Class["sanctuaryTier" + (sancIndex + 1)] = {
         PARENT: "sanctuary",
         TURRETS: [],
@@ -192,14 +192,14 @@ for (let tier of sancTiers) {
                 }
             }
         ], tier)
-    }
+    };
     Class["sanctuaryTier" + (sancIndex + 1)].TURRETS.push({
         POSITION: { SIZE: 22 },
         TYPE: "dominationBody"
     }, {
         POSITION: { SIZE: 9.3, LAYER: 1 },
         TYPE: "sanctuaryHealerTier" + (sancIndex < 2 ? 1 : sancIndex < 4 ? 2 : sancIndex < 6 ? 3 : 3)
-    })
+    });
 };
 
 // Special Tanks (Motherships)
@@ -467,8 +467,8 @@ Class.spectator = {
     ON: [{
         event: "altFire",
         handler: ({ body }) => {
-            body.x = body.x + body.control.target.x
-            body.y = body.y + body.control.target.y
+            body.x = body.x + body.control.target.x;
+            body.y = body.y + body.control.target.y;
         }
     }]
 };
@@ -517,7 +517,7 @@ Class.guillotine = {
         {
             event: "fire",
             handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
+                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
                 let lowest = Infinity, closest;
                 for (const instance of entities.values()) {
                     let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
@@ -531,7 +531,7 @@ Class.guillotine = {
                     `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
                     `Score: ${closest.skill.score};`,
                     `Build: ${closest.skill.raw.join("/")};`
-                ]
+                ];
                 body.socket.talk("Em", 20_000, JSON.stringify(message));
                 s.selectedEntity = closest;
             }
@@ -563,7 +563,7 @@ Class.banHammer = {
         {
             event: "fire",
             handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
+                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
                 let lowest = Infinity, closest;
                 for (const instance of entities.values()) {
                     if (instance === body || !instance.isPlayer) continue;
@@ -578,7 +578,7 @@ Class.banHammer = {
                     `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
                     `Score: ${closest.skill.score};`,
                     `Build: ${closest.skill.raw.join("/")};`
-                ]
+                ];
                 body.socket.talk("Em", 20_000, JSON.stringify(message));
                 s.selectedEntity = closest;
             }
@@ -586,7 +586,7 @@ Class.banHammer = {
         {
             event: "control",
             handler: ({body}) => {
-                const selected = body.store.selectedEntity
+                const selected = body.store.selectedEntity;
                 if (!selected || !selected.isPlayer || !selected.socket) return;
                 if (selected.socket.status.opera >= 4) {
                     body.sendMessage("You cannot ban this player!");
@@ -933,7 +933,7 @@ Class.aeolus = {
         SPEED: 2
     },
     GUNS: (() => {
-        let output = []
+        let output = [];
         for (let j = 0; j < 9; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
@@ -950,7 +950,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 11; j++) {
@@ -969,7 +969,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 13; j++) {
@@ -988,7 +988,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 15; j++) {
@@ -1007,7 +1007,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 17; j++) {
@@ -1026,7 +1026,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 19; j++) {
@@ -1045,7 +1045,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 21; j++) {
@@ -1064,7 +1064,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 23; j++) {
@@ -1083,7 +1083,7 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 25; j++) {
@@ -1102,10 +1102,10 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
-        return output
+        return output;
     })()
 };
 Class.alas = {

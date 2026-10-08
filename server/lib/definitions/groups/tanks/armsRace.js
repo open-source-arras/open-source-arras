@@ -2154,7 +2154,7 @@ Class.doubleSpreadshot = makeFlank({
             }
         }
     ]
-}, 2, "Double Spreadshot", { extraStats: [g.doubleTwin] })
+}, 2, "Double Spreadshot", { extraStats: [g.doubleTwin] });
 Class.dualbar = {
     PARENT: "genericTank",
     LABEL: "Dualbar",
@@ -4087,10 +4087,10 @@ Class.cruiser.UPGRADES_TIER_3.push("productionist", "cruiserdrive"/*, "hangar", 
 Class.destroyer.UPGRADES_TIER_3.push(/*"megaTrapper", "queller", */"autoDestroyer"/*, "hurler", "slinker"*/);
 removeUpgrades("director", 3, ["bigCheese"]);
 Class.doubleTwin.UPGRADES_TIER_3.push("doubleFlankTwin", "doubleGunner", "warkwark");
-Class.gunner.UPGRADES_TIER_3.push("buttbuttin", "blower", "rimfire", "volley", "doubleGunner", "bentGunner", "equalizer")
+Class.gunner.UPGRADES_TIER_3.push("buttbuttin", "blower", "rimfire", "volley", "doubleGunner", "bentGunner", "equalizer");
 removeUpgrades("healer", 3, ["ambulance", "surgeon", "paramedic"]);
 Class.healer.UPGRADES_TIER_3.push(/*"scientist", "nurse", */"triHealer"/*, "analyzer", "psychiatrist", "soother"*/);
-Class.hexaTank.UPGRADES_TIER_3.push("autoHexaTank", "mingler", "combo")
+Class.hexaTank.UPGRADES_TIER_3.push("autoHexaTank", "mingler", "combo");
 Class.hunter.UPGRADES_TIER_3.push("autoHunter"/*, "megaHunter", "prober", "courser"*/);
 Class.launcher.UPGRADES_TIER_3.push("rocketeer"/*, "pitcher", "cluster", "projector"*/, "heaver", "autoLauncher"/*, "hurler", "inception"*/);
 Class.minigun.UPGRADES_TIER_3.push(/*"taser", "zipper", */"bentMinigun", "autoMinigun"/*, "widget"*/);

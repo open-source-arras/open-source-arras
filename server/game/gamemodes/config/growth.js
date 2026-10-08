@@ -9,4 +9,4 @@ module.exports = {
         if (level % 10 == 1) return 1;
         return 0;
     }
-}
+};

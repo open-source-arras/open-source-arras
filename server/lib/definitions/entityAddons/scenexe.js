@@ -3,7 +3,7 @@ const {basePolygonDamage, basePolygonHealth, statnames} = require("../constants"
 const {combineStats, makeTurret, makeHat, weaponMirror, weaponArray, makeAuto} = require("../facilitators");
 
 // This addon is enabled by default. If you want to enable it, simply make the line below run.
-return //console.log("[scenexe.js]: Addon disabled.");
+return; //console.log("[scenexe.js]: Addon disabled.");
 
 let enableOnSpawn = true; // edit this to toggle spawning as a scenexe tank in the server
 
@@ -132,16 +132,16 @@ let g = {
     halfrange: { range: 0.5 },
     aura: { reload: 0.001, recoil: 0.001, shudder: 0.001, size: 6, speed: 0.001, maxSpeed: 0.001, spray: 0.001 },
     noSpread: { shudder: 0, spray: 0 }
-}
+};
 
 const baseScenexe = {
     FOV: base.FOV * 1.6,
     HEALTH: base.HEALTH * 1.05
-}
+};
 
 if (enableOnSpawn) {
-    Config.spawn_class = ["scenexeBase", "scenexeNode"]
-    Config.level_cap_cheat = 45
+    Config.spawn_class = ["scenexeBase", "scenexeNode"];
+    Config.level_cap_cheat = 45;
 }
 
 Class.scenexeTrap = {
@@ -161,7 +161,7 @@ Class.scenexeTrap = {
         RESIST: 2.5,
         SPEED: 0
     }
-}
+};
 Class.scenexePillbox = {
     PARENT: "scenexeTrap",
     LABEL: "Auto-Trap",
@@ -173,7 +173,7 @@ Class.scenexePillbox = {
             TYPE: "scenexePillboxTurret"
         }
     ]
-}
+};
 
 Class.triangle = {
     PARENT: "food",
@@ -191,7 +191,7 @@ Class.triangle = {
     },
     DRAW_HEALTH: true,
     INTANGIBLE: false
-}
+};
 
 Class.square = {
     PARENT: "food",
@@ -209,7 +209,7 @@ Class.square = {
         ACCELERATION: 0.005
     },
     DRAW_HEALTH: true
-}
+};
 
 Class.hexagon = {
     PARENT: "food",
@@ -228,10 +228,10 @@ Class.hexagon = {
         ACCELERATION: 0.003
     },
     DRAW_HEALTH: true
-}
+};
 
-Class.octagonDeco = makeHat(8, { color: "green" })
-Class.hearthDeco = makeHat(0, { color: "red"})
+Class.octagonDeco = makeHat(8, { color: "green" });
+Class.hearthDeco = makeHat(0, { color: "red"});
 
 makeHearth = (damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraColor) => {
     let isHeal = damageFactor < 0;
@@ -266,7 +266,7 @@ makeHearth = (damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraColor) => {
             }
         ]
     };
-}
+};
 Class.scenexePillboxTurret = makeTurret({
     HAS_NO_RECOIL: true,
     GUNS: [
@@ -279,7 +279,7 @@ Class.scenexePillboxTurret = makeTurret({
             }
         }
     ]
-}, {independent: true, extraStats: []})
+}, {independent: true, extraStats: []});
 Class.scenexeSentryTurret = makeTurret({
     GUNS: [
         {
@@ -290,7 +290,7 @@ Class.scenexeSentryTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.scenexeTurretTurret = makeTurret({
     GUNS: weaponMirror(
         {
@@ -300,7 +300,7 @@ Class.scenexeTurretTurret = makeTurret({
                 TYPE: "bullet"
             }
         }, {delayIncrement: 0.5})
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.scenexeArtilleryTurret = makeTurret({
     GUNS: [
         {
@@ -311,7 +311,7 @@ Class.scenexeArtilleryTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.scenexeTripletTurret = makeTurret({
     GUNS: [
         ...weaponMirror({
@@ -329,7 +329,7 @@ Class.scenexeTripletTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.scenexeHangarTurret = makeTurret({
     GUNS: [
         {
@@ -345,7 +345,7 @@ Class.scenexeHangarTurret = makeTurret({
             }
         }
     ]
-}, {label: "Drone Turret", fov: 0.8, extraStats: []})
+}, {label: "Drone Turret", fov: 0.8, extraStats: []});
 Class.scenexeBattleshipTurret = makeTurret({
     GUNS: [
         {
@@ -361,7 +361,7 @@ Class.scenexeBattleshipTurret = makeTurret({
             }
         }
     ]
-}, {label: "Drone Turret", fov: 0.8, extraStats: []})
+}, {label: "Drone Turret", fov: 0.8, extraStats: []});
 Class.scenexeHangarTurret.SHAPE = 4;
 Class.scenexeBattleshipTurret.SHAPE = 4;
 
@@ -377,13 +377,13 @@ Class.scenexeMinion = {
             }
         }
     ]
-}
+};
 
 Class.scenexeNode = {
     PARENT: "genericTank",
     REROOT_UPGRADE_TREE: ["scenexeNode", "scenexeBase"],
     LABEL: "Node"
-}
+};
 Class.scenexeBase = {
     PARENT: "genericTank",
     REROOT_UPGRADE_TREE: ["scenexeNode", "scenexeBase"],
@@ -392,7 +392,7 @@ Class.scenexeBase = {
         FOV: baseScenexe.FOV,
         HEALTH: baseScenexe.HEALTH
     }
-}
+};
 /* NODE */
 /// MONO
 // Tier 0
@@ -408,7 +408,7 @@ Class.scenexeMono = {
             }
         }
     ]
-}
+};
 
 // Tier 1
 Class.scenexeDuo = {
@@ -425,7 +425,7 @@ Class.scenexeDuo = {
             TYPE: "bullet"
         }
     }, {delayIncrement: 0.5})
-}
+};
 
 Class.scenexeFlank = {
     PARENT: "scenexeNode",
@@ -446,7 +446,7 @@ Class.scenexeFlank = {
             }
         }
     ]
-}
+};
 Class.scenexeSplit = {
     PARENT: "scenexeNode",
     LABEL: "Split",
@@ -468,7 +468,7 @@ Class.scenexeSplit = {
             }
         }
     ]
-}
+};
 Class.scenexeSingle = {
     PARENT: "scenexeNode",
     LABEL: "Single",
@@ -479,7 +479,7 @@ Class.scenexeSingle = {
             TYPE: "bullet"
         }
     }]
-}
+};
 Class.scenexeSniper = {
     PARENT: "scenexeNode",
     LABEL: "Sniper",
@@ -495,7 +495,7 @@ Class.scenexeSniper = {
             }
         }
     ]
-}
+};
 
 //Tier 2
 Class.scenexeTrio = {
@@ -517,7 +517,7 @@ Class.scenexeTrio = {
             }
         }
     ]
-}
+};
 Class.scenexeGunner = {
     PARENT: "scenexeNode",
     LABEL: "Gunner",
@@ -537,7 +537,7 @@ Class.scenexeGunner = {
             }
         }
     ], { delayIncrement: 0.25 })
-}
+};
 Class.scenexeArc = {
     PARENT: "scenexeNode",
     LABEL: "Arc",
@@ -564,7 +564,7 @@ Class.scenexeArc = {
             }
         }
     ]
-}
+};
 Class.scenexeQuad = {
     PARENT: "scenexeNode",
     LABEL: "Quad",
@@ -575,7 +575,7 @@ Class.scenexeQuad = {
             TYPE: "bullet"
         }
     }, 4)
-}
+};
 Class.scenexeWake = {
     PARENT: "scenexeNode",
     LABEL: "Wake",
@@ -608,7 +608,7 @@ Class.scenexeWake = {
             }
         })
     ]
-}
+};
 Class.scenexeConglomerate = {
     PARENT: "scenexeNode",
     LABEL: "Conglomerate",
@@ -648,7 +648,7 @@ Class.scenexeConglomerate = {
             }
         })
     ]
-}
+};
 Class.scenexeSpread = {
     PARENT: "scenexeNode",
     LABEL: "Spread",
@@ -684,7 +684,7 @@ Class.scenexeSpread = {
             }
         }
     ]
-}
+};
 Class.scenexeDestroyer = {
     PARENT: "scenexeNode",
     LABEL: "Destroyer",
@@ -697,7 +697,7 @@ Class.scenexeDestroyer = {
             }
         }
     ]
-}
+};
 Class.scenexeCompound = {
     PARENT: "scenexeNode",
     LABEL: "Compound",
@@ -722,7 +722,7 @@ Class.scenexeCompound = {
             }
         }
     ]
-}
+};
 Class.scenexeAssassin = {
     PARENT: "genericTank",
     DANGER: 6,
@@ -739,7 +739,7 @@ Class.scenexeAssassin = {
             }
         }
     ]
-}
+};
 Class.scenexeFactory = {
     PARENT: "scenexeNode",
     LABEL: "Factory",
@@ -763,7 +763,7 @@ Class.scenexeFactory = {
             POSITION: [14.5, 9, 1, 0, 0, 0, 0]
         }
     ]
-}
+};
 Class.scenexeManager = {
     PARENT: "scenexeNode",
     LABEL: "Manager",
@@ -779,7 +779,7 @@ Class.scenexeManager = {
             WAIT_TO_CYCLE: true
         }
     }]
-}
+};
 
 //TRAPPER
 Class.scenexeTrapper = {
@@ -799,7 +799,7 @@ Class.scenexeTrapper = {
             }
         }
     ]
-}
+};
 
 //Tier 1
 Class.scenexeGamma = {
@@ -815,7 +815,7 @@ Class.scenexeGamma = {
             TYPE: "scenexeTrap"
         }
     }]
-}
+};
 Class.scenexeGuard = {
     PARENT: "scenexeNode",
     LABEL: "Guard",
@@ -840,7 +840,7 @@ Class.scenexeGuard = {
             }
         }
     ]
-}
+};
 Class.scenexeBlockade = {
     PARENT: "scenexeNode",
     LABEL: "Blockade",
@@ -869,7 +869,7 @@ Class.scenexeBlockade = {
             }
         }
     ]
-}
+};
 Class.scenexeRubble = {
     PARENT: "scenexeNode",
     LABEL: "Rubble",
@@ -887,7 +887,7 @@ Class.scenexeRubble = {
             }
         }
     ], 4)
-}
+};
 Class.scenexeScrap = {
     PARENT: "scenexeNode",
     LABEL: "Scrap",
@@ -905,7 +905,7 @@ Class.scenexeScrap = {
             }
         }
     ], 6)
-}
+};
 Class.scenexeEngineer = {
     PARENT: "scenexeNode",
     LABEL: "Engineer",
@@ -929,7 +929,7 @@ Class.scenexeEngineer = {
             POSITION: { LENGTH: 3, WIDTH: 9, ASPECT: 1.7, X: 13 }
         }
     ]
-}
+};
 
 //Tier 2
 Class.scenexeBeta = {
@@ -947,7 +947,7 @@ Class.scenexeBeta = {
             }
         }
     ]
-}
+};
 Class.scenexeStockade = {
     PARENT: "scenexeNode",
     LABEL: "Stockade",
@@ -965,7 +965,7 @@ Class.scenexeStockade = {
             }
         }
     ], 3)
-}
+};
 Class.scenexeBarricade = {
     PARENT: "scenexeNode",
     LABEL: "Barricade",
@@ -991,7 +991,7 @@ Class.scenexeBarricade = {
             }
         }
     ]
-}
+};
 
 //COMMANDER
 //Tier 0
@@ -1013,7 +1013,7 @@ Class.scenexeCommander = {
             }
         }
     ]
-}
+};
 
 //Tier 1
 Class.scenexeAlloy = {
@@ -1041,7 +1041,7 @@ Class.scenexeAlloy = {
             }
         }
     ]
-}
+};
 Class.scenexeOverseer = {
     PARENT: "scenexeNode",
     LABEL: "Overseer",
@@ -1072,7 +1072,7 @@ Class.scenexeOverseer = {
             }
         }
     ]
-}
+};
 Class.scenexeDirector = {
     PARENT: "scenexeNode",
     LABEL: "Director",
@@ -1088,7 +1088,7 @@ Class.scenexeDirector = {
             WAIT_TO_CYCLE: true
         }
     }]
-}
+};
 Class.scenexeFusion = {
     PARENT: "scenexeNode",
     LABEL: "Fusion",
@@ -1118,7 +1118,7 @@ Class.scenexeFusion = {
             }
         }
     ]
-}
+};
 
 //Tier 2
 
@@ -1138,7 +1138,7 @@ Class.scenexeOverlord = {
             WAIT_TO_CYCLE: true
         }
     }, 3)
-}
+};
 
 //BASE
 
@@ -1152,7 +1152,7 @@ Class.scenexeWall = {
         HEALTH: 1.75 * baseScenexe.HEALTH,
         SPEED: 0.95 * base.SPEED
     }
-}
+};
 
 //Tier 1
 Class.scenexeStronghold = {
@@ -1169,7 +1169,7 @@ Class.scenexeStronghold = {
             TYPE: ["hexagon", {COLOR: "mirror"}]
         }
     ]
-}
+};
 Class.scenexeCitadel = {
     PARENT: "scenexeBase",
     LABEL: "Citadel",
@@ -1184,7 +1184,7 @@ Class.scenexeCitadel = {
             TYPE: ["scenexeSentryTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 
 //Tier 2
 Class.scenexePalace = {
@@ -1201,7 +1201,7 @@ Class.scenexePalace = {
             TYPE: ["hexagon", {COLOR: "mirror"}]
         }
     ]
-}
+};
 
 //SMASHER
 //Tier 0
@@ -1211,7 +1211,7 @@ Class.scenexeSmasherBody = {
     SHAPE: 6,
     SIZE: 12,
     INDEPENDENT: true
-}
+};
 Class.scenexeSmasher = {
     PARENT: "scenexeBase",
     LABEL: "Smasher",
@@ -1225,7 +1225,7 @@ Class.scenexeSmasher = {
             TYPE: "scenexeSmasherBody"
         }
     ]
-}
+};
 
 //Tier 1
 Class.scenexeSpikeBody = {
@@ -1234,7 +1234,7 @@ Class.scenexeSpikeBody = {
     SHAPE: 4,
     SIZE: 12,
     INDEPENDENT: true
-}
+};
 Class.scenexeSpike = {
     PARENT: "scenexeBase",
     LABEL: "Spike",
@@ -1249,7 +1249,7 @@ Class.scenexeSpike = {
             TYPE: "scenexeSpikeBody"
         }
     ]
-}
+};
 Class.scenexeFortress = {
     PARENT: "scenexeBase",
     LABEL: "Fortress",
@@ -1265,7 +1265,7 @@ Class.scenexeFortress = {
             TYPE: "scenexeSmasherBody"
         }
     ]
-}
+};
 Class.scenexeArmory = {
     PARENT: "scenexeBase",
     LABEL: "Armory",
@@ -1283,7 +1283,7 @@ Class.scenexeArmory = {
             TYPE: ["scenexeSentryTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 
 //Tier 2
 Class.scenexeForge = {
@@ -1304,7 +1304,7 @@ Class.scenexeForge = {
             TYPE: "bonfireGen"
         }
     ]
-}
+};
 Class.scenexeBrigade = {
     PARENT: "scenexeBase",
     LABEL: "Brigade",
@@ -1323,14 +1323,14 @@ Class.scenexeBrigade = {
             TYPE: ["scenexeTurretTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 Class.scenexeThornBody = {
     LABEL: "",
     COLOR: "black",
     SHAPE: 5,
     SIZE: 12,
     INDEPENDENT: true
-}
+};
 Class.scenexeThorn = {
     PARENT: "scenexeBase",
     LABEL: "Thorn",
@@ -1345,7 +1345,7 @@ Class.scenexeThorn = {
             TYPE: "scenexeThornBody"
         }
     ]
-}
+};
 Class.scenexeCastle = {
     PARENT: "scenexeBase",
     LABEL: "Castle",
@@ -1368,7 +1368,7 @@ Class.scenexeCastle = {
             TYPE: ["hexagon", { COLOR: "mirror" }]
         }
     ]
-}
+};
 
 //SENTRY
 //Tier 0
@@ -1381,7 +1381,7 @@ Class.scenexeSentry = {
             TYPE: ["scenexeSentryTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 
 //Tier 1
 Class.scenexeTurret = {
@@ -1393,7 +1393,7 @@ Class.scenexeTurret = {
             TYPE: ["scenexeTurretTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 
 //Tier 2
 Class.scenexeArtillery = {
@@ -1405,7 +1405,7 @@ Class.scenexeArtillery = {
             TYPE: ["scenexeArtilleryTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 Class.scenexeTriplet = {
     PARENT: "scenexeBase",
     LABEL: "Triplet",
@@ -1415,7 +1415,7 @@ Class.scenexeTriplet = {
             TYPE: ["scenexeTripletTurret", { CONTROLLERS: ["nearestDifferentMaster"], INDEPENDENT: true, COLOR: 16 }]
         }
     ]
-}
+};
 
 //HEARTH
 //Tier 0
@@ -1429,7 +1429,7 @@ Class.scenexeHearth = {
             TYPE: "hearthGen"
         }
     ]
-}
+};
 
 //Tier 1
 Class.bonfireGen = makeHearth(1, 1.6);
@@ -1442,7 +1442,7 @@ Class.scenexeBonfire = {
             TYPE: "bonfireGen"
         }
     ]
-}
+};
 Class.menderGen = makeHearth(-1, 1.6);
 Class.scenexeMender = {
     PARENT: "scenexeBase",
@@ -1453,7 +1453,7 @@ Class.scenexeMender = {
             TYPE: "menderGen"
         }
     ]
-}
+};
 
 //Tier 2
 Class.flareGen = makeHearth(1, 2);
@@ -1466,7 +1466,7 @@ Class.scenexeFlare = {
             TYPE: "flareGen"
         }
     ]
-}
+};
 Class.remedyGen = makeHearth(-1, 2);
 Class.scenexeRemedy = {
     PARENT: "scenexeBase",
@@ -1477,7 +1477,7 @@ Class.scenexeRemedy = {
             TYPE: "remedyGen"
         }
     ]
-}
+};
 
 //HANGAR
 Class.scenexeHangar = {
@@ -1489,7 +1489,7 @@ Class.scenexeHangar = {
             TYPE: "scenexeHangarTurret"
         }
     ]
-}
+};
 Class.scenexeWarship = {
     PARENT: "scenexeBase",
     LABEL: "Warship",
@@ -1503,7 +1503,7 @@ Class.scenexeWarship = {
             TYPE: "scenexeHangarTurret"
         }
     ]
-}
+};
 Class.scenexeBattleship = {
     PARENT: "scenexeBase",
     LABEL: "Battleship",
@@ -1521,7 +1521,7 @@ Class.scenexeBattleship = {
             TYPE: "scenexeBattleshipTurret"
         }
     ]
-}
+};
 Class.scenexeMothership = {
     PARENT: "scenexeBase",
     LABEL: "Mothership",
@@ -1529,77 +1529,77 @@ Class.scenexeMothership = {
         POSITION: [8.5, 0, 8, 0, 0, 1],
         TYPE: "scenexeBattleshipTurret"
     }, 4)
-}
+};
 
-Class.scenexeNode.UPGRADES_TIER_0 = ["scenexeMono", "scenexeTrapper", "scenexeCommander"]
-Class.scenexeBase.UPGRADES_TIER_0 = ["scenexeWall", "scenexeSmasher", "scenexeSentry", "scenexeHearth", "scenexeHangar"]
+Class.scenexeNode.UPGRADES_TIER_0 = ["scenexeMono", "scenexeTrapper", "scenexeCommander"];
+Class.scenexeBase.UPGRADES_TIER_0 = ["scenexeWall", "scenexeSmasher", "scenexeSentry", "scenexeHearth", "scenexeHangar"];
 
 //Gun upgrades
 
-Class.scenexeMono.UPGRADES_TIER_1 = ["scenexeDuo", "scenexeFlank", "scenexeSplit", "scenexeSingle", "scenexeSniper", "scenexeAlloy", "scenexeGuard"]
-Class.scenexeCommander.UPGRADES_TIER_1 = ["scenexeAlloy", "scenexeOverseer", "scenexeDirector", "scenexeFusion"]
-Class.scenexeTrapper.UPGRADES_TIER_1 = ["scenexeGuard", "scenexeGamma", "scenexeBlockade", "scenexeRubble", "scenexeFusion"]
+Class.scenexeMono.UPGRADES_TIER_1 = ["scenexeDuo", "scenexeFlank", "scenexeSplit", "scenexeSingle", "scenexeSniper", "scenexeAlloy", "scenexeGuard"];
+Class.scenexeCommander.UPGRADES_TIER_1 = ["scenexeAlloy", "scenexeOverseer", "scenexeDirector", "scenexeFusion"];
+Class.scenexeTrapper.UPGRADES_TIER_1 = ["scenexeGuard", "scenexeGamma", "scenexeBlockade", "scenexeRubble", "scenexeFusion"];
 
-Class.scenexeDuo.UPGRADES_TIER_2 = ["scenexeTrio", "scenexeGunner", "scenexeArc", "scenexeQuad"]
-Class.scenexeSplit.UPGRADES_TIER_2 = ["scenexeSpread", "scenexeTrio", "scenexeGunner", "scenexeArc", "scenexeQuad"]
-Class.scenexeFlank.UPGRADES_TIER_2 = ["scenexeWake", "scenexeConglomerate", "scenexeOverlord", "scenexeQuad"]
-Class.scenexeSingle.UPGRADES_TIER_2 = ["scenexeDestroyer", "scenexeCompound", "scenexeAssassin"]
-Class.scenexeAlloy.UPGRADES_TIER_2 = ["scenexeCompound", "scenexeConglomerate"]
-Class.scenexeGuard.UPGRADES_TIER_2 = ["scenexeConglomerate", "scenexeWake"]
-Class.scenexeSniper.UPGRADES_TIER_2 = ["scenexeAssassin", "scenexeDestroyer", "scenexeWake"]
-Class.scenexeOverseer.UPGRADES_TIER_2 = ["scenexeOverlord", "scenexeFactory"]
-Class.scenexeDirector.UPGRADES_TIER_2 = ["scenexeManager", "scenexeCompound"]
-Class.scenexeFusion.UPGRADES_TIER_2 = ["scenexeConglomerate"]
-Class.scenexeGamma.UPGRADES_TIER_2 = ["scenexeBeta", "scenexeEngineer"]
-Class.scenexeBlockade.UPGRADES_TIER_2 = ["scenexeBarricade", "scenexeStockade", "scenexeConglomerate"]
-Class.scenexeRubble.UPGRADES_TIER_2 = ["scenexeScrap"]
+Class.scenexeDuo.UPGRADES_TIER_2 = ["scenexeTrio", "scenexeGunner", "scenexeArc", "scenexeQuad"];
+Class.scenexeSplit.UPGRADES_TIER_2 = ["scenexeSpread", "scenexeTrio", "scenexeGunner", "scenexeArc", "scenexeQuad"];
+Class.scenexeFlank.UPGRADES_TIER_2 = ["scenexeWake", "scenexeConglomerate", "scenexeOverlord", "scenexeQuad"];
+Class.scenexeSingle.UPGRADES_TIER_2 = ["scenexeDestroyer", "scenexeCompound", "scenexeAssassin"];
+Class.scenexeAlloy.UPGRADES_TIER_2 = ["scenexeCompound", "scenexeConglomerate"];
+Class.scenexeGuard.UPGRADES_TIER_2 = ["scenexeConglomerate", "scenexeWake"];
+Class.scenexeSniper.UPGRADES_TIER_2 = ["scenexeAssassin", "scenexeDestroyer", "scenexeWake"];
+Class.scenexeOverseer.UPGRADES_TIER_2 = ["scenexeOverlord", "scenexeFactory"];
+Class.scenexeDirector.UPGRADES_TIER_2 = ["scenexeManager", "scenexeCompound"];
+Class.scenexeFusion.UPGRADES_TIER_2 = ["scenexeConglomerate"];
+Class.scenexeGamma.UPGRADES_TIER_2 = ["scenexeBeta", "scenexeEngineer"];
+Class.scenexeBlockade.UPGRADES_TIER_2 = ["scenexeBarricade", "scenexeStockade", "scenexeConglomerate"];
+Class.scenexeRubble.UPGRADES_TIER_2 = ["scenexeScrap"];
 
-Class.scenexeTrio.UPGRADES_TIER_3 = []
-Class.scenexeGunner.UPGRADES_TIER_3 = []
-Class.scenexeArc.UPGRADES_TIER_3 = []
-Class.scenexeQuad.UPGRADES_TIER_3 = []
-Class.scenexeSpread.UPGRADES_TIER_3 = []
-Class.scenexeWake.UPGRADES_TIER_3 = []
-Class.scenexeConglomerate.UPGRADES_TIER_3 = []
-Class.scenexeOverlord.UPGRADES_TIER_3 = []
-Class.scenexeDestroyer.UPGRADES_TIER_3 = []
-Class.scenexeCompound.UPGRADES_TIER_3 = []
-Class.scenexeAssassin.UPGRADES_TIER_3 = []
-Class.scenexeFactory.UPGRADES_TIER_3 = []
-Class.scenexeManager.UPGRADES_TIER_3 = []
-Class.scenexeBeta.UPGRADES_TIER_3 = []
-Class.scenexeEngineer.UPGRADES_TIER_3 = []
-Class.scenexeBarricade.UPGRADES_TIER_3 = []
-Class.scenexeStockade.UPGRADES_TIER_3 = []
-Class.scenexeScrap.UPGRADES_TIER_3 = []
+Class.scenexeTrio.UPGRADES_TIER_3 = [];
+Class.scenexeGunner.UPGRADES_TIER_3 = [];
+Class.scenexeArc.UPGRADES_TIER_3 = [];
+Class.scenexeQuad.UPGRADES_TIER_3 = [];
+Class.scenexeSpread.UPGRADES_TIER_3 = [];
+Class.scenexeWake.UPGRADES_TIER_3 = [];
+Class.scenexeConglomerate.UPGRADES_TIER_3 = [];
+Class.scenexeOverlord.UPGRADES_TIER_3 = [];
+Class.scenexeDestroyer.UPGRADES_TIER_3 = [];
+Class.scenexeCompound.UPGRADES_TIER_3 = [];
+Class.scenexeAssassin.UPGRADES_TIER_3 = [];
+Class.scenexeFactory.UPGRADES_TIER_3 = [];
+Class.scenexeManager.UPGRADES_TIER_3 = [];
+Class.scenexeBeta.UPGRADES_TIER_3 = [];
+Class.scenexeEngineer.UPGRADES_TIER_3 = [];
+Class.scenexeBarricade.UPGRADES_TIER_3 = [];
+Class.scenexeStockade.UPGRADES_TIER_3 = [];
+Class.scenexeScrap.UPGRADES_TIER_3 = [];
 
 //Body upgrades
 
-Class.scenexeHangar.UPGRADES_TIER_1 = ["scenexeWarship"]
-Class.scenexeHearth.UPGRADES_TIER_1 = ["scenexeBonfire", "scenexeMender"]
-Class.scenexeWall.UPGRADES_TIER_1 = ["scenexeStronghold", "scenexeFortress", "scenexeCitadel"]
-Class.scenexeSmasher.UPGRADES_TIER_1 = ["scenexeSpike", "scenexeFortress", "scenexeArmory"]
-Class.scenexeSentry.UPGRADES_TIER_1 = ["scenexeTurret", "scenexeArmory", "scenexeCitadel"]
+Class.scenexeHangar.UPGRADES_TIER_1 = ["scenexeWarship"];
+Class.scenexeHearth.UPGRADES_TIER_1 = ["scenexeBonfire", "scenexeMender"];
+Class.scenexeWall.UPGRADES_TIER_1 = ["scenexeStronghold", "scenexeFortress", "scenexeCitadel"];
+Class.scenexeSmasher.UPGRADES_TIER_1 = ["scenexeSpike", "scenexeFortress", "scenexeArmory"];
+Class.scenexeSentry.UPGRADES_TIER_1 = ["scenexeTurret", "scenexeArmory", "scenexeCitadel"];
 
-Class.scenexeWarship.UPGRADES_TIER_2 = ["scenexeBattleship"]
-Class.scenexeBonfire.UPGRADES_TIER_2 = ["scenexeFlare"]
-Class.scenexeMender.UPGRADES_TIER_2 = ["scenexeRemedy"]
-Class.scenexeStronghold.UPGRADES_TIER_2 = ["scenexePalace", "scenexeCastle"]
-Class.scenexeFortress.UPGRADES_TIER_2 = ["scenexeCastle", "scenexePalace"]
-Class.scenexeCitadel.UPGRADES_TIER_2 = ["scenexeCastle"]
-Class.scenexeTurret.UPGRADES_TIER_2 = ["scenexeArtillery", "scenexeTriplet", "scenexeCastle", "scenexeBrigade"]
-Class.scenexeSpike.UPGRADES_TIER_2 = ["scenexeThorn", "scenexeForge", "scenexeCastle"]
-Class.scenexeArmory.UPGRADES_TIER_2 = ["scenexeCastle", "scenexeBrigade"]
+Class.scenexeWarship.UPGRADES_TIER_2 = ["scenexeBattleship"];
+Class.scenexeBonfire.UPGRADES_TIER_2 = ["scenexeFlare"];
+Class.scenexeMender.UPGRADES_TIER_2 = ["scenexeRemedy"];
+Class.scenexeStronghold.UPGRADES_TIER_2 = ["scenexePalace", "scenexeCastle"];
+Class.scenexeFortress.UPGRADES_TIER_2 = ["scenexeCastle", "scenexePalace"];
+Class.scenexeCitadel.UPGRADES_TIER_2 = ["scenexeCastle"];
+Class.scenexeTurret.UPGRADES_TIER_2 = ["scenexeArtillery", "scenexeTriplet", "scenexeCastle", "scenexeBrigade"];
+Class.scenexeSpike.UPGRADES_TIER_2 = ["scenexeThorn", "scenexeForge", "scenexeCastle"];
+Class.scenexeArmory.UPGRADES_TIER_2 = ["scenexeCastle", "scenexeBrigade"];
 
-Class.scenexeBattleship.UPGRADES_TIER_3 = ["scenexeMothership"]
-Class.scenexeFlare.UPGRADES_TIER_3 = []
-Class.scenexeRemedy.UPGRADES_TIER_3 = []
-Class.scenexePalace.UPGRADES_TIER_3 = []
-Class.scenexeCastle.UPGRADES_TIER_3 = []
-Class.scenexeArtillery.UPGRADES_TIER_3 = []
-Class.scenexeTriplet.UPGRADES_TIER_3 = []
-Class.scenexeBrigade.UPGRADES_TIER_3 = []
-Class.scenexeThorn.UPGRADES_TIER_3 = []
-Class.scenexeForge.UPGRADES_TIER_3 = []
+Class.scenexeBattleship.UPGRADES_TIER_3 = ["scenexeMothership"];
+Class.scenexeFlare.UPGRADES_TIER_3 = [];
+Class.scenexeRemedy.UPGRADES_TIER_3 = [];
+Class.scenexePalace.UPGRADES_TIER_3 = [];
+Class.scenexeCastle.UPGRADES_TIER_3 = [];
+Class.scenexeArtillery.UPGRADES_TIER_3 = [];
+Class.scenexeTriplet.UPGRADES_TIER_3 = [];
+Class.scenexeBrigade.UPGRADES_TIER_3 = [];
+Class.scenexeThorn.UPGRADES_TIER_3 = [];
+Class.scenexeForge.UPGRADES_TIER_3 = [];
 
-Class.menu_addons.UPGRADES_TIER_0.push(["scenexeBase", "scenexeNode"])
+Class.menu_addons.UPGRADES_TIER_0.push(["scenexeBase", "scenexeNode"]);

@@ -16,8 +16,8 @@ class Gun extends EventEmitter {
         this.children = [];
         this.bulletchildren = [];
         // Stored Variables
-        this.globalStore = {}
-        this.store = {}
+        this.globalStore = {};
+        this.store = {};
         // ----------------
         this.control = {
             target: new Vector(0, 0),
@@ -91,7 +91,7 @@ class Gun extends EventEmitter {
                 ANGLE: position[5],
                 DELAY: position[6],
                 LAYER: position[7]
-            }
+            };
         } else {
             position = {
                 LENGTH: position.LENGTH ?? 18,
@@ -102,7 +102,7 @@ class Gun extends EventEmitter {
                 ANGLE: position.ANGLE ?? 0,
                 DELAY: position.DELAY ?? 0,
                 LAYER: position.LAYER ?? 0
-            }
+            };
         };
         this.length = position.LENGTH / 10;
         this.width = position.WIDTH / 10;
@@ -214,7 +214,7 @@ class Gun extends EventEmitter {
     live() {
         this.recoil();
 
-        if (!this.canShoot) return
+        if (!this.canShoot) return;
 
         // Find the proper skillset for shooting
         let sk = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
@@ -249,7 +249,7 @@ class Gun extends EventEmitter {
                 return (
                     this.shoot(),
                     this.cycleTimer = this.maxCycleTimer
-                ) 
+                ); 
             }
             while (shootPermission && this.cycleTimer >= 1) {
                 this.shoot();
@@ -346,7 +346,7 @@ class Gun extends EventEmitter {
         let spawnOffset = {
             x: this.body.x + this.body.size * gx - s.x,
             y: this.body.y + this.body.size * gy - s.y
-        }
+        };
         if (this.independentMaster) {
             var o = new Entity(spawnOffset);
             o.color.base = undefined;
@@ -425,7 +425,7 @@ class Gun extends EventEmitter {
                 if (info.applyOn.shoot) {
                     this.master.socket.talk("SH", JSON.stringify(info));
                 }
-            }) 
+            }); 
         }
     }
     bulletInitIndependent(o) {
@@ -657,7 +657,7 @@ class Gun extends EventEmitter {
         let shoot = this.settings;
         let override = this.statOverride ?? {};
         for (let [key, value] of Object.entries(shoot)) {
-            shoot[key] = override[key] != undefined ? override[key] : shoot[key]
+            shoot[key] = override[key] != undefined ? override[key] : shoot[key];
         }
         let sk = (this.bulletStats == "master") ? this.body.skill : this.bulletStats;
         // Defaults
@@ -720,4 +720,4 @@ class Gun extends EventEmitter {
     }
 }
 
-module.exports = { Gun }
+module.exports = { Gun };

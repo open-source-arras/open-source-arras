@@ -54,9 +54,9 @@ class turretEntity extends EventEmitter {
         // Fake activation stuff
         this.activation = {
             check: () => {
-                return this.bond.activation.check()
+                return this.bond.activation.check();
             }   
-        }
+        };
         // Get my position.
         if (Array.isArray(position)) {
             position = { 
@@ -266,7 +266,7 @@ class turretEntity extends EventEmitter {
     };
 
     face() {
-        global.runFace(this) 
+        global.runFace(this); 
     };
     
     syncTurrets() {

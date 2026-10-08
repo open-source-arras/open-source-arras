@@ -1,6 +1,6 @@
-const { combineStats, weaponArray } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
+const { combineStats, weaponArray } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
 
 Class.elite = {
     PARENT: "miniboss",
@@ -17,7 +17,7 @@ Class.elite = {
         DAMAGE: 4.5 * base.DAMAGE,
         REGEN: 0.5 * base.REGEN
     }
-}
+};
 
 // Elite Crashers
 Class.eliteDestroyer = {
@@ -42,7 +42,7 @@ Class.eliteDestroyer = {
             TYPE: ["bigauto4gun", { INDEPENDENT: true, COLOR: -1 }]
         }
     ]
-}
+};
 Class.eliteGunner = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Gunner",
@@ -75,7 +75,7 @@ Class.eliteGunner = {
             TYPE: "auto4gun"
         }
     ]
-}
+};
 Class.eliteSprayer = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Sprayer",
@@ -98,7 +98,7 @@ Class.eliteSprayer = {
             } 
         ], 3)
     ]
-}
+};
 Class.eliteSprayer_old = {
     PARENT: "elite",
     UPGRADE_LABEL: "Old Elite Sprayer",
@@ -108,7 +108,7 @@ Class.eliteSprayer_old = {
         POSITION: [14, 6, 0, 60, 190, 0],
         TYPE: ["sprayer", { COLOR: -1 }]
     }, 3)
-}
+};
 Class.eliteBattleship = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Battleship",
@@ -141,7 +141,7 @@ Class.eliteBattleship = {
         POSITION: [5, 7, 0, 0, 360, 1],
         TYPE: ["autoTankGun", { INDEPENDENT: true, COLOR: -1 }]
     }, 3)
-}
+};
 Class.eliteSpawner = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Spawner",
@@ -195,7 +195,7 @@ Class.eliteSpawner = {
             TYPE: ["auto4gun", { INDEPENDENT: false, COLOR: -1 }]
         }
     ]
-}
+};
 Class.eliteTrapGuard = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Trap Guard",
@@ -228,7 +228,7 @@ Class.eliteTrapGuard = {
             }
         ], 3)
     ]
-}
+};
 Class.eliteSpinner = {
     PARENT: "elite",
     UPGRADE_LABEL: "Elite Spinner",
@@ -264,7 +264,7 @@ Class.eliteSpinner = {
             TYPE: ["eliteSpinnerCyclone", {COLOR: -1}]
         }
     ]
-}
+};
 
 // Deltas (moving to Arms Race addon later)
 Class.delta = {
@@ -281,7 +281,7 @@ Class.delta = {
         DAMAGE: 3 * base.DAMAGE,
         REGEN: 0.5 * base.REGEN
     }
-}
+};
 Class.deltaDestroyer = {
     PARENT: "delta",
     UPGRADE_LABEL: "Delta Destroyer",
@@ -316,7 +316,7 @@ Class.deltaDestroyer = {
             TYPE: ["bigauto4gun", { INDEPENDENT: true, COLOR: -1, GUN_STAT_SCALE: {health: 1.2, damage: 1.1} }]
         }
     ]
-}
+};
 Class.deltaGunner = {
     PARENT: "delta",
     UPGRADE_LABEL: "Delta Gunner",
@@ -352,7 +352,7 @@ Class.deltaGunner = {
             TYPE: ["bigauto4gun", {GUN_STAT_SCALE: {damage:1.05}}]
         }
     ]
-}
+};
 Class.deltaSprayer = {
     PARENT: "delta",
     UPGRADE_LABEL: "Delta Sprayer",
@@ -377,7 +377,7 @@ Class.deltaSprayer = {
             }
         ], 3)
     ]
-}
+};
 Class.deltaBattleship = {
     PARENT: "delta",
     UPGRADE_LABEL: "Delta Battleship",
@@ -416,7 +416,7 @@ Class.deltaBattleship = {
         POSITION: [5, 7, 0, 0, 360, 1],
         TYPE: ["bigAutoTankGun", { INDEPENDENT: true, COLOR: -1 }]
     }, 3)
-}
+};
 
 // Legions
 Class.destroyerLegion = {
@@ -447,7 +447,7 @@ Class.destroyerLegion = {
             TYPE: ["bigauto4gun", { GUN_STAT_SCALE: {health: 1.1}, INDEPENDENT: true, COLOR: -1 }]
         }
     ]
-}
+};
 Class.gunnerLegion = {
     PARENT: "elite",
     UPGRADE_LABEL: "Gunner Legion",
@@ -484,7 +484,7 @@ Class.gunnerLegion = {
             TYPE: ["auto4gun", {GUN_STAT_SCALE: {health: 1.15}}]
         }
     ]
-}
+};
 Class.sprayerLegion = {
     PARENT: "elite",
     UPGRADE_LABEL: "Sprayer Legion",
@@ -501,7 +501,7 @@ Class.sprayerLegion = {
         POSITION: [14, 6, 0, 60, 190, 0],
         TYPE: ["machineGun", {GUN_STAT_SCALE: {health: 1.1, damage: 1.2, speed: 1.2, resist: 1.05}, COLOR: -1}]
     }, 3)
-}
+};
 Class.battleshipLegion = {
     PARENT: "elite",
     UPGRADE_LABEL: "Battleship Legion",
@@ -540,7 +540,7 @@ Class.battleshipLegion = {
         POSITION: [5, 7, 0, 0, 360, 1],
         TYPE: ["autoTankGun", { GUN_STAT_SCALE: {health: 1.1}, INDEPENDENT: true, COLOR: -1 }]
     }, 3)
-}
+};
 Class.spawnerLegion = {
     PARENT: "elite",
     UPGRADE_LABEL: "Spawner Legion",
@@ -593,7 +593,7 @@ Class.spawnerLegion = {
             TYPE: ["auto4gun", { GUN_STAT_SCALE: {health: 1.15}, INDEPENDENT: false, COLOR: -1 }]
         }
     ]
-}
+};
 
 // Legionary Crasher
 Class.legionaryCrasherTop = {
@@ -626,7 +626,7 @@ Class.legionaryCrasherTop = {
         POSITION: [9.5, 10, 0, 0, 190, 0],
         TYPE: ["auto4gun", {GUN_STAT_SCALE: {damage: 1.4, health: 1.1, speed: 1.2, maxSpeed: 1.2, resist: 1.1, range: 1.3}}]
     }, 3)
-}
+};
 Class.legionaryCrasherSpawner = {
     PARENT: "genericTank",
     SHAPE: "",
@@ -649,7 +649,7 @@ Class.legionaryCrasherSpawner = {
             gun.setBulletType(["destroyerLegion", "gunnerLegion", "sprayerLegion", "battleshipLegion", "spawnerLegion"][gun.identifier++ % 5]);
         }
     }]
-}
+};
 Class.legionaryCrasher = {
     PARENT: "elite",
     LABEL: "Legionary Crasher",
@@ -696,7 +696,7 @@ Class.legionaryCrasher = {
             TYPE: "legionaryCrasherSpawner"
         }
     ]
-}
+};
 Class.legionaryCrasherSpawnerFix = {
     PARENT: "genericTank",
     SHAPE: "",
@@ -719,7 +719,7 @@ Class.legionaryCrasherSpawnerFix = {
             gun.setBulletType(["destroyerLegion", "gunnerLegion", "sprayerLegion", "battleshipLegion", "spawnerLegion"][gun.identifier++ % 5]);
         }
     }]
-}
+};
 Class.legionaryCrasherFix = {
     PARENT: "elite",
     LABEL: "Legionary Crasher",
@@ -766,7 +766,7 @@ Class.legionaryCrasherFix = {
             TYPE: "legionaryCrasherSpawnerFix"
         }
     ]
-}
+};
 
 // Miscellaneous Elites
 Class.eliteSkimmer = {
@@ -783,4 +783,4 @@ Class.eliteSkimmer = {
             ARC: 170
         }
     }, 3)
-}
+};

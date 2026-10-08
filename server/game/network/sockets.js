@@ -34,7 +34,7 @@ class socketManager {
             return {
                 color: t.color,
                 image: t.image ?? false
-            }
+            };
         })));
         for (let i = 0; i < this.clients.length; i++) {
             this.clients[i].talk(
@@ -140,7 +140,7 @@ class socketManager {
             }
             if (view.socket.status.disablechat) {
                 view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array.map(o => {
-                    return {id: o.id, messages: []} 
+                    return {id: o.id, messages: []}; 
                 })));
             } else view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array));
         }
@@ -264,13 +264,13 @@ class socketManager {
                     return (
                         socket.talk("message", "This server seems to be private."),
                         socket.kick("Tried to join private server without valid token.")
-                    ) 
+                    ); 
                 }
                 if (!global.gameManager.webProperties.maxPlayers < 1 && this.clients.length > global.gameManager.webProperties.maxPlayers) {
                     return (
                         socket.talk("message", "This server is full, please rejoin later."),
                         socket.kick("Server full.")
-                    ) 
+                    ); 
                 }
                 let b = bans.find((ban) => ban.ip === socket.ip);
                 if (b) {
@@ -342,7 +342,7 @@ class socketManager {
                                 color: t.color,
                                 visibleOnBlackout: t.visibleOnBlackout,
                                 image: t.image ?? false
-                            }
+                            };
                         }))),
                         JSON.stringify(util.serverStartTime),
                         global.gameManager.roomSpeed,
@@ -370,7 +370,7 @@ class socketManager {
                         }
                         this.initalizePlayer(epackage, socket);
                     }
-                }, 20)
+                }, 20);
             } break;
             case "S": { // clock syncing
                 if (m.length !== 1) {
@@ -563,7 +563,7 @@ class socketManager {
                     let limit = 256;
                     do {
                         player.body.skillUp(stat);
-                    } while (limit-- && max && player.body.skill.points && player.body.skill.amount(stat) < player.body.skill.cap(stat))
+                    } while (limit-- && max && player.body.skill.points && player.body.skill.amount(stat) < player.body.skill.cap(stat));
                 }
                 
             } break;
@@ -607,7 +607,7 @@ class socketManager {
                         body.isDominator ? "dominator" : 
                             body.isMothership ? "mothership" :
                                 body.isBoss ? "visitor" :
-                                    "special tank"
+                                    "special tank";
                     player.body.sendMessage(`You have relinquished control of the ${relinquishedControlMessage}.`);
                     body.giveUp(player, body.isDominator ? "" : undefined);
                     return 1;
@@ -641,7 +641,7 @@ class socketManager {
                                 if (player.body == null) return;
                                 player.body.sendMessage("You have lost control of the mothership.");
                                 body.giveUp(player, body.isDominator ? "" : undefined);
-                            }, Config.mothership_time_limit)
+                            }, Config.mothership_time_limit);
                         } else {
                             setTimeout(function() {
                                 if (player.body == null) return;
@@ -650,8 +650,8 @@ class socketManager {
                                     if (player.body == null) return;
                                     player.body.sendMessage("You have lost control of the mothership.");
                                     body.giveUp(player, body.isDominator ? "" : undefined);
-                                }, 10_000)
-                            }, Config.mothership_time_limit - 10_000)
+                                }, 10_000);
+                            }, Config.mothership_time_limit - 10_000);
                         }
                     }
                 } else if (Config.domination) {
@@ -763,14 +763,14 @@ class socketManager {
                 if (!Config.daily_tank) return socket.kick("Bad daily tank ad request");
                 if (player.body && player.body.skill.level >= Config.tier_multiplier * Config.daily_tank.tier && Config.daily_tank.ads && !socket.status.daily_tank_watched_ad) {
                     let chosenAd = ran.choose(Config.daily_tank.ad_sources);
-                    let isImage = chosenAd.file.endsWith(".png") || chosenAd.file.endsWith(".jpg") || chosenAd.file.endsWith(".jpeg")
+                    let isImage = chosenAd.file.endsWith(".png") || chosenAd.file.endsWith(".jpg") || chosenAd.file.endsWith(".jpeg");
                     socket.talk("DTA", JSON.stringify({src: chosenAd.file, normalAdSize: chosenAd.use_regular_ad_size ?? true, waitTime: isImage ? chosenAd.image_wait_time : "isVideo"}));
                     if (isImage) {
                         setTimeout(() => {
                             setTimeout(() => {
                                 socket.status.daily_tank_watched_ad_client = true;
-                            }, `${chosenAd.image_wait_time ?? "3"}000`)
-                        }, socket.camera.ping) // make the counter accurate sycned as possible with the client.
+                            }, `${chosenAd.image_wait_time ?? "3"}000`);
+                        }, socket.camera.ping); // make the counter accurate sycned as possible with the client.
                     }
                 }
             } break;
@@ -788,14 +788,14 @@ class socketManager {
                 setTimeout(() => {
                     setTimeout(() => {
                         socket.status.daily_tank_watched_ad_client = true;
-                    }, `${time}000`)
+                    }, `${time}000`);
                 }, socket.camera.ping);
             }
             case "NWB": {
                 socket.status.forceNewBroadcast = true;
             } break;
             default: {
-                console.log(m)
+                console.log(m);
                 console.log("Invalid registered packet." + m);
             } break;
         }
@@ -1176,9 +1176,9 @@ class socketManager {
                         socket.player.body.facing = ran.randomAngle();
                         let stressFov = 0.5 + Math.floor(Math.random() * 2);
                         socket.player.body.FOV = stressFov * socket.player.body.orginFov;
-                    }, 20)
+                    }, 20);
                 }
-            }, 100)
+            }, 100);
             if (autoLVLup) {
                 if (!socket.player.body) return;
                 while (socket.player.body.skill.level < Config.level_cap_cheat) {
@@ -1289,7 +1289,7 @@ class socketManager {
                                     clearInterval(loop);
                                 } else body.team = getRandomTeam();
                             }
-                        })
+                        });
                     }
                 } break;
                 default: {
@@ -1303,7 +1303,7 @@ class socketManager {
                                 clearInterval(loop);
                             } else body.team = team;
                         }
-                    })
+                    });
                 }
             } 
         }
@@ -1738,7 +1738,7 @@ class socketManager {
                 if (check(socket.camera, e)) nearby.set(e.id, e); 
             },
             remove: e => {
-                nearby.delete(e.id) 
+                nearby.delete(e.id); 
             },
             check: (e) => {
                 return check(socket.camera, e); 
@@ -1779,7 +1779,7 @@ class socketManager {
                             purge(); // Call the function so it can remove the body.
                             // Start the timeout
                             socket.timeout.start();
-                        }
+                        };
                         if (player.body.master.label == "Bacteria") { // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
                             let exit = () => die();
                             let newgui = (player) => this.newgui(player);
@@ -2026,7 +2026,7 @@ class socketManager {
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);
-        }
+        };
         let makeLeaderboardHPList = (list) => {
             let topTen = [];
             for (let i = 0; i < 10 && list.length; i++) {
@@ -2058,7 +2058,7 @@ class socketManager {
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);
-        }
+        };
         // Deltas
         let minimapAll = new Delta(5, args => {
             let all = [];
@@ -2198,7 +2198,7 @@ class socketManager {
                 ) list.push(instance);
             }
             return makeLeaderboardList(list, args);
-        })
+        });
         let bossLeaderboard = new Delta(7, args => {
             let list = [];
             for (const instance of entities.values()) {
@@ -2211,7 +2211,7 @@ class socketManager {
                 ) list.push(instance);
             }
             return makeLeaderboardHPList(list);
-        })
+        });
         let subscribers = [];
         setInterval(() => {
             logs.minimap.set();
@@ -2284,7 +2284,7 @@ class socketManager {
         return {
             subscribe: (socket) => broadcast.add(socket),
             unsubscribe: (socket) => broadcast.remove(socket)
-        }
+        };
     })();
 
     sendToServer(socket, server) {
@@ -2358,8 +2358,8 @@ class socketManager {
                 receivedUpgradePackIndexes: [],
                 receivedUpgradePackMockups: [],
                 requestMockups: []
-            }
-        }
+            };
+        };
         socket.messageManager = socket.on("message", message => this.incoming(message, socket));
         socket.connectedTo = global.gameManager.name;
         let timer = 0;

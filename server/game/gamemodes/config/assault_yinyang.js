@@ -12,4 +12,4 @@ module.exports = {
     team_weights: {
         [TEAM_BLUE]: 1.1
     }
-}
+};

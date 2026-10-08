@@ -24,4 +24,4 @@ module.exports = {
             message: "A strange trembling...",
         }
     ]*/
-}
+};

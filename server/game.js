@@ -93,7 +93,7 @@ const getName = (name, gamemodeData) => {
         space: "Space"
     };
     return nameMap[name];
-}
+};
 
 // Here is our actual game server
 class gameServer {
@@ -101,7 +101,7 @@ class gameServer {
     // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
-        })
+        });
         // Define host, port, gamemode, region, and publicly define webProperties, and serverProperties.
         this.host = host;
         this.port = port;
@@ -173,7 +173,7 @@ class gameServer {
             location: this.location,
             gameMode: this.name,
             gameManager: includegameManager ? this : false
-        }
+        };
     }
 
     // Create a new web server class to handle incoming requests
@@ -240,7 +240,7 @@ class gameServer {
             this.wsServer.handleUpgrade(req, socket, head, ws => {
                 if (req.url.startsWith("/api/editor")) this.editor.connect(ws, req);
                 else socketManager.connect(ws, req);
-            })
+            });
         });
     }
 
@@ -408,7 +408,7 @@ class gameServer {
                         id: x * this.room.wallGrid.xgrid + y
                     };
                 }
-            }
+            };
         }
 
         // Set properties.
@@ -418,7 +418,7 @@ class gameServer {
 
         // Are we in the room?
         this.room.isInRoom = location => {
-            return location.x >= -this.room.width / 2 && location.x <= this.room.width / 2 && location.y >= -this.room.height / 2 && location.y <= this.room.height / 2
+            return location.x >= -this.room.width / 2 && location.x <= this.room.width / 2 && location.y >= -this.room.height / 2 && location.y <= this.room.height / 2;
         };
 
         // Are we near the circle?
@@ -580,7 +580,7 @@ class gameServer {
                 o.minimapColor = "yellow";
                 o.alwaysActive = true;
             }
-        }, 500)
+        }, 500);
         // Every second we check how well arena closers are doing
         let ticks = 0;
         let loop = setInterval(() => {
@@ -647,8 +647,8 @@ class gameServer {
                 global.grid.clear();
                 global.spawnPoint = undefined;
                 this.onEnd();
-            }, 1000)
-        }, 1000)
+            }, 1000);
+        }, 1000);
     }
 
     onEnd() {

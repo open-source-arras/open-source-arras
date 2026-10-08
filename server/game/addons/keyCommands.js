@@ -69,7 +69,7 @@ function init() {
         let text = "";
         if (name.slice(0, 1).toUpperCase() === defaultChar) text = `- [${keyStr}]${name.slice(1)}${asterisk}`;
         else text = `- [${keyStr}] ${name}${asterisk}`;
-        if (description) text += ` - ${description}`
+        if (description) text += ` - ${description}`;
         return text;
     }
     
@@ -292,7 +292,7 @@ function init() {
                     "tangerine", "brown", "cyan", 
                     "lesbian", "rainbow", "trans",
                     "trueTrans", "bi", "animatedMagenta"
-                ]
+                ];
                 let target = targetEntities(player);
                 if (target.length) {
                     let o = target[0];
@@ -422,22 +422,22 @@ function init() {
             run: ({ player }) => {
                 if (player.body.alpha === 0) {
                     if (player.body.invisible[0] === 0) {
-                        player.body.invisible = [0.08, 0.03]
+                        player.body.invisible = [0.08, 0.03];
                     } else {
-                        player.body.invisible = [0, 0]
-                        player.body.alpha = 1
+                        player.body.invisible = [0, 0];
+                        player.body.alpha = 1;
                     }
                 } else if (player.body.alpha === 1) {
                     if (player.body.invisible[0] === 0) {
-                        player.body.invisible = [0, 0]
-                        player.body.alpha = 0
+                        player.body.invisible = [0, 0];
+                        player.body.alpha = 0;
                     } else {
-                        player.body.invisible = [0, 0]
-                        player.body.alpha = 1
+                        player.body.invisible = [0, 0];
+                        player.body.alpha = 1;
                     }
                 } else {
-                    player.body.invisible = [0, 0]
-                    player.body.alpha = 1
+                    player.body.invisible = [0, 0];
+                    player.body.alpha = 1;
                 }
             }
         },
@@ -507,7 +507,7 @@ function init() {
                     let color = getTeamColor(o.team);
                     o.color.base = color;
                     socket.talk("m", 5_000, "Changed entity to team " + player.body.team);
-                })
+                });
             }
         },
         {
@@ -672,7 +672,7 @@ function init() {
                     `Selected ${e.name || (e.isPlayer ? "an unnamed player" : "a")}${(e.name || e.isPlayer) ? "'s" : ""} ${e.label} (ID #${e.id}).`,
                     `Score: ${e.skill.score};`,
                     `Build: ${e.skill.raw.join("/")};`
-                ]
+                ];
                 socket.talk("Em", 20_000, JSON.stringify(message));
             }
         },

@@ -14,7 +14,7 @@ Class.autoTankGun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 3})
+}, {canRepel: true, limitFov: true, fov: 3});
 Class.bigAutoTankGun = makeTurret({
     GUNS: [
         {
@@ -25,7 +25,7 @@ Class.bigAutoTankGun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 3})
+}, {canRepel: true, limitFov: true, fov: 3});
 Class.bansheegun = makeTurret({
     GUNS: [
         {
@@ -36,7 +36,7 @@ Class.bansheegun = makeTurret({
             }
         }
     ]
-}, {limitFov: true, independent: true})
+}, {limitFov: true, independent: true});
 Class.auto4gun = makeTurret({
     GUNS: [
         {
@@ -54,7 +54,7 @@ Class.auto4gun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true})
+}, {canRepel: true, limitFov: true});
 Class.bigauto4gun = makeTurret({
     GUNS: [
         {
@@ -79,7 +79,7 @@ Class.bigauto4gun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 3})
+}, {canRepel: true, limitFov: true, fov: 3});
 Class.megaAutoTankGun = makeTurret({
     GUNS: [
         {
@@ -90,7 +90,7 @@ Class.megaAutoTankGun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true})
+}, {canRepel: true, limitFov: true});
 Class.ultraAutoTankGun = makeTurret({
     GUNS: [
         {
@@ -101,7 +101,7 @@ Class.ultraAutoTankGun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true})
+}, {canRepel: true, limitFov: true});
 Class.sniper3gun = makeTurret({
     GUNS: [
         {
@@ -115,7 +115,7 @@ Class.sniper3gun = makeTurret({
             POSITION: [5, 9, -1.5, 8, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 5})
+}, {canRepel: true, limitFov: true, fov: 5});
 Class.architectGun = makeTurret({
     GUNS: [
         {
@@ -130,7 +130,7 @@ Class.architectGun = makeTurret({
             }
         }
     ]
-}, {canRepel: true, forceOverride: true, fov: 3})
+}, {canRepel: true, forceOverride: true, fov: 3});
 
 // NPC turrets
 Class.trapTurret = makeTurret({
@@ -147,7 +147,7 @@ Class.trapTurret = makeTurret({
             }
         }
     ]
-}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
+}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}});
 Class.megaTrapTurret = makeTurret({
     GUNS: [
         {
@@ -162,7 +162,7 @@ Class.megaTrapTurret = makeTurret({
             }
         }
     ]
-}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
+}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}});
 Class.baseTrapTurret = makeTurret({
     GUNS: [
         {
@@ -177,8 +177,8 @@ Class.baseTrapTurret = makeTurret({
             }
         }
     ]
-}, {independent: true, hasAI: false, extraStats: []})
-Class.baseMechTurretTrap = makeAuto("trap")
+}, {independent: true, hasAI: false, extraStats: []});
+Class.baseMechTurretTrap = makeAuto("trap");
 Class.baseMechTurret = makeTurret({
     GUNS: [
         {
@@ -196,7 +196,7 @@ Class.baseMechTurret = makeTurret({
             }
         }
     ]
-}, {independent: true, hasAI: false, extraStats: []})
+}, {independent: true, hasAI: false, extraStats: []});
 Class.terrestrialTrapTurret = makeTurret({
     GUNS: [
         {
@@ -211,13 +211,13 @@ Class.terrestrialTrapTurret = makeTurret({
             }
         }
     ]
-}, {independent: true, hasAI: false, extraStats: []})
+}, {independent: true, hasAI: false, extraStats: []});
 const shottrapTurretProperties = {
     SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.shotgun, g.machineGun, { reload: 0.65, speed: 0.7, maxSpeed: 0.1, damage: 0.7, range: 0.5 }]),
     AUTOFIRE: true,
     TYPE: "shotTrapBox",
     STAT_CALCULATOR: "block"
-}
+};
 Class.shottrapTurret = makeTurret({
     GUNS: [{
         POSITION: [4, 1.5, 1, 11, -3, 0, 0], PROPERTIES: shottrapTurretProperties
@@ -254,7 +254,7 @@ Class.shottrapTurret = makeTurret({
             TYPE: "bullet"
         }
     }]
-}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
+}, {limitFov: true, aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}});
 Class.machineTripleTurret = {
     PARENT: "genericTank",
     LABEL: "Snowstorm",
@@ -269,10 +269,10 @@ Class.machineTripleTurret = {
             AUTOFIRE: true
         }
     }, 3)
-}
-Class.cycloneTurret = makeTurret("cyclone", { hasAI: false })
-Class.launcherTurret = makeTurret("launcher", {canRepel: true, limitFov: true, extraStats: []})
-Class.skimmerTurret = makeTurret("skimmer", {canRepel: true, limitFov: true, extraStats: [], color: "mirror"})
+};
+Class.cycloneTurret = makeTurret("cyclone", { hasAI: false });
+Class.launcherTurret = makeTurret("launcher", {canRepel: true, limitFov: true, extraStats: []});
+Class.skimmerTurret = makeTurret("skimmer", {canRepel: true, limitFov: true, extraStats: [], color: "mirror"});
 Class.hyperSkimmerTurret = makeTurret({
     GUNS: [
         {
@@ -295,7 +295,7 @@ Class.hyperSkimmerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: [], color: "mirror"})
+}, {canRepel: true, limitFov: true, extraStats: [], color: "mirror"});
 Class.kronosSkimmerTurret = makeTurret({
     GUNS: [
         {
@@ -309,7 +309,7 @@ Class.kronosSkimmerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 10, independent: true, color: "mirror", extraStats: []})
+}, {canRepel: true, limitFov: true, fov: 10, independent: true, color: "mirror", extraStats: []});
 Class.autoSmasherLauncherTurret = makeTurret({
     GUNS: [
         {
@@ -323,8 +323,8 @@ Class.autoSmasherLauncherTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 10, independent: true, extraStats: []})
-Class.twisterTurret = makeTurret("twister", {canRepel: true, limitFov: true, color: "mirror", extraStats: [{speed: 1.3, maxSpeed: 1.3}]})
+}, {canRepel: true, limitFov: true, fov: 10, independent: true, extraStats: []});
+Class.twisterTurret = makeTurret("twister", {canRepel: true, limitFov: true, color: "mirror", extraStats: [{speed: 1.3, maxSpeed: 1.3}]});
 Class.hyperTwisterTurret = makeTurret({
     GUNS: [
         {
@@ -348,7 +348,7 @@ Class.hyperTwisterTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
+}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []});
 Class.rocketeerTurret = makeTurret({
     PARENT: "genericTank",
     LABEL: "Rocketeer",
@@ -377,8 +377,8 @@ Class.rocketeerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true})
-Class.boomerTurret = makeTurret("boomer", {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
+}, {canRepel: true, limitFov: true});
+Class.boomerTurret = makeTurret("boomer", {canRepel: true, limitFov: true, color: "mirror", extraStats: []});
 Class.ultraBoomerTurret = makeTurret({
     GUNS: [
         {
@@ -396,7 +396,7 @@ Class.ultraBoomerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
+}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []});
 Class.triTrapGuardTurret = {
     PARENT: "genericTank",
     COLOR: -1,
@@ -419,7 +419,7 @@ Class.triTrapGuardTurret = {
             }
         }
     ], 3)
-}
+};
 Class.eliteSpinnerCyclone = {
     PARENT: "genericTank",
     COLOR: -1,
@@ -454,8 +454,8 @@ Class.eliteSpinnerCyclone = {
             }
         }
     ], 3)
-}
-Class.barricadeTurret = makeTurret("barricade", {aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
+};
+Class.barricadeTurret = makeTurret("barricade", {aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}});
 Class.ultraBarricadeTurret = makeTurret({
     GUNS: [
         {
@@ -494,9 +494,9 @@ Class.ultraBarricadeTurret = makeTurret({
             }
         }
     ]
-}, {aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}})
-Class.artilleryTurret = makeTurret("artillery", {canRepel: true, limitFov: true, extraStats: []})
-Class.nailgunTurret = makeTurret("nailgun", {canRepel: true, limitFov: true, extraStats: []})
+}, {aiSettings: {SKYNET: true, FULL_VIEW: true, independent: true, extraStats: []}});
+Class.artilleryTurret = makeTurret("artillery", {canRepel: true, limitFov: true, extraStats: []});
+Class.nailgunTurret = makeTurret("nailgun", {canRepel: true, limitFov: true, extraStats: []});
 Class.crowbarTurret = makeTurret({
     GUNS: [
         {
@@ -517,7 +517,7 @@ Class.crowbarTurret = makeTurret({
             TYPE: ["autoTankGun", { GUN_STAT_SCALE: g.flankGuard, INDEPENDENT: true, HAS_NO_RECOIL: true }]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.wrenchTurret = makeTurret({
     GUNS: [
         {
@@ -538,7 +538,7 @@ Class.wrenchTurret = makeTurret({
             TYPE: ["autoTankGun", { GUN_STAT_SCALE: g.flankGuard, INDEPENDENT: true, HAS_NO_RECOIL: true }]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.protoSwarmerTurret = makeTurret({
     GUNS: [
         {
@@ -551,7 +551,7 @@ Class.protoSwarmerTurret = makeTurret({
             POSITION: [11, 12, 1, 5, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.hyperSwarmerTurret = makeTurret({
     GUNS: [
         {
@@ -566,7 +566,7 @@ Class.hyperSwarmerTurret = makeTurret({
             POSITION: [8, 8, 1, 5, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.swarmTurret = makeTurret({
     GUNS: [
         {
@@ -578,7 +578,7 @@ Class.swarmTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.crasherSpawner = makeTurret({
     MAX_CHILDREN: 4,
     GUNS: [
@@ -599,7 +599,7 @@ Class.crasherSpawner = makeTurret({
             }
         }
     ]
-}, {independent: true, aiSettings: {chase: true}, label: "Spawned", color: "pink"})
+}, {independent: true, aiSettings: {chase: true}, label: "Spawned", color: "pink"});
 Class.genghisLowerTurret = makeTurret({
     MAX_CHILDREN: 4,
     GUNS: [
@@ -615,9 +615,9 @@ Class.genghisLowerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
-Class.cruiserTurret = makeTurret("cruiser", {canRepel: true, limitFov: true})
-Class.carrierTurret = makeTurret("carrier", {canRepel: true, limitFov: true})
+}, {canRepel: true, limitFov: true, extraStats: []});
+Class.cruiserTurret = makeTurret("cruiser", {canRepel: true, limitFov: true});
+Class.carrierTurret = makeTurret("carrier", {canRepel: true, limitFov: true});
 Class.napoleonLowerTurret = makeTurret({
     GUNS: [
         {
@@ -636,7 +636,7 @@ Class.napoleonLowerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.gunnerCruiserTurret = makeTurret({
     GUNS: [
         {
@@ -667,7 +667,7 @@ Class.gunnerCruiserTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, independent: true, fov: 10, extraStats: []})
+}, {canRepel: true, limitFov: true, independent: true, fov: 10, extraStats: []});
 Class.juliusLowerTurret = makeTurret({
     MAX_CHILDREN: 3,
     GUNS: [
@@ -680,8 +680,8 @@ Class.juliusLowerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
-Class.swarmerTurret = makeTurret("swarmer", {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
+Class.swarmerTurret = makeTurret("swarmer", {canRepel: true, limitFov: true, extraStats: []});
 Class.basicTurret = makeTurret({
     GUNS: [
         {
@@ -692,7 +692,7 @@ Class.basicTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.kronosTripletTurret = makeTurret({
     GUNS: [
         {
@@ -715,7 +715,7 @@ Class.kronosTripletTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []})
+}, {canRepel: true, limitFov: true, color: "mirror", extraStats: []});
 Class.napoleonUpperTurretBullet = makeAuto("bullet", "Auto-Bullet", {type: "bulletAutoTurret", size: 14, color: "veryLightGrey", angle: 0});
 Class.napoleonUpperTurret = makeTurret({
     GUNS: [
@@ -729,7 +729,7 @@ Class.napoleonUpperTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.gadgetGunTripleTurret = {
     PARENT: "genericTank",
     FACING_TYPE: ["spin", {speed: 0.06}],
@@ -747,7 +747,7 @@ Class.gadgetGunTripleTurret = {
         POSITION: [11, 12, -1.2, 1.75, 0, 0, 0]
     }
     ], 3)
-}
+};
 
 // Mounted Turrets
 Class.autoTurret = makeTurret({
@@ -760,7 +760,7 @@ Class.autoTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.megaAutoTurret = makeTurret({
     GUNS: [
         {
@@ -771,7 +771,7 @@ Class.megaAutoTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.ultraAutoTurret = makeTurret({
     GUNS: [
         {
@@ -782,7 +782,7 @@ Class.ultraAutoTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.driveAutoTurret = { PARENT: "autoTurret", SHAPE: 4 };
 Class.driveMegaAutoTurret = { PARENT: "megaAutoTurret", SHAPE: 4 };
 Class.droneAutoTurret = makeTurret({
@@ -795,7 +795,7 @@ Class.droneAutoTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.bulletAutoTurret = makeTurret({
     GUNS: [
         {
@@ -806,7 +806,7 @@ Class.bulletAutoTurret = makeTurret({
             }
         }
     ]
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.autoSmasherTurret = makeTurret({
     GUNS: weaponMirror({
         POSITION: [20, 6, 1, 0, 5, 0, 0],
@@ -816,7 +816,7 @@ Class.autoSmasherTurret = makeTurret({
             STAT_CALCULATOR: "fixedReload"
         }
     }, {delayIncrement: 0.5})
-}, {label: "Turret", fov: 0.8, extraStats: []})
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.pillboxTurret = makeTurret({
     HAS_NO_RECOIL: true,
     GUNS: [
@@ -829,7 +829,7 @@ Class.pillboxTurret = makeTurret({
             }
         }
     ]
-}, {independent: true, extraStats: []})
+}, {independent: true, extraStats: []});
 Class.autoSmasherMissileTurret = makeTurret({
     HAS_NO_RECOIL: true,
     GUNS: [
@@ -848,7 +848,7 @@ Class.autoSmasherMissileTurret = makeTurret({
             }
         }
     ]
-}, {fov: 5, independent: true, aiSettings: {SKYNET: true, BLIND: true}, extraStats: []})
+}, {fov: 5, independent: true, aiSettings: {SKYNET: true, BLIND: true}, extraStats: []});
 Class.legionaryTwin = makeTurret({
     GUNS: [
         {
@@ -866,7 +866,7 @@ Class.legionaryTwin = makeTurret({
             }
         }
     ]
-}, {fov: 5, independent: true, extraStats: []})
+}, {fov: 5, independent: true, extraStats: []});
 
 // Healer turrets
 Class.sanctuaryHealer = {
@@ -881,7 +881,7 @@ Class.sanctuaryHealer = {
         POSITION: { SIZE: 13, LAYER: 1 },
         TYPE: ["healerHat", { FACING_TYPE: ["noFacing", { angle: Math.PI / 2 }] }]
     }]
-}
+};
 Class.medkitTurret = {
     PARENT: "genericTank",
     LABEL: "",
@@ -902,7 +902,7 @@ Class.medkitTurret = {
             AUTOFIRE: true
         }
     }, 2)
-}
+};
 
 // RCS (for space)
 Class.rcs = {
@@ -920,7 +920,7 @@ Class.rcs = {
             }
         }
     ]
-}
+};
 
 // Miscellaneous
 Class.baseSwarmTurret = makeTurret({
@@ -949,7 +949,7 @@ Class.baseSwarmTurret = makeTurret({
             }
         }
     ]
-}, {label: "Protector", independent: true, fov: 0.8, aiSettings: { NO_LEAD: true, CHASE: true, IGNORE_SHAPES: true }})
+}, {label: "Protector", independent: true, fov: 0.8, aiSettings: { NO_LEAD: true, CHASE: true, IGNORE_SHAPES: true }});
 Class.antiTankMachineGunArm = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -982,7 +982,7 @@ Class.antiTankMachineGunArm = {
             POSITION: { LENGTH: 5, WIDTH: 6.000000238418579, ASPECT: -1.600000023841858, X: 7.5, Y: -4.592425496802574e-16, ANGLE: 0 }
         }
     ]
-}
+};
 Class.cxATMGArm = {
     PARENT: "genericTank",
     COLOR: Class.cube.COLOR,
@@ -1022,7 +1022,7 @@ Class.cxATMGArm = {
             POSITION: [5.5, 6.5, -1.8, 6.5, 0, 0, 0]
         }
     ]
-}
+};
 Class.flagshipTurret = {
     MAX_CHILDREN: 16,
     SHAPE: 8,
@@ -1145,7 +1145,7 @@ Class.flagshipTurret = {
             POSITION: [3.5, 7, 1, 8, 0, -135, 0.5]
         }
     ]
-}
+};
 Class.tracker3gun = makeTurret({
     GUNS: [
         {
@@ -1155,7 +1155,7 @@ Class.tracker3gun = makeTurret({
             POSITION: [12, 10, -2, 20, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, fov: 3, independent: true, color: "#1AFF00"})
+}, {canRepel: true, limitFov: true, fov: 3, independent: true, color: "#1AFF00"});
 
 // FLAIL!!!
 Class.flailBallSpike = {
@@ -1163,7 +1163,7 @@ Class.flailBallSpike = {
     COLOR: "black",
     SHAPE: 6,
     INDEPENDENT: true
-}
+};
 Class.flailBall = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1204,7 +1204,7 @@ Class.flailBall = {
             }
         }
     ]
-}
+};
 Class.flailBolt1 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1216,7 +1216,7 @@ Class.flailBolt1 = {
         POSITION: [48, 56, 0, 0, 360, 1],
         TYPE: "flailBall"
     }]
-}
+};
 Class.flailBolt2 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1228,7 +1228,7 @@ Class.flailBolt2 = {
         POSITION: [20, 36, 0, 0, 360, 1],
         TYPE: "flailBolt1"
     }]
-}
+};
 Class.flailBolt3 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1239,14 +1239,14 @@ Class.flailBolt3 = {
         POSITION: [20, 36, 0, 0, 360, 1],
         TYPE: "flailBolt2"
     }]
-}
+};
 
 Class.maceBallSpike = {
     PARENT: "genericTank",
     COLOR: 9,
     SHAPE: 3,
     INDEPENDENT: true
-}
+};
 Class.maceBall = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1287,7 +1287,7 @@ Class.maceBall = {
             }
         }
     ]
-}
+};
 Class.maceBolt1 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1299,7 +1299,7 @@ Class.maceBolt1 = {
         POSITION: [76, 56, 0, 0, 190, 1],
         TYPE: "maceBall"
     }]
-}
+};
 Class.maceBolt2 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1312,7 +1312,7 @@ Class.maceBolt2 = {
         TYPE: "maceBolt1"
     }
     ]
-}
+};
 Class.maceBolt3 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1323,7 +1323,7 @@ Class.maceBolt3 = {
         POSITION: [20, 28, 0, 0, 190, 1],
         TYPE: "maceBolt2"
     }]
-}
+};
 
 Class.mamaBolt1 = {
     PARENT: "genericTank",
@@ -1337,7 +1337,7 @@ Class.mamaBolt1 = {
         TYPE: "maceBall"
     }
     ]
-}
+};
 Class.mamaBolt2 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1350,7 +1350,7 @@ Class.mamaBolt2 = {
         TYPE: "mamaBolt1"
     }
     ]
-}
+};
 Class.mamaBolt3 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1363,7 +1363,7 @@ Class.mamaBolt3 = {
         TYPE: "mamaBolt2"
     }
     ]
-}
+};
 
 Class.ihdtiBall = {
     PARENT: "genericTank",
@@ -1408,7 +1408,7 @@ Class.ihdtiBall = {
             }
         }
     ]
-}
+};
 Class.ihdtiBolt1 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1421,7 +1421,7 @@ Class.ihdtiBolt1 = {
         TYPE: "ihdtiBall"
     }
     ]
-}
+};
 Class.ihdtiBolt2 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1434,7 +1434,7 @@ Class.ihdtiBolt2 = {
         TYPE: "ihdtiBolt1"
     }
     ]
-}
+};
 Class.ihdtiBolt3 = {
     PARENT: "genericTank",
     COLOR: "grey",
@@ -1446,7 +1446,7 @@ Class.ihdtiBolt3 = {
         TYPE: "ihdtiBolt2"
     }
     ]
-}
+};
 
 // thing for later
 Class.crowbarTurretTank = {
@@ -1477,42 +1477,42 @@ Class.crowbarTurretTank = {
             ]
         })
     }]
-}
+};
 
 // Arras celestial leaks
-Class.desmosTurret = makeTurret("desmos", {canRepel: true, limitFov: true, extraStats: []})
-Class.undertowTurret = makeTurret("undertow", {canRepel: true, limitFov: true, extraStats: []})
-Class.forkTurret = makeTurret("fork", {canRepel: true, limitFov: true, extraStats: []})
-Class.destroyerTurret = makeTurret("destroyer", {canRepel: true, limitFov: true, extraStats: []})
-Class.rifleTurret = makeTurret("rifle", {canRepel: true, limitFov: true, extraStats: []})
-Class.streamlinerTurret = makeTurret("streamliner", {canRepel: true, limitFov: true, extraStats: []})
-Class.gunnerTurret = makeTurret("gunner", {canRepel: true, limitFov: true, extraStats: []})
-Class.singleTurret = makeTurret("single", {canRepel: true, limitFov: true, extraStats: []})
-Class.sprayerTurret = makeTurret("sprayer", {canRepel: true, limitFov: true, extraStats: []})
-Class.crossbowTurret = makeTurret("crossbow", {canRepel: true, limitFov: true, extraStats: []})
-Class.machineGunTurret = makeTurret("machineGun", {canRepel: true, limitFov: true, extraStats: []})
-Class.tripleShotTurret = makeTurret("tripleShot", {canRepel: true, limitFov: true, extraStats: []})
-Class.constructorTurret = makeTurret("construct", {canRepel: true, limitFov: true, extraStats: []})
-Class.musketTurret = makeTurret("musket", {canRepel: true, limitFov: true, extraStats: []})
-Class.builderTurret = makeTurret("builder", {canRepel: true, limitFov: true, extraStats: []})
-Class.trapperTurret = makeTurret("trapper", {canRepel: true, limitFov: true, extraStats: []})
-Class.spreadshotTurret = makeTurret("spreadshot", {canRepel: true, limitFov: true, extraStats: []})
-Class.minigunTurret = makeTurret("minigun", {canRepel: true, limitFov: true, extraStats: []})
-Class.rangerTurret = makeTurret("ranger", {canRepel: true, limitFov: true, extraStats: []})
-Class.sniperTurret = makeTurret("sniper", {canRepel: true, limitFov: true, extraStats: []})
-Class.pentaShotTurret = makeTurret("pentaShot", {canRepel: true, limitFov: true, extraStats: []})
-Class.dualTurret = makeTurret("dual", {canRepel: true, limitFov: true, extraStats: []})
-Class.predatorTurret = makeTurret("predator", {canRepel: true, limitFov: true, extraStats: []})
-Class.fieldGunTurret = makeTurret("fieldGun", {canRepel: true, limitFov: true, extraStats: []})
-Class.beekeeperTurret = makeTurret("beekeeper", {canRepel: true, limitFov: true, extraStats: []})
-Class.annihilatorTurret = makeTurret("annihilator", {canRepel: true, limitFov: true, extraStats: []})
-Class.mortarTurret = makeTurret("mortar", {canRepel: true, limitFov: true, extraStats: []})
-Class.ordnanceTurret = makeTurret("ordnance", {canRepel: true, limitFov: true, extraStats: []})
-Class.focalTurret = makeTurret("focal", {canRepel: true, limitFov: true, extraStats: []})
-Class.undertowTurret = makeTurret("undertow", {canRepel: true, limitFov: true, extraStats: []})
-Class.forkTurret = makeTurret("fork", {canRepel: true, limitFov: true, extraStats: []})
-Class.hunterTurret = makeTurret("hunter", {canRepel: true, limitFov: true, extraStats: []})
-Class.tripletTurret = makeTurret("triplet", {canRepel: true, limitFov: true, extraStats: []})
+Class.desmosTurret = makeTurret("desmos", {canRepel: true, limitFov: true, extraStats: []});
+Class.undertowTurret = makeTurret("undertow", {canRepel: true, limitFov: true, extraStats: []});
+Class.forkTurret = makeTurret("fork", {canRepel: true, limitFov: true, extraStats: []});
+Class.destroyerTurret = makeTurret("destroyer", {canRepel: true, limitFov: true, extraStats: []});
+Class.rifleTurret = makeTurret("rifle", {canRepel: true, limitFov: true, extraStats: []});
+Class.streamlinerTurret = makeTurret("streamliner", {canRepel: true, limitFov: true, extraStats: []});
+Class.gunnerTurret = makeTurret("gunner", {canRepel: true, limitFov: true, extraStats: []});
+Class.singleTurret = makeTurret("single", {canRepel: true, limitFov: true, extraStats: []});
+Class.sprayerTurret = makeTurret("sprayer", {canRepel: true, limitFov: true, extraStats: []});
+Class.crossbowTurret = makeTurret("crossbow", {canRepel: true, limitFov: true, extraStats: []});
+Class.machineGunTurret = makeTurret("machineGun", {canRepel: true, limitFov: true, extraStats: []});
+Class.tripleShotTurret = makeTurret("tripleShot", {canRepel: true, limitFov: true, extraStats: []});
+Class.constructorTurret = makeTurret("construct", {canRepel: true, limitFov: true, extraStats: []});
+Class.musketTurret = makeTurret("musket", {canRepel: true, limitFov: true, extraStats: []});
+Class.builderTurret = makeTurret("builder", {canRepel: true, limitFov: true, extraStats: []});
+Class.trapperTurret = makeTurret("trapper", {canRepel: true, limitFov: true, extraStats: []});
+Class.spreadshotTurret = makeTurret("spreadshot", {canRepel: true, limitFov: true, extraStats: []});
+Class.minigunTurret = makeTurret("minigun", {canRepel: true, limitFov: true, extraStats: []});
+Class.rangerTurret = makeTurret("ranger", {canRepel: true, limitFov: true, extraStats: []});
+Class.sniperTurret = makeTurret("sniper", {canRepel: true, limitFov: true, extraStats: []});
+Class.pentaShotTurret = makeTurret("pentaShot", {canRepel: true, limitFov: true, extraStats: []});
+Class.dualTurret = makeTurret("dual", {canRepel: true, limitFov: true, extraStats: []});
+Class.predatorTurret = makeTurret("predator", {canRepel: true, limitFov: true, extraStats: []});
+Class.fieldGunTurret = makeTurret("fieldGun", {canRepel: true, limitFov: true, extraStats: []});
+Class.beekeeperTurret = makeTurret("beekeeper", {canRepel: true, limitFov: true, extraStats: []});
+Class.annihilatorTurret = makeTurret("annihilator", {canRepel: true, limitFov: true, extraStats: []});
+Class.mortarTurret = makeTurret("mortar", {canRepel: true, limitFov: true, extraStats: []});
+Class.ordnanceTurret = makeTurret("ordnance", {canRepel: true, limitFov: true, extraStats: []});
+Class.focalTurret = makeTurret("focal", {canRepel: true, limitFov: true, extraStats: []});
+Class.undertowTurret = makeTurret("undertow", {canRepel: true, limitFov: true, extraStats: []});
+Class.forkTurret = makeTurret("fork", {canRepel: true, limitFov: true, extraStats: []});
+Class.hunterTurret = makeTurret("hunter", {canRepel: true, limitFov: true, extraStats: []});
+Class.tripletTurret = makeTurret("triplet", {canRepel: true, limitFov: true, extraStats: []});
 Class.heavyTurret = makeTurret({
     GUNS: [
         {
@@ -1526,7 +1526,7 @@ Class.heavyTurret = makeTurret({
             POSITION: [5.5, 9, -1.8, 6.5, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, color: "grey", extraStats: [{health: 1.1, damage: 1.1}]})
+}, {canRepel: true, limitFov: true, color: "grey", extraStats: [{health: 1.1, damage: 1.1}]});
 Class.engineerTurret = makeTurret({
     GUNS: [
         {
@@ -1551,7 +1551,7 @@ Class.engineerTurret = makeTurret({
             POSITION: [4, 14, 1, 8, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.warkTurret = makeTurret({
     GUNS: weaponMirror([
         {
@@ -1566,7 +1566,7 @@ Class.warkTurret = makeTurret({
             }
         }
     ], {delayIncrement: 0.5})
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.ullrLowerTurret = makeTurret({
     GUNS: weaponMirror([
         {
@@ -1587,7 +1587,7 @@ Class.ullrLowerTurret = makeTurret({
             POSITION: [11.5, 8, 1, 0, -5.5, 0, 0]
         }
     ], {delayIncrement: 0.5})
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.isisLowerTurret = makeTurret({
     GUNS: [
         {
@@ -1605,7 +1605,7 @@ Class.isisLowerTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.blunderbussTurret = makeTurret({
     GUNS: [
         {
@@ -1691,7 +1691,7 @@ Class.blunderbussTurret = makeTurret({
             POSITION: [14, 10.5, 1, 0, 0, 0, 0]
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.bentBuilderTurret = makeTurret({
     GUNS: weaponMirror([
         {
@@ -1706,7 +1706,7 @@ Class.bentBuilderTurret = makeTurret({
             }
         }
     ], {delayIncrement: 0.5})
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.volleyTurret = makeTurret({
     GUNS: [
         {
@@ -1738,7 +1738,7 @@ Class.volleyTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 Class.rimflakTurret = makeTurret({
     GUNS: [
         {
@@ -1773,7 +1773,7 @@ Class.rimflakTurret = makeTurret({
             }
         }
     ]
-}, {canRepel: true, limitFov: true, extraStats: []})
+}, {canRepel: true, limitFov: true, extraStats: []});
 
 // LAMG
 Class.lamgSpinnerTurret = {
@@ -1784,7 +1784,7 @@ Class.lamgSpinnerTurret = {
     GUNS: weaponArray({
         POSITION: [15, 3.5, 1, 0, 0, 0, 0]
     }, 10)
-}
+};
 
 // i
 Class.eyeTurret = {
@@ -1797,7 +1797,7 @@ Class.eyeTurret = {
             TYPE: ["whiteEyeturret", {COLOR: "pureWhite"}]
         }
     ]
-}
+};
 Class.hwEye = {
     PARENT: "spectator",
     COLOR: "red",
@@ -1831,4 +1831,4 @@ Class.hwEye = {
             }]
         }
     ]
-}
+};

@@ -61,7 +61,7 @@ class Entity extends EventEmitter {
         this.children = [];
         this.bulletchildren = [];
         this.color = new Color(16);
-        this.glow = { radius: null, color: new Color(-1).compiled, alpha: 1, recursion: 1 }
+        this.glow = { radius: null, color: new Color(-1).compiled, alpha: 1, recursion: 1 };
         this.confinement = { xMin: 0, xMax: global.gameManager.room.width, yMin: 0, yMax: global.gameManager.room.height };
         this.firingArc = [0, 360];
         this.necro = () => {};
@@ -335,7 +335,7 @@ class Entity extends EventEmitter {
             this.alpha = 1;
             this.reset();
         }
-        if (set.RESET_UPGRADE_MENU) this.upgrades = []
+        if (set.RESET_UPGRADE_MENU) this.upgrades = [];
         if (set.ARENA_CLOSER != null) this.isArenaCloser = set.ARENA_CLOSER, this.ac = set.ARENA_CLOSER;
         if (set.BRANCH_LABEL != null) this.branchLabel = set.BRANCH_LABEL;
         if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
@@ -353,7 +353,7 @@ class Entity extends EventEmitter {
                     let e = ensureIsClass(k);
                     index += e.index + "-";
                 }
-                let i = parseInt(prop.split("_")[2])
+                let i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
                     level: Config.tier_multiplier * i,
@@ -510,7 +510,7 @@ class Entity extends EventEmitter {
                             upgrade: set.APPLY_ON_UPGRADE ?? false,
                             shoot: set.APPLY_ON_SHOOT ?? false
                         }
-                    })
+                    });
                 }
                 if (set.GUI_SHAKE) {
                     info.push({
@@ -523,14 +523,14 @@ class Entity extends EventEmitter {
                             upgrade: set.APPLY_ON_UPGRADE ?? false,
                             shoot: set.APPLY_ON_SHOOT ?? false
                         }
-                    })
+                    });
                 }
                 info.forEach(info => {
                     if (info.applyOn.upgrade) {
                         this.socket.talk("SH", JSON.stringify(info));
                     }
                 });
-            })
+            });
             this.settings.shakeProperties = info;
         }
         if (set.NECRO != null) {
@@ -560,9 +560,9 @@ class Entity extends EventEmitter {
                 host.SIZE = savedSize;
                 host.health.amount = host.health.max;
                 return true;
-            }
+            };
         }
-        this.syncWithTank = set.SYNC_WITH_TANK ?? false
+        this.syncWithTank = set.SYNC_WITH_TANK ?? false;
         if (set.mockup != null) {
             this.mockup = set.mockup;
         }
@@ -646,7 +646,7 @@ class Entity extends EventEmitter {
         if (isInvulnerable) {
             this.on("dead", () => {
                 this.master.turrets.delete(this.id); 
-            }) 
+            }); 
         }
         this.settings.drawShape = false;
         // Get my position.
@@ -704,7 +704,7 @@ class Entity extends EventEmitter {
             const wallSize = (global.gameManager.room.width / 32 / 2) * Math.SQRT2 * multiplier;
             levelMultiplier += ((scoreSince45 / 3e6) * wallSize) / Class.genericTank.SIZE / 2;
         }
-        return (this.coreSize || this.SIZE) * this.sizeMultiplier * levelMultiplier
+        return (this.coreSize || this.SIZE) * this.sizeMultiplier * levelMultiplier;
     }
     get mass() {
         return this.density * (this.size ** 2 + 1);
@@ -870,7 +870,7 @@ class Entity extends EventEmitter {
                     }
                 } else {
                     upgrade = this.upgrades[number];
-                    list = Array.isArray(upgrade.class) ? upgrade.class : [upgrade.class]
+                    list = Array.isArray(upgrade.class) ? upgrade.class : [upgrade.class];
                 }
                 if (list) {
                     for (let entry of list) {
@@ -930,7 +930,7 @@ class Entity extends EventEmitter {
                 if (info.applyOn.upgrade) {
                     this.socket.talk("SH", JSON.stringify(info));
                 }
-            }) 
+            }); 
         }
         this.sendMessage("You have upgraded to " + this.label + ".");
         for (let def of this.defs) {
@@ -979,11 +979,11 @@ class Entity extends EventEmitter {
     }
 
     move(now) {
-        global.runMove(this, now ?? null) 
+        global.runMove(this, now ?? null); 
     };
 
     face() {
-        global.runFace(this) 
+        global.runFace(this); 
     };
 
     takeSelfie() {
@@ -1065,14 +1065,14 @@ class Entity extends EventEmitter {
             return 0;
         }
         if (this.damageReceived > 0) {
-            let damageInflictor = []
-            let damageTool = []
+            let damageInflictor = [];
+            let damageTool = [];
 
             for (let i = 0; i < this.collisionArray.length; i++) {
                 let instance = this.collisionArray[i];
                 if (instance.type === "wall" || !instance.damage) continue;
-                damageInflictor.push(instance.master)
-                damageTool.push(instance)
+                damageInflictor.push(instance.master);
+                damageTool.push(instance);
             }
             this.emit("damage", { body: this, damageInflictor, damageTool });
         }
@@ -1161,7 +1161,7 @@ class Entity extends EventEmitter {
                     case "food":
                     case "crasher":
                         instance.killCount.polygons++;
-                        break
+                        break;
 
                     case "miniboss":
                         instance.killCount.bosses++;
@@ -1226,8 +1226,8 @@ class Entity extends EventEmitter {
                 killText = "You have died a stupid death";
             }
             if (Config.outbreak && !this.zombified) {
-                killText = `You died and became a Zombified ${this.label}`
-                killSuffix = "!"
+                killText = `You died and became a Zombified ${this.label}`;
+                killSuffix = "!";
             }
             if (!this.dontSendDeathMessage) {
                 this.sendMessage(killText + killSuffix);

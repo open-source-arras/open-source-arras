@@ -89,7 +89,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
     }
 
     life() {
-        bringToLife(this) 
+        bringToLife(this); 
     };
 
     addController(newIO) {
@@ -284,7 +284,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
                 host.SIZE = savedSize;
                 host.health.amount = host.health.max;
                 return true;
-            }
+            };
         }
         if (set.EXTRA_SKILL != null) this.skill.points += set.EXTRA_SKILL;
         if (set.BODY != null) {
@@ -353,10 +353,10 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
     updateBodyInfo() {};
 
     move() {
-        global.runMove(this) 
+        global.runMove(this); 
     };
     face() {
-        global.runFace(this) 
+        global.runFace(this); 
     };
 
     damageMultiplier() {

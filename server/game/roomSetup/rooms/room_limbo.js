@@ -38,6 +38,6 @@ let room_limbo = [
     [____, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, bas1, WALL, ____],
     [____, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, WALL, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____]
-]
+];
 
 module.exports = room_limbo;

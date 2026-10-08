@@ -48,7 +48,7 @@ global.getSpawnableArea = (team, gameManager) => {
         loc = ran.choose(spawnables).randomInside();
     } while (attempts-- && dirtyCheck(loc, 0));
     return loc;
-}
+};
 global.teamNames = [
     "BLUE",
     "GREEN",
@@ -58,7 +58,7 @@ global.teamNames = [
     "ORANGE",
     "BROWN",
     "CYAN"
-]
+];
 global.teamColors = [
     "blue",
     "green",
@@ -68,13 +68,13 @@ global.teamColors = [
     "tangerine",
     "brown",
     "cyan"
-]
+];
 global.getTeamName = team => [...global.teamNames, , "DREADNOUGHT"][-team - 1] ?? "NEUTRAL";
 global.getTeamColor = (team, fixMode = false) => {
     let color = ([...global.teamColors, , "aqua"][-team - 1] ?? 3);
     if (fixMode) color = color + " 0 1 0 false";
     return color;
-}
+};
 global.isPlayerTeam = team => team < 0 || team > -11;
 global.setPermissionLevel = (socket, level) => {
     if (!socket || !socket.status) return;
@@ -144,7 +144,7 @@ global.ensureIsClass = str => {
     };
 
     throw Error(`Definition "${str}" was attempted to be gotten but does not exist!`);
-}
+};
 
 global.ensureIsManager = str => {
     if ("undefined" == typeof str) {
@@ -152,7 +152,7 @@ global.ensureIsManager = str => {
         throw new Error("No game manager detected!");
     }
     return str;
-}
+};
 
 global.tickIndex = 0;
 global.tickEvents = new EventEmitter();
@@ -252,7 +252,7 @@ global.bringToLife = (() => {
 
         // Refresh body attributes if needed
         if (my.skill.maintain()) my.refreshBodyAttributes();
-    }
+    };
 })();
 global.runMove = (() => {
     return (my, now = Date.now()) => {
@@ -341,8 +341,8 @@ global.runMove = (() => {
         }
         my.accel.x += engine.x * my.control.power;
         my.accel.y += engine.y * my.control.power;
-    }
-})()
+    };
+})();
 global.runFace = (() => {
     return (my) => {
         let t = my.control.target,
@@ -366,7 +366,7 @@ global.runFace = (() => {
                 givenangle = my.firingArc[0];
             }
             my.facing += util.loopSmooth(my.facing, givenangle, (my.facingTypeArgs.smoothness ?? 4) / global.gameManager.runSpeed);
-        }
+        };
         switch (my.facingType) {
             case "spin":
                 my.facing += (my.facingTypeArgs.speed ?? 0.05) / global.gameManager.runSpeed;
@@ -417,10 +417,10 @@ global.runFace = (() => {
                 break;
         }
         // Loop
-        const TAU = 2 * Math.PI
+        const TAU = 2 * Math.PI;
         my.facing = (my.facing % TAU + TAU) % TAU;
         my.vfacing = util.angleDifference(oldFacing, my.facing) * global.gameManager.roomSpeed;
-    }
+    };
 })();
 global.defineSplit = (() => {
     return (defs, branch, set, my, emitEvent) => {
@@ -520,7 +520,7 @@ global.defineSplit = (() => {
                     let e = ensureIsClass(k);
                     index += e.index + "-";
                 }
-                let i = parseInt(prop.split("_")[2])
+                let i = parseInt(prop.split("_")[2]);
                 my.upgrades.push({
                     class: trueUpgrades,
                     level: Config.tier_multiplier * i,
@@ -538,7 +538,7 @@ global.defineSplit = (() => {
             for (let root of my.rerootUpgradeTree) finalRoot += root + "\\/";
             my.rerootUpgradeTree += finalRoot.substring(0, finalRoot.length - 2);
         }
-    }
+    };
 })();
 
 global.handleBatchUpgradeSplit = (() => {
@@ -587,7 +587,7 @@ global.handleBatchUpgradeSplit = (() => {
         my.upgrades = [];
         my.selection = JSON.parse(JSON.stringify(my.defs));
         chooseUpgradeFromBranch(numBranches, my); // Recursively build upgrade options
-    }
+    };
 })();
 
 global.checkIfInView = (() => {
@@ -600,7 +600,7 @@ global.checkIfInView = (() => {
             } else my.onRender = false;
         }
         return boolean;
-    }
+    };
 })();
 
 global.Tile = class Tile {
@@ -626,7 +626,7 @@ global.Tile = class Tile {
             throw new Error("'tick' property must be a function!");
         }
     }
-}
+};
 
 global.flatten = (output, definition) => {
     definition = ensureIsClass(definition);
@@ -685,7 +685,7 @@ global.makeHitbox = wall => {
         [relativeCorners[3], relativeCorners[0]]
     ];
     wall.hitboxRadius = distance;
-}
+};
 
 global.wallTypes = [
     { color: 16, label: "Wall",    alpha: 1, class: "wall" },
@@ -702,7 +702,7 @@ global.wallTypes = [
 ];
 
 global.becomeBulletChildren = (socket, player, exit, newgui) => {
-    let a = player.body.bulletchildren[player.body.bulletchildren.length - 1]
+    let a = player.body.bulletchildren[player.body.bulletchildren.length - 1];
     if (a !== undefined && a !== null) {
         a.parent = a;
         a.source = a;
@@ -719,12 +719,12 @@ global.becomeBulletChildren = (socket, player, exit, newgui) => {
         removedchildren.forEach((e) => {
             e.master = e;
             e.destroy();
-        })
+        });
         a.bulletchildren.forEach((e) => {
             e.source = a;
             e.bulletparent = a;
             e.parent = a;
-        })
+        });
 
         let become = a;
         become.controllers = [];
@@ -735,7 +735,7 @@ global.becomeBulletChildren = (socket, player, exit, newgui) => {
         player.gui = newgui(player);
         player.body.refreshBodyAttributes();
     } else exit();
-}
+};
 
 global.loadAllMockups = (logText = true) => {
     let mockupsLoadStartTime = performance.now();
@@ -744,4 +744,4 @@ global.loadAllMockups = (logText = true) => {
     let mockupsLoadEndTime = performance.now();
     if (logText) console.log(`Loaded ${mockupData.length} MockupEntities.`);
     if (logText) console.log(`Mockups generated in ${util.rounder(mockupsLoadEndTime - mockupsLoadStartTime, 3)} milliseconds.\n`);
-}
+};

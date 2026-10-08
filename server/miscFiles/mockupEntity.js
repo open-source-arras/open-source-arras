@@ -47,7 +47,7 @@ class MockupEntityGun {
                 ANGLE: position[5],
                 DELAY: position[6],
                 DRAW_ABOVE: position[7]
-            }
+            };
         }
         position = {
             LENGTH: position.LENGTH ?? 18,
@@ -146,7 +146,7 @@ class MockupEntityProp {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : (set.SHAPE_NUM ?? 0);
             this.shapeData = set.SHAPE;
         }
-        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear"
+        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear";
         if (set.COLOR != null) {
             if (typeof set.COLOR === "number" || typeof set.COLOR === "string") {
                 if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z]*$/.test(set.COLOR)) {
@@ -291,7 +291,7 @@ class MockupEntity {
         if (set.VALUE != null) {
             let score = 0;
             let deduction = 0;
-            let levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level
+            let levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level;
             while (score - deduction >= levelScore()) {
                 deduction += levelScore();
                 level += 1;
@@ -316,7 +316,7 @@ class MockupEntity {
                     let e = ensureIsClass(k);
                     index += e.index + "-";
                 }
-                let i = parseInt(prop.split("_")[2])
+                let i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
                     level: Config.tier_multiplier * i,
