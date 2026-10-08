@@ -175,7 +175,7 @@ Class.forager = {
         },
         ...weaponMirror({
             POSITION: {
-                LENGTH: 28/3,
+                LENGTH: 28 / 3,
                 WIDTH: 2,
                 ASPECT: -1.35,
                 Y: -15,
@@ -233,7 +233,7 @@ Class.piercer = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.marksman]),
                 TYPE: "bullet"
             }
-        }, 3, { lengthOffset: 2, delayIncrement: 1/3 })
+        }, 3, { lengthOffset: 2, delayIncrement: 1 / 3 })
     ],
     UPGRADES_TIER_4: ["stiletto", "saxton", "autoPiercer"]
 };
@@ -367,7 +367,7 @@ Class.spitfire = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
                 TYPE: "bullet"
             }
-        }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+        }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
     ],
     UPGRADES_TIER_4: ["rotary", "ph_spitfireH", "autoSpitfire"]
 };
@@ -496,7 +496,7 @@ Class.blade = {
                 ASPECT: -1.35,
                 Y: -15,
                 ANGLE: 90,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { speed: 0.7, maxSpeed: 0.7 }, g.flankGuard]),
@@ -510,7 +510,7 @@ Class.blade = {
                 ASPECT: -1.35,
                 Y: -10,
                 ANGLE: 90,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { speed: 0.7, maxSpeed: 0.7 }, g.flankGuard]),
@@ -1059,7 +1059,7 @@ Class.rotary = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
                 TYPE: "bullet"
             }
-        }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+        }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
     ]
 };
 Class.spy = {
@@ -1216,7 +1216,7 @@ Class.trailblazer = {
         },
         ...weaponMirror({
             POSITION: {
-                LENGTH: 28/3,
+                LENGTH: 28 / 3,
                 WIDTH: 2,
                 ASPECT: -1.35,
                 Y: -15,
@@ -1229,7 +1229,7 @@ Class.trailblazer = {
         }),
         ...weaponMirror({
             POSITION: {
-                LENGTH: 28/3,
+                LENGTH: 28 / 3,
                 WIDTH: 2,
                 ASPECT: -1.35,
                 Y: -10,

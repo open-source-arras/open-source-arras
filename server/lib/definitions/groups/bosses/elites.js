@@ -237,13 +237,13 @@ Class.eliteSpinner = {
     FACING_TYPE: ["spin", {speed: 0.16}],
     GUNS: weaponArray([
         {
-            POSITION: [9.5, 2, 1, -1.5, 11.5, 10, 2/3],
+            POSITION: [9.5, 2, 1, -1.5, 11.5, 10, 2 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.5, maxSpeed: 1.25 }]),
                 TYPE: "bullet"
             }
         }, {
-            POSITION: [9.5, 2, 1, 3.5, 6.5, 10, 1/3],
+            POSITION: [9.5, 2, 1, 3.5, 6.5, 10, 1 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.5, maxSpeed: 1.25 }]),
                 TYPE: "bullet"
@@ -383,21 +383,21 @@ Class.deltaBattleship = {
     UPGRADE_LABEL: "Delta Battleship",
     GUNS: weaponArray([
         {
-            POSITION: [4, 6, 0.6, 7, 3.5, 60, 1/4],
+            POSITION: [4, 6, 0.6, 7, 3.5, 60, 1 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: "autoswarm",
                 STAT_CALCULATOR: "swarm"
             }
         }, {
-            POSITION: [4, 6, 0.6, 7, -3.5, 60, 2/4],
+            POSITION: [4, 6, 0.6, 7, -3.5, 60, 2 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: "autoswarm",
                 STAT_CALCULATOR: "swarm"
             }
         }, {
-            POSITION: [4, 6, 0.6, 7, -10, 60, 3/4],
+            POSITION: [4, 6, 0.6, 7, -10, 60, 3 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: "autoswarm",

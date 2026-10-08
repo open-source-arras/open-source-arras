@@ -205,27 +205,27 @@ Class.sentinelCrossbow = {
     UPGRADE_COLOR: "purple",
     GUNS: [
         {
-            POSITION: [15, 2.5, 1, 0, 3.5, 35/2, 2/3],
+            POSITION: [15, 2.5, 1, 0, 3.5, 35 / 2, 2 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }, {
-            POSITION: [15, 2.5, 1, 0, -3.5, -35/2, 2/3],
+            POSITION: [15, 2.5, 1, 0, -3.5, -35 / 2, 2 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [20, 3.5, 1, 0, 4, 0, 1/3],
+            POSITION: [20, 3.5, 1, 0, 4, 0, 1 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
         {
-            POSITION: [20, 3.5, 1, 0, -4, 0, 1/3],
+            POSITION: [20, 3.5, 1, 0, -4, 0, 1 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
@@ -276,13 +276,13 @@ Class.sentinelMinigun = {
                 TYPE: "bullet"
             }
         }, {
-            POSITION: [20.4, 9, 1, 0, 0, 0, 1/3],
+            POSITION: [20.4, 9, 1, 0, 0, 0, 1 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
                 TYPE: "bullet"
             }
         }, {
-            POSITION: [18.3, 9, 1, 0, 0, 0, 2/3],
+            POSITION: [18.3, 9, 1, 0, 0, 0, 2 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
                 TYPE: "bullet"

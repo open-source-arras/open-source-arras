@@ -62,9 +62,7 @@ try {
     const WebSocketServer = require("ws").WebSocketServer;
     wsServer = new WebSocketServer({ noServer: true });
 } catch(err) {
-    throw new Error(
-        "Package 'ws' is not installed! To install it, run 'npm install ws' in the terminal."
-    );
+    throw new Error("Package 'ws' is not installed! To install it, run 'npm install ws' in the terminal.");
 }
 
 // Log a warning if Access-Control-Allow-Origin is enabled

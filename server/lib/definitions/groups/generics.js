@@ -672,7 +672,7 @@ Class.serverPortal = {
                     let diffX = instance.x - body.x,
                         diffY = instance.y - body.y,
                         dist2 = diffX ** 2 + diffY ** 2;
-                    if (dist2 <= ((body.size / 12)*250) ** 1.9) {
+                    if (dist2 <= ((body.size / 12) * 250) ** 1.9) {
                         let forceMulti = (0.2 / instance.size);
                         if (instance.isPlayer && instance.socket) {
                             if (dist2 < body.size ** 2.5 + instance.size ** 2.5) forceMulti = (3 / instance.size);

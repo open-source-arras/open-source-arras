@@ -421,7 +421,7 @@ Class.subverter = {
             SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.minigun]),
             TYPE: "bullet"
         }
-    }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+    }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
 };
 Class.triBlaster = {
     PARENT: "genericTank",

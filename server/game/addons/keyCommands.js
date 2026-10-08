@@ -626,7 +626,7 @@ function init() {
             skill: true,
             permissionLevel: 1,
             run: ({ player }) => {
-                let currentUsedPoints = player.body.skill.raw.reduce((total, v) => total+v, 0);
+                let currentUsedPoints = player.body.skill.raw.reduce((total, v) => total + v, 0);
                 let maxSkills = player.body.skill.caps.reduce((total, capAmount) => total + capAmount, 0);
                 player.body.skill.points = Math.min(maxSkills - currentUsedPoints, player.body.skill.points + 1);
                 player.body.syncTurrets();

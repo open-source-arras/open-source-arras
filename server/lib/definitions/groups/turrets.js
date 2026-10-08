@@ -342,7 +342,7 @@ Class.hyperTwisterTurret = makeTurret({
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {speed: 0.6, reload: 4/3, shudder: 0.1}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {speed: 0.6, reload: 4 / 3, shudder: 0.1}]),
                 TYPE: "hyperspinmissile",
                 STAT_CALCULATOR: "sustained+lowspeed"
             }
@@ -470,7 +470,7 @@ Class.ultraBarricadeTurret = makeTurret({
             }
         },
         {
-            POSITION: [4, 8, 1.3, 22, 0, 0, 1/4],
+            POSITION: [4, 8, 1.3, 22, 0, 0, 1 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.trap, g.minigun, g.barricade]),
                 TYPE: "trap",
@@ -478,7 +478,7 @@ Class.ultraBarricadeTurret = makeTurret({
             }
         },
         {
-            POSITION: [4, 8, 1.3, 18, 0, 0, 2/4],
+            POSITION: [4, 8, 1.3, 18, 0, 0, 2 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.trap, g.minigun, g.barricade]),
                 TYPE: "trap",
@@ -486,7 +486,7 @@ Class.ultraBarricadeTurret = makeTurret({
             }
         },
         {
-            POSITION: [4, 8, 1.3, 14, 0, 0, 3/4],
+            POSITION: [4, 8, 1.3, 14, 0, 0, 3 / 4],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.trap, g.minigun, g.barricade]),
                 TYPE: "trap",

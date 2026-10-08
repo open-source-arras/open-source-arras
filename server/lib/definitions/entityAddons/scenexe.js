@@ -26,7 +26,7 @@ let g = {
     tripleShot: { reload: 1.1, shudder: 0.8, health: 0.9, pen: 0.8, density: 0.8, spray: 0.5 },
     spreadshotMain: { recoil: 0.25, shudder: 0.5, health: 1.1 },
     spreadshot: { reload: 1.5, shudder: 0.25, speed: 0.7, maxSpeed: 0.7, spray: 0.25, health: 0.84 },
-    triplet: { reload: 1.2, recoil: 2/3, shudder: 0.9, health: 0.85, damage: 0.85, pen: 0.9, density: 1.1, spray: 0.9, resist: 0.95 },
+    triplet: { reload: 1.2, recoil: 2 / 3, shudder: 0.9, health: 0.85, damage: 0.85, pen: 0.9, density: 1.1, spray: 0.9, resist: 0.95 },
     turret: { reload: 2, health: 0.8, damage: 0.6, pen: 0.7, density: 0.1 },
     autoTurret: { reload: 0.9, recoil: 0.75, shudder: 0.5, size: 0.8, health: 0.9, damage: 0.6, pen: 1.2, range: 0.8, density: 1.3, resist: 1.25 },
     quint: { reload: 1.5, recoil: 0.667, shudder: 0.9, pen: 0.9, density: 1.1, spray: 0.9, resist: 0.95 },
@@ -43,7 +43,7 @@ let g = {
     rifle: { reload: 0.8, recoil: 0.8, shudder: 1.5, health: 0.8, damage: 0.8, pen: 0.9, spray: 2 },
     blunderbuss: { recoil: 0.1, shudder: 0.5, health: 0.4, damage: 0.2, pen: 0.4, spray: 0.5 },
     railgun: { reload: 4.2, damage: 0.81, health: 3.06, resist: 2.3, density: 0.7, speed: 1.375, maxSpeed: 1.375 },
-    marksman: { pen: 2, damage: 0.12, health: 25/3, reload: 1.75 },
+    marksman: { pen: 2, damage: 0.12, health: 25 / 3, reload: 1.75 },
 
     // Machine guns
     machineGun: { reload: 0.5, recoil: 0.8, shudder: 1.7, health: 0.7, damage: 0.7, maxSpeed: 0.8, spray: 2.5 },
@@ -54,7 +54,7 @@ let g = {
     gunner: { recoil: 0.25, shudder: 1.5, size: 1.2, health: 1.35, damage: 0.25, pen: 1.25, speed: 0.8, maxSpeed: 0.65, density: 1.5, spray: 1.5, resist: 1.2 },
     machineGunner: { reload: 0.66, recoil: 0.8, shudder: 2, damage: 0.75, speed: 1.2, maxSpeed: 0.8, spray: 2.5 },
     blaster: { recoil: 1.2, shudder: 1.25, size: 1.1, health: 1.5, pen: 0.6, speed: 0.8, maxSpeed: 0.33, range: 0.6, density: 0.5, spray: 1.5, resist: 0.8 },
-    focal: { reload: 1.25, recoil: 4/3, shudder: 0.8, health: 0.8, pen: 1.1, speed: 1.25, maxSpeed: 1.25, range: 1.1, density: 1.25, spray: 0.5, resist: 1.1 },
+    focal: { reload: 1.25, recoil: 4 / 3, shudder: 0.8, health: 0.8, pen: 1.1, speed: 1.25, maxSpeed: 1.25, range: 1.1, density: 1.25, spray: 0.5, resist: 1.1 },
     atomizer: { reload: 0.3, recoil: 0.8, size: 0.5, damage: 0.75, speed: 1.2, maxSpeed: 0.8, spray: 2.25 },
     spam: { reload: 1.1, size: 1.05, damage: 1.1, speed: 0.9, maxSpeed: 0.7, resist: 1.05 },
     gunnerDominator: { reload: 1.1, recoil: 0, shudder: 1.1, size: 0.5, health: 0.5, damage: 0.5, speed: 1.1, density: 0.9, spray: 1.2, resist: 0.8 },
@@ -106,7 +106,7 @@ let g = {
     // Traps and blocks
     setTrap: { reload: 1.1, recoil: 2, shudder: 0.1, size: 1.5, health: 2, pen: 1.25, speed: 2.2, maxSpeed: 2.15, range: 1.25, resist: 1.25 },
     construct: { reload: 1.3, size: 0.9, maxSpeed: 1.1 },
-    boomerang: { reload: 0.8, health: 0.5, damage: 0.5, speed: 0.75, maxSpeed: 0.75, range: 4/3 },
+    boomerang: { reload: 0.8, health: 0.5, damage: 0.5, speed: 0.75, maxSpeed: 0.75, range: 4 / 3 },
     nestKeeper: { reload: 3, size: 0.75, health: 1.05, damage: 1.05, pen: 1.1, speed: 0.5, maxSpeed: 0.5, range: 0.5, density: 1.1 },
     hexaTrapper: { reload: 1.3, shudder: 1.25, speed: 0.8, range: 0.5 },
     trapperDominator: { reload: 1.46, recoil: 0, shudder: 0.25, health: 1.25, damage: 1.45, pen: 1.6, speed: 0.5, maxSpeed: 2, range: 1.1, spray: 0.5 },
@@ -655,21 +655,21 @@ Class.scenexeSpread = {
     GUNS: [
         ...weaponMirror([
             {
-                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 45, Y: 2, X: -2, DELAY: 3/4 },
+                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 45, Y: 2, X: -2, DELAY: 3 / 4 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.basic, { damage: 0.75, pen: 1.15, recoil: 0.1 }, g.spreadshot]),
                     TYPE: "bullet"
                 }
             },
             {
-                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 30, Y: 2, X: -1, DELAY: 2/4 },
+                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 30, Y: 2, X: -1, DELAY: 2 / 4 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.basic, { damage: 0.75, pen: 1.15, recoil: 0.1 }, g.spreadshot]),
                     TYPE: "bullet"
                 }
             },
             {
-                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 15, Y: 2, DELAY: 1/4 },
+                POSITION: { LENGTH: 18, WIDTH: 5, ANGLE: 15, Y: 2, DELAY: 1 / 4 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.basic, { damage: 0.75, pen: 1.15, recoil: 0.1 }, g.spreadshot]),
                     TYPE: "bullet"

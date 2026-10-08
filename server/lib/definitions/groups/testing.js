@@ -201,7 +201,7 @@ Class.roaringLancer = {
             },
             PROPERTIES: {
                 AUTOFIRE: true,
-                SHOOT_SETTINGS: combineStats([{reload: 6, recoil: 0, health: 0.5, damage: 2, pen: 1.6, speed: 2/3, range: 0.08, spray: 180}]),
+                SHOOT_SETTINGS: combineStats([{reload: 6, recoil: 0, health: 0.5, damage: 2, pen: 1.6, speed: 2 / 3, range: 0.08, spray: 180}]),
                 TYPE: ["bullet", {
                     ALPHA: 0,
                     LABEL: "Lance"
@@ -631,7 +631,7 @@ Class.cycloneM1 = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 40,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -643,7 +643,7 @@ Class.cycloneM1 = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 80,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),

@@ -314,7 +314,7 @@ Class.rimfire_old = {
         }
     ], {delayIncrement: 0.25})
 };
-Class.septaTrapper_old = makeFlank("trapper", 7, "Septa Trapper", { extraStats: [g.hexaTrapper], delayIncrement: 4/7, danger: 7, noRecoil: true });
+Class.septaTrapper_old = makeFlank("trapper", 7, "Septa Trapper", { extraStats: [g.hexaTrapper], delayIncrement: 4 / 7, danger: 7, noRecoil: true });
 Class.septaTrapper_old.UPGRADE_LABEL = "Old Septa Trapper";
 Class.spike_old = {
     PARENT: "genericSmasher",
@@ -366,7 +366,7 @@ Class.spreadshot_old = {
                 WIDTH: 4,
                 Y: 0.8,
                 ANGLE: 75,
-                DELAY: 5/6
+                DELAY: 5 / 6
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
@@ -380,7 +380,7 @@ Class.spreadshot_old = {
                 WIDTH: 4,
                 Y: 1,
                 ANGLE: 60,
-                DELAY: 4/6
+                DELAY: 4 / 6
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
@@ -394,7 +394,7 @@ Class.spreadshot_old = {
                 WIDTH: 4,
                 Y: 1.6,
                 ANGLE: 45,
-                DELAY: 3/6
+                DELAY: 3 / 6
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
@@ -408,7 +408,7 @@ Class.spreadshot_old = {
                 WIDTH: 4,
                 Y: 2.4,
                 ANGLE: 30,
-                DELAY: 2/6
+                DELAY: 2 / 6
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
@@ -422,7 +422,7 @@ Class.spreadshot_old = {
                 WIDTH: 4,
                 Y: 3,
                 ANGLE: 15,
-                DELAY: 1/6
+                DELAY: 1 / 6
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),

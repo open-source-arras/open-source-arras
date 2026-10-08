@@ -35,7 +35,12 @@ export default defineConfig([
             "@stylistic/semi": ["error", "always"],
             "@stylistic/space-before-blocks": ["error", "always"],
             "@stylistic/space-before-function-paren": ["error", "never"],
-            "@stylistic/space-in-parens": ["error", "never"]
+            "@stylistic/space-in-parens": ["error", "never"],
+            "@stylistic/space-infix-ops": ["error"],
+            "@stylistic/switch-colon-spacing": ["error", {
+                "after": true,
+                "before": false
+            }]
         }
     },
     {

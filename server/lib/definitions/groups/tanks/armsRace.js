@@ -110,7 +110,7 @@ Class.machineTrapper = {
                 X: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { size: 2/3, spray: 5 }]),
+                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { size: 2 / 3, spray: 5 }]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
@@ -327,7 +327,7 @@ Class.bentGunner = {
                 WIDTH: 3.5,
                 Y: 8.25,
                 ANGLE: 18,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
@@ -340,7 +340,7 @@ Class.bentGunner = {
                 WIDTH: 3.5,
                 Y: 4.75,
                 ANGLE: 18,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
@@ -358,7 +358,7 @@ Class.bentGunner = {
                 TYPE: "bullet"
             }
         }
-    ], { delayIncrement: 1/6 })
+    ], { delayIncrement: 1 / 6 })
 };
 Class.bentMinigun = {
     PARENT: "genericTank",
@@ -389,7 +389,7 @@ Class.bentMinigun = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.tripleShot]),
                 TYPE: "bullet"
             }
-        }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+        }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
     ]
 };
 Class.captain = {
@@ -682,7 +682,7 @@ Class.expeller = {
                 ANGLE: 5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { size: 2/3, spray: 5 }]),
+                SHOOT_SETTINGS: combineStats([g.trapSpray, g.machineGun, { size: 2 / 3, spray: 5 }]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
@@ -696,7 +696,7 @@ Class.foreman = {
     STAT_NAMES: statnames.drone,
     BODY: {
         FOV: 1.1 * base.FOV,
-        SPEED: 14/15 * base.SPEED
+        SPEED: 14 / 15 * base.SPEED
     },
     MAX_CHILDREN: 5,
     GUNS: weaponMirror({
@@ -788,7 +788,7 @@ Class.iterator = {
     UPGRADE_TOOLTIP: "[DEV NOTE] This tank does not function as intended yet!",
     GUNS: [
         {
-            POSITION: [22, 8, -4/3, 0, 0, 0, 0],
+            POSITION: [22, 8, -4 / 3, 0, 0, 0, 0],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
                 TYPE: ["superSplitterBullet", {CONTROLLERS: ["snake"]}] // nerf supersplitter when
@@ -818,7 +818,7 @@ Class.jalopy = {
                 X: 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel, { reload: 1/3, recoil: 0.5, spray: 5/3 }]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel, { reload: 1 / 3, recoil: 0.5, spray: 5 / 3 }]),
                 TYPE: "bullet"
             }
         }
@@ -953,7 +953,7 @@ Class.productionist = {
     DANGER: 7,
     STAT_NAMES: statnames.swarm,
     BODY: {
-        SPEED: base.SPEED * 12/15,
+        SPEED: base.SPEED * 12 / 15,
         FOV: base.FOV * 1.1
     },
     GUNS: weaponMirror([
@@ -1033,7 +1033,7 @@ Class.railgun = {
     LABEL: "Railgun",
     DANGER: 7,
     BODY: {
-        SPEED: base.SPEED * 12/15,
+        SPEED: base.SPEED * 12 / 15,
         FOV: base.FOV * 1.2625
     },
     GUNS: [
@@ -1080,7 +1080,7 @@ Class.rimfire = {
                 DELAY: 0.25
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2, size: 2/3}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2, size: 2 / 3}]),
                 TYPE: "bullet"
             }
         },
@@ -1132,7 +1132,7 @@ Class.rocketeer = {
         }
     ]
 };
-Class.sniper3 = makeRadialAuto("sniper3gun", { isTurret: true, danger: 7, size: 13, label: "Sniper-3", body: { SPEED: 11/15 * base.SPEED, FOV: 1.25 * base.FOV } });
+Class.sniper3 = makeRadialAuto("sniper3gun", { isTurret: true, danger: 7, size: 13, label: "Sniper-3", body: { SPEED: 11 / 15 * base.SPEED, FOV: 1.25 * base.FOV } });
 Class.sniper3.UPGRADES_TIER_4 = [/*"assassin3", "creeper", "sniper5", "phantom", "lever", */"autoSniper3", "alloy"/*, "rifle3", "hunter3"*/];
 Class.spawnerdrive = {
     PARENT: "genericTank",
@@ -1197,13 +1197,13 @@ Class.splitShot = {
                 WIDTH: 3.5,
                 Y: 0.5,
                 ANGLE: 15,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, { size: 4/3 }]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot, { size: 4 / 3 }]),
                 TYPE: "bullet"
             }
-        }, { delayIncrement: 1/3 }),
+        }, { delayIncrement: 1 / 3 }),
         {
             POSITION: {
                 LENGTH: 22,
@@ -1434,7 +1434,7 @@ Class.actuary = {
                 TYPE: "healerBullet"
             }
         }
-    ], 3, { lengthOffset: 2, delayIncrement: 1/3 })
+    ], 3, { lengthOffset: 2, delayIncrement: 1 / 3 })
 };
 Class.alloy = {
     PARENT: "genericTank",
@@ -1447,7 +1447,7 @@ Class.alloy = {
                 WIDTH: 3.5,
                 X: 8,
                 ANGLE: 25,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -1460,7 +1460,7 @@ Class.alloy = {
                 WIDTH: 3.5,
                 X: 8,
                 ANGLE: -25,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -1534,7 +1534,7 @@ Class.battletrapper = makeBattle({
     STAT_NAMES: statnames.mixed,
     BODY: {
         FOV: base.FOV * 1.2,
-        SPEED: base.SPEED * 14/15
+        SPEED: base.SPEED * 14 / 15
     },
     GUNS: [
         {
@@ -1568,7 +1568,7 @@ Class.bentDoubleGunner = makeFlank({
                 WIDTH: 3.5,
                 Y: 8.25,
                 ANGLE: 18,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
@@ -1581,7 +1581,7 @@ Class.bentDoubleGunner = makeFlank({
                 WIDTH: 3.5,
                 Y: 4.75,
                 ANGLE: 18,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
@@ -1599,10 +1599,10 @@ Class.bentDoubleGunner = makeFlank({
                 TYPE: "bullet"
             }
         }
-    ], { delayIncrement: 1/6 })
+    ], { delayIncrement: 1 / 6 })
 }, 2, "Bent Double Gunner", { extraStats: [g.doubleTwin] });
 Class.bentDoubleMinigun = makeFlank("bentMinigun", 2, "Bent Double Minigun", { extraStats: [g.doubleTwin] });
-Class.bentDoubleMinigun.BODY = { ...Class.bentMinigun.BODY, SPEED: base.SPEED * 14/15 };
+Class.bentDoubleMinigun.BODY = { ...Class.bentMinigun.BODY, SPEED: base.SPEED * 14 / 15 };
 Class.bentFlankDouble = makeFlank({
     PARENT: "genericTank",
     DANGER: 7,
@@ -1654,7 +1654,7 @@ Class.captrapper = makeCap({
     STAT_NAMES: statnames.mixed,
     BODY: {
         FOV: base.FOV * 1.2,
-        SPEED: base.SPEED * 14/15
+        SPEED: base.SPEED * 14 / 15
     },
     GUNS: [
         {
@@ -2093,7 +2093,7 @@ Class.doubleSpreadshot = makeFlank({
                 WIDTH: 4,
                 Y: 1,
                 ANGLE: 56.5,
-                DELAY: 4/5
+                DELAY: 4 / 5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin, g.spreadshot]),
@@ -2107,7 +2107,7 @@ Class.doubleSpreadshot = makeFlank({
                 WIDTH: 4,
                 Y: 1.2,
                 ANGLE: 41.5,
-                DELAY: 3/5
+                DELAY: 3 / 5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin, g.spreadshot]),
@@ -2121,7 +2121,7 @@ Class.doubleSpreadshot = makeFlank({
                 WIDTH: 4,
                 Y: 1.4,
                 ANGLE: 26.5,
-                DELAY: 2/5
+                DELAY: 2 / 5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin, g.spreadshot]),
@@ -2135,7 +2135,7 @@ Class.doubleSpreadshot = makeFlank({
                 WIDTH: 4,
                 Y: 1,
                 ANGLE: 15,
-                DELAY: 1/5
+                DELAY: 1 / 5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin, g.spreadshot]),
@@ -2439,7 +2439,7 @@ Class.foretrapper = makeFore({
     STAT_NAMES: statnames.mixed,
     BODY: {
         FOV: base.FOV * 1.2,
-        SPEED: base.SPEED * 14/15
+        SPEED: base.SPEED * 14 / 15
     },
     GUNS: [
         {
@@ -2831,8 +2831,8 @@ Class.hexaTrapGuard = makeAuto({
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7,
-                    DELAY: 1/3
+                    ANGLE: 360 / 7,
+                    DELAY: 1 / 3
                 }
             },
             {
@@ -2841,8 +2841,8 @@ Class.hexaTrapGuard = makeAuto({
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7,
-                    DELAY: 1/3
+                    ANGLE: 360 / 7,
+                    DELAY: 1 / 3
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
@@ -2854,8 +2854,8 @@ Class.hexaTrapGuard = makeAuto({
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7 * 2,
-                    DELAY: 2/3
+                    ANGLE: 360 / 7 * 2,
+                    DELAY: 2 / 3
                 }
             },
             {
@@ -2864,8 +2864,8 @@ Class.hexaTrapGuard = makeAuto({
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7 * 2,
-                    DELAY: 2/3
+                    ANGLE: 360 / 7 * 2,
+                    DELAY: 2 / 3
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
@@ -2877,7 +2877,7 @@ Class.hexaTrapGuard = makeAuto({
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7 * 3,
+                    ANGLE: 360 / 7 * 3,
                     DELAY: 1
                 }
             },
@@ -2887,7 +2887,7 @@ Class.hexaTrapGuard = makeAuto({
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7 * 3,
+                    ANGLE: 360 / 7 * 3,
                     DELAY: 1
                 },
                 PROPERTIES: {
@@ -3179,7 +3179,7 @@ Class.quintuplet = {
                 LENGTH: 16,
                 WIDTH: 10,
                 Y: 5,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
@@ -3191,7 +3191,7 @@ Class.quintuplet = {
                 LENGTH: 19,
                 WIDTH: 10,
                 Y: 3,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
@@ -3251,7 +3251,7 @@ Class.refuge = makeAuto({
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
-        }, 3, {delayIncrement: 1/3})
+        }, 3, {delayIncrement: 1 / 3})
     ]
 }, "Refuge");
 Class.scatterer = {
@@ -3463,7 +3463,7 @@ Class.tempest_AR = {
                 WIDTH: 2.5,
                 X: 8,
                 ANGLE: 20,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -3476,7 +3476,7 @@ Class.tempest_AR = {
                 WIDTH: 2.5,
                 X: 8,
                 ANGLE: 40,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),

@@ -468,14 +468,14 @@ if (useOldPhotosphere) {
     Class.photosphereSmallAura_dreadsV2 = makeAura(1.25, 1.85, 0.15);
     Class.photosphereBigAura_dreadsV2 = makeAura(0.25, 4);
 }
-Class.gladiatorAuraMinionAura_dreadsV2 = makeAura(1/3, 1.2);
+Class.gladiatorAuraMinionAura_dreadsV2 = makeAura(1 / 3, 1.2);
 
 Class.thermosphereAura_dreadsV2 = makeAura(-1, 1.5);
 Class.trinoughtBigHealAura = makeAura(-0.7, 1.5);
 Class.trinoughtSmallHealAura = makeAura(-0.7, 2.1, 0.15);
 Class.pentanoughtBigHealAura = makeAura(-0.8, 1.45);
 Class.pentanoughtSmallHealAura = makeAura(-0.8, 1.6, 0.15);
-Class.gladiatorHealAuraMinionAura_dreadsV2 = makeAura(-1/3, 1.2);
+Class.gladiatorHealAuraMinionAura_dreadsV2 = makeAura(-1 / 3, 1.2);
 
 // gStat turret modifiers
 g.triSecondaryAuto = {reload: 1.1, health: 0.83};
@@ -880,7 +880,7 @@ Class.executor_dreadsV2 = {
                 ASPECT: 0.7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {reload: 1.1, health: 1.35, speed: 0.7, maxSpeed: 0.65, range: 1/3}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {reload: 1.1, health: 1.35, speed: 0.7, maxSpeed: 0.65, range: 1 / 3}]),
                 TYPE: ["missile", {GUN_STAT_SCALE: {recoil: 0.6}}],
                 STAT_CALCULATOR: "sustained"
             }
@@ -1012,7 +1012,7 @@ Class.sabre_dreadsV2 = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {reload: 1.23, health: 4/3, speed: 1.1, maxSpeed: 1.1, density: 1.2, range: 0.65}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {reload: 1.23, health: 4 / 3, speed: 1.1, maxSpeed: 1.1, density: 1.2, range: 0.65}]),
                 TYPE: "bullet"
             }
         },
@@ -1491,7 +1491,7 @@ Class.inhibitor_dreadsV2 = {
                 WIDTH: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {reload: 1.15, health: 4/3, speed: 0.7, maxSpeed: 0.7, range: 0.4}]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery, g.skimmer, {reload: 1.15, health: 4 / 3, speed: 0.7, maxSpeed: 0.7, range: 0.4}]),
                 TYPE: "supermissile",
                 STAT_CALCULATOR: "sustained"
             }

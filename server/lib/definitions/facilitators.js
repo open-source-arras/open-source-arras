@@ -1233,21 +1233,21 @@ exports.makePolygon = (options = {}) => {
     }
     if (options.curvy === true) {
         for(let i = 0; i < options.sides + 1; i++) {
-            svgPoints.push(rotatePoint(options.size, 0, 0, 0, options.rotation+(360/options.sides)*i));
+            svgPoints.push(rotatePoint(options.size, 0, 0, 0, options.rotation + (360 / options.sides) * i));
         }
     } else {
         for(let i = 0; i < options.sides; i++) {
-            svgPoints.push(rotatePoint(options.size, 0, 0, 0, options.rotation+(360/options.sides)*i));
+            svgPoints.push(rotatePoint(options.size, 0, 0, 0, options.rotation + (360 / options.sides) * i));
         }
     }
     if (options.hollow === true) {
         if (options.curvy === true) {
             for(let i = 0; i < options.sides + 1; i++) {
-                svgPoints.push(rotatePoint(options.size * options.hollowMultiplier, 0, 0, 0, options.rotation-(360/options.sides)*i));
+                svgPoints.push(rotatePoint(options.size * options.hollowMultiplier, 0, 0, 0, options.rotation - (360 / options.sides) * i));
             }
         } else {
             for(let i = 0; i < options.sides; i++) {
-                svgPoints.push(rotatePoint(options.size * options.hollowMultiplier, 0, 0, 0, options.rotation-(360/options.sides)*i));
+                svgPoints.push(rotatePoint(options.size * options.hollowMultiplier, 0, 0, 0, options.rotation - (360 / options.sides) * i));
             }
         }
     }
@@ -1272,16 +1272,16 @@ exports.makePolygon = (options = {}) => {
             for(let i = 0; i < options.sides + 1; i++) {
                 if (i !== 0) {
                     svgPoints3.push("A " + options.curve + " " + options.curve + " 0 0 0", svgPoints[i].x);
-                    svgPoints3.push(svgPoints[i+options.sides].y);
+                    svgPoints3.push(svgPoints[i + options.sides].y);
                 } else {
                     svgPoints3.push("L", svgPoints[i].x);
-                    svgPoints3.push(svgPoints[i+options.sides].y);
+                    svgPoints3.push(svgPoints[i + options.sides].y);
                 }
             }
         } else {
             for(let i = 0; i < options.sides; i++) {
-                svgPoints3.push("L", svgPoints[i+options.sides].x);
-                svgPoints3.push(svgPoints[i+options.sides].y);
+                svgPoints3.push("L", svgPoints[i + options.sides].x);
+                svgPoints3.push(svgPoints[i + options.sides].y);
             }
         }
     }
@@ -1508,8 +1508,8 @@ exports.makeCrasher = type => ({
     HAS_NO_MASTER: true,
     BODY: {
         SPEED: 1 + 5 / Math.max(2, (type.PROPS.length ?? 0) + type.SHAPE),
-        HEALTH: Math.pow(type.BODY.HEALTH, 2/3),
-        DAMAGE: Math.pow(type.BODY.HEALTH, 1/3) * type.BODY.DAMAGE,
+        HEALTH: Math.pow(type.BODY.HEALTH, 2 / 3),
+        DAMAGE: Math.pow(type.BODY.HEALTH, 1 / 3) * type.BODY.DAMAGE,
         ACCELERATION: 5,
         PUSHABILITY: 0.5,
         DENSITY: 10

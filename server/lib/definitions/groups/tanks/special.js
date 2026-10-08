@@ -239,7 +239,7 @@ Class.mothership = {
                 WAIT_TO_CYCLE: true
             }
         }, {
-            POSITION: [4.3, 3.1, 1.2, 8, 0, 45, 1/32],
+            POSITION: [4.3, 3.1, 1.2, 8, 0, 45, 1 / 32],
             PROPERTIES: {
                 MAX_CHILDREN: 2,
                 SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
@@ -254,7 +254,7 @@ Class.mothership = {
                 WAIT_TO_CYCLE: true
             }
         }
-    ], 8, {delayIncrement: 1/16})
+    ], 8, {delayIncrement: 1 / 16})
 };
 Class.flagship = {
     PARENT: "mothership",
@@ -878,7 +878,7 @@ Class.baseProtector_diep = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 1/3, size: 2/3 }]),
+                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 1 / 3, size: 2 / 3 }]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -956,12 +956,12 @@ Class.aeolus = {
         for (let j = 0; j < 11; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/11) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 11) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 5/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 5 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -975,12 +975,12 @@ Class.aeolus = {
         for (let j = 0; j < 13; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/13) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 13) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 7/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 7 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -994,12 +994,12 @@ Class.aeolus = {
         for (let j = 0; j < 15; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/15) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 15) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 9/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 9 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1013,12 +1013,12 @@ Class.aeolus = {
         for (let j = 0; j < 17; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/17) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 17) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 11/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 11 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1032,12 +1032,12 @@ Class.aeolus = {
         for (let j = 0; j < 19; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/19) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 19) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 13/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 13 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1051,12 +1051,12 @@ Class.aeolus = {
         for (let j = 0; j < 21; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/21) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 21) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 15/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 15 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1070,12 +1070,12 @@ Class.aeolus = {
         for (let j = 0; j < 23; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/23) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 23) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 17/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 17 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1089,12 +1089,12 @@ Class.aeolus = {
         for (let j = 0; j < 25; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/25) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 25) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 19/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 19 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1501,7 +1501,7 @@ Class.damoclone = {
             SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone, g.spam]),
             TYPE: "bullet"
         }
-    }, 24, {delayIncrement: 1/24})
+    }, 24, {delayIncrement: 1 / 24})
 };
 Class.developer = {
     PARENT: "genericTank",
@@ -1609,7 +1609,7 @@ Class.machineShot = {
                 WIDTH: 8,
                 Y: 3,
                 ANGLE: 30,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.machineShot]),
@@ -1622,7 +1622,7 @@ Class.machineShot = {
                 WIDTH: 8,
                 Y: 2,
                 ANGLE: 15,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.machineShot]),
@@ -1885,7 +1885,7 @@ Class.theAmalgamation = makeAuto({
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
                 TYPE: "bullet"
             }
-        }, 3, {lengthOffset: 2, delayIncrement: 1/3}),
+        }, 3, {lengthOffset: 2, delayIncrement: 1 / 3}),
         {
             POSITION: [19, 2, 1, 0, -2.5, 0, 0],
             PROPERTIES: {

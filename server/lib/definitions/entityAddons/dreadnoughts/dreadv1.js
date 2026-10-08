@@ -535,7 +535,7 @@ Class.cerberus_dreadsV1 = {
         {
             POSITION: [13.25, 2.25, 1, 0, 4, 0, 0]
         }, {
-            POSITION: [1.75, 2.25, 1.7, 13.25, 4, 0, 2/3],
+            POSITION: [1.75, 2.25, 1.7, 13.25, 4, 0, 2 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.trap, g.dreadv1Generic, g.dreadv1Slow, g.dreadv1Trap, { reload: 1.22, health: 0.67, damage: 0.7 }]),
                 TYPE: ["trap", {HITS_OWN_TYPE: "never"}],
@@ -544,7 +544,7 @@ Class.cerberus_dreadsV1 = {
         }, {
             POSITION: [13.25, 2.25, 1, 0, -4, 0, 0]
         }, {
-            POSITION: [1.75, 2.25, 1.7, 13.25, -4, 0, 1/3],
+            POSITION: [1.75, 2.25, 1.7, 13.25, -4, 0, 1 / 3],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.trap, g.dreadv1Generic, g.dreadv1Slow, g.dreadv1Trap, { reload: 1.22, health: 0.67, damage: 0.7 }]),
                 TYPE: ["trap", {HITS_OWN_TYPE: "never"}],

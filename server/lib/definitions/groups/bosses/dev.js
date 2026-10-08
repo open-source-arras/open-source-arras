@@ -34,7 +34,7 @@ Class.taureonBase = {
     COLOR: "#161B54",
     MIRROR_MASTER_ANGLE: true
 };
-let d = 1/4;
+let d = 1 / 4;
 Class.taureonStar = {
     SHAPE: [[0, 1], [d, d], [1, 0], [d, -d], [0, -1], [-d, -d], [-1, 0], [-d, d]],
     COLOR: "#3F48CC",
@@ -374,7 +374,7 @@ function createDogeiscutMissile(color) {
         LABEL: color + " Missile",
         COLOR: color,
         GUNS: [...Array(11).fill().map((_, i) => ({
-            POSITION: [0, 8, 0, 0, 0, ((360) / 11)*i, 9999],
+            POSITION: [0, 8, 0, 0, 0, ((360) / 11) * i, 9999],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun, g.noSpread, { recoil: 0, range: 0.4, damage: 2.5, density: 30 }]),
                 TYPE: ["bullet", { PERSISTS_AFTER_DEATH: true, COLOR: color }],
@@ -412,14 +412,14 @@ Class.dogeiscutBomb = {
     LABEL: "Bomb",
     SHAPE: 0,
     GUNS: [...Array(32).fill().map((_, i) => ({
-        POSITION: [0, 8, 0, 0, 0, ((360) / 32)*i, 9999],
+        POSITION: [0, 8, 0, 0, 0, ((360) / 32) * i, 9999],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun, g.noSpread, { recoil: 0, range: 0.4, damage: 2.5, size: 0.5}]),
             TYPE: ["bullet", { PERSISTS_AFTER_DEATH: true }],
             SHOOT_ON_DEATH: true
         }
     })), ...Array(10).fill().map((_, i) => ({
-        POSITION: [12, 3.5, 1, 0, 0, (360/10)*i, (i%3)/3],
+        POSITION: [12, 3.5, 1, 0, 0, (360 / 10) * i, (i % 3) / 3],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([
                 g.basic,
@@ -483,7 +483,7 @@ Class.dogeiscutBoss = {
             COLOR: "red"
         }
     }, {
-        POSITION: [1, 2, 1, 4, -5.333, 68, 1/7],
+        POSITION: [1, 2, 1, 4, -5.333, 68, 1 / 7],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_orange"],
@@ -491,7 +491,7 @@ Class.dogeiscutBoss = {
             COLOR: "orange"
         }
     }, {
-        POSITION: [1, 2, 1, 4, -2.666, 68, (1/7)*2],
+        POSITION: [1, 2, 1, 4, -2.666, 68, (1 / 7) * 2],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_yellow"],
@@ -499,7 +499,7 @@ Class.dogeiscutBoss = {
             COLOR: "yellow"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 0, 68, (1/7)*3],
+        POSITION: [1, 2, 1, 4, 0, 68, (1 / 7) * 3],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_green"],
@@ -507,7 +507,7 @@ Class.dogeiscutBoss = {
             COLOR: "green"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 2.666, 68, (1/7)*4],
+        POSITION: [1, 2, 1, 4, 2.666, 68, (1 / 7) * 4],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_cyan"],
@@ -515,7 +515,7 @@ Class.dogeiscutBoss = {
             COLOR: "cyan"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 5.333, 68, (1/7)*5],
+        POSITION: [1, 2, 1, 4, 5.333, 68, (1 / 7) * 5],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_blue"],
@@ -523,7 +523,7 @@ Class.dogeiscutBoss = {
             COLOR: "blue"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 8, 68, (1/7)*6],
+        POSITION: [1, 2, 1, 4, 8, 68, (1 / 7) * 6],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_purple"],
@@ -542,7 +542,7 @@ Class.dogeiscutBoss = {
             COLOR: "red"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 5.333, -68, 1/7],
+        POSITION: [1, 2, 1, 4, 5.333, -68, 1 / 7],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_orange"],
@@ -550,7 +550,7 @@ Class.dogeiscutBoss = {
             COLOR: "orange"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 2.666, -68, (1/7)*2],
+        POSITION: [1, 2, 1, 4, 2.666, -68, (1 / 7) * 2],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_yellow"],
@@ -558,7 +558,7 @@ Class.dogeiscutBoss = {
             COLOR: "yellow"
         }
     }, {
-        POSITION: [1, 2, 1, 4, 0, -68, (1/7)*3],
+        POSITION: [1, 2, 1, 4, 0, -68, (1 / 7) * 3],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_green"],
@@ -566,7 +566,7 @@ Class.dogeiscutBoss = {
             COLOR: "green"
         }
     }, {
-        POSITION: [1, 2, 1, 4, -2.666, -68, (1/7)*4],
+        POSITION: [1, 2, 1, 4, -2.666, -68, (1 / 7) * 4],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_cyan"],
@@ -574,7 +574,7 @@ Class.dogeiscutBoss = {
             COLOR: "cyan"
         }
     }, {
-        POSITION: [1, 2, 1, 4, -5.333, -68, (1/7)*5],
+        POSITION: [1, 2, 1, 4, -5.333, -68, (1 / 7) * 5],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_blue"],
@@ -582,7 +582,7 @@ Class.dogeiscutBoss = {
             COLOR: "blue"
         }
     }, {
-        POSITION: [1, 2, 1, 4, -8, -68, (1/7)*6],
+        POSITION: [1, 2, 1, 4, -8, -68, (1 / 7) * 6],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.hunter, g.sidewinder, {speed: 3, range: 0.8, reload: 4}]),
             TYPE: ["dogeiscutMissile_purple"],
@@ -2009,7 +2009,7 @@ Class.zyrafaqBoss = {
     FACING_TYPE: "smoothToTarget",
     VALUE: 25e6,
     UPGRADE_TOOLTIP: "Works on my machine.",
-    BODY: {SPEED: 0.55*base.SPEED, HEALTH: 18*base.HEALTH, SHIELD: 8*base.SHIELD, REGEN: 3*base.REGEN, DAMAGE: 3.5*base.DAMAGE, FOV: 1.5*base.FOV, RESIST: 1.2*base.RESIST},
+    BODY: {SPEED: 0.55 * base.SPEED, HEALTH: 18 * base.HEALTH, SHIELD: 8 * base.SHIELD, REGEN: 3 * base.REGEN, DAMAGE: 3.5 * base.DAMAGE, FOV: 1.5 * base.FOV, RESIST: 1.2 * base.RESIST},
     GUNS: [
         {POSITION: [26, 14, -1.4, 0, 0, 0, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.destroyer, g.op]), TYPE: "developerBullet"}},
         ...weaponArray({POSITION: [16, 5, 1.2, 10, 0, 0, 0], PROPERTIES: {SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.machineGun, g.op, {reload:2}]), TYPE: "developerBullet"}}, 3),

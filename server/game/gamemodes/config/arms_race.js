@@ -4,7 +4,7 @@ module.exports = {
         [1, [
             [1, "crasher"]
         ]],
-        [1/20, [
+        [1 / 20, [
             [1, "sentinelGun"], [1, "sentinelSwarm"], [1, "sentinelTrap"]
         ]]
     ]

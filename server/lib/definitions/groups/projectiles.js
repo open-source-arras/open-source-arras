@@ -202,7 +202,7 @@ Class.undertowBullet = {
                     let diffX = instance.x - body.x,
                         diffY = instance.y - body.y,
                         dist2 = diffX ** 2 + diffY ** 2;
-                    if (dist2 <= ((body.size / 12)*250) ** 1.9) {
+                    if (dist2 <= ((body.size / 12) * 250) ** 1.9) {
                         if ((instance.team != body.team || (instance.type == "undertowEffect" && instance.master.id == body.master.id)) && instance.type != "wall" && instance.isTurret != true) {
                             if (instance.type == "undertowEffect") {
                                 forceMulti = 1;
@@ -418,7 +418,7 @@ Class.protoHive = {
             STAT_CALCULATOR: "swarm",
             AUTOFIRE: true
         }
-    }, 3, {delayIncrement: 1/3})
+    }, 3, {delayIncrement: 1 / 3})
 };
 Class.hyperHive = {
     PARENT: "bullet",
@@ -439,7 +439,7 @@ Class.hyperHive = {
             STAT_CALCULATOR: "swarm",
             AUTOFIRE: true
         }
-    }, 7, {delayIncrement: 1/7})
+    }, 7, {delayIncrement: 1 / 7})
 };
 Class.snake = {
     PARENT: "missile",
@@ -1326,7 +1326,7 @@ Class.average4tdmScorePentaShot = {
                 WIDTH: 8,
                 Y: 3,
                 ANGLE: 30,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot]),
@@ -1340,7 +1340,7 @@ Class.average4tdmScorePentaShot = {
                 WIDTH: 8,
                 Y: 2,
                 ANGLE: 15,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.tripleShot]),
@@ -1453,8 +1453,8 @@ Class.averageL39HuntSeptaTrapper = {
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7,
-                    DELAY: 1/3
+                    ANGLE: 360 / 7,
+                    DELAY: 1 / 3
                 }
             },
             {
@@ -1463,8 +1463,8 @@ Class.averageL39HuntSeptaTrapper = {
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7,
-                    DELAY: 1/3
+                    ANGLE: 360 / 7,
+                    DELAY: 1 / 3
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
@@ -1477,8 +1477,8 @@ Class.averageL39HuntSeptaTrapper = {
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7 * 2,
-                    DELAY: 2/3
+                    ANGLE: 360 / 7 * 2,
+                    DELAY: 2 / 3
                 }
             },
             {
@@ -1487,8 +1487,8 @@ Class.averageL39HuntSeptaTrapper = {
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7 * 2,
-                    DELAY: 2/3
+                    ANGLE: 360 / 7 * 2,
+                    DELAY: 2 / 3
                 },
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
@@ -1501,7 +1501,7 @@ Class.averageL39HuntSeptaTrapper = {
                 POSITION: {
                     LENGTH: 15,
                     WIDTH: 7,
-                    ANGLE: 360/7 * 3,
+                    ANGLE: 360 / 7 * 3,
                     DELAY: 1
                 }
             },
@@ -1511,7 +1511,7 @@ Class.averageL39HuntSeptaTrapper = {
                     WIDTH: 7,
                     ASPECT: 1.7,
                     X: 15,
-                    ANGLE: 360/7 * 3,
+                    ANGLE: 360 / 7 * 3,
                     DELAY: 1
                 },
                 PROPERTIES: {

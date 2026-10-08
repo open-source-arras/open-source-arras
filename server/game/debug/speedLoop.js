@@ -18,7 +18,7 @@ class speedcheckloop {
         let sum = masterrecord.average + playertime.average;
         let loops = logs.loops.getTallyCount();
 
-        global.fps = (1000/sum).toFixed(2);
+        global.fps = (1000 / sum).toFixed(2);
         for (let e of entities.values()) {
             if (e.isPlayer && e.socket) {
                 e.socket.talk("svInfo", global.gameManager.name, (sum).toFixed(1));
