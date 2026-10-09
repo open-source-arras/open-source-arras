@@ -51,6 +51,12 @@ server_travel: [
 > [!NOTE]
 > Make sure to set `allow_server_travel` to true in your destination server's `properties`.
 
+### Eslint
+It's a CLI which looks for code patterns that are disallowed in the `eslint.config.mjs` file.
+If you choose to [install eslint](https://eslint.org/docs/latest/use/getting-started#global-install), you can just do `eslint --fix` in the root folder to check if your code follows the rules.
+If you want the codebase to follow different (or more) rules, edit the eslint config file.
+If you do not care about any of this, just ignore that eslint exists or the erors or warnings that it puts out
+
 ## Other Links
 - [Stoat](https://stt.gg/S4tqfeAK)
 - [Discord](https://discord.gg/arras)
