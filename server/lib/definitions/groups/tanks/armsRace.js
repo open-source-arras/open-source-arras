@@ -235,21 +235,20 @@ for (let i = 0; i < autoTanksT3.length; i++) {
 };
 
 const hybridTanksT3 = [
-    // Base Tank    //Director      //Cruiser           //Spawner       //Honcho            //Overseer  //Directordrive
-    ["artillery",   "Force",        "Mixer",            "Generator",    "Energizer"],
-    ["assassin",    "Hitman",       "Gunman",           "Formulator",   "Contractor"],
-    ["builder",     "Fashioner",    "Stylist",          "Experimenter", "Methodist"],
-    ["diesel",      "Polluter",     "Depraver",         "Tainter",      "Befouler"],
-    ["destroyer",   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed"],
-    ["hunter",      "Poacher",      "Plunderer",        "Maker",        "Nabber"],
-    ["launcher",    "Heaver",       "Lobber",           "Duper",        "Emitter"],
-    ["mech",        "Cobbler",      "Fuser",            "Automaton",    "Restorer"],
-    ["minigun",     "Crop Duster",  "Trimmer",          "Shearer",      "Sweeper"],
-    ["pen",         "Interner",     "Kettle",           "Ringer",       "Probationer"],
+    // Base Tank    //Director      //Cruiser           //Spawner       //Honcho            //Overseer         //Directordrive   
+    ["artillery",   "Force",        "Mixer",            "Generator",    "Energizer",         "Overartillery"],
+    ["assassin",    "Hitman",       "Gunman",           "Formulator",   "Contractor",        "Overassassin"],
+    ["builder",     "Fashioner",    "Stylist",          "Experimenter", "Methodist",         "Overbuilder"],
+    ["diesel",      "Polluter",     "Depraver",         "Tainter",      "Befouler",          "Overdiesel"],
+    ["destroyer",   "Hybrid",       "Synthesis",        "Enactor",      "Crossbreed",        "Overdestroyer"],
+    ["hunter",      "Poacher",      "Plunderer",        "Maker",        "Nabber",            "Overhunter"], 
+    ["launcher",    "Heaver",       "Lobber",           "Duper",        "Emitter",           "Overlauncher"],
+    ["mech",        "Cobbler",      "Fuser",            "Automaton",    "Restorer",          "Overmech"],
+    ["minigun",     "Crop Duster",  "Trimmer",          "Shearer",      "Sweeper",           "Overminigun"],
+    ["pen",         "Interner",     "Kettle",           "Ringer",       "Probationer",      "Overpen"],
     ["tripleShot",  "Bent Hybrid",  "Bent Synthesis",   "Hatcher",      "Bent Crossbreed",  "Overshot"],
-    ["rifle",       "Armsman",      "Partisan",         "Copier",       "Vendor"],
-    ["wark",        "Coalesce",     "Affiliator",       "Converger",    "Commix",           undefined,  "Warkdrive"]
-    // The last two are optional and will be filled out automatically so long as the Base Tank and Director are defined.
+    ["rifle",       "Armsman",      "Partisan",         "Copier",       "Vendor",            "Overrifle"],
+    ["wark",        "Coalesce",     "Affiliator",       "Converger",    "Commix",           "Overwark",        "Warkdrive"]
 ];
 for (let i = 0; i < hybridTanksT3.length; i++) {
     let type = hybridTanksT3[i][0];
