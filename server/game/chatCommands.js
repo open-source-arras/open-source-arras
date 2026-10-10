@@ -1,29 +1,19 @@
 const prefix = "$";
 
-/** COMMANDS **/
-let commands = [
+const commands = [
     {
         command: ["help"],
-        //description: "Show this help menu.",
         permissionLevel: 0,
         run: ({ socket }) => {
-            let useOldMenu = false;
             let lines = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
-                    let cmdData = [c.command];
-                    let commandText = cmdData.map((e) => e.map((name) => name).join(` or ${prefix} `)).join(" ");
-                    let description = c.description ?? false;
-                    let text = `- ${prefix} ${commandText}`;
-                    if (description) text += ` - ${description}`;
+                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}`;
+                    if (c.description) text += ` - ${c.description}`;
                     return text;
                 })
             ];
-            if (useOldMenu) {
-                for (let line of lines.reverse()) {
-                    socket.talk("m", 15_000, line);
-                }
-            } else socket.talk("Em", 15_000, JSON.stringify(lines));
+            socket.talk("Em", 15_000, JSON.stringify(lines));
         }
     },
     {
@@ -31,6 +21,12 @@ let commands = [
         description: "Select the leaderboard to display.",
         permissionLevel: 0,
         run: ({ socket, args }) => {
+            const leaderboards = [
+                "default",
+                "players",
+                "bosses",
+                "global"
+            ];
             let sendAvailableLeaderboardMessage = () => {
                 let lines = [
                     "Available leaderboards:",
@@ -39,16 +35,10 @@ let commands = [
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
 
-            const leaderboards = [
-                "default",
-                "players",
-                "bosses",
-                "global"
-            ];
             const choice = args[0];
 
             if (!choice) {
-                sendAvailableLeaderboardMessage(socket);
+                sendAvailableLeaderboardMessage();
                 return;
             }
 
@@ -113,7 +103,6 @@ let commands = [
             socket.talk("m", 5_000, "You are now AFK!");
         }
     },
-    // PLACEHOLDER
     {
         command: ["status", "s"],
         description: "Check when exactly is the arena guaranteed to close",
@@ -181,7 +170,7 @@ let commands = [
         permissionLevel: 4,
         hidden: true,
         run: ({ socket, gameManager }) => {
-            let clients = (gameManager ?? global.gameManager).socketManager.clients;
+            let clients = gameManager.socketManager.clients;
             let count = 0;
             for (let client of clients) {
                 if (client.status?.permissionLevel === 0) {
@@ -199,7 +188,7 @@ let commands = [
         permissionLevel: 4,
         hidden: true,
         run: ({ socket, gameManager }) => {
-            let clients = (gameManager ?? global.gameManager).socketManager.clients;
+            let clients = gameManager.socketManager.clients;
             let count = 0;
             for (let client of clients) {
                 if (client.status?.permissionLevel === 1) {
@@ -297,7 +286,7 @@ let commands = [
         description: "Broadcast a message to all players.",
         permissionLevel: 4,
         hidden: true,
-        run: ({ args, socket }) => {
+        run: ({ args, socket, gameManager }) => {
             if (!args[0]) {
                 socket.talk("m", 5_000, "No message specified.");
             } else {
@@ -334,6 +323,45 @@ let commands = [
         }
     },
     {
+        command: ["join", "j"],
+        description: "Connects you to another server",
+        permissionLevel: 8,
+        hidden: true,
+        run: ({ args, socket }) => {
+            if (!args[0]) {
+                socket.talk("m", 5_000, "No server specified.");
+                return;
+            }
+            let server = Config.servers.find(
+                s => s.id === args[0]
+            );
+            if (!server) {
+                socket.talk("m", 5_000, "Server not found.");
+                return;
+            }
+            global.gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
+        }
+    },
+    {
+        command: ["nexus", "n"],
+        permissionLevel: 0,
+        hidden: true,
+        run: ({ socket }) => {
+            if (!Config.sandbox) {
+                socket.talk("m", 5_000, "You can only use this command in Sandbox.");
+                return;
+            }
+
+            let nexusServer = Config.servers.find(s => s.gamemode && s.gamemode.includes("sandbox_nexus"));
+            if (!nexusServer) {
+                socket.talk("m", 5_000, "Unable to find Sandbox Nexus.");
+                return;
+            }
+
+            global.gameManager.socketManager.sendToServer(socket, `http://${nexusServer.host}`);
+        }
+    },
+    {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
         permissionLevel: 8,
@@ -351,12 +379,11 @@ let commands = [
                 if (!args[1]) {
                     socket.talk("m", 5_000, "No entity specified.");
                 } else {
-                    socket.player.body.define({RESET_UPGRADES: true, BATCH_UPGRADES: false});
+                    socket.player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     socket.player.body.define(args[1]);
                     socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
                 }
             } else if (command === "reload" || command === "reloaddefs" || command === "redefs" || command === "r") {
-                /* IMPORT FROM (defsReloadCommand.js) */
                 if (!global.reloadDefinitionsInfo) {
                     global.reloadDefinitionsInfo = {
                         lastReloadTime: 1
@@ -369,8 +396,7 @@ let commands = [
                     socket.talk("m", Config.popup_message_duration, `Wait ${Math.floor((5000 - sinceLastReload) / 100) / 10} seconds and try again.`);
                     return;
                 }
-                // Set the timeout timer ---
-                lastReloadTime = time;
+                global.reloadDefinitionsInfo.lastReloadTime = time;
 
                 // Remove function so all for(let x in arr) loops work
                 delete Array.prototype.remove;
@@ -436,7 +462,7 @@ let commands = [
                 // Erase mockups so it can rebuild.
                 mockupData = [];
                 mockupMap = {};
-                
+
                 // Load all mockups if enabled in configuration
                 if (Config.load_all_mockups) global.loadAllMockups(false);
 
@@ -451,7 +477,7 @@ let commands = [
                         if (Config.load_all_mockups) {
                             for (let i = 0; i < mockupData.length; i++) {
                                 socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
-                            } 
+                            }
                         }
                         socket.status.selectedLeaderboard = socket.status.selectedLeaderboard2;
                         delete socket.status.selectedLeaderboard2;
@@ -466,47 +492,32 @@ let commands = [
     }
 ];
 
-/** COMMANDS RUN FUNCTION **/
-function runCommand(socket, message, gameManager) {
-    if (!message.startsWith(prefix) || !socket?.player?.body) return;
-
+function runCommand(socket, message) {
+    if (!socket?.player?.body) return;
     let args = message.slice(prefix.length).trimStart().split(/\s+/);
-    let commandName = args.shift();
-    let command = commands.find((command) => command.command.includes(commandName));
-    if (command) {
-        if (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel)) {
-            try {
-                command.run({ socket, message, args, gameManager: gameManager });
-            } catch(e) {
-                console.error("Error while running ", commandName);
-                console.error(e);
-                socket.talk("m", 5_000, "An error occurred while running this command.");
-            }
-        } else socket.talk("m", 5_000, "You do not have access to this command.");
-    } else socket.talk("m", 5_000, "Unknown command.");
+    let name = args.shift();
+    let command = commands.find((c) => c.command.includes(name));
+    if (!command) {
+        socket.talk("m", 5_000, "Unknown command.");
+        return;
+    }
+    if (socket.status.permissionLevel < permissionLevelValue(command.permissionLevel)) {
+        socket.talk("m", 5_000, "You do not have access to this command.");
+        return;
+    }
+    try {
+        command.run({ socket, message, args, gameManager: global.gameManager });
+    } catch (e) {
+        console.error("Error while running " + name);
+        console.error(e);
+        socket.talk("m", 5_000, "An error occurred while running this command.");
+    }
+}
 
+function handleChatCommand(socket, message) {
+    if ("string" !== typeof message || !message.startsWith(prefix)) return false;
+    runCommand(socket, message);
     return true;
 }
-global.addChatCommand = function(command) {
-    if (!command.command || !command.run) {
-        throw new Error("Invalid command format. A command must have at least a 'command' and a 'run' property.");
-    }
-    if (!Array.isArray(command.command)) {
-        throw new Error("Invalid command format. The 'command' property must be an array of strings.");
-    }
-    if (commands.find(c => c.command.some(cmd => command.command.includes(cmd)))) {
-        throw new Error("A command with this name already exists.");
-    }
-    commands.push(command);
-};
 
-
-/** CHAT MESSAGE EVENT **/
-module.exports = ({ Events }) => {
-    Events.on("chatMessage", ({ socket, message, preventDefault, gameManager }) => {
-        if (message.startsWith(prefix)) {
-            preventDefault();
-            runCommand(socket, message, gameManager);
-        }
-    });
-};
+module.exports = { handleChatCommand };

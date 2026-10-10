@@ -71,48 +71,4 @@ class serverTravelHandler {
         }
     }
 }
-if (loadedAddons.includes("chatCommands")) {
-    addChatCommand({
-        command: ["join", "j"],
-        description: "Connects you to another server",
-        permissionLevel: 8,
-        hidden: true,
-        run: ({ args, socket }) => {
-            if (!args[0]) {
-                socket.talk("m", 5_000, "No server specified.");
-                return;
-            }
-            let server = Config.servers.find(
-                s => s.id === args[0]
-            );
-            if (!server) {
-                socket.talk("m", 5_000, "Server not found.");
-                return;
-            }
-            global.gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
-        }
-    });
-    addChatCommand({
-        command: ["nexus", "n"],
-        permissionLevel: 0,
-        hidden: true,
-        run: ({ socket }) => {
-            if (!Config.sandbox) {
-                socket.talk("m", 5_000, "You can only use this command in Sandbox.");
-                return;
-            }
-
-            let nexusServer = Config.servers.find(s => s.gamemode && s.gamemode.includes("sandbox_nexus"));
-            if (!nexusServer) {
-                socket.talk("m", 5_000, "Unable to find Sandbox Nexus.");
-                return;
-            }
-
-            let host = nexusServer.host;
-            let destination = `http://${host}`;
-            global.gameManager.socketManager.sendToServer(socket, destination);
-        }
-    });
-}
-
 module.exports = { serverTravelHandler };
