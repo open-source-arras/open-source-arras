@@ -575,6 +575,10 @@ class Entity extends EventEmitter {
             // We dont want a broken camera
             this.cameraOverrideX = null;
             this.cameraOverrideY = null;
+            for (let def of this.defs) {
+                def = ensureIsClass(def);
+                if (def.TOOLTIP != null && def.TOOLTIP.length > 0) this.sendMessage(def.TOOLTIP);
+            }
         }
 
         for (let branch = 1; branch < defs.length; branch++) defineSplit(defs, branch, set, this, emitEvent); // Define additional stats for other split upgrades
@@ -933,10 +937,6 @@ class Entity extends EventEmitter {
             }); 
         }
         this.sendMessage("You have upgraded to " + this.label + ".");
-        for (let def of this.defs) {
-            def = ensureIsClass(def);
-            if (def.TOOLTIP != null && def.TOOLTIP.length > 0) this.sendMessage(def.TOOLTIP);
-        }
         for (let instance of entities.values()) {
             if (instance.settings.clearOnMasterUpgrade && instance.master.id === this.id) instance.kill();
         }
