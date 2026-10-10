@@ -1860,8 +1860,8 @@ class socketManager {
                 for (const entity of nearby.values()) {
                     // Never broadcast the dead: a destroyed body can linger in the
                     // per-socket nearby cache until its refresh, and re-sending it
-                    // as created resurrects it client-side as an interactable ghost
-                    // (delta mode never purges faded entries). Removals still flow.
+                    // as created resurrects it client-side as a ghost.
+                    // Removals still flow, so the death fade still plays once.
                     if (entity.isGhost || (typeof entity.isDead === "function" && entity.isDead())) continue;
                     if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(player.body && player.body.settings.canSeeInvisible)) continue;
                     if (entity.photo &&
