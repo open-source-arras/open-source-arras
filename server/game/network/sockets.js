@@ -1494,7 +1494,6 @@ class socketManager {
             let prev = sent.get(id);
             if (prev === undefined || prev[0] !== data[0] || prev[2] !== data[2]) {
                 // New entity, or its class changed: send it whole.
-                if (prev !== undefined) removed.push(id);
                 created.push(data);
                 sent.set(id, data.slice());
             } else if (this.diffEntity(prev, data, changed)) {
