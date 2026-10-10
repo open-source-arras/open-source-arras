@@ -30,6 +30,7 @@ class Canvas {
         };
         this.cv.resize(innerWidth, innerHeight);
         this.reverseDirection = false;
+        this.reverseSpam = [];
         this.inverseMouse = false;
         this.spinLock = false;
         this.mouseMoved = false;
@@ -89,6 +90,15 @@ class Canvas {
             this.stopGamepad();
         });
         this.initalized = true;
+    }
+
+    toggleReverse() {
+        let now = Date.now();
+        this.reverseSpam = this.reverseSpam.filter(t => now - t < 10_000);
+        this.reverseSpam.push(now);
+        if (this.reverseSpam.length > 7) return global.createMessage("Please slow down!");
+        this.reverseDirection = !this.reverseDirection;
+        global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
     }
 
     wheel(event) {
@@ -306,8 +316,7 @@ class Canvas {
                     global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
                     break;
                 case global.KEY_REVERSE_TANK:
-                    this.reverseDirection = !this.reverseDirection;
-                    global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+                    this.toggleReverse();
                     break;
                 case global.KEY_PING:
                     global.showDebug = !global.showDebug;
@@ -887,8 +896,7 @@ class Canvas {
                             this.socket.talk("t", 1, true);
                             break;
                         case 4:
-                            this.reverseDirection = !this.reverseDirection;
-                            global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+                            this.toggleReverse();
                             break;
                         case 5:
                             this.socket.talk("1");
