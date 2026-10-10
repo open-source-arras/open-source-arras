@@ -35,7 +35,7 @@ global.loadServerSelector = (serverData, text) => {
     };
 
     // If you dont want have a server filter, just dont run this function.
-    initializeFilter();
+    let restoreFilters = initializeFilter();
 
     // Initial server load
     servers.forEach(async (server) => {
@@ -75,6 +75,7 @@ global.loadServerSelector = (serverData, text) => {
         }
         if (myServer.onclick) myServer.onclick();
     });
+    for (let restoreFilter of restoreFilters) restoreFilter();
     window.addEventListener("hashchange", () => {
         let id = location.hash.slice(1);
         if (!serverMap[id]) return;
@@ -207,15 +208,18 @@ let initializeFilter = () => {
 
     };
     let l = [];
-    let createFilter = (type, data) => {
+    let restoreFilters = [];
+    let createFilter = (type, data, storageKey) => {
         let r = l.length;
         l.push(data[0].filter);
         let e = document.getElementsByClassName("serverSelector");
         global.mobile ? global.fixedServerSelectorHeight = "62px" : global.fixedServerSelectorHeight = "100px"
         if (!global.uncappedMenu) e[0].style.height = global.fixedServerSelectorHeight;
         let v = null;
+        let spans = [];
         for (let { name: textContent, filter: y } of data) {
             let Q = document.createElement("span");
+            spans.push(Q);
             null == v && ((v = Q), v.classList.add("active"));
             Q.textContent = textContent;
             type.appendChild(Q);
@@ -234,8 +238,11 @@ let initializeFilter = () => {
                     X = X && !F;
                   }
                   noServerMatches.style.display = X ? "" : "none";
+                  if (storageKey) localStorage.setItem(storageKey, textContent);
             });
         }
+        let saved = storageKey ? data.findIndex(option => option.name === localStorage.getItem(storageKey)) : -1;
+        if (saved > 0) restoreFilters.push(() => spans[saved].click());
     };
     let checkFilter = (h, e) => {
         let check = false;
@@ -251,7 +258,7 @@ let initializeFilter = () => {
         { name: "USA", filter: (h) => { return checkFilter(h, global.filters.regions.usa) } },
         { name: "Europe", filter: (h) => { return checkFilter(h, global.filters.regions.europe) } },
         { name: "Asia", filter: (h) => { return checkFilter(h, global.filters.regions.asia) } }
-    ]);
+    ], "serverFilterRegion");
     createFilter(svFilterModeDoc, [
         { name: "All", filter: (h) => { return checkFilter(h, global.filters.gamemodes.all) } },
         { name: "FFA", filter: (h) => { return checkFilter(h, global.filters.gamemodes.ffa) } },
@@ -264,4 +271,5 @@ let initializeFilter = () => {
         //{ name: "Other", filter: (h) => { return checkFilter(h, global.filters.gamemodes.other) } },
         { name: "Sandbox", filter: (h) => { return checkFilter(h, global.filters.gamemodes.sandbox) } }
     ]);
+    return restoreFilters;
 }
