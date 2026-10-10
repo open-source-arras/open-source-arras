@@ -29,3 +29,16 @@ tileClass.nexus_portal_tile = new Tile({
         room.portalTiles.push(tile);
     }
 });
+tileClass.nexusKillTile = new Tile({
+    COLOR: "red",
+    NAME: "Nexus Kill Tile",
+    TICK: (tile) => {
+        for (let entity of tile.entities) {
+            if (entity.type === "wall" || entity.immuneToTiles) continue;
+            let masterMaster = entity.master && entity.master.master;
+            if (entity.ac || (masterMaster && masterMaster.ac && entity.ac !== false)) continue;
+            if (entity.isArenaCloser || (masterMaster && masterMaster.isArenaCloser && entity.isArenaCloser !== false)) continue;
+            entity.kill();
+        }
+    }
+});
