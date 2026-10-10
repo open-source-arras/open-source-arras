@@ -1390,6 +1390,9 @@ class socketManager {
     }
 
     flatten(data) {
+        for (let k of ["x", "y", "vx", "vy", "size", "realSize", "facing", "vfacing"]) {
+            if (typeof data[k] === "number") data[k] = Math.fround(data[k]);
+        }
         let output = [data.type]; // We will remove the first entry in the persepective method
         if (data.type & 0x01) {
             output.push(
