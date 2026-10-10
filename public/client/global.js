@@ -419,6 +419,8 @@ handleOperatorKeyDown: function (key) {
         currentFa: 0,
         finalHa: 0,
         finalFa: 0,
+        totalHa: 0,
+        totalFa: 0,
     },
     mobileStatus: {
         enableCrosshair: false,
