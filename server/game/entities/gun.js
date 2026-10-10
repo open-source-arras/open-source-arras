@@ -487,6 +487,7 @@ class Gun extends EventEmitter {
         }
         o.refreshBodyAttributes();
         o.life();
+        o.takeSelfie();
         this.onShootFunction();
         this.recoilDir = this.body.facing + this.angle;
     }

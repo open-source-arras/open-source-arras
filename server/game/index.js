@@ -211,7 +211,7 @@ class gameHandler {
         // Do entities life
         logs.entities.set();
         grid.clear();
-        for (const instance of entities.values()) {
+        for (const instance of [...entities.values()]) {
             if (instance.contemplationOfMortality() === 1) {
                 if (Config.outbreak && !instance.zombified && (instance.isPlayer || instance.isBot)) {
                     instance.zombified = true;

@@ -1736,11 +1736,11 @@ class socketManager {
 
     eyes(socket) {
         const check = (camera, obj) => {
-            let fov = global.gameManager.arenaClosed ? 1.6 : 1;
-            return Math.abs(obj.x - camera.x) < camera.fov * fov + 1.5 * obj.size + 100 &&
-                Math.abs(obj.y - camera.y) < camera.fov * fov * 0.5625 + 1.5 * obj.size + 100;
+            let fov = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
+            return Math.abs(obj.x - camera.x) < fov / 2 + Config.view_extra_margin + 1.5 * obj.size &&
+                Math.abs(obj.y - camera.y) < fov * 9 / 32 + Config.view_extra_margin + 1.5 * obj.size;
         };
-        let lastVisibleUpdate = 0;
+        let lastVisibleUpdate = 0, lastNearX = socket.camera.x, lastNearY = socket.camera.y;
         let nearby = new Map();
         let visible = [];
         let view = [];
@@ -1827,16 +1827,22 @@ class socketManager {
                         }
                     }
                 }
+                if (fovNow > Config.max_fov) fovNow = Config.max_fov;
                 // The only reason this exists is because the client is smoothing to its updated fov, and so server does it the same.
                 camera.fov += Math.max((fovNow - camera.fov) / 30, fovNow - camera.fov);
+                if (camera.fov > Config.max_fov) camera.fov = Config.max_fov;
 
                 // Grab entities that we can see
-                if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval) {
+                // Re-query when due or the camera jumped.
+                let dx = camera.x - lastNearX, dy = camera.y - lastNearY;
+                if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval || dx * dx + dy * dy > 250 * 250) {
                     lastVisibleUpdate = camera.lastUpdate;
+                    lastNearX = camera.x;
+                    lastNearY = camera.y;
                     nearby.clear();
-                    const camFovBroad = camera.fov * (global.gameManager.arenaClosed ? 1.6 : 1);
-                    const camXBound = camFovBroad + 100;
-                    const camYBound = camFovBroad * 0.5625 + 100;
+                    const camFovBroad = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
+                    const camXBound = camFovBroad / 2 + Config.view_extra_margin + 250;
+                    const camYBound = camFovBroad * 9 / 32 + Config.view_extra_margin + 250;
                     for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
                         nearby.set(entity.id, entity);
                     }
@@ -1844,13 +1850,17 @@ class socketManager {
                 
                 visible.length = 0;
                 
-                const camX = camera.x, camY = camera.y, camFov = camera.fov;
-                const limitDistance = 1.5;
-                const fovDiv = camFov / limitDistance;
-                const fovDivY = fovDiv * (9 / 13);
+                const camX = camera.x, camY = camera.y, camFov = Math.min(camera.fov, Config.max_fov);
+                const fovDiv = camFov / 2 + Config.view_extra_margin;
+                const fovDivY = camFov * 9 / 32 + Config.view_extra_margin;
                 const mockupsToSend = new Set();
 
                 for (const entity of nearby.values()) {
+                    // Never broadcast the dead: a destroyed body can linger in the
+                    // per-socket nearby cache until its refresh, and re-sending it
+                    // as created resurrects it client-side as an interactable ghost
+                    // (delta mode never purges faded entries). Removals still flow.
+                    if (entity.isGhost || (typeof entity.isDead === "function" && entity.isDead())) continue;
                     if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(player.body && player.body.settings.canSeeInvisible)) continue;
                     if (entity.photo &&
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&

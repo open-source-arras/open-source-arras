@@ -10,6 +10,8 @@ module.exports = {
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
+    max_fov: 25000, // Hard cap for camera FOV sent to clients.
+    view_extra_margin: 150, // Extra margin beyond the visible viewport.
     editor: true, // Enable the editor at '[host]/ext/editor'.
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
