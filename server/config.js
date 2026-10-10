@@ -168,14 +168,14 @@ module.exports = {
                         ip: "localhost:3101",
                         portal_properties: {
                             spawn_chance: 2,
-                            color: "cyan"
+                            color: "blue"
                         }
                     },
                     {
                         ip: "localhost:3102",
                         portal_properties: {
                             spawn_chance: 2,
-                            color: "mustard"
+                            color: "blue"
                         }
                     }
                 ]

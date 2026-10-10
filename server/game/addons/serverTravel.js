@@ -4,7 +4,7 @@ async function getServer(server) {
         if (!data) return false;
         data = data[0];
         return {
-            name: data.gameMode.trim(),
+            name: `${data.gameMode.trim()} (${server.id})`,
             players: data.players,
             ip: server.ip,
             destination: `${server.ip.startsWith("localhost") ? "http://" : "https://"}${data.ip}`
