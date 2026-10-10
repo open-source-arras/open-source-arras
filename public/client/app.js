@@ -1107,7 +1107,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 f = [c[1]];
             if (c[2]) {
                 var e = +new Date(c[2] + "T00:00:00Z") + 252e5;
-                if (e > Date.now()) return !0;
                 if (null != a && e + a < Date.now()) return !1;
                 f.push(new Date(e).toLocaleDateString("default", {
                     year: "numeric",
