@@ -308,7 +308,7 @@ class Entity extends EventEmitter {
         if (set.SHOOT_ON_DEATH != null) this.shootOnDeath = set.SHOOT_ON_DEATH;
         if (set.BORDERLESS != null) this.borderless = set.BORDERLESS;
         if (set.DRAW_FILL != null) this.drawFill = set.DRAW_FILL;
-        if (set.IS_IMMUNE_TO_TILES) this.immuneToTiles = set.IS_IMMUNE_TO_TILES;
+        if (set.IS_IMMUNE_TO_TILES != null) this.immuneToTiles = set.IS_IMMUNE_TO_TILES;
         if (set.IS_IMMUNE_TO_PORTALS != null) this.immuneToPortals = set.IS_IMMUNE_TO_PORTALS;
         if (set.TEAM != null) {
             this.team = set.TEAM;
