@@ -120,12 +120,9 @@ function init() {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define(socket.permissions?.class || Config.spawn_class);
-                    let msg = Config.token_message.split("\n");
                     if (!socket.status.specialTankWarned) {
                         socket.status.specialTankWarned = true;
-                        for (let i = 0; i < msg.length; i++) {
-                            player.body.sendMessage(msg[i]);
-                        }
+                        player.body.sendMessage(Config.token_message);
                     }
                 } else {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });

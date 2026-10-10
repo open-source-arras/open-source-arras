@@ -1363,10 +1363,7 @@ class socketManager {
 
         //send the welcome message
         if (!doNotTakeAction.dontSendWelcomeMessage) {
-            let msg = Config.spawn_message.split("\n");
-            for (let i = 0; i < msg.length; i++) {
-                body.sendMessage(msg[i]);
-            }
+            body.sendMessage(Config.spawn_message);
             if (Config.dev_build) {
                 socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
             }
@@ -2334,6 +2331,13 @@ class socketManager {
         };
         socket.talk = (...message) => {
             if (socket.readyState === socket.OPEN) {
+                if (message[0] === "m" && typeof message[2] === "string") {
+                    let lines = message[2].split(/\r\n|\r|\n/);
+                    if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
+                    message = lines.length > 1
+                        ? ["Em", message[1], JSON.stringify(lines)]
+                        : ["m", message[1], lines[0]];
+                }
                 socket.send(protocol.encode(message), { binary: true });
             }
         };
