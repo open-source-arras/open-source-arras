@@ -5200,7 +5200,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
         const rects = [];
         entries.forEach((e, i) => {
-            const col = (i / rows) | 0, row = i % rows;
+            const col = i % 2, row = (i / 2) | 0;
             const x = L + col * colW;
             const y = T + KB_ROW_TOP + row * KB_ROW_PITCH;
             const td = e.el.closest("td");
