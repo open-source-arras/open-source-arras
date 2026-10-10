@@ -182,6 +182,7 @@ server = http.createServer((req, res) => {
                 res.writeHead(200);
                 res.end(JSON.stringify(sserver.map((server) => ({
                     ip: server.ip,
+                    id: server.id,
                     players: server.players,
                     gameMode: server.gameMode
                 }))));

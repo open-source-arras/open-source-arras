@@ -217,6 +217,7 @@ class gameServer {
                         res.writeHead(200);
                         res.end(JSON.stringify([{
                             ip: this.host,
+                            id: this.webProperties.id,
                             players: this.socketManager.clients.length,
                             gameMode: this.name
                         }]));

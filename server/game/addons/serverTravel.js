@@ -2,9 +2,15 @@ async function getServer(server) {
     try {
         let data = await fetch(`${server.ip.startsWith("localhost") ? "http" : "https"}://${server.ip}/portalPermission`).then(r => r.json()).catch(() => false);
         if (!data) return false;
-        data = data[0];
+        if (Array.isArray(data)) {
+            data = data.find(d => d && d.ip === server.ip) ?? data[0];
+        }
+        if (!data) return false;
+        const id = data.id ?? server.id ?? null;
+        const gameMode = (data.gameMode ?? "Unknown").trim();
         return {
-            name: `${data.gameMode.trim()} (${server.id})`,
+            id,
+            name: id ? `${gameMode} (#${id})` : gameMode,
             players: data.players,
             ip: server.ip,
             destination: `${server.ip.startsWith("localhost") ? "http://" : "https://"}${data.ip}`
@@ -16,11 +22,12 @@ async function getServer(server) {
 
 // Portal spawner class
 let Portal = class {
-    constructor(name, players, destination, ip) {
+    constructor(name, players, destination, ip, id = null) {
         this.name = name;
         this.players = players;
         this.destination = destination;
         this.ip = ip;
+        this.id = id;
         this.body = null;
     }
     spawn(loc, color = "#FFFFFF", duration) {
@@ -39,8 +46,9 @@ let Portal = class {
         this.body.alwaysShowOnMinimap = true;
         this.body.minimapColor = 19;
         let updateInterval = setInterval(async() => {
-            let data = await getServer({ip: this.ip});
+            let data = await getServer({ip: this.ip, id: this.id});
             if (data) {
+                if (data.id) this.id = data.id;
                 this.body.settings.scoreLabel = `${data.players} player${data.players === 1 ? "" : "s"}`;
                 this.body.name = data.name;
             }
@@ -65,7 +73,7 @@ class serverTravelHandler {
             if (server) {
                 let tiles = global.gameManager.room.portalTiles ? global.gameManager.room.portalTiles.filter(tile => tile && !tile.data.has_portal) : [];
                 if (!tiles.length) tiles = false;
-                let portal = new Portal(server.name, server.players, server.destination, server.ip);
+                let portal = new Portal(server.name, server.players, server.destination, server.ip, server.id);
                 portal.spawn(tiles ? ran.choose(tiles) : global.gameManager.room.random(), this.color, 60000);
             }
         }
