@@ -138,7 +138,7 @@ function init() {
             run: ({ socket, player }) => {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                    if (Config.teams == 1) {
+                    if (Config.siege) {
                         player.body.define("smasher");
                     } else {
                         player.body.define("healer");
@@ -152,7 +152,7 @@ function init() {
             permissionLevel: 1,
             hidden: true,
             run: ({ socket, player }) => {
-                if (Config.teams == 1 && socket.permissions?.class) {
+                if (Config.siege && socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define("underseer");
                 }

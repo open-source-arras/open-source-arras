@@ -456,6 +456,6 @@ Class.whirlGuard = makeWhirlwind("trapGuard", { label: "Whirl Guard" });
 Class.whirl3 = makeWhirlwind("auto3", { label: "Whirl-3" });
 
 // Class Tree Modification
-if (Config.teams == 1) {
+if (Config.siege) {
     removeUpgrades("whirlwind", 3, ["prophet"]);
 };

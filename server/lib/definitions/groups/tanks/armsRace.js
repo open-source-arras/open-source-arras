@@ -4195,7 +4195,7 @@ if (!enable_missing_tanks) {
     }
 };
 
-if (Config.teams == 1) {
+if (Config.siege) {
     removeUpgrades("directordrive", 3, ["underdrive"]);
 };
 

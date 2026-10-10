@@ -3835,7 +3835,7 @@ Class.xHunter = {
 };
 
 // Class Tree Modification
-if (Config.teams == 1) {
+if (Config.siege) {
     removeUpgrades("basic", 2, ["smasher"]);
     removeUpgrades("director", 2, ["underseer"]);
 
