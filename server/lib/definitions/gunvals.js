@@ -493,6 +493,11 @@ module.exports = {
         maxSpeed: 1.2,
         range: 1.2
     },
+    doper: {
+        speed: 1.5,
+        maxSpeed: 1.4,
+        damage: 0.9
+    },
     bee: {
         reload: 1.3,
         size: 1.4,
