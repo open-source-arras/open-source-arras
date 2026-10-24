@@ -582,7 +582,7 @@ class Canvas {
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
@@ -604,6 +604,7 @@ class Canvas {
                     global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
                     global.optionsMenu_Anim.tabOffset.set(optionsMenu_tabClick);
                     global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[optionsMenu_tabClick][1]);
+                    if (optionsMenu_tabClick !== 2) global.ingameKeybindRects = null;
                     if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
                     break;
                 }
@@ -614,6 +615,7 @@ class Canvas {
                         box.value = !box.value;
                         if (doc) doc.checked = box.value;
                         if (doc) util.submitToLocalStorage(box.id);
+                        else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
                     }
                     break;
                 }

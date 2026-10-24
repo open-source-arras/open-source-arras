@@ -1122,7 +1122,7 @@ let incoming = async function(message, socket) {
                 global.message = `You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.\nBan ID: M-${"XXXXXXXX"}`;
             } break;
             case "permanentBan": {
-                global.message = `You have been permanently banned from the game.\nReason: ${}\nBan ID: U-${"XXXXXXXX"}`;
+                global.message = `You have been permanently banned from the game.\nReason: \nBan ID: U-${"XXXXXXXX"}`;
             } break;
             case "svInfo": {
                 // For debugging.

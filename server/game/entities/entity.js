@@ -927,6 +927,7 @@ class Entity extends EventEmitter {
             }
         }
         let upgraded = false;
+        let oldRaw = [...this.skill.raw];
         if (dailyTankRequest && Config.daily_tank && Config.daily_tank.tank) {
             let hasWatchedAd = this.socket.status.daily_tank_watched_ad;
             if (!Config.daily_tank.ads) hasWatchedAd = true;
@@ -956,6 +957,13 @@ class Entity extends EventEmitter {
             }
         }
         if (!upgraded) return;
+        for (let i = 0; i < 10; i++) {
+            let capped = Math.min(oldRaw[i], this.skill.caps[i]);
+            if (capped > this.skill.raw[i]) {
+                this.skill.points -= capped - this.skill.raw[i];
+                this.skill.raw[i] = capped;
+            }
+        }
         this.emit("upgrade", { body: this });
         if (this.settings.shakeProperties) {
             this.settings.shakeProperties.forEach(info => {

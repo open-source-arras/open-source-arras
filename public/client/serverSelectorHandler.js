@@ -87,7 +87,6 @@ let loadEmptyServerSelector = (text) => {
     let serverSelector = document.getElementById("serverSelector"),
     tbody = document.createElement("tbody");
     serverSelector.innerHTML = "";
-    serverSelector.style.display = "block";
     serverSelector.appendChild(tbody);
     const tr = document.createElement("tr");
     const td1 = document.createElement("td");
@@ -246,6 +245,6 @@ let initializeFilter = () => {
         //{ name: "Arms Race", filter: (h) => { return checkFilter(h, global.filters.gamemodes.armsRace) } },
         //{ name: "Other", filter: (h) => { return checkFilter(h, global.filters.gamemodes.other) } },
         { name: "Sandbox", filter: (h) => { return checkFilter(h, global.filters.gamemodes.sandbox) } }
-    ]);
+    ], "serverFilterMode");
     return restoreFilters;
 }

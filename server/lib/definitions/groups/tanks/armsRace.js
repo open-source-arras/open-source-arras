@@ -365,13 +365,13 @@ Class.baltimore = {
         },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.swarm, g.honcho]),
-            TYPE: 'swarm',
+            TYPE: "swarm",
             SYNCS_SKILLS: true,
-            STAT_CALCULATOR: 'swarm',
-        },
+            STAT_CALCULATOR: "swarm"
+        }
     }, { delayIncrement: 0.5 }),
     UPGRADES_TIER_4: ["autoBaltimore"]
-}
+};
 Class.bentGunner = {
     PARENT: "genericTank",
     LABEL: "Bent Gunner",
@@ -634,7 +634,7 @@ Class.corvette = {
                     TYPE: "bullet"
                 }
             }
-        ], {delayIncrement: 0.25}),
+        ], {delayIncrement: 0.25})
     ],
     UPGRADES_TIER_4: ["autoCorvette", "bracer", "doubleCorvette"]
 };
@@ -1988,7 +1988,7 @@ Class.zipper = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
                 TYPE: "bullet"
             }
-        }, 3, { lengthOffset: 2, delayIncrement: 1 / 3 }),
+        }, 3, { lengthOffset: 2, delayIncrement: 1 / 3 })
     ],
     UPGRADES_TIER_4: ["autoZipper"]
 };

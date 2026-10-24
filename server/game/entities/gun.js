@@ -112,7 +112,7 @@ class Gun extends EventEmitter {
         this.direction = _off.direction;
         this.offset = _off.length / 10;
         this.maxCycleTimer = !this.delaySpawn - position.DELAY;
-        this.layer = position.LAYER ?? 0; // Prevent undefined
+        this.layer = position.LAYER;
         this.position = 0;
         this.motion = 0;
         if (this.canShoot) {
