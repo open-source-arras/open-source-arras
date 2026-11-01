@@ -422,14 +422,14 @@ Class.turkey = {
 };
 
 // Special Tanks (Spectators)
-function spectatorSelect(body, playersOnly) {
+function spectatorSelect(body, playersOnly, canSelectSelf) {
     const cursor = {
         x: body.control.target.x + body.x,
         y: body.control.target.y + body.y
     };
     let lowest = Infinity, closest;
     for (const instance of entities.values()) {
-        if (instance === body || instance.source === body) continue;
+        if (instance.source === body && (instance !== body || !canSelectSelf)) continue;
         if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
         const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
         if (distance < lowest) {
@@ -461,6 +461,7 @@ Class.spectator = {
     IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
     MIDDLE_FIRE: true,
+    CAN_SELECT_SELF: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
     BODY: {
@@ -506,13 +507,14 @@ Class.spectator = {
         event: "fire",
         handler: ({ body, gun }) => {
             if (!body.socket || gun.identifier !== "spectatorSelect") return;
-            spectatorSelect(body, !body.socket.player.command.mmb);
+            spectatorSelect(body, !body.socket.player.command.mmb, body.settings.canSelectSelf);
         }
     }]
 };
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
+    CAN_SELECT_SELF: false,
     TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
@@ -566,6 +568,7 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
+    CAN_SELECT_SELF: false,
     TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},

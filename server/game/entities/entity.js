@@ -291,6 +291,7 @@ class Entity extends EventEmitter {
         if (set.OBSTACLE != null) this.settings.obstacle = set.OBSTACLE;
         if (set.FULL_INVISIBLE != null) this.settings.fullyInvisible = set.FULL_INVISIBLE;
         if (set.MIDDLE_FIRE != null) this.settings.middleFire = set.MIDDLE_FIRE;
+        if (set.CAN_SELECT_SELF != null) this.settings.canSelectSelf = set.CAN_SELECT_SELF;
         if (set.CAN_SEE_INVISIBLE_ENTITIES != null) this.settings.canSeeInvisible = set.CAN_SEE_INVISIBLE_ENTITIES;
         if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
         if (set.CRAVES_ATTENTION != null) this.settings.attentionCraver = set.CRAVES_ATTENTION;
