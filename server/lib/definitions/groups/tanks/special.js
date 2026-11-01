@@ -422,6 +422,30 @@ Class.turkey = {
 };
 
 // Special Tanks (Spectators)
+function spectatorSelect(body, playersOnly) {
+    const cursor = {
+        x: body.control.target.x + body.x,
+        y: body.control.target.y + body.y
+    };
+    let lowest = Infinity, closest;
+    for (const instance of entities.values()) {
+        if (instance === body || instance.source === body) continue;
+        if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
+        const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
+        if (distance < lowest) {
+            lowest = distance;
+            closest = instance;
+        }
+    }
+    if (!closest || closest.bond) return;
+    const message = [
+        `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
+        `Score: ${closest.skill.score};`,
+        `Build: ${closest.skill.raw.join("/")};`
+    ];
+    body.socket.talk("Em", 20_000, JSON.stringify(message));
+    body.store.selectedEntity = closest;
+}
 Class.spectator = {
     PARENT: "genericTank",
     LABEL: "Spectator",
@@ -436,6 +460,7 @@ Class.spectator = {
     IS_IMMUNE_TO_TILES: true,
     IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
+    MIDDLE_FIRE: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
     BODY: {
@@ -456,7 +481,8 @@ Class.spectator = {
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
             TYPE: "bullet",
-            ALPHA: 0
+            ALPHA: 0,
+            IDENTIFIER: "spectatorSelect"
         }
     }, {
         POSITION: {
@@ -477,33 +503,17 @@ Class.spectator = {
             body.y = body.y + body.control.target.y;
         }
     }, {
-        // Left clicking acts as the "Get Data" key command
         event: "fire",
-        handler: ({body}) => {
-            if (!body.socket) return;
-            const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
-            let lowest = Infinity, closest;
-            for (const instance of entities.values()) {
-                let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                if (distance < lowest) {
-                    lowest = distance;
-                    closest = instance;
-                }
-            }
-            if (!closest || closest.bond) return;
-            let message = [
-                `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
-                `Score: ${closest.skill.score};`,
-                `Build: ${closest.skill.raw.join("/")};`
-            ];
-            body.socket.talk("Em", 20_000, JSON.stringify(message));
+        handler: ({ body, gun }) => {
+            if (!body.socket || gun.identifier !== "spectatorSelect") return;
+            spectatorSelect(body, !body.socket.player.command.mmb);
         }
     }]
 };
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
-    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to kill the selected entity.`,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
             POSITION: {
@@ -543,22 +553,6 @@ Class.guillotine = {
     ],
     ON: [
         {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (!closest || closest.bond) return;
-                s.selectedEntity = closest;
-            }
-        },
-        {
             event: "control",
             handler: ({body}) => {
                 const s = body.store;
@@ -572,7 +566,7 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
-    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to ban the selected player.`,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
         {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},
@@ -582,23 +576,6 @@ Class.banHammer = {
         ...Class.spectator.GUNS
     ],
     ON: [
-        {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    if (instance === body || !instance.isPlayer) continue;
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (!closest || closest.bond) return;
-                s.selectedEntity = closest;
-            }
-        },
         {
             event: "control",
             handler: ({body}) => {
@@ -909,6 +886,7 @@ Class.baseProtector_diep = {
 Class.manager_special = {
     PARENT: "spectator",
     LABEL: "Manager",
+    MIDDLE_FIRE: false,
     DANGER: 7,
     STAT_NAMES: statnames.drone,
     GUNS: [

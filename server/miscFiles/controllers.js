@@ -172,7 +172,7 @@ class io_listenToPlayer extends IO {
     }
     // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
     think() {
-        let fire = this.player.command.autofire || this.player.command.lmb,
+        let fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb),
             alt = this.player.command.autoalt || this.player.command.rmb,
             target = {
                 x: this.player.target.x,
