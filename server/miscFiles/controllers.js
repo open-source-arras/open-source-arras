@@ -1388,7 +1388,7 @@ class io_rcs extends IO {
                 fire: true,
                 target,
                 main: true
-            }
+            };
         } else if (Math.hypot(vx, vy) > 1.25) {
             output = {
                 fire: true,

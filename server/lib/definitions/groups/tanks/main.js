@@ -3702,6 +3702,7 @@ require("../tanks/armsRace.js");
 require("../tanks/nostalgia.js");
 require("../tanks/scrapped.js");
 require("../tanks/menus.js");
+require("../tanks/space.js");
 
 // DMCA mode (+ better handling for it)
 const dmca_censor_name = [

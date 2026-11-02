@@ -1353,10 +1353,10 @@ Class.bulletStatsTestBullet = {
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, {recoil: 0}]),
             TYPE: "bullet",
-            AUTOFIRE: true,
+            AUTOFIRE: true
         }
     }]
-}
+};
 Class.bulletStatsTest = {
     PARENT: "genericTank",
     LABEL: "Bullet Stats Test",
@@ -1381,7 +1381,7 @@ Class.bulletStatsTest = {
             }
         }
     ]
-}
+};
 // DigDig (WIP)
 Class.genericDigDig = {
     PARENT: "genericSmasher",
