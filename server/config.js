@@ -62,6 +62,7 @@ module.exports = {
             private: false,
 
             properties: {
+                allow_server_travel: true,
                 bot_cap: 20,
                 daily_tank: {
                     tank: "desmos",
@@ -88,7 +89,7 @@ module.exports = {
 
             region: "Local",
             location: "Localhost",
-            gamemode: ["maze", "space"],
+            gamemode: ["space", "open_tdm"],
             player_cap: 80,
 
             featured: false,
@@ -96,7 +97,8 @@ module.exports = {
             private: false,
 
             properties: {
-                allow_server_travel: true
+                round_arena: true,
+                teams: 3
             }
         },
         {
@@ -123,10 +125,10 @@ module.exports = {
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3002", // destination server host, don't add "https://" or any slashes to it
+                        ip: "localhost:3001", // destination server host, don't add "https://" or any slashes to it
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "red" // portal color
+                            color: "blue" // portal color
                         }
                     }
                 ]
