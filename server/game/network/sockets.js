@@ -2386,7 +2386,12 @@ class socketManager {
                     socket.id,
                     (Config.groups || (Config.mode == "ffa" && !Config.tag)) && socket.player.body ? socket.player.body.id : null
                 );
-                let team = socket.status.seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
+                let seesAllTeams = socket.status.seesAllTeams || !!socket.player.body?.settings.canSeeInvisible;
+                if (seesAllTeams !== socket.status.seesAllTeamsOnMinimap) {
+                    socket.status.seesAllTeamsOnMinimap = seesAllTeams;
+                    socket.status.needsNewBroadcast = true;
+                }
+                let team = seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
                 
                 // Send the leaderboard tanks' mockups
                 if (global.gameManager.gameHandler.active) {
@@ -2557,6 +2562,7 @@ class socketManager {
             selectedLeaderboard: false,
             selectedChannel: "global",
             seesAllTeams: false,
+            seesAllTeamsOnMinimap: false,
             daily_tank_watched_ad: false,
             readyToSpawn: true,
             hasOperator: false,
