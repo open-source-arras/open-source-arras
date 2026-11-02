@@ -1,4 +1,4 @@
-const { combineStats, makeAuto, makeTurret, weaponArray, weaponMirror } = require("../facilitators.js");
+const { combineStats, makeAuto, makeTurret, weaponArray, weaponMirror, skillSet } = require("../facilitators.js");
 const { base } = require("../constants.js");
 const g = require("../gunvals.js");
 const preset = require("../presets.js");
@@ -965,9 +965,20 @@ Class.rcs = {
         {
             POSITION: [18, 10, 1.3, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5, speed: 1, range: 0.1}]),
+                SHOOT_SETTINGS: combineStats([g.basic, {size: 1.3, reload: 0.1, spray: 2, damage: 0, range: 0.05}]),
                 TYPE: "bullet",
-                STAT_CALCULATOR: "bullet"
+                BULLET_STATS: skillSet({
+                    rld: 0,
+                    pen: 0,
+                    str: 0,
+                    dam: 0,
+                    spd: 0,
+                    shi: 0,
+                    atk: 0,
+                    hlt: 0,
+                    rgn: 0,
+                    mob: 0
+                })
             }
         }
     ]
