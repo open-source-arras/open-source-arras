@@ -1,3 +1,4 @@
 module.exports = {
-    round_arena: true
+    space: true,
+    spawn_class: Config.spawn_class + "_space"
 };

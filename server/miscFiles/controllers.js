@@ -1368,6 +1368,37 @@ class io_oroboros extends IO {
         }
     }
 }
+class io_rcs extends IO {
+    constructor(body) { 
+        super(body);
+        this.body = body;
+    }
+    think(input) {
+        const master = this.body.master,
+            {x: vx, y: vy} = master.velocity,
+            goal = {x: master.control.goal.x - master.x, y: master.control.goal.y - master.y},
+            target = {
+                x: goal.x > 0 ? -goal.x : Math.abs(goal.x),
+                y: goal.y > 0 ? -goal.y : Math.abs(goal.y)
+            },
+            isMoving = () => master.control.goal && Math.hypot(master.control.goal.x - master.x, master.control.goal.y - master.y);
+        let output = {};
+        if (isMoving()) {
+            output = {
+                fire: true,
+                target,
+                main: true
+            }
+        } else if (Math.hypot(vx, vy) > 1.25) {
+            output = {
+                fire: true,
+                target: {x: vx, y: vy},
+                main: true
+            };
+        }
+        return output;
+    }
+}
 
 let ioTypes = {
     //misc
@@ -1382,6 +1413,7 @@ let ioTypes = {
     scaleWithMaster: io_scaleWithMaster,
     snakeTillNot: io_snakeTillNot,
     oroboros: io_oroboros,
+    rcs: io_rcs,
 
     //aiming related
     stackGuns: io_stackGuns,

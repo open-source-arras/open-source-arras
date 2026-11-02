@@ -250,7 +250,7 @@ class gameHandler {
                 instance.takeSelfie();
                 logs.selfie.mark();
                 // Apply friction.
-                instance.friction();
+                if (!Config.space || instance.type !== "tank") instance.friction();
                 instance.confinementToTheseEarthlyShackles();
             }
 

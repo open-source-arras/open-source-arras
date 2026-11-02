@@ -88,7 +88,7 @@ module.exports = {
 
             region: "Local",
             location: "Localhost",
-            gamemode: ["maze"],
+            gamemode: ["maze", "space"],
             player_cap: 80,
 
             featured: false,
