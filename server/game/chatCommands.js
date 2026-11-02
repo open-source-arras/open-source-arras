@@ -8,7 +8,7 @@ const commands = [
             let lines = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
-                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}`;
+                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}${c.usage ? ` ${c.usage}` : ""}`;
                     if (c.description) text += ` - ${c.description}`;
                     return text;
                 })
@@ -356,6 +356,15 @@ const commands = [
             }
 
             global.gameManager.socketManager.sendToServer(socket, `http://${nexusServer.host}`);
+        }
+    },
+    {
+        command: ["audit"],
+        usage: "[time]",
+        description: "View recent operator commands",
+        permissionLevel: 1,
+        run: ({ socket }) => {
+            socket.talk("m", 15_000, "[WIP] Audit log for last 30 seconds: [WIP]");
         }
     },
     {
