@@ -1245,6 +1245,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 global.UIscale = 1280;
                 break;
         }
+        global.refreshSecretThemes();
         util.submitToLocalStorage("optColors");
         let a = document.getElementById("optColors").value;
         color = colors[a === "" ? "normal" : a];
@@ -1256,6 +1257,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         gameDraw.color = color;
         gameDraw.colorCache = {};
         global.refreshMonitorColoring(gameDraw);
+        if (global.themeOverlay) {
+            if (a === "custom") global.themeOverlay._ov.colorsSel.value = "custom";
+            else selectTheme(document.getElementById("optColors").selectedOptions[0]?.textContent.replace(/ \(by .*\)$/, ""));
+            syncThemeOverlay();
+        }
     }
 
     function startGame() {
@@ -4770,11 +4776,34 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     };
     const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
 
+    const LEGACY_THEMES = [
+        ["bleach", "Bleach", "definitelynot."],
+        ["nebula", "Nebula", "Unknown"],
+        ["forest", "Forest", "Sterlon"],
+        ["pastel", "Pastel", "Damocles"],
+        ["descent", "Descent", "Rog456"],
+        ["badlands", "Badlands", "Incognious"],
+        ["pumpkinSkeleton", "Pumpkin Skeleton", "Road"],
+        ["blindness", "Blindness", "Damocles"],
+    ];
+
     let _themeList = null;
     function loadThemes() {
         if (!_themeList) {
             _themeList = fetch("themes.json")
                 .then((r) => r.json())
+                .then((list) => list.concat(LEGACY_THEMES.map(([key, name, author]) => {
+                    const theme = colors[key];
+                    return {
+                        name,
+                        author,
+                        content: theme,
+                        paletteSize: theme.paletteSize,
+                        border: theme.border,
+                        neon: theme.neon,
+                        legacy: true,
+                    };
+                })))
                 .catch(() => []);
         }
         return _themeList;
@@ -4922,7 +4951,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 colorsSel.value = "custom";
                 applyCustomTheme();
             } else {
-                if (list.length) colorsSel.value = "t0";
+                selectTheme(srcColors?.selectedOptions[0]?.textContent.replace(/ \(by .*\)$/, ""));
                 syncThemeOverlay();
             }
         });
@@ -5008,7 +5037,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             opt.textContent = label;
             o.colorsSel.appendChild(opt);
         };
-        (wrap._themes || []).forEach((theme, i) => add("t" + i, theme.name));
+        const legacyEnabled = localStorage.getItem("optLegacyThemesChecked") === "true";
+        (wrap._themes || []).forEach((theme, i) => {
+            if (!theme.legacy || legacyEnabled) add("t" + i, theme.name);
+        });
         (wrap._personal || []).forEach((theme, i) => add("p" + i, theme.name));
         add("custom", "Custom");
         if (previous && o.colorsSel.querySelector(`option[value="${previous}"]`)) o.colorsSel.value = previous;
@@ -5022,6 +5054,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         if (!match) return null;
         const list = match[1] === "t" ? wrap._themes : wrap._personal;
         return (list && list[parseInt(match[2], 10)]) || null;
+    }
+
+    function selectTheme(name) {
+        const wrap = global.themeOverlay;
+        if (!wrap || !wrap._themes) return;
+        const index = wrap._themes.findIndex((theme) => theme.name === name);
+        wrap._ov.colorsSel.value = index === -1 ? "t0" : "t" + index;
     }
 
     function updateThemeButton() {
@@ -5272,6 +5311,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
     };
     global.refreshBrainrotOption();
+    global.refreshSecretThemes = () => {
+        const select = document.getElementById("optColors");
+        if (!select) return;
+        const enabled = localStorage.getItem("optLegacyThemesChecked") === "true";
+        for (const option of select.querySelectorAll("option[data-secret-theme]")) {
+            option.hidden = option.disabled = !enabled;
+        }
+        if (!enabled && select.selectedOptions[0]?.hidden) select.value = "normal";
+        rebuildThemeSelect();
+    };
     global.applyCrosshairCursor = () => {
         const enabled = localStorage.getItem("optCrosshairCursorChecked") === "true";
         document.body.classList.toggle("crosshair-cursor", enabled);
@@ -5321,6 +5370,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
+                if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -5771,9 +5821,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                     // Legacy
                     {
-                        type: "checkbox", id: "optLegacyThemes",    label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
+                        type: "checkbox", id: "opt3DMode",          label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
                     {
-                        type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update. " },
+                        type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
