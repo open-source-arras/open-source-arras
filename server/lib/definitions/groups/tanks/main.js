@@ -3712,8 +3712,8 @@ if (Config.space) {
             if (!playableTanks.includes(type) && !Array.isArray(type) && Class[type]) playableTanks.push(type);
             else return;
             for (let i = 0; i <= (Config.level_cap / Config.tier_multiplier); i++) {
-                if (Class[type]["UPGRADES_TIER_" + i]) {
-                    Class[type]["UPGRADES_TIER_" + i].forEach(type => {
+                if (Class[type][`UPGRADES_TIER_${i}`]) {
+                    Class[type][`UPGRADES_TIER_${i}`].forEach(type => {
                         findUpgrades(type);
                     });
                 }
