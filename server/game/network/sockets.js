@@ -541,7 +541,7 @@ class socketManager {
             } break;
             case "#": {
                 // AFK players cannot use operator actions
-                if (Config.afk_restrict_operator_actions && socket.status.isAFK && player.body != null) {
+                if (!Config.afk_key_commands && socket.status.isAFK && player.body != null) {
                     player.body.sendMessage("Exit AFK mode before using operator actions.");
                     return;
                 }

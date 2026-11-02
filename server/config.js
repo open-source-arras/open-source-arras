@@ -287,7 +287,7 @@ module.exports = {
     max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
     respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
     instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
-    afk_restrict_operator_actions: true, // Prevent AFK players from using operator (sandbox key) actions.
+    afk_key_commands: false, // Allow AFK players to use key commands.
 
     upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
     upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.
