@@ -3702,7 +3702,41 @@ require("../tanks/armsRace.js");
 require("../tanks/nostalgia.js");
 require("../tanks/scrapped.js");
 require("../tanks/menus.js");
-require("../tanks/space.js");
+
+// Space (add RCS to all tanks)
+if (Config.space) {
+    const playableTanks = [];
+
+    const findUpgrades = (type) => {
+        try {
+            if (!playableTanks.includes(type) && !Array.isArray(type) && Class[type]) playableTanks.push(type);
+            else return;
+            for (let i = 0; i <= (Config.level_cap / Config.tier_multiplier); i++) {
+                if (Class[type]["UPGRADES_TIER_" + i]) {
+                    Class[type]["UPGRADES_TIER_" + i].forEach(type => {
+                        findUpgrades(type);
+                    });
+                }
+            }
+        } catch(e) {
+            throw new Error(e); 
+        }
+    };
+
+    findUpgrades(Config.spawn_class);
+
+    playableTanks.forEach(type => {
+        if (!Class[type].TURRETS) Class[type].TURRETS = [];
+        Class[type].TURRETS?.push({
+            TYPE: "rcs",
+            POSITION: {
+                SIZE: 6,
+                ANGLE: 180,
+                LAYER: 1
+            }
+        });
+    });
+};
 
 // DMCA mode (+ better handling for it)
 const dmca_censor_name = [
