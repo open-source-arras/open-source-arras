@@ -3734,19 +3734,13 @@ if (Config.space) {
     playableTanks.forEach(type => {
         // make the turret so we can attach it
         let found = {};
-        const findProperties = (type, ...properties) => {
-            try {
-                let toFind = [
-                    "TURRETS", 
-                ]
-                if (!properties.length) properties = toFind;
-                for (let k of properties) {
-                    if (Class[type][k] !== undefined) found[k] = Class[type][k];
-                    else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, k);
-                    else found[k] = Class.genericTank[k]
-                }
-            } catch (e) {if (debug_mode) error(e)}
-        }
+        const findProperties = (type) => {
+            for (let k of "TURRETS") {
+                if (Class[type][k] !== undefined) found[k] = Class[type][k];
+                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, k);
+                else found[k] = Class.genericTank[k]
+            }
+        };
         findProperties(type);
         Class[type].TURRETS?.push({
             TYPE: "rcs",
