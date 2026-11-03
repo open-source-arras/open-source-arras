@@ -3131,6 +3131,7 @@ Class.sidewinder = {
         SPEED: 0.8 * base.SPEED,
         FOV: 1.3 * base.FOV
     },
+    TOOLTIP: "Hold right click to make your bullet sidewind.",
     GUNS: [
         {
             POSITION: {

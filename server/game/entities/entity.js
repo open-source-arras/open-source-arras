@@ -992,7 +992,7 @@ class Entity extends EventEmitter {
             if (info.definition.length === 1) this.define(info.definition[0]);
             else {
                 for (let e of info.definition) {
-                    if (e.includes("_dreadsV2")) {
+                    if (e.includes("_dreadsV2")) { // Should just check if the upgrade is batched, why is this hardcoded?
                         this.batchUpgrades = true;
                     }
                 }
