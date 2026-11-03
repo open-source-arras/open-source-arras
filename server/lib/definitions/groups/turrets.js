@@ -918,6 +918,11 @@ Class.vortexTurret = makeTurret({
         }
     }, 4)
 }, {label: "Vortex Turret", fov: 0.8, extraStats: []});
+Class.aeronautMissileTurret = {
+    SHAPE: 1,
+    FACING_TYPE: ["spin", {speed: 0.2}],
+    GUNS: Class.spinmissile.GUNS
+};
 
 // Healer turrets
 Class.sanctuaryHealer = {

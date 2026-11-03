@@ -3695,12 +3695,6 @@ if (!Config.siege) {
     removeUpgrades("basic", 2, ["healer"]);
 };
 
-Class.test = {
-    PARENT: "autoGunner",
-    LABEL: "TEST!!!"
-}
-Class.basic.UPGRADES_TIER_3 = ["test"]
-
 // Load other mode branches
 require("../tanks/special.js");
 require("../tanks/retrograde.js");

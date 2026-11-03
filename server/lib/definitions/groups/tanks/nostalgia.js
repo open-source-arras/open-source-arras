@@ -542,7 +542,6 @@ Class.aeronaut = {
     LABEL: "Aeronaut",
     DANGER: 8,
     BODY: Class.launcher.BODY,
-    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -557,6 +556,11 @@ Class.aeronaut = {
                 LENGTH: 15,
                 WIDTH: 14,
                 ASPECT: -1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher, g.rocketeer, { size: 0.5 }]),
+                TYPE: "aeronautMissile",
+                STAT_CALCULATOR: "sustained"
             }
         },
         {
