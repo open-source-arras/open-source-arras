@@ -3695,6 +3695,12 @@ if (!Config.siege) {
     removeUpgrades("basic", 2, ["healer"]);
 };
 
+Class.test = {
+    PARENT: "autoGunner",
+    LABEL: "TEST!!!"
+}
+Class.basic.UPGRADES_TIER_3 = ["test"]
+
 // Load other mode branches
 require("../tanks/special.js");
 require("../tanks/retrograde.js");
@@ -3726,7 +3732,22 @@ if (Config.space) {
     findUpgrades(Config.spawn_class);
 
     playableTanks.forEach(type => {
-        if (!Class[type].TURRETS) Class[type].TURRETS = [];
+        // make the turret so we can attach it
+        let found = {};
+        const findProperties = (type, ...properties) => {
+            try {
+                let toFind = [
+                    "TURRETS", 
+                ]
+                if (!properties.length) properties = toFind;
+                for (let k of properties) {
+                    if (Class[type][k] !== undefined) found[k] = Class[type][k];
+                    else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, k);
+                    else found[k] = Class.genericTank[k]
+                }
+            } catch (e) {if (debug_mode) error(e)}
+        }
+        findProperties(type);
         Class[type].TURRETS?.push({
             TYPE: "rcs",
             POSITION: {
