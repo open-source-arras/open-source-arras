@@ -1389,7 +1389,7 @@ class io_rcs extends IO {
                 target,
                 main: true
             };
-        } else if (Math.hypot(vx, vy) > 1.25) {
+        } else if (Math.hypot(vx, vy) > 1.5 && !master.autoOverride) {
             output = {
                 fire: true,
                 target: {x: vx, y: vy},
