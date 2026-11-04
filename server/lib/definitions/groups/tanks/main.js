@@ -3727,17 +3727,14 @@ if (Config.space) {
     findUpgrades(Config.spawn_class);
 
     playableTanks.forEach(type => {
-        // make the turret so we can attach it
-        let found = {};
-        const findProperties = (type) => {
-            for (let k of "TURRETS") {
-                if (Class[type][k] !== undefined) found[k] = Class[type][k];
-                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, k);
-                else found[k] = Class.genericTank[k]
-            }
+        const findTurrets = (type) =>  {
+            let def = typeof type === "string" ? Class[type] : type;
+            if (def.TURRETS !== undefined) return [...def.TURRETS];
+            if (def.PARENT !== undefined) return findTurrets(def.PARENT);
+            return [];
         };
-        findProperties(type);
-        Class[type].TURRETS?.push({
+        Class[type].TURRETS = findTurrets(type);
+        Class[type].TURRETS.push({
             TYPE: "rcs",
             POSITION: {
                 SIZE: 6,
