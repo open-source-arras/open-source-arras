@@ -465,7 +465,7 @@ var gameDraw = {
                 return gameDraw.animatedColor.magenta;
 
             case "nest":
-                return config.graphical.coloredNest ? gameDraw.color.lavender : gameDraw.color.white;
+                return config.graphical.coloredNest ? gameDraw.color.purple : gameDraw.color.white;
 
             case "border":
                 return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);
