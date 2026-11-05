@@ -113,7 +113,7 @@ Class.chainGun = {
             }
         }
     ],
-    UPGRADES_TIER_4: ["PH_gunChain", "gatling3", "central", "doubleChain", "autoChainGun"]
+    UPGRADES_TIER_4: ["coaxialGun", "gatling3", "central", "doubleChain", "autoChainGun"]
 };
 Class.flamethrower_RG.LABEL = "Wildfire";
 Class.spudger = {
@@ -198,11 +198,12 @@ Class.doubleSprayer.UPGRADES_TIER_4.push("doubleRedistributor", "doubleAtomizer"
 Class.gatling3 = makeRadialAuto("gatlingAutoTankGun", { isTurret: true, danger: 8, size: 13, label: "Gatling-3", body: Class.sniper3.BODY });
 Class.gator.UPGRADES_TIER_4.push("mizzler", "accugator", "overnailer");
 Class.machineQuadruple = makeFlank("machineGun", 4, "Machine Quadruple", { extraStats: [g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.overmachineFlank = makeOver("machineFlank", "Overmachine Flank", { angle: 90 });
 Class.sniper3.UPGRADES_TIER_4.push("gatling3");
 
-Class.PH_accuratorFocal = {
+Class.winder = {
     PARENT: "genericTank",
-    LABEL: "",
+    LABEL: "Winder",
     DANGER: 8,
     GUNS: [
         {
@@ -237,11 +238,12 @@ Class.PH_accuratorFocal = {
         }
     ]
 };
-Class.PH_gunChain = makeGunner("chainGun", "");
+Class.coaxialGun = makeGunner("chainGun", "Co-axial Gun");
 
 // Existing Upgrade Management
 if (label_correction) {
     Class.machineQuadruple.LABEL = "Quad Machine";
+    Class.overmachineFlank.LABEL = "Overdouble Machine";
 };
 
 if (!better_retrograde) return;
@@ -251,13 +253,14 @@ if (Config.retrograde && Config.arms_race) {
     Class.assassin.UPGRADES_TIER_3.push("chainGun");
     Class.blaster.UPGRADES_TIER_3.push("queller", "volley", "spudger", "doubleBlaster", "ripoff", "autoBlaster");
     Class.diesel.UPGRADES_TIER_3.push("doubleDiesel");
-    Class.gatlingGun.UPGRADES_TIER_3.push("chainGun", /*"rimfire", */"spudger", "doubleGatling", "gator", "autoGatlingGun");
+    Class.gatlingGun.UPGRADES_TIER_3.push("chainGun", "rimfire", "spudger", "doubleGatling", "gator", "autoGatlingGun", /* widget */);
     Class.machineFlank.UPGRADES_TIER_3.push("doubleArtillery", "doubleMinigun", "doubleGunner", "doubleSprayer", "doubleBlaster", "doubleGatling", "doubleDiesel", "triMachine", "autoMachineFlank");
+    Class.machineFlank.UPGRADES_TIER_4 = ["overmachineFlank"];
     Class.minigun.UPGRADES_TIER_3.push("doubleMinigun");
     Class.sprayer.UPGRADES_TIER_3.push("doubleSprayer");
 
-    Class.accurator.UPGRADES_TIER_4 = ["PH_accuratorFocal", "accugator", "autoAccurator"];
-    Class.focal.UPGRADES_TIER_4.push("PH_accuratorFocal");
+    Class.accurator.UPGRADES_TIER_4 = ["winder", "accugator", "autoAccurator"];
+    Class.focal.UPGRADES_TIER_4.push("winder");
     Class.flamethrower_RG.UPGRADES_TIER_4 = ["autoFlamethrower_RG"];
     Class.machineTriple.UPGRADES_TIER_4 = ["machineQuadruple", "tripleArtillery", "tripleMinigun", "tripleGunner", "tripleSprayer", "tripleBlaster", "tripleGatling", "tripleDiesel"/*, "hexaMachine"*/, "autoMachineTriple"];
 
