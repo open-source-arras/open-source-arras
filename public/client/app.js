@@ -5787,7 +5787,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     },
                     { type: "checkbox",  id: "smoothCamera",           label: "Smooth Camera",         column: 0, row: 1, section: "extra", tooltip: "Make the camera follow your tank instead of being fixed at it." },
                     { type: "checkbox",  id: "autoLevelUp",            label: "Auto-Level Up",         column: 0, row: 2, section: "extra", tooltip: "Automatically level you up to level 45 upon joining the game." },
-                    { type: "checkbox",  id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 0, row: 3, section: "extra", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
+                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", placeholder: true, tooltip: "[WIP] Automatically reconnect after a disconnection." },
 
                     { type: "checkbox",  id: "optFancy",               label: "Fading Animation",      column: 1, row: 1, section: "extra", tooltip: "Make dying entities fade out instead of shrinking until disappearing.\nMay slightly lower the frame rate." },
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
@@ -5829,6 +5829,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         type: "checkbox", id: "opt3DMode",          label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
                     {
                         type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update." },
+                    {
+                        type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 0, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
