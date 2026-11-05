@@ -1,6 +1,9 @@
+const today = new Date();
+const thanksgiving = (today.getMonth() === 10 && today.getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving
+
 class Mothership {
     constructor() {
-        if ((new Date().getMonth() === 10 && new Date().getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving) {
+        if (thanksgiving) {
             this.choices = ["turkey"];
         } else if (Config.arms_race) {
             this.choices = ["flagship"];
@@ -56,7 +59,7 @@ class Mothership {
             o.define({ ACCEPTS_SCORE: false, VALUE: 643890 });
             o.color.base = getTeamColor(team);
             o.team = team;
-            if ((new Date().getMonth() === 10 && new Date().getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving) {
+            if (thanksgiving) {
                 o.name = "Turkey";
             } else if (Config.arms_race) {
                 o.name = "Flagship";
