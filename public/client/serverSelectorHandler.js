@@ -160,16 +160,16 @@ let initializeFilter = () => {
             global.filters.gamemodes.sandbox.push(s);
         } else {
             global.filters.gamemodes.all.push(s);
-            if (s.gameMode.includes("Arms Race") || s.gameMode.toLowerCase().includes("growth") || s.gameMode.includes("Old Dreadnoughts")) {
-                if (s.gameMode.toLowerCase().includes("growth") || s.gameMode.includes("Old Dreadnoughts")) {
-                    global.filters.gamemodes.growth.push(s);
-                } else global.filters.gamemodes.armsRace.push(s);
+            if (s.gameMode.toLowerCase().includes("growth")) {
+                global.filters.gamemodes.growth.push(s);
+            } else if (s.gameMode.includes("Arms Race")) {
+                global.filters.gamemodes.armsRace.push(s);
             } else for (let mode of normalModes) {
                 if (mode[1] == "exact" && s.gameMode === mode[0] || mode[1] == "loose" && s.gameMode.includes(mode[0])) {
                     global.filters.gamemodes.normal.push(s);
                 }
             }
-        }
+        };
         if (
             !global.filters.gamemodes.normal.includes(s) &&
             !global.filters.gamemodes.growth.includes(s) &&
