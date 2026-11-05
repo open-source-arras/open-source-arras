@@ -444,7 +444,7 @@ handleOperatorKeyDown: function (key) {
         renderPlayerNames: false,
         renderPlayerScores: false,
         renderPlayerBars: false,
-        renderPlayerKillbar: false,
+        renderPlayerKillbar: true,
         renderIngameOptions: false,
         minimapReducedInfo: false,
         fullHDMode: false,

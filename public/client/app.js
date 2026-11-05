@@ -164,6 +164,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         // Game
         util.retrieveFromLocalStorage("optIncognitoMode");
         util.retrieveFromLocalStorage("optDeltaEntities");
+        // Default to true
+        if (localStorage.getItem("optRenderKillbarChecked") === null) {
+            document.getElementById("optRenderKillbar").checked = true;
+            util.submitToLocalStorage("optRenderKillbar");
+        }
         config.game.rainbowTeamColors = localStorage.getItem("optRainbowTeamColorsChecked") === "true";
         // Default to true
         if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
