@@ -89,7 +89,10 @@ server = http.createServer((req, res) => {
     let readString = ""; // Response content for API endpoints
     let ok = true; // Flag to indicate whether we use default API response
     let serversIP = [];
-    let clientHeaders = ["/ext/custom-shape", "/ext/editor"];
+    let clientHeaders = [
+        "/ext/custom-shape",
+        "/ext/editor"
+    ];
     let selectedHeader = null;
 
     // Set CORS headers if enabled in the configuration or allow only the children servers.
