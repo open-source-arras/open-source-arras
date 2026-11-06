@@ -2,7 +2,7 @@
 - `TGS`: Current Project Owner, Creator of `aps-template` (original OSA)\
 - `Dogeiscut`: TODO\
 - `Toothless`: TODO\
-- `ZyraFAQ`: TODO\
+- `ZyraFAQ`: Overall accuracy improvements, Skins\
 
 # Former Developers
 - `AE0Hello`: Former Project Owner, Mobile Controls, Daily Tanks, In-Game UI\
