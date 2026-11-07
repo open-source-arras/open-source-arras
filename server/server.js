@@ -79,6 +79,8 @@ if (process.env.API_KEY === "ChangeAPIKeyNow!") {
 server = http.createServer((req, res) => {
     let query = {};
     let pathname = req.url.split("?")[0];
+    // Decode percent-escapes (skin filenames contain spaces / non-ASCII).
+    try { pathname = decodeURIComponent(pathname); } catch { /* keep raw path */ }
     if (req.url.includes("?")) {
         req.url.split("?")[1].split("&").map(i => {
             let key = i.split("=")[0];

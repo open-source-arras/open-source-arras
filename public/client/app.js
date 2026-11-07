@@ -5,6 +5,7 @@ import { Canvas } from "./canvas.js";
 import { color as colors } from "./color.js";
 import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
+import { skinShape } from "./skins.js";
 import * as socketStuff from "./socketinit.js";
 
 const THEME_PALETTE_KEYS = [
@@ -122,6 +123,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("optName");
         util.retrieveFromLocalStorage("playerKeyInput");
         util.retrieveFromLocalStorage("optSharpEdges");
+        util.retrieveFromLocalStorage("optTankSkins");
         util.retrieveFromLocalStorage("optSlowerFOV");
         util.retrieveFromLocalStorage("optPredictive");
         util.retrieveFromLocalStorage("optFancy");
@@ -175,6 +177,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             document.getElementById("optDeltaEntities").checked = true;
             util.submitToLocalStorage("optDeltaEntities");
         }
+        if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
         // Set default theme
         if (document.getElementById("optColors").value === "") {
             document.getElementById("optColors").value = "normal";
@@ -1180,6 +1183,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.game.centeredMinimap = document.getElementById("optCenterMinimap").checked;
         config.lag.unresponsive = document.getElementById("optPredictive").checked;
         config.graphical.sharpEdges = document.getElementById("optSharpEdges").checked;
+        config.graphical.renderSkins = document.getElementById("optTankSkins").checked;
         config.graphical.coloredHealthbars = document.getElementById("coloredHealthbars").checked;
         config.graphical.separatedHealthbars = document.getElementById("separatedHealthbars").checked;
         config.graphical.lowResolution = document.getElementById("optLowResolution").checked;
@@ -2305,6 +2309,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             const mockupIndex = +indexes[0];
             const m = global.mockups[mockupIndex] || global.missingno[0];
             const source = turretInfo === false ? instance : turretInfo;
+            const skin = instance.nameplate && skinShape(instance.name);
 
             // --- Size calculations with cached values ---
             const instSize = instance.size;
@@ -2499,8 +2504,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         context.shadowOffsetY = 0;
                     }
 
-                    // Draw body once
+                    // Draw the body, then overlay the skin.
                     drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
+                    if (skin) drawBody(context, xx, yy, sizeRatio * 0.9 * 0.85, skin, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
             }
 

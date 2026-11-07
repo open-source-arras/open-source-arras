@@ -17,6 +17,7 @@ const config = {
         lowResolution: false,
         force169AspectRatio: false,
         oldUIStyle: false,
+        renderSkins: true,
         coloredNest: false,
         colors: "normal",
         pointy: true,
