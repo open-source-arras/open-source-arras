@@ -90,7 +90,7 @@ global.tips = [
 
         "Tip: You can have the shield and health bar be separated by going to the options menu.",
         `Tip: If ${window.location.host} is having a low frame rate, you can try reducing your graphics level in the options menu.`,
-        //"Tip: You can edit or create your own theme in the options menu.",
+        "Tip: You can edit or create your own theme in the options menu.",
         `Tip: If you're new to the game, you can press T to see all of ${window.location.host}'s 100+ classes in the class tree.`,
         "Tip: Tired of being targeted constantly when you're the leader? Try enabling incognito mode in the options menu.",
 
