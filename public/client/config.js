@@ -87,13 +87,11 @@ global.tips = [
     [
         "Tip: You can view and edit your keybinds in the options menu.",
         `Tip: You can play on mobile by just going to ${window.location.host} on your phone!`,
-
         "Tip: You can have the shield and health bar be separated by going to the options menu.",
         `Tip: If ${window.location.host} is having a low frame rate, you can try reducing your graphics level in the options menu.`,
         "Tip: You can edit or create your own theme in the options menu.",
         `Tip: If you're new to the game, you can press T to see all of ${window.location.host}'s 100+ classes in the class tree.`,
         "Tip: Tired of being targeted constantly when you're the leader? Try enabling incognito mode in the options menu.",
-
         "You can sometimes see sneak peeks of content before it's released in our Discord and Reddit community!",
         "Want to connect with other members of the community? Join our public Discord server!"
     ]
