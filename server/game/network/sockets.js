@@ -1781,6 +1781,14 @@ class socketManager {
                 if (e.limited) data[14] = qfrac(alpha);
                 else data[18] = qfrac(alpha);
             }
+            if (e.master?.socket?.status?.isAFK && player.body.id !== e.master.id) {
+                data = data.slice();
+                const dist = Math.sqrt((player.body.x - e.x) ** 2 + (player.body.y - e.y) ** 2),
+                    fade = Math.max(0, (200 - dist) / 160),
+                    alpha = Math.max(0.5, 1 - 0.625 * fade ** 2.25),
+                    i = e.limited ? 14 : 18;
+                data[i] = qfrac(Math.min(data[i] / 255, alpha));
+            }
             if (
                 player.body.team === e.source.team &&
                 (Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag))
