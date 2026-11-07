@@ -223,7 +223,8 @@ class Gun extends EventEmitter {
         let shootPermission = this.checkShootPermission();
 
         // Dont shoot when invuln/not active
-        if (this.body.master.invuln || !this.body.master.activation.check()) {
+        let def = ensureIsClass(this.body.master.defs[0]);
+        if ((this.body.master.invuln && !(this.altFire && (def === Class.spectator || def.PARENT === "spectator"))) || !this.body.master.activation.check()) {
             shootPermission = false;
         }
         if (this.body.master.maxBullets !== undefined && this.body.master.maxBullets < (this.body.master.bulletchildren.length + 1)) {
