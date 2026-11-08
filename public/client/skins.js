@@ -1,6 +1,6 @@
 import { config } from "./config.js";
 
-// Live arras.io name-skin table (226 entries).
+// Skin list
 const names = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua",
     "Arab Emirates", "Arab League", "Argentina", "Armenia", "arras", "Aruba",
