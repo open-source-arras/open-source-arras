@@ -23,6 +23,12 @@ function shapeMockupIndex(base, shape, shapeNum) {
     return index;
 }
 
+function turretIsInert(turret) {
+    if (turret.guns.size > 0 || turret.controllers.length > 0) return false;
+    for (const child of turret.turrets.values()) if (!turretIsInert(child)) return false;
+    return true;
+}
+
 class Entity extends EventEmitter {
     constructor(position, master) {
         super();
@@ -45,6 +51,7 @@ class Entity extends EventEmitter {
             power: 0
         };
         this.isInGrid = false;
+        this.sleeping = false;
         this.removeFromGrid = () => {
             if (this.isInGrid) {
                 this.isInGrid = false;
@@ -145,6 +152,18 @@ class Entity extends EventEmitter {
 
     life() {
         bringToLife(this); 
+    }
+
+    canSleep() {
+        if (this.bond != null || this.guns.size > 0 || this.controllers.length > 0) return false;
+        if (this.settings.diesAtRange || this.settings.diesAtLowSpeed) return false;
+        if (this.alpha !== this.alphaRange[1] || this.damageReceived > 0 || this.isDead()) return false;
+        for (const turret of this.turrets.values()) if (!turretIsInert(turret)) return false;
+        return this.collisionArray.length === 0 && this.velocity.length < 0.01 && this.accel.length < 0.01;
+    }
+
+    wake() {
+        this.sleeping = false;
     }
 
     reset(keepPlayerController = true) {
@@ -1363,6 +1382,7 @@ class Entity extends EventEmitter {
     setKillers(killers) { } // Dummy
 
     kill() {
+        if (this.sleeping) this.wake();
         this.invuln = false;
         this.godmode = false;
         this.health.amount = -100;

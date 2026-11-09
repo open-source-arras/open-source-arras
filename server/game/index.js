@@ -216,7 +216,13 @@ class gameHandler {
         // Do entities life
         logs.entities.set();
         grid.clear();
+        // Sleepers
+        for (const instance of entities.values()) {
+            if (instance.sleeping) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+        }
         for (const instance of [...entities.values()]) {
+            // Sleeping bodies skip their turn.
+            if (instance.sleeping) continue;
             if (instance.contemplationOfMortality() === 1) {
                 if (Config.outbreak && !instance.zombified && (instance.isPlayer || instance.isBot)) {
                     instance.zombified = true;
@@ -259,6 +265,8 @@ class gameHandler {
             // Check collisions.
             logs.collide.set();
             for (const other of grid.query(instance.minX, instance.minY, instance.maxX, instance.maxY).values()) {
+                // Touching a sleeping body wakes it.
+                if (other.sleeping) other.wake();
                 this.collide(instance, other);
             }
             if (instance.isInGrid) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
@@ -277,6 +285,9 @@ class gameHandler {
             logs.activation.mark();
 
             instance.emit("tick", { body: instance });
+
+            // Only walls and food can sleep.
+            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) instance.sleeping = true;
         }
         logs.entities.mark();
         logs.master.mark();

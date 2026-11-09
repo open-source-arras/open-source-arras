@@ -6,6 +6,7 @@ module.exports = {
 
     // Server
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
+    enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
