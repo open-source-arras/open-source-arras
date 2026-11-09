@@ -557,20 +557,19 @@ if (better_retrograde) {
         X: 8
     };
     Class.halfNHalf.GUNS[0].POSITION = {
-        LENGTH: 13,
-        WIDTH: 8,
-        ASPECT: 1.9,
-        X: 4
-    };
-    Class.halfNHalf.GUNS[0].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.doubleTwin]);
-    Class.halfNHalf.GUNS[1].POSITION = {
         LENGTH: 14,
         WIDTH: 9.5,
         ASPECT: 1.25,
-        X: 8,
+        X: 8
+    };
+    Class.halfNHalf.GUNS[1].POSITION = {
+        LENGTH: 13,
+        WIDTH: 8,
+        ASPECT: 1.9,
+        X: 4,
         ANGLE: 180
     };
-    Class.halfNHalf.GUNS[1].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]);
+    Class.halfNHalf.GUNS[1].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.doubleTwin]);
     Class.splasher.GUNS[0].POSITION = {
         LENGTH: 20,
         WIDTH: 7
