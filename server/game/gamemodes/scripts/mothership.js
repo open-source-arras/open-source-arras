@@ -1,5 +1,5 @@
 const today = new Date();
-const thanksgiving = (today.getMonth() === 10 && today.getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving
+const thanksgiving = (today.getMonth() === 10 && today.getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving;
 
 class Mothership {
     constructor() {
