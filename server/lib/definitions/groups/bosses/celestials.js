@@ -52,7 +52,7 @@ paladin.addLayer({turret: {
     TYPE: ["swarmerTurret", {GUN_STAT_SCALE: {speed: 1.45, maxSpeed: 0.5, health: 1.3, range: 1.3}}]
 }}, true, 6);
 
-let freyja = new LayeredBoss(null, "Freyja", "celestial", 9, "lime", "baseTrapTurret", 6.5, 5.5);
+let freyja = new LayeredBoss(null, "Freyja", "celestial", 9, "aqua", "baseTrapTurret", 6.5, 5.5);
 freyja.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 180, 0],
     TYPE: ["cruiserTurret", {GUN_STAT_SCALE: {health: 1.2, damage: 1.3, speed: 1.1, maxSpeed: 1.1, resist: 1.05}}]
