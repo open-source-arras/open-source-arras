@@ -133,6 +133,12 @@ server = http.createServer((req, res) => {
                 gameMode: server.gameMode
             })));
         } break;
+        case "/getSkins.json": {
+            readString = JSON.stringify(fs.readdirSync(path.join(publicRoot, "img/skins"))
+                .filter((file) => file.endsWith(".png"))
+                .map((file) => file.slice(0, -4))
+                .sort());
+        } break;
         case "/getTotalPlayers": {
             let countPlayers = 0;
             servers.forEach((s) => {
