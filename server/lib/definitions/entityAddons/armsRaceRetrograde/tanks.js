@@ -1,10 +1,9 @@
-const { combineStats, removeUpgrades, weaponArray, weaponMirror, weaponStack, makeAuto, makeRadialAuto, makeBattle, makeBird, makeCap, makeDrive, makeFlank, makeFore, makeGuard, makeGunner, makeOver } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, weaponArray, weaponMirror, weaponStack, attachTank, makeAuto, makeRadialAuto, makeBattle, makeBird, makeCap, makeDrive, makeFlank, makeFore, makeGuard, makeGunner, makeOver } = require("../../facilitators.js");
 const { base } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
 const { better_retrograde, label_correction } = require("../../groups/tanks/retrograde.js");
 if (!better_retrograde) return;
-
 require("./turrets.js");
 
 // Tier 3 (Level 45)
@@ -149,6 +148,8 @@ const autoTanksT4 = [
     "doubleMinigun",
     "doubleSprayer",
     "flamethrower_RG",
+    "gator",
+    "halfNHalf",
     "machineTriple",
     "spudger"
 ];
@@ -187,19 +188,107 @@ for (let i = 0; i < hybridTanksT4.length; i++) {
     Class[typeDirector] = makeOver(type, director, preset.hybrid);
 };
 
+//Class.ak47 = attachTank("rimfire", "blaster", "AK-47");
+Class.assassinator = attachTank("chainGun", "blaster", "Assassinator");
+
+Class.bentHalve = attachTank("gatlingGun", "triBlaster", "Bent Halve");
+Class.waterslide = attachTank("gatlingGun", "splasher", "Waterslide");
+Class.eviscerator = attachTank("gatlingGun", "flamethrower_RG", "Eviscerator");
+Class.sacrificer = attachTank("gatlingGun", "subverter", "Sacrificer");
+Class.throwgun = attachTank("gatlingGun", "queller", "Throwgun");
+Class.trench = attachTank("gatlingGun", "volley", "Trench");
+
 Class.autoMachineFlank.UPGRADES_TIER_4.push(...["Artillery", "Minigun", "Gunner", "Sprayer", "Blaster", "Gatling", "Diesel"].map(x => `autoDouble${x}`)/*, "hexaMachine*/);
 Class.doubleArtillery.UPGRADES_TIER_4.push("autoDoubleArtillery");
-Class.doubleBlaster.UPGRADES_TIER_4.push("autoDoubleBlaster");
+Class.doubleBlaster.UPGRADES_TIER_4.push("autoDoubleBlaster", "thirdNTwoThirds");
 Class.doubleDiesel.UPGRADES_TIER_4.push("autoDoubleDiesel");
-Class.doubleGatling.UPGRADES_TIER_4.push("doubleFocal", "doubleAccurator", "doubleNailgun", "doubleChain", "autoDoubleGatling");
+Class.doubleGatling.UPGRADES_TIER_4.push("doubleFocal", "doubleAccurator", "doubleNailgun", "doubleChain", "autoDoubleGatling", "twoThirdsNThird");
 Class.doubleGunner.UPGRADES_TIER_4.push("autoDoubleGunner");
 Class.doubleMinigun.UPGRADES_TIER_4.push("autoDoubleMinigun");
 Class.doubleSprayer.UPGRADES_TIER_4.push("doubleRedistributor", "doubleAtomizer", "doubleFocal", "doubleSplasher"/*, "triFrother"*/, "doubleFoamer", "autoDoubleSprayer");
+
+Class.fiftyOneOverfortyNine = attachTank("focal", "blaster", "51/49");
 Class.gatling3 = makeRadialAuto("gatlingAutoTankGun", { isTurret: true, danger: 8, size: 13, label: "Gatling-3", body: Class.sniper3.BODY });
+
 Class.gator.UPGRADES_TIER_4.push("mizzler", "accugator", "overnailer");
+
 Class.machineQuadruple = makeFlank("machineGun", 4, "Machine Quadruple", { extraStats: [g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.pneumonicGun = attachTank("nailgun", "blaster", "Pneumonic Gun");
+Class.slicer = attachTank("accurator", "blaster", "Slicer");
+
+
+Class.thirdNTwoThirds = {
+    PARENT: "genericTank",
+    LABEL: "Third 'n Two Thirds",
+    DANGER: 7,
+    HAS_NO_RECOIL: true,
+    BODY: Class.gatlingGun.BODY,
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 8,
+                ASPECT: 1.9,
+                X: 4,
+                ANGLE: 120
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.doubleTwin]),
+                TYPE: "bullet"
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 9.5,
+                ASPECT: 1.25,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+};
+Class.twoThirdsNThird = {
+    PARENT: "genericTank",
+    LABEL: "Two Thirds 'n Third",
+    DANGER: 7,
+    HAS_NO_RECOIL: true,
+    BODY: Class.gatlingGun.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 8,
+                ASPECT: 1.9,
+                X: 4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.doubleTwin]),
+                TYPE: "bullet"
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 9.5,
+                ASPECT: 1.25,
+                X: 8,
+                ANGLE: 120,
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
+                TYPE: "bullet"
+            }
+        })
+    ]
+};
 Class.overmachineFlank = makeOver("machineFlank", "Overmachine Flank", { angle: 90 });
 Class.sniper3.UPGRADES_TIER_4.push("gatling3");
+
+
 
 Class.winder = {
     PARENT: "genericTank",
@@ -238,7 +327,7 @@ Class.winder = {
         }
     ]
 };
-Class.coaxialGun = makeGunner("chainGun", "Co-axial Gun");
+Class.coaxialGun = makeGunner("chainGun", "Coaxial Gun");
 
 // Existing Upgrade Management
 if (label_correction) {
@@ -253,16 +342,26 @@ if (Config.retrograde && Config.arms_race) {
     Class.assassin.UPGRADES_TIER_3.push("chainGun");
     Class.blaster.UPGRADES_TIER_3.push("queller", "volley", "spudger", "doubleBlaster", "ripoff", "autoBlaster");
     Class.diesel.UPGRADES_TIER_3.push("doubleDiesel");
-    Class.gatlingGun.UPGRADES_TIER_3.push("chainGun", "rimfire", "spudger", "doubleGatling", "gator", "autoGatlingGun", /* widget */);
+    Class.gatlingGun.UPGRADES_TIER_3.push("chainGun", "spudger", "doubleGatling", "gator", "autoGatlingGun" /* widget */);
     Class.machineFlank.UPGRADES_TIER_3.push("doubleArtillery", "doubleMinigun", "doubleGunner", "doubleSprayer", "doubleBlaster", "doubleGatling", "doubleDiesel", "triMachine", "autoMachineFlank");
     Class.machineFlank.UPGRADES_TIER_4 = ["overmachineFlank"];
     Class.minigun.UPGRADES_TIER_3.push("doubleMinigun");
     Class.sprayer.UPGRADES_TIER_3.push("doubleSprayer");
 
-    Class.accurator.UPGRADES_TIER_4 = ["winder", "accugator", "autoAccurator"];
-    Class.focal.UPGRADES_TIER_4.push("winder");
-    Class.flamethrower_RG.UPGRADES_TIER_4 = ["autoFlamethrower_RG"];
+    Class.accurator.UPGRADES_TIER_4 = ["winder", "accugator", "autoAccurator", "slicer"];
+    Class.chainGun.UPGRADES_TIER_4.push("assassinator");
+    //Class.rimfire.UPGRADES_TIER_4 = ["assassinator"];
+    Class.triBlaster.UPGRADES_TIER_4 = ["bentHalve"];
+    Class.splasher.UPGRADES_TIER_4 = ["waterslide"];
+    Class.subverter.UPGRADES_TIER_4 = ["sacrificer"];
+    Class.queller.UPGRADES_TIER_4 = ["throwgun"];
+    Class.volley.UPGRADES_TIER_4 = ["trench"];
+    Class.focal.UPGRADES_TIER_4.push("winder", "fiftyOneOverfortyNine");
+    Class.flamethrower_RG.UPGRADES_TIER_4 = ["autoFlamethrower_RG", "waterslide"];
+    Class.halfNHalf.UPGRADES_TIER_4 = ["thirdNTwoThirds", "twoThirdsNThird", "doubleSpudger", "fiftyOneOverfortyNine", "slicer", "pneumonicGun", "assassinator", /*"ak47", */"bentHalve", "waterslide", "eviscerator", "sacrificer", "throwgun", "trench", "autoHalfNHalf"];
     Class.machineTriple.UPGRADES_TIER_4 = ["machineQuadruple", "tripleArtillery", "tripleMinigun", "tripleGunner", "tripleSprayer", "tripleBlaster", "tripleGatling", "tripleDiesel"/*, "hexaMachine"*/, "autoMachineTriple"];
+    Class.nailgun.UPGRADES_TIER_4.push("pneumonicGun");
+
 
     for (let type of Class.focal.UPGRADES_TIER_4) {
         if (type == "central") {
