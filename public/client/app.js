@@ -2506,7 +2506,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                     // Draw the body, then overlay the skin.
                     drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
-                    if (skin) drawBody(context, xx, yy, sizeRatio * 0.9 * 0.85, skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
+                    if (skin) drawBody(context, xx, yy, 0.9 * (sizeRatio - 3), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
             }
 
