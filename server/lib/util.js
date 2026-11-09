@@ -136,8 +136,13 @@ exports.deepClone = (obj, hash = new WeakMap()) => {
 
 exports.serverStartTime = Date.now();
 // Get a better logging function
+let lastStamp;
 exports.time = () => {
-    return Date.now() - exports.serverStartTime;
+    let t = Date.now() - exports.serverStartTime;
+    if (lastStamp === undefined) lastStamp = t;
+    else if (t < lastStamp) t = lastStamp + 1;
+    lastStamp = t;
+    return t;
 };
 
 // create a custom timestamp format for log statements

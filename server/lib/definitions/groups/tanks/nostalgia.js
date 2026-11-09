@@ -1,28 +1,124 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeFore, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
+const { combineStats, removeUpgrades, makeAuto, makeFlank, makeGuard, makeGunner, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror } = require("../../facilitators.js");
+const { base, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
 
 // Tier 1 (Level 15)
-Class.whirlwind = makeWhirlwind("genericTank", { label: "Whirlwind", satellites: 6, hat: "hexagonHat_spin", danger: 5 });
-Class.whirlwind.UPGRADES_TIER_2 = ["tornado", "hurricane"];
-Class.whirlwind.UPGRADES_TIER_3 = ["hexaWhirl", "munition", "whirl3", "whirlGuard", "prophet", "vortex"];
+Class.desmos = {
+    PARENT: "genericTank",
+    LABEL: "Desmos",
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                ASPECT: -1.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                TYPE: ["bullet", {CONTROLLERS: ["snake"]}]
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 5,
+                WIDTH: 5,
+                ASPECT: -4,
+                X: -5.25,
+                Y: -7,
+                ANGLE: 90
+            }
+        })
+    ],
+    UPGRADES_TIER_2: ["helix"]
+};
 
 // Tier 2 (Level 30)
-Class.hurricane = makeWhirlwind("genericTank", { hat: "octagonHat_spin", satellites: 8, label: "Hurricane" });
-Class.hurricane.UPGRADES_TIER_3 = ["typhoon", "blizzard"];
-Class.tornado = makeWhirlwind("genericTank", { hat: "squareHat_spin", hatSize: 10, satellites: 4, satelliteSize: 12, extraStats: [g.pounder], label: "Tornado" });
-Class.tornado.UPGRADES_TIER_3 = ["megaTornado", "tempest", "thunderbolt"];
+Class.repeater = {
+    PARENT: "genericTank",
+    LABEL: "Repeater",
+    DANGER: 6,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                ASPECT: -1.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                TYPE: ["splitterBullet", {CONTROLLERS: ["snake"]}]
+            }
+        },
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 5,
+                    WIDTH: 5,
+                    ASPECT: -3,
+                    X: -5.5,
+                    Y: -10,
+                    ANGLE: 90
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 5,
+                    WIDTH: 5,
+                    ASPECT: -4,
+                    X: -5.25,
+                    Y: -5,
+                    ANGLE: 82.5
+                }
+            }
+        ])
+    ],
+    UPGRADES_TIER_3: ["iterator", "duplicator"]
+};
+Class.spiral = {
+    PARENT: "genericTank",
+    LABEL: "Spiral",
+    DANGER: 6,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 12
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                ASPECT: -1.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos, { reload: 5 / 3 }]),
+                TYPE: ["spiralBullet", {CONTROLLERS: ["snake"]}]
+            }
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 5,
+                ASPECT: -4,
+                X: -6.5,
+                Y: -5,
+                ANGLE: 87.5
+            }
+        })
+    ],
+    UPGRADES_TIER_3: ["coil", "python"]
+};
 Class.whirlwind_old = makeWhirlwind("genericTank", { hat: "circleHat", hatSize: 24, hatLayer: 0, satellites: 6, satelliteType: "satellite_old", label: "Whirlwind" });
 Class.whirlwind_old.UPGRADE_LABEL = "Old Whirlwind";
 Class.whirlwind_old.UPGRADES_TIER_3 = ["monsoon", "maelstrom", "tornado_old", "typhoon_old", "vortex_old"];
 
 // Tier 3 (Level 45)
-Class.auto4_old = makeRadialAuto("auto4gun", { isTurret: true, danger: 7, size: 13, x: 6, label: "Gunner-3", count: 3 });
-Class.bentBoomer_old = {
+Class.oldArmsman = makeGuard("rifle", "Old Armsman");
+Class.oldBentBoomer = {
     PARENT: "genericTank",
-    LABEL: "Boomer",
-    UPGRADE_LABEL: "Old Bent Boomer",
+    LABEL: "Bent Boomer",
     DANGER: 7,
     STAT_NAMES: statnames.trap,
     BODY: {
@@ -42,7 +138,6 @@ Class.bentBoomer_old = {
         }
     ], {delayIncrement: 0.5})
 };
-Class.blizzard = makeWhirlwind("genericTank", { dualLayer: true, hat: "pentagonHat_spin", hat2: "pentagonHat_spinReverse", satellites: 5, label: "Blizzard", danger: 7 });
 Class.blunderbuss = {
     PARENT: "genericTank",
     LABEL: "Blunderbuss",
@@ -108,10 +203,9 @@ Class.blunderbuss = {
         }
     ]
 };
-Class.commander_old = {
+Class.oldCommander = {
     PARENT: "genericTank",
-    LABEL: "Commander",
-    UPGRADE_LABEL: "Old Commander",
+    LABEL: "Old Commander",
     DANGER: 7,
     STAT_NAMES: statnames.drone,
     BODY: {
@@ -154,10 +248,9 @@ Class.commander_old = {
         })
     ]
 };
-Class.deathStar_old = {
+Class.oldDeathStar = {
     PARENT: "genericTank",
-    LABEL: "Death Star",
-    UPGRADE_LABEL: "Old Death Star",
+    LABEL: "Old Death Star",
     DANGER: 7,
     GUNS: weaponArray([
         {
@@ -184,7 +277,7 @@ Class.deathStar_old = {
         }
     ], 3)
 };
-Class.hexaWhirl = makeWhirlwind("hexaTank", { label: "Hexa Whirl" });
+Class.gunner3 = makeRadialAuto("auto4gun", { isTurret: true, danger: 7, size: 13, x: 6, label: "Gunner-3", count: 3 });
 Class.maelstrom = makeAuto("whirlwind_old", "Maelstrom");
 Class.master = {
     PARENT: "genericTank",
@@ -238,9 +331,9 @@ Class.master = {
         ])
     ]
 };
-Class.megaTornado = makeWhirlwind("genericTank", { hat: "diamondHat_spin", hatSize: 16, satellites: 2, satelliteSize: 16, extraStats: [g.pounder, g.destroyer], label: "Mega-Tornado", danger: 7 });
 Class.monsoon = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     TURRETS: [
         {
             TYPE: ["hexagonHat_spin", {COLOR: "black"}],
@@ -248,11 +341,9 @@ Class.monsoon = makeWhirlwind({
         }
     ]
 }, {hat: "circleHat", hatSize: 24, hatLayer: 0, satellites: 6, satelliteType: "satellite_old", label: "Monsoon", danger: 7});
-Class.munition = makeWhirlwind("artillery", { label: "Munition" });
-Class.prophet = makeWhirlwind("underseer", { label: "Prophet", satelliteType: "squareSatellite" });
 Class.quadBuilder = {
     PARENT: "genericTank",
-    LABEL: "Quad Builder",
+    LABEL: "Quad-Builder",
     DANGER: 7,
     STAT_NAMES: statnames.trap,
     BODY: {
@@ -282,10 +373,9 @@ Class.quadBuilder = {
         }
     ], 4)
 };
-Class.rimfire_old = {
+Class.oldRimfire = {
     PARENT: "genericTank",
-    LABEL: "Rimfire",
-    UPGRADE_LABEL: "Old Rimfire",
+    LABEL: "Old Rimfire",
     DANGER: 7,
     GUNS: weaponMirror([
         {
@@ -314,12 +404,10 @@ Class.rimfire_old = {
         }
     ], {delayIncrement: 0.25})
 };
-Class.septaTrapper_old = makeFlank("trapper", 7, "Septa Trapper", { extraStats: [g.hexaTrapper], delayIncrement: 4 / 7, danger: 7, noRecoil: true });
-Class.septaTrapper_old.UPGRADE_LABEL = "Old Septa Trapper";
-Class.spike_old = {
+Class.oldSeptaTrapper = makeFlank("trapper", 7, "Old Septa Trapper", { extraStats: [g.hexaTrapper], delayIncrement: 4 / 7, danger: 7, noRecoil: true });
+Class.weirdSpike = {
     PARENT: "genericSmasher",
-    LABEL: "Spike",
-    UPGRADE_LABEL: "Weird Spike",
+    LABEL: "Weird Spike",
     DANGER: 7,
     BODY: {
         DAMAGE: 1.15 * base.DAMAGE,
@@ -354,10 +442,9 @@ Class.spike_old = {
         }
     ]
 };
-Class.spreadshot_old = {
+Class.oldSpreadshot = {
     PARENT: "genericTank",
-    LABEL: "Spreadshot",
-    UPGRADE_LABEL: "Old Spreadshot",
+    LABEL: "Old Spreadshot",
     DANGER: 7,
     GUNS: [
         ...weaponMirror([{
@@ -445,17 +532,158 @@ Class.spreadshot_old = {
         }
     ]
 };
-Class.tempest = makeWhirlwind("genericTank", { dualLayer: true, hat: "triangleHat_spin", hat2: "triangleHat_spinReverse", hat2Size: 4, satellites: 3, satelliteSize: 12, extraStats: [g.pounder], label: "Tempest", danger: 7 });
-Class.thunderbolt = makeWhirlwind("genericTank", { hat: "squareHat_spinFast", hatSize: 10, satellites: 4, satelliteSize: 12, satelliteSpeed: 2.5, extraStats: [g.pounder], label: "Thunderbolt", danger: 7 });
 Class.tornado_old = makeWhirlwind("genericTank", { hat: "circleHat", hatSize: 30, hatLayer: 0, satellites: 1, satelliteSize: 16, satelliteType: "satellite_old", extraStats: [g.pounder, g.destroyer], label: "Tornado", danger: 7 });
-Class.typhoon = makeWhirlwind("genericTank", { hat: "decagonHat_spin", satellites: 10, label: "Typhoon", danger: 7 });
 Class.typhoon_old = makeWhirlwind("genericTank", { dualLayer: true, hat: "circleHat", hatSize: 28, hatLayer: 0, hat2: "circleHat", hat2Size: 24, hat2Layer: 0, satellites: 6, satelliteType: "satellite_old", label: "Typhoon" });
-Class.vortex = makeWhirlwind("launcher", { label: "Vortex" });
 Class.vortex_old = makeWhirlwind("genericTank", { enableHat2: true, hat: "pentagonHat_spin", hatSize: 21.5, hatLayer: 0, hat2: "pentagonHat_spin", hat2Size: 21.5, hat2Layer: 0, satellites: 10, satelliteType: "satellite_old", label: "Vortex" });
-Class.whirlGuard = makeWhirlwind("trapGuard", { label: "Whirl Guard" });
-Class.whirl3 = makeWhirlwind("auto3", { label: "Whirl-3" });
 
-// Class Tree Modification
-if (Config.siege) {
-    removeUpgrades("whirlwind", 3, ["prophet"]);
+// Tier 4 (Level 60)
+Class.aeronaut = {
+    PARENT: "genericTank",
+    LABEL: "Aeronaut",
+    DANGER: 8,
+    BODY: Class.launcher.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 7.5,
+                WIDTH: 13,
+                ASPECT: -0.5,
+                X: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 14,
+                ASPECT: -1.4
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher, g.rocketeer, { size: 0.5 }]),
+                TYPE: "aeronautMissile",
+                STAT_CALCULATOR: "sustained"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 19.5,
+                WIDTH: 5.15,
+                ASPECT: 1.5
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 17.8,
+                WIDTH: 8,
+                ASPECT: -1.5
+            }
+        }
+    ]
 };
+Class.autoProdigy = makeAuto("prodigy");
+Class.band = makeAuto({
+    PARENT: "genericTank",
+    DANGER: 7,
+    STAT_NAMES: statnames.mixed,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ], 3),
+    TURRETS: weaponArray({
+        TYPE: ["autoTankGun", { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
+}, "Band");
+Class.duster = {
+    PARENT: "genericTank",
+    LABEL: "Duster",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 26,
+                WIDTH: 3,
+                DELAY: 2 / 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.lowPower, g.machineGun, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 23,
+                WIDTH: 7,
+                DELAY: 1 / 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.lowPower, g.machineGun, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 10,
+                ASPECT: 1.4,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+};
+Class.oldHewnTriple = {
+    PARENT: "genericTank",
+    LABEL: "Old Hewn Triple",
+    DANGER: 8,
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
+                Y: -5.5,
+                ANGLE: -25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        }, {delayIncrement: 0.5}),
+        ...weaponArray(weaponMirror({
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 8,
+                Y: 5.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble]),
+                TYPE: "bullet"
+            }
+        }, {delayIncrement: 0.5}), 3)
+    ]
+};
+Class.virago = makeGunner("eagle", "Virago", { gunLength: 20, renderBehind: true });

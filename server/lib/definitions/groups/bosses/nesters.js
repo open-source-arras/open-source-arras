@@ -110,7 +110,7 @@ Class.nestCurator = {
         POSITION: [4.5, 1.5, -1.4, 8, 3.75, 180, 0],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.swarm]),
-            TYPE: "autoswarm",
+            TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
             AUTOFIRE: true,
             STAT_CALCULATOR: "swarm"
         }
@@ -119,7 +119,7 @@ Class.nestCurator = {
         POSITION: [4.5, 1.5, -1.4, 8, -3.75, 180, 0.5],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.swarm]),
-            TYPE: "autoswarm",
+            TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
             AUTOFIRE: true,
             STAT_CALCULATOR: "swarm"
         }

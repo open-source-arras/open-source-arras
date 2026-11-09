@@ -13,7 +13,7 @@ new (require("./game.js").gameServer)(
     workerData.webProperties,
     workerData.properties,
     workerData.isFeatured,
-    workerData.isUnlisted,
+    workerData.isHidden,
     workerData.isPrivate,
     parentPort,
     GLOBAL

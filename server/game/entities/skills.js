@@ -25,9 +25,9 @@ function apply(f, x) {
 }
 
 class Skill {
-    constructor(inital = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) {
+    constructor(initial = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) {
     // Just skill stuff.
-        this.raw = inital;
+        this.raw = initial;
         this.caps = [];
         this.setCaps(Array(10).fill(Config.skill_cap));
         this.name = [
@@ -56,7 +56,9 @@ class Skill {
         this.brst = 0;
         this.ghost = 0;
         this.acl = 0;
+        let skill = [...initial];
         this.reset();
+        this.set(skill);
     }
     reset(resetLSPF = true) {
         this.points = 0;

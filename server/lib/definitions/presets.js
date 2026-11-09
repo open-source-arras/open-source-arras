@@ -1,5 +1,9 @@
 module.exports = {
     // Tanks
+    placeholder: {
+        UPGRADE_COLOR: "black",
+        UPGRADE_TOOLTIP: "[DEV NOTE] This tank is a placeholder!"
+    },
     shape: {
         flatCube: [[0.1, 0], [0.6, -0.8660254037844386], [1.1, 0], [0.6, 0.8660254037844386], [0.1, 0], [-0.05, 0.08660254037844387], [0.45, 0.9526279441628825], [-0.55, 0.9526279441628825], [-1.05, 0.08660254037844387], [-0.05, 0.08660254037844387], [0.1, 0], [-0.05, -0.08660254037844387], [-1.05, -0.08660254037844387], [-0.55, -0.9526279441628825], [0.45, -0.9526279441628825], [-0.05, -0.08660254037844387]],
         flatTetrahedron: "M -0.065 0.037 L -0.934 -0.477 L -0.054 1.047 Z M 0.065 0.037 L 0.054 1.047 L 0.934 -0.477 Z M 0 -0.075 L 0.88 -0.57 L -0.88 -0.57 Z",
@@ -8,12 +12,53 @@ module.exports = {
         flatIcosahedron: "M -0.836 0.482 L -0.127 0.639 L -0.617 -0.209 Z M 0.699 -0.333 L 0.913 0.362 L 0.896 -0.447 Z M 0.638 -0.439 L 0.143 -0.972 L 0.836 -0.553 Z M 0.836 0.482 L 0.617 -0.209 L 0.127 0.639 Z M -0.638 -0.439 L -0.143 -0.972 L -0.836 -0.553 Z M -0.699 -0.333 L -0.913 0.362 L -0.896 -0.447 Z M 0 -0.965 L -0.49 -0.43 H 0.49 Z M -0.061 0.772 L -0.77 0.61 L -0.061 1 Z M 0.061 0.772 L 0.77 0.61 L 0.061 1 Z M 0 0.62 L -0.537 -0.31 L 0.537 -0.31 Z",
         flatTesseract: "M 0.47 -0.375 L 0.71 -0.615 L 0.71 0.615 L 0.47 0.375 Z M -0.375 -0.47 L -0.615 -0.71 L 0.615 -0.71 L 0.375 -0.47 Z M -0.47 0.375 L -0.71 0.615 L -0.71 -0.615 L -0.47 -0.375 Z M 0.375 0.47 L 0.615 0.71 L -0.615 0.71 L -0.375 0.47 Z M 0.35 0.35 L 0.35 -0.35 L -0.35 -0.35 L -0.35 0.35 Z"
     },
+    tooltip: {
+        fullInvisible: "You are always invisible.",
+        invisible: "Stay still to turn invisible."
+    },
     gun: {},
     prop: {},
     turret: {
+        assemblerHat: [
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 2,
+                    X: 14,
+                    LAYER: 1
+                }
+            }
+        ],
+        doubleAssemblerHat: [
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 4,
+                    X: 14,
+                    LAYER: 1
+                }
+            },
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 2,
+                    X: 14,
+                    LAYER: 1
+                }
+            }
+        ],
         driveHat: [
             {
                 TYPE: ["squareHat", {COLOR: "grey"}],
+                POSITION: {
+                    SIZE: 9,
+                    LAYER: 1
+                }
+            }
+        ],
+        stormHat: [
+            {
+                TYPE: "stormHat",
                 POSITION: {
                     SIZE: 9,
                     LAYER: 1
@@ -80,6 +125,12 @@ module.exports = {
         },
         driveTriple: {
             type: "driveAutoTurret", clearTurrets: true, size: 6.5, x: 5.2, angle: 0, total: 3
+        },
+        storm: {
+            type: "stormAutoTurret", clearTurrets: true, size: 9
+        },
+        swarmdrive: {
+            type: "swarmdriveAutoTurret", clearTurrets: true, size: 8
         }
     },
     makeFore: {
@@ -88,6 +139,9 @@ module.exports = {
         }
     },
     makeHat: {
+        spinSlow: {
+            rotationSpeed: 0.08
+        },
         spin: {
             rotationSpeed: 0.16
         },

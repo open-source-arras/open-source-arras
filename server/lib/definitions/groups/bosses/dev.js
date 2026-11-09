@@ -634,7 +634,7 @@ Class.trplnrBossAuraBullet = {
         PROPERTIES: {
             COLOR: "white",
             SHOOT_SETTINGS: combineStats([g.basic, g.pounder, { size: 0.8 }, {reload: 1.6, damage: 1.5}]),
-            TYPE: "autoswarm",
+            TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
             AUTOFIRE: true
         }
     }, 4),

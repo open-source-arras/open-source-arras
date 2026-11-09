@@ -1,17 +1,14 @@
 ::-webkit-scrollbar {
-	width: 6px;
-	height: 0;
+  width: 6px;
+  height: 0;
 }
 ::-webkit-scrollbar-track {
-	border-radius: 3px;
-	background: rgba(0, 0, 0, 0.15);
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.15);
 }
 ::-webkit-scrollbar-thumb {
-	border-radius: 3px;
-	background: rgba(0, 0, 0, 0.3);
-}
-.conceal {
-	-webkit-text-security: disc;
+  border-radius: 3px;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 *:focus {
@@ -19,63 +16,68 @@
 }
 
 html, body {
-	overflow: hidden;
-	height: 100%;
-	position: fixed;
-	-webkit-overflow-scrolling: touch;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	user-select: none;
+  overflow: hidden;
+  height: 100%;
+  position: fixed;
+  -webkit-overflow-scrolling: touch;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 body {
-	font-family: 'Ubuntu';
-	font-size: 14px;
-	background-color: #484848;
+  font-family: Ubuntu;
+  font-size: 14px;
+  background-color: #484848;
 }
 
 html, body, .game {
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	border: 0;
-	padding: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  border: 0;
+  padding: 0;
 }
 
 canvas {
-	width: 100%;
-	height: 100%;
-	image-rendering: optimizeSpeed;
-	image-rendering: pixelated;
+  width: 100%;
+  height: 100%;
+  image-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+}
+
+body.crosshair-cursor,
+body.crosshair-cursor canvas {
+	cursor: crosshair;
 }
 
 .header {
-	display: flex;
-	justify-content: center;
-	padding: 4px 0 8px;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 8px;
 }
 .icon {
-	width: 60px;
-	height: 60px;
-	border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
 }
 .icon > img {
-	width: 100%;
-	height: 100%;
-	border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
 }
 h1 {
-	padding: 0 12px;
-	margin: 0;
-	text-align: center;
-	font: bold 40px/1.5 Ubuntu;
+  padding: 0 12px;
+  margin: 0;
+  text-align: center;
+  font: bold 40px/1.5 Ubuntu;
 }
 body.mobile .icon {
-	width: 48px;
-	height: 48px;
+  width: 48px;
+  height: 48px;
 }
 body.mobile h1 {
-	font-size: 32px;
+  font-size: 32px;
 }
 
 div.optionsHeader {
@@ -109,27 +111,25 @@ h3 {
 }
 
 .horizontalSelector {
-	padding: 4px 0;
-	margin-bottom: 4px;
-	font: bold 12px Ubuntu;
-	text-align: center;
-	overflow: auto hidden;
-	scrollbar-width: none;
-	scroll-behavior: smooth;
+  min-height: 13px;
+  padding: 4px 0;
+  margin-bottom: 4px;
+  font: bold 12px Ubuntu;
+  text-align: center;
 }
 .horizontalSelector span {
-	padding: 4px 8px;
-	color: #343434;
-	cursor: pointer;
+  padding: 4px 8px;
+  color: #343434;
+  cursor: pointer;
 }
 .horizontalSelector span:hover {
-	color: #5f5f5f;
+  color: #5f5f5f;
 }
 .horizontalSelector span.active {
-	background: #8abc3f;
-	color: #FFFFFF;
-	border-radius: 5px;
-	cursor: default;
+  background: #8abc3f;
+  color: #ffffff;
+  border-radius: 5px;
+  cursor: default;
 }
 
 .tdCenter {
@@ -137,7 +137,7 @@ h3 {
 }
 
 .serverSelector {
-	height: 154px; /*Should be 104px*/
+	height: 104px;
 	text-align: center;
 	font-size: 13px;
 	font-weight: bold;
@@ -148,25 +148,31 @@ h3 {
 body.mobile .serverSelector {
 	height: 68px;
 }
+.serverSelector > table {
+  width: 100%;
+}
 .serverSelector tr {
-	color: #828282;
-	cursor: pointer;
+  color: #828282;
+  cursor: pointer;
 }
 .serverSelector tr.featured {
-	color: #e8ae00;
-	text-shadow: #fff27e 0 0 6px;
+  color: #e8ae00;
 }
 .serverSelector tr.message {
-	color: #a8a8a8;
-	cursor: default;
-	font-style: italic;
+  color: #a8a8a8;
+  cursor: default;
+  font-style: italic;
 }
 .serverSelector tr.selected {
-	color: #8abc3f;
-	cursor: default;
+  color: #8abc3f;
+  cursor: default;
 }
 .serverSelector tr td:first-child, .serverSelector tr td:last-child {
-	white-space: nowrap;
+  white-space: nowrap;
+}
+.serverSelectorError {
+	color: #f00;
+	line-height: 16px;
 }
 
 .shadowScroll {
@@ -315,25 +321,24 @@ input.error {
 }
 
 #startMenuWrapper {
-	transition: top 1s;
-	position: relative;
-	top: 0px;
-	z-index: 5;
-	max-width: 1150px;
-	margin: 0 auto;
+  transition: top 1s, left 700ms cubic-bezier(0.225, 1, 0.35, 1);
+  position: relative;
+  left: 0px;
+  top: 0px;
+  z-index: 5;
+  max-width: 1150px;
+  margin: 0 auto;
 }
 body.mobile #startMenuWrapper { max-width: 780px; }
 
 .mainWrapper {
-	transition: all 0.5s;
-	padding: 75px 20px 0;
+	padding: 47px 20px 0; /* Should be 75px, reduced to match base arras' measurements while keeping support for menu tabs */
 }
 body.mobile .mainWrapper {
 	padding: 10px 10px 0;
 }
 
 .startMenu {
-	transition: all 0.5s;
 	display: flex;
 	max-height: 390px;
 	padding: 10px;
@@ -365,7 +370,7 @@ body.mobile .startMenuHolder.changelogHolder {
 	width: calc(100% - 400px);
 }
 
-.bannerHolder {
+.spawnAdHolder {
 	display: block;
 	width: 336px;
 	height: 300px;
@@ -373,11 +378,11 @@ body.mobile .startMenuHolder.changelogHolder {
 	text-align: center;
 }
 
-.banner-fallback {
+.referral-fallback {
 	display: none;
 }
 
-.respawn-banner {
+.respawnAdHolder {
 	position: absolute;
 	max-width: 970px;
 	max-height: 280px;
@@ -395,7 +400,6 @@ body.mobile .startMenuHolder.changelogHolder {
 }
 .menuTab {
 	font: 13px/28px Ubuntu;
-	font-weight: bold;
 	padding: 6px 12px;
 	border-radius: 5px 5px 0 0;
 	color: #fff !important;
@@ -405,7 +409,10 @@ body.mobile .startMenuHolder.changelogHolder {
 	background: #e90;
 }
 .menuTab.critical {
-	background: #ff0000;
+	background: #f00;
+}
+.menuTab.colonCancer {
+  background: #2b3278;
 }
 .menuTab.discord {
 	padding: 6px 12px 6px 36px;
@@ -590,35 +597,35 @@ body.mobile .startMenuSlidingContent {
 }
 
 #patchNotes {
-	max-width: 330px;
-	flex: 1 1 0;
-	padding: 5px 10px 10px;
-	overflow: hidden auto;
+  max-width: 330px;
+  flex: 1 1 0;
+  padding: 5px 10px 10px;
+  overflow: hidden auto;
 }
 @supports not selector(::-webkit-scrollbar) {
-	#patchNotes {
-		scrollbar-width: thin;
-		scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.15);
-	}
+  #patchNotes {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) rgba(0, 0, 0, 0.15);
+  }
 }
 
 #patchNotes ul {
-	padding-left: 15px;
-	margin-left: 10px;
+  padding-left: 15px;
+  margin-left: 10px;
 }
 #patchNotes div {
-	transition: max-height 500ms, opacity 500ms, line-height 500ms;
-	max-height: 1500px;
-	opacity: 1;
-	margin-bottom: 0;
-	line-height: 1.2;
+  transition: max-height 500ms, opacity 500ms, line-height 500ms;
+  max-height: 1500px;
+  opacity: 1;
+  margin-bottom: 0;
+  line-height: 1.2;
 }
 #patchNotes div:nth-last-child(n+2)::after {
-	content: '';
-	display: block;
-	border: 0.5px solid rgba(0, 0, 0, 0.15);
-	margin: 18px 0;
-	transition: margin 500ms;
+  content: '';
+  display: block;
+  border: 0.5px solid rgba(0, 0, 0, 0.15);
+  margin: 18px 0;
+  transition: margin 500ms;
 }
 #patchNotes.default div.balance,
 #patchNotes.default div.patch,
@@ -632,10 +639,10 @@ body.mobile .startMenuSlidingContent {
 #patchNotes.balance div.poll,
 #patchNotes.balance div.event,
 #patchNotes.balance div.patch {
-	max-height: 0px;
-	opacity: 0;
-	line-height: 0;
-	pointer-events: none;
+  max-height: 0px;
+  opacity: 0;
+  line-height: 0;
+  pointer-events: none;
 }
 #patchNotes.default div.balance::after,
 #patchNotes.default div.patch::after,
@@ -649,24 +656,7 @@ body.mobile .startMenuSlidingContent {
 #patchNotes.balance div.poll::after,
 #patchNotes.balance div.event::after,
 #patchNotes.balance div.patch::after {
-	margin: 0;
-}
-
-#patchNotes table.poll-list {
-	margin: 8px 5px 20px;
-}
-#patchNotes table.poll-table {
-	text-align: center;
-	margin: 0 0 12px;
-}
-#patchNotes table.poll-table thead {
-	font-weight: bold;
-}
-#patchNotes b small {
-	color: #444;
-}
-#patchNotes b small a {
-	margin-left: 10px;
+  margin: 0;
 }
 
 .startButtonHolder {

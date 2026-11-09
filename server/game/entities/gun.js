@@ -112,7 +112,7 @@ class Gun extends EventEmitter {
         this.direction = _off.direction;
         this.offset = _off.length / 10;
         this.maxCycleTimer = !this.delaySpawn - position.DELAY;
-        this.layer = position.LAYER ?? 0; // Prevent undefined
+        this.layer = position.LAYER ?? 0;
         this.position = 0;
         this.motion = 0;
         if (this.canShoot) {
@@ -223,7 +223,8 @@ class Gun extends EventEmitter {
         let shootPermission = this.checkShootPermission();
 
         // Dont shoot when invuln/not active
-        if (this.body.master.invuln || !this.body.master.activation.check()) {
+        let def = ensureIsClass(this.body.master.defs[0]);
+        if ((this.body.master.invuln && !(this.altFire && (def === Class.spectator || def.PARENT === "spectator"))) || !this.body.master.activation.check()) {
             shootPermission = false;
         }
         if (this.body.master.maxBullets !== undefined && this.body.master.maxBullets < (this.body.master.bulletchildren.length + 1)) {

@@ -422,6 +422,30 @@ Class.turkey = {
 };
 
 // Special Tanks (Spectators)
+function spectatorSelect(body, playersOnly, canSelectSelf) {
+    const cursor = {
+        x: body.control.target.x + body.x,
+        y: body.control.target.y + body.y
+    };
+    let lowest = Infinity, closest;
+    for (const instance of entities.values()) {
+        if (instance.source === body && (instance !== body || !canSelectSelf)) continue;
+        if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
+        const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
+        if (distance < lowest) {
+            lowest = distance;
+            closest = instance;
+        }
+    }
+    if (!closest || closest.bond) return;
+    const message = [
+        `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
+        `Score: ${closest.skill.score};`,
+        `Build: ${closest.skill.raw.join("/")};`
+    ];
+    body.socket.talk("Em", 20_000, JSON.stringify(message));
+    body.store.selectedEntity = closest;
+}
 Class.spectator = {
     PARENT: "genericTank",
     LABEL: "Spectator",
@@ -436,6 +460,8 @@ Class.spectator = {
     IS_IMMUNE_TO_TILES: true,
     IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
+    MIDDLE_FIRE: true,
+    CAN_SELECT_SELF: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
     BODY: {
@@ -449,14 +475,21 @@ Class.spectator = {
         REGEN: 1e100
     },
     GUNS: [{
-        POSITION: [0, 0, 0, 0, 0, 0, 0],
+        POSITION: {
+            LENGTH: 0,
+            WIDTH: 0
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
             TYPE: "bullet",
-            ALPHA: 0
+            ALPHA: 0,
+            IDENTIFIER: "spectatorSelect"
         }
     }, {
-        POSITION: [0, 0, 0, 0, 0, 0, 0],
+        POSITION: {
+            LENGTH: 0,
+            WIDTH: 0
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.25 }, g.fake]),
             TYPE: "bullet",
@@ -470,12 +503,19 @@ Class.spectator = {
             body.x = body.x + body.control.target.x;
             body.y = body.y + body.control.target.y;
         }
+    }, {
+        event: "fire",
+        handler: ({ body, gun }) => {
+            if (!body.socket || gun.identifier !== "spectatorSelect") return;
+            spectatorSelect(body, !body.socket.player.command.mmb, body.settings.canSelectSelf);
+        }
     }]
 };
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
-    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to kill the selected entity.`,
+    CAN_SELECT_SELF: false,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
             POSITION: {
@@ -515,28 +555,6 @@ Class.guillotine = {
     ],
     ON: [
         {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (closest.bond) return;
-                let message = [
-                    `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
-                    `Score: ${closest.skill.score};`,
-                    `Build: ${closest.skill.raw.join("/")};`
-                ];
-                body.socket.talk("Em", 20_000, JSON.stringify(message));
-                s.selectedEntity = closest;
-            }
-        },
-        {
             event: "control",
             handler: ({body}) => {
                 const s = body.store;
@@ -550,7 +568,8 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
-    TOOLTIP: `Use left click to inspect and right click to teleport. Press ${key("ability")} to ban the selected player.`,
+    CAN_SELECT_SELF: false,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
         {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},
@@ -560,29 +579,6 @@ Class.banHammer = {
         ...Class.spectator.GUNS
     ],
     ON: [
-        {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y};
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    if (instance === body || !instance.isPlayer) continue;
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (!closest || closest.bond) return;
-                let message = [
-                    `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
-                    `Score: ${closest.skill.score};`,
-                    `Build: ${closest.skill.raw.join("/")};`
-                ];
-                body.socket.talk("Em", 20_000, JSON.stringify(message));
-                s.selectedEntity = closest;
-            }
-        },
         {
             event: "control",
             handler: ({body}) => {
@@ -893,6 +889,7 @@ Class.baseProtector_diep = {
 Class.manager_special = {
     PARENT: "spectator",
     LABEL: "Manager",
+    MIDDLE_FIRE: false,
     DANGER: 7,
     STAT_NAMES: statnames.drone,
     GUNS: [
@@ -922,7 +919,7 @@ Class.aeolus = {
     ANGLE: 60,
     CONTROLLERS: [["whirlwind", { maxDistance: 1, minDistance: 1 }]],
     HAS_NO_RECOIL: true,
-    STAT_NAMES: statnames.whirlwind,
+    STAT_NAMES: statnames.satellite,
     TURRETS: [
         {
             POSITION: [24, 0, 0, 0, 360, 0],
@@ -1834,7 +1831,7 @@ Class.theAmalgamation = makeAuto({
                 POSITION: [7, 7.5, 0.6, 7, 0, -90, 0],
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.swarm]),
-                    TYPE: "autoswarm",
+                    TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                     STAT_CALCULATOR: "swarm"
                 }
             },
@@ -2155,7 +2152,12 @@ Class.worstTank = {
     PARENT: "genericTank",
     LABEL: "Worst Tank",
     DANGER: 7,
-    BODY: Class.machineGunner.BODY,
+    BODY: {
+        HEALTH: base.HEALTH * 0.4,
+        SHIELD: base.SHIELD * 0.4,
+        DENSITY: base.DENSITY * 0.3,
+        SPEED: base.SPEED * 13 / 15
+    },
     GUNS: [
         ...weaponMirror([{
             POSITION: {

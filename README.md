@@ -1,6 +1,6 @@
 # Open Source Arras
 
-<img alt="Logo" src="public/img/round.png" width="100"/>
+<img alt="Logo" src="public/favicon/512x512.png" width="100"/>
 
 ![GitHub Release](https://img.shields.io/github/v/release/open-source-arras/open-source-arras)
 ![Discord](https://img.shields.io/discord/1004907608018264094)
@@ -13,7 +13,7 @@
 
 ## Setup Guide (Localhost)
 
-You'll first need to install Node.js from either [the Node website](http://nodejs.org) or your distribution's package manager (for \*nix-like systems). Once Node.js is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:S
+You'll first need to install Node.js from either [the Node website](http://nodejs.org) or your distribution's package manager (for \*nix-like systems). Once Node.js is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
 
 ```sh
 ~$ npm install
@@ -50,6 +50,12 @@ server_travel: [
 
 > [!NOTE]
 > Make sure to set `allow_server_travel` to true in your destination server's `properties`.
+
+### Eslint
+It's a CLI which looks for code patterns that are disallowed in the `eslint.config.mjs` file.
+If you choose to [install eslint](https://eslint.org/docs/latest/use/getting-started#global-install), you can just do `eslint --fix` in the root folder to check if your code follows the rules.
+If you want the codebase to follow different (or more) rules, edit the eslint config file.
+If you do not care about any of this, just ignore that eslint exists or the errors or warnings that it puts out.
 
 ## Other Links
 - [Stoat](https://stt.gg/S4tqfeAK)

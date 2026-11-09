@@ -1,4 +1,4 @@
-const { combineStats, makeAuto, makeTurret, weaponArray, weaponMirror } = require("../facilitators.js");
+const { combineStats, makeAuto, makeTurret, weaponArray, weaponMirror, skillSet } = require("../facilitators.js");
 const { base } = require("../constants.js");
 const g = require("../gunvals.js");
 const preset = require("../presets.js");
@@ -573,7 +573,7 @@ Class.swarmTurret = makeTurret({
             POSITION: [7, 7.5, 0.6, 7, 0, 0, 0],
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm]),
-                TYPE: "autoswarm",
+                TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }
@@ -761,6 +761,17 @@ Class.autoTurret = makeTurret({
         }
     ]
 }, {label: "Turret", fov: 0.8, extraStats: []});
+Class.machineAutoTurret = makeTurret({
+    GUNS: [
+        {
+            POSITION: [14, 11, 1.3, 8, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, { recoil: 1.15 }, g.turret, g.machineGun, { speed: 0.7, maxSpeed: 0.7 }]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}, {label: "Turret", fov: 0.8, extraStats: []});
 Class.megaAutoTurret = makeTurret({
     GUNS: [
         {
@@ -784,7 +795,16 @@ Class.ultraAutoTurret = makeTurret({
     ]
 }, {label: "Turret", fov: 0.8, extraStats: []});
 Class.driveAutoTurret = { PARENT: "autoTurret", SHAPE: 4 };
+Class.swarmdriveAutoTurret = { PARENT: "autoTurret", SHAPE: 3 };
 Class.driveMegaAutoTurret = { PARENT: "megaAutoTurret", SHAPE: 4 };
+Class.stormAutoTurret = {
+    PARENT: "autoTurret",
+    SHAPE: 4,
+    GUNS: [
+        ...Class.autoTurret.GUNS,
+        ...Class.stormHat.GUNS
+    ]
+};
 Class.droneAutoTurret = makeTurret({
     GUNS: [
         {
@@ -867,6 +887,42 @@ Class.legionaryTwin = makeTurret({
         }
     ]
 }, {fov: 5, independent: true, extraStats: []});
+Class.stormTurret = makeTurret({
+    GUNS: weaponMirror({
+        POSITION: {
+            LENGTH: 9,
+            WIDTH: 8.2,
+            ASPECT: 0.6,
+            X: 5,
+            ANGLE: 90
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.swarm]),
+            TYPE: "swarm",
+            STAT_CALCULATOR: "swarm"
+        }
+    })
+}, {label: "Storm Turret", fov: 0.8, extraStats: []});
+Class.vortexTurret = makeTurret({
+    GUNS: weaponArray({
+        POSITION: {
+            LENGTH: 9,
+            WIDTH: 8.2,
+            ASPECT: 0.6,
+            X: 5
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.swarm]),
+            TYPE: "swarm",
+            STAT_CALCULATOR: "swarm"
+        }
+    }, 4)
+}, {label: "Vortex Turret", fov: 0.8, extraStats: []});
+Class.aeronautMissileTurret = {
+    SHAPE: 1,
+    FACING_TYPE: ["spin", {speed: 0.2}],
+    GUNS: Class.spinmissile.GUNS
+};
 
 // Healer turrets
 Class.sanctuaryHealer = {
@@ -914,9 +970,20 @@ Class.rcs = {
         {
             POSITION: [18, 10, 1.3, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5, speed: 1, range: 0.1}]),
+                SHOOT_SETTINGS: combineStats([g.basic, {size: 1.3, reload: 0.1, spray: 2, damage: 0, range: 0.05}]),
                 TYPE: "bullet",
-                STAT_CALCULATOR: "bullet"
+                BULLET_STATS: skillSet({
+                    rld: 0,
+                    pen: 0,
+                    str: 0,
+                    dam: 0,
+                    spd: 0,
+                    shi: 0,
+                    atk: 0,
+                    hlt: 0,
+                    rgn: 0,
+                    mob: 0
+                })
             }
         }
     ]
@@ -1451,32 +1518,25 @@ Class.ihdtiBolt3 = {
 // thing for later
 Class.crowbarTurretTank = {
     PARENT: "genericTank",
+    LABEL: "",
+    BODY: {
+        FOV: 6
+    },
+    CONTROLLERS: ["onlyAcceptInArc", "nearestDifferentMaster"],
     COLOR: 16,
     INDEPENDENT: true,
     BODY: {
         FOV: 1
     },
-    TURRETS: [{
-        POSITION: [20, 0, 0, 0, 180, 1],
-        TYPE: makeTurret({
-            PARENT: "genericTank",
-            LABEL: "",
-            BODY: {
-                FOV: 6
-            },
-            CONTROLLERS: ["onlyAcceptInArc", "nearestDifferentMaster"],
-            COLOR: 16,
-            GUNS: [
-                {
-                    POSITION: [24, 11, 1, 0, 0, 0, 0],
-                    PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.autoTurret, { recoil: 0, damage: 0.91 }]),
-                        TYPE: "bullet"
-                    }
-                }
-            ]
-        })
-    }]
+    GUNS: [
+        {
+            POSITION: [24, 11, 1, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.autoTurret, { recoil: 0, damage: 0.91 }]),
+                TYPE: "bullet"
+            }
+        }
+    ]
 };
 
 // Arras celestial leaks

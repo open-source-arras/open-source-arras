@@ -51,7 +51,7 @@ function spawnFireworks(position) {
 module.exports = ({ Events }) => {
     Events.on("spawn", body => {
         body.on("dead", () => {
-            if (((Config.seasonal_events && new Date().getMonth() === 6 && new Date().getDate() === 4)|| Config.force_fireworks) && !body.isFirework) {
+            if (((Config.seasonal_events && new Date().getMonth() === 6 && new Date().getDate() === 4) || Config.force_fireworks) && !body.isFirework) {
                 spawnFireworks({x: body.x, y: body.y});
             }
         });

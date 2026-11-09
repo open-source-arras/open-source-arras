@@ -277,6 +277,11 @@ module.exports = {
         range: 0.8,
         spray: 2
     },
+    jalopy: {
+        reload: 1 / 3,
+        recoil: 0.5,
+        spray: 5 / 3
+    },
     minigun: {
         reload: 1.25,
         recoil: 0.6,
@@ -350,22 +355,22 @@ module.exports = {
         spray: 1.5,
         resist: 0.8
     },
-    flamethrower: {
-        reload: 1.75,
-        recoil: 4 / 3,
-        shudder: 2,
-        size: 0.25,
-        health: 10,
-        damage: 0.2,
-        pen: 4,
-        speed: 2,
-        maxSpeed: 0,
-        range: 3,
-        density: 0.25
-    },
     gatlingGun: {
         reload: 1.25,
         recoil: 4 / 3,
+        shudder: 0.8,
+        health: 0.8,
+        pen: 1.1,
+        speed: 1.25,
+        maxSpeed: 1.25,
+        range: 1.1,
+        density: 1.25,
+        spray: 0.5,
+        resist: 1.1
+    },
+    central: {
+        //reload: 1.25,
+        //recoil: 4 / 3,
         shudder: 0.8,
         health: 0.8,
         pen: 1.1,
@@ -556,6 +561,10 @@ module.exports = {
         //health: 4/3,
         speed: 2 / 3
     },
+    doper: { 
+        speed: 1.125, 
+        maxSpeed: 1.125 
+    },
     mothership: {
         reload: 1.25,
         pen: 1.1,
@@ -566,7 +575,6 @@ module.exports = {
     },
     satellite: {
         size: 0.8,
-        reload: 3,
         damage: 1.875
     },
 
@@ -624,7 +632,7 @@ module.exports = {
         recoil: 0.7,
         size: 0.9,
         speed: 1.15,
-        maxSpeed: 1.1,
+        maxSpeed: 0.9,
         density: 1.5
     },
     mortar: {
@@ -755,7 +763,7 @@ module.exports = {
         reload: 2,
         damage: 2,
         recoil: 2,
-        size: 1.2
+        size: 5 / 3
     },
     setTrap: {
         reload: 1.1,

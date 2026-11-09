@@ -42,6 +42,12 @@ class gameHandler {
             }
         }
 
+        if (
+            (instance.socket?.status?.isAFK || other.socket?.status?.isAFK) &&
+            (instance.isPlayer || instance.isBot) &&
+            (other.isPlayer || other.isBot)
+        ) return 0;
+
         // Fast exit for inactive or invisible entities
         if (
             (instance.isArenaCloser && !instance.alpha) ||
@@ -68,7 +74,6 @@ class gameHandler {
             case instance.type === "wall" || other.type === "wall":
                 if (instance.type === "wall" && other.type === "wall") return;
                 if (instance.type === "aura" || other.type === "aura") return;
-                if (instance.type === "satellite" || other.type === "satellite") return;
                 let wall = instance.type === "wall" ? instance : other;
                 let entity = instance.type === "wall" ? other : instance;
                 if (entity.isArenaCloser || (entity.isArenaCloser !== false && entity.master.isArenaCloser)) return;
@@ -251,7 +256,7 @@ class gameHandler {
                 instance.takeSelfie();
                 logs.selfie.mark();
                 // Apply friction.
-                instance.friction();
+                if (!Config.space || instance.type !== "tank") instance.friction();
                 instance.confinementToTheseEarthlyShackles();
             }
 

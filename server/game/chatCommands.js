@@ -8,7 +8,7 @@ const commands = [
             let lines = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
-                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}`;
+                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}${c.usage ? ` ${c.usage}` : ""}`;
                     if (c.description) text += ` - ${c.description}`;
                     return text;
                 })
@@ -88,12 +88,7 @@ const commands = [
             }
             let body = socket.player.body;
             if (!body.inBase()) {
-                socket.talk("m", 5_000, "You must be inside the base to use this command!");
-                return;
-            }
-            let stillTime = Date.now() - Math.max(body.lastMovementTime, body.lastFiredTime);
-            if (stillTime < 5_000) {
-                socket.talk("m", 5_000, "You must stay still for 5 seconds to use this command!");
+                socket.talk("m", 5_000, "You must be inside your base to use this command!");
                 return;
             }
             socket.status.isAFK = true;
@@ -222,8 +217,7 @@ const commands = [
                     `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
                     `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn by default`,
                     `- ${prefix} arena close - Close the arena`,
-                    `- ${prefix} arena public - Allow this server to be displayed in the Sandbox Nexus`,
-                    `- ${prefix} arena private - Prevent this server from being displayed`
+                    `- ${prefix} arena discoverable <true|false> - (WIP) Choose whether this server can be displayed in the Sandbox Nexus`
                 ];
                 if (!Config.sandbox) lines.splice(1, 1);
                 socket.talk("Em", 10_000, JSON.stringify(lines));
@@ -269,6 +263,10 @@ const commands = [
                             };
                             socket.talk("m", 4_000, "Spawnpoint set.");
                         }
+                        break;
+                    case "discoverable": // WIP
+                        if (args[1] !== "true" && args[1] !== "false") return socket.talk("m", 3_000, "Invalid arguments.");
+                        socket.talk("This is WIP lol.");
                         break;
                     case "close":
                         util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
@@ -361,6 +359,15 @@ const commands = [
         }
     },
     {
+        command: ["audit"],
+        usage: "[time]",
+        description: "View recent operator commands",
+        permissionLevel: 1,
+        run: ({ socket }) => {
+            socket.talk("m", 15_000, "[WIP] Audit log for last 30 seconds: [WIP]");
+        }
+    },
+    {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
         permissionLevel: 8,
@@ -368,8 +375,8 @@ const commands = [
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    `- ${prefix} developer reload - reloads definitions.`,
-                    `- ${prefix} developer define <entity> - change your tank.`
+                    `- ${prefix} developer define <entity> - change your tank.`,
+                    `- ${prefix} developer reload - reloads definitions.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
@@ -380,7 +387,6 @@ const commands = [
                 } else {
                     socket.player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     socket.player.body.define(args[1]);
-                    socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
                 }
             } else if (command === "reload" || command === "reloaddefs" || command === "redefs" || command === "r") {
                 if (!global.reloadDefinitionsInfo) {
@@ -506,7 +512,7 @@ function runCommand(socket, message) {
     }
     try {
         command.run({ socket, message, args, gameManager: global.gameManager });
-    } catch (e) {
+    } catch(e) {
         console.error("Error while running " + name);
         console.error(e);
         socket.talk("m", 5_000, "An error occurred while running this command.");

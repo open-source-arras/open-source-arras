@@ -14,7 +14,7 @@ let { gameHandler } = require("./game/index.js");
 let { gamemodeManager } = require("./game/gamemodeManager.js");
 
 // Gamemode names
-const getName = (name, gamemodeData) => {
+const getName = (name, data) => {
     const nameMap = { // commented-out gamemodes haven't been implemented yet
         // FFA
         ffa: "FFA",
@@ -28,9 +28,9 @@ const getName = (name, gamemodeData) => {
         trios: "Trios",
 
         // TDM
-        tdm: `${gamemodeData.teams}TDM`,
-            open_tdm: `Open ${gamemodeData.teams}TDM`,
-        tetromino: `${gamemodeData.teams} Team Tetromino`,
+        tdm: `${data.teams}TDM`,
+            open_tdm: `Open ${data.teams}TDM`,
+        //tetromino: `${data.teams} Team Tetromino`,
 
         // Minigames
         assault_acropolis: "Assault Acropolis",
@@ -41,10 +41,10 @@ const getName = (name, gamemodeData) => {
         assault_trenches: "Assault Trenches",
         assault_yinyang: "Assault Yin Yang",
         //ctf: "Capture The Flag",
-        domination: `${gamemodeData.teams} Team Domination`,
+        domination: `${data.teams} Team Domination`,
         //elimination: "Elimination",
         //grudge_ball: "Grudge Ball",
-        mothership: `${gamemodeData.teams} Team Mothership`,
+        mothership: `${data.teams == 2 ? "" : `${data.teams} Team `}Mothership`,
         old_siege: "Old Siege",
         //pandemic: "Pandemic",
         siege_blitz: "Siege Blitz",
@@ -52,7 +52,7 @@ const getName = (name, gamemodeData) => {
         siege_classic: "Siege Classic",
         siege_fortress: "Siege Fortress",
         //soccer: "Soccer",
-        tag: `${gamemodeData.teams} Team Tag`,
+        tag: `${data.teams == 4 ? "" : `${data.teams} Team `}Tag`,
 
         // Sandbox
         sandbox: "Sandbox",
@@ -91,14 +91,15 @@ const getName = (name, gamemodeData) => {
         portal: "Portal",
         retrograde: "Retrograde",
         //skinwalkers: "Skinwalkers",
-        space: "Space"
+        space: "Space",
+        //vampirism: "Vampirism"
     };
     return nameMap[name];
 };
 
 // Here is our actual game server
 class gameServer {
-    constructor(host, port, gamemode, region, location, webProperties, serverProperties, isfeatured, isUnlisted, isPrivate, parentPort, loaderGlobal) {
+    constructor(host, port, gamemode, region, location, webProperties, serverProperties, isfeatured, isHidden, isPrivate, parentPort, loaderGlobal) {
     // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
@@ -113,7 +114,7 @@ class gameServer {
         this.serverProperties = serverProperties;
         this.name = "Unknown";
         this.featured = isfeatured;
-        this.unlisted = isUnlisted;
+        this.hidden = isHidden;
         this.private = isPrivate;
         this.parentPort = parentPort;
         this.definitionsCombiner = new definitionCombiner(
@@ -168,7 +169,7 @@ class gameServer {
             maxPlayers: this.webProperties.maxPlayers,
             id: this.webProperties.id,
             featured: this.featured,
-            unlisted: this.unlisted,
+            hidden: this.hidden,
             private: this.private,
             region: this.region,
             location: this.location,

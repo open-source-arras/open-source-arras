@@ -11,13 +11,13 @@ module.exports = {
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
-    per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Set to false to disable.
+    per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
         threshold: 1024, // Don't bother compressing messages smaller than this.
         concurrencyLimit: 10, // How many messages can be compressed at once.
         zlibDeflateOptions: {
             level: 3, // 1 (fast) - 9 (small). 3 is plenty for game traffic.
-            memLevel: 8, // 1-9. Higher uses more memory per player for slightly smaller packets.
-        },
+            memLevel: 8 // 1-9. Higher uses more memory per player for slightly smaller packets.
+        }
     },
     max_fov: 25000, // Hard cap for camera FOV sent to clients.
     view_extra_margin: 150, // Extra margin beyond the visible viewport.
@@ -39,7 +39,7 @@ module.exports = {
         player_cap  - Not including bots. Set to 0 to disable.
 
         featured    - Whether the server is featured or not.
-        unlisted    - Whether the server shows up in the server list (if its id isn't in the url).
+        hidden      - Whether the server shows up in the server list (if its id isn't in the url).
         private     - Whether the server requires a privileged token to join (except through server travel).
 
         properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
@@ -59,13 +59,14 @@ module.exports = {
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
+                allow_server_travel: true,
                 bot_cap: 20,
                 daily_tank: {
-                    tank: "whirlwind",
+                    tank: "desmos",
                     tier: 3,
                     ads: true,
                     ad_sources: [
@@ -89,15 +90,16 @@ module.exports = {
 
             region: "Local",
             location: "Localhost",
-            gamemode: ["maze"],
+            gamemode: ["space", "open_tdm"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
-                allow_server_travel: true
+                round_arena: true,
+                teams: 3
             }
         },
         {
@@ -106,13 +108,13 @@ module.exports = {
             port: 3003,
             id: "lc",
 
-            region: "Europe",
+            region: "Local",
             location: "Localhost",
             gamemode: ["tdm"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
@@ -124,10 +126,10 @@ module.exports = {
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3002", // destination server host, don't add "https://" or any slashes to it
+                        ip: "localhost:3001", // destination server host, don't add "https://" or any slashes to it
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "red" // portal color
+                            color: "blue" // portal color
                         }
                     }
                 ]
@@ -139,18 +141,18 @@ module.exports = {
             port: 3004,
             id: "ld",
 
-            region: "US Central",
+            region: "Local",
             location: "Localhost",
             gamemode: ["mothership"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
                 mothership_time_limit: 30_000,
-                teams: 3,
+                teams: 2,
                 bot_cap: 30
             }
         },
@@ -160,13 +162,13 @@ module.exports = {
             port: 3100,
             id: "lz",
 
-            region: "US West",
+            region: "Local",
             location: "Localhost",
             gamemode: ["sandbox_nexus"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
@@ -198,13 +200,13 @@ module.exports = {
             port: 3101,
             id: "lpa",
 
-            region: "Asia",
+            region: "Local",
             location: "Localhost",
             gamemode: ["sandbox"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
@@ -217,13 +219,13 @@ module.exports = {
             port: 3102,
             id: "lpb",
 
-            region: "Oceania",
+            region: "Local",
             location: "Localhost",
-            gamemode: ["arms_race", "sandbox"],
+            gamemode: ["arms_race", "retrograde", "sandbox"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
@@ -246,7 +248,7 @@ module.exports = {
             gamemode: ["arms_race"], // modifiers to put on the sandboxes
             player_cap: 80, // player cap for all sandboxes on this thread
 
-            // featured/unlisted/private aren't available for sandbox servers (the non-nexus servers are unlisted by default)
+            // featured/hidden/private aren't available for sandbox servers (the non-nexus servers are hidden by default)
 
             nexus: true, // enable sandbox nexus in server + related commands
             nexus_id: "lz", // nexus shares properties with all other sandbox servers
@@ -267,7 +269,6 @@ module.exports = {
     // The message that appears once a player spawns.
     spawn_message: "You have spawned! Welcome to the game.\n"
                  + "You will be invulnerable until you move or shoot.",
-    token_message: "Friendly reminder: Please do not repeatedly kill others with an overpowered tank.",
 
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
@@ -287,6 +288,7 @@ module.exports = {
     max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
     respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
     instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
+    afk_key_commands: false, // Allow AFK players to use key commands.
 
     upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
     upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.

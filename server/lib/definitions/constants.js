@@ -23,9 +23,6 @@ module.exports = {
 
     // stat names
     statnames: {
-        desmos: {
-            BULLET_SPEED: "Wave Frequency"
-        },
         flail: {
             BULLET_PEN: "Mace Penetration",
             BULLET_DAMAGE: "Mace Damage",

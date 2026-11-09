@@ -6,7 +6,7 @@ const {
     atmg,
     base1: base,
     baseprotected1: prot,
-    nexusKillTile: X__X,
+    nexusKillTile: X__X
 } = tileClass;
 
 let room_sandbox_nexus = [

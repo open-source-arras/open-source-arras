@@ -79,6 +79,10 @@ if (process.env.API_KEY === "ChangeAPIKeyNow!") {
 server = http.createServer((req, res) => {
     let query = {};
     let pathname = req.url.split("?")[0];
+    // Decode percent-escapes (skin filenames contain spaces / non-ASCII).
+    try {
+        pathname = decodeURIComponent(pathname); 
+    } catch { /* keep raw path */ }
     if (req.url.includes("?")) {
         req.url.split("?")[1].split("&").map(i => {
             let key = i.split("=")[0];
@@ -89,7 +93,10 @@ server = http.createServer((req, res) => {
     let readString = ""; // Response content for API endpoints
     let ok = true; // Flag to indicate whether we use default API response
     let serversIP = [];
-    let clientHeaders = ["/ext/custom-shape", "/ext/editor"];
+    let clientHeaders = [
+        "/ext/custom-shape",
+        "/ext/editor"
+    ];
     let selectedHeader = null;
 
     // Set CORS headers if enabled in the configuration or allow only the children servers.
@@ -119,12 +126,18 @@ server = http.createServer((req, res) => {
                 maxPlayers: server.maxPlayers,
                 id: server.id,
                 featured: server.featured,
-                unlisted: server.unlisted,
+                hidden: server.hidden,
                 private: server.private,
                 region: server.region,
                 location: server.location,
                 gameMode: server.gameMode
             })));
+        } break;
+        case "/getSkins.json": {
+            readString = JSON.stringify(fs.readdirSync(path.join(publicRoot, "img/skins"))
+                .filter((file) => file.endsWith(".png"))
+                .map((file) => file.slice(0, -4))
+                .sort());
         } break;
         case "/getTotalPlayers": {
             let countPlayers = 0;
@@ -237,7 +250,7 @@ server = http.createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, port, gamemode, region, location, webProperties, properties, isFeatured, isUnlisted, isPrivate) {
+function loadGameServer(loadViaMain = false, host, port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
     if (!loadViaMain) {
         let index = global.servers.length;
@@ -254,7 +267,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
                 webProperties,
                 properties,
                 isFeatured,
-                isUnlisted,
+                isHidden,
                 isPrivate,
                 index
             }
@@ -286,7 +299,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isUnlisted, isPrivate, false);
+            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
         }, 10);
     }
 }
@@ -325,7 +338,7 @@ server.listen(Config.port, () => {
             { id: server.id, maxPlayers: server.player_cap },
             server.properties,
             server.featured,
-            server.unlisted,
+            server.hidden,
             server.private
         );
     });

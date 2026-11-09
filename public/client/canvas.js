@@ -96,7 +96,7 @@ class Canvas {
         let now = Date.now();
         this.reverseSpam = this.reverseSpam.filter(t => now - t < 10_000);
         this.reverseSpam.push(now);
-        if (this.reverseSpam.length > 7) return global.createMessage("Please slow down!");
+        if (this.reverseSpam.length >= 7) return global.createMessage("Please slow down!");
         this.reverseDirection = !this.reverseDirection;
         global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
     }
@@ -330,6 +330,9 @@ class Canvas {
                     break;
                 case global.KEY_SCREENSHOT:
                     this.screenshot();
+                    break;
+                case global.KEY_PAUSE:
+                    this.socket.talk("G");
                     break;
             }
             if (global.canSkill) {
@@ -582,7 +585,7 @@ class Canvas {
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
@@ -604,16 +607,26 @@ class Canvas {
                     global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
                     global.optionsMenu_Anim.tabOffset.set(optionsMenu_tabClick);
                     global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[optionsMenu_tabClick][1]);
+                    if (optionsMenu_tabClick !== 2) global.ingameKeybindRects = null;
+                    if (global.optionsMenu_Anim.currentOptionMenu) {
+                        global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
+                        global.optionsMenu_Anim.currentOptionMenu = false;
+                    }
+                    global.clickables.optionsMenu.toggleBoxes.hide();
+                    global.clickables.optionsMenu.HoverBoxes.hide();
+                    global.clickables.optionsMenu.optionBoxes.hide();
                     if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
                     break;
                 }
                 if (optionsMenu_toggleBox !== -1) {
                     let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    if (box.placeholder) break;
                     if (box.type === "checkbox") {
                         let doc = document.getElementById(box.id);
                         box.value = !box.value;
                         if (doc) doc.checked = box.value;
                         if (doc) util.submitToLocalStorage(box.id);
+                        else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
                     }
                     break;
                 }
@@ -764,12 +777,12 @@ class Canvas {
             if (this.videoRecorder) {
                 switch (this.videoRecorder.state) {
                     case "inactive":
-                        global.createMessage("Recorder Started!", 2_000);
+                        global.createMessage("Recorder started!", 2_000);
                         this.videoRecorderCanvas.start();
                         this.videoRecorder.start();
                         break;
                     case "recording":
-                        global.createMessage("Recorder Stopped! Saving file...", 5_000);
+                        global.createMessage("Recorder stopped! Saving file...", 5_000);
                         this.videoRecorder.stop();
                         this.videoRecorderCanvas.stop();
                         setTimeout(() => this.videoRecorder.download(), 200);
@@ -779,7 +792,7 @@ class Canvas {
                 this.videoRecorderCanvas.init();
                 this.videoRecorderCanvas.start();
                 this.videoRecorder = new AdvancedRecorder(this.videoRecorderCanvas.getCanvas(), 60);
-                global.createMessage("Recorder Started!", 2_000);
+                global.createMessage("Recorder started!", 2_000);
                 this.videoRecorder.start();
             }
         }
@@ -820,23 +833,35 @@ class Canvas {
             this.screenshotCanvas.capture();
         }
         let cv = this.screenshotCanvas.getCanvas();
-        var x = cv.toDataURL(),
-            k = atob(x.split(",")[1]);
-        x = x.split(",")[0].split(":")[1].split(";")[0];
-        let p = new Uint8Array(k.length);
-        for (let a = 0; a < k.length; a++) p[a] = k.charCodeAt(a);
-        let q = URL.createObjectURL(new Blob([p], {type: x})),
-        w = document.createElement("a");
-        w.style.display = "none";
-        w.setAttribute("download", "osa-screenshot.png");
-        w.setAttribute("href", q);
-        document.body.appendChild(w);
-        setTimeout(() => {
-            URL.revokeObjectURL(q);
-            document.body.removeChild(w);
-        }, 100);
-        w.click();
-        global.createMessage("Saving screenshot...", 3_000);
+        let save = () => {
+            var x = cv.toDataURL(),
+                k = atob(x.split(",")[1]);
+            x = x.split(",")[0].split(":")[1].split(";")[0];
+            let p = new Uint8Array(k.length);
+            for (let a = 0; a < k.length; a++) p[a] = k.charCodeAt(a);
+            let q = URL.createObjectURL(new Blob([p], {type: x})),
+            w = document.createElement("a");
+            w.style.display = "none";
+            w.setAttribute("download", "image.png");
+            w.setAttribute("href", q);
+            document.body.appendChild(w);
+            setTimeout(() => {
+                URL.revokeObjectURL(q);
+                document.body.removeChild(w);
+            }, 100);
+            w.click();
+            //global.createMessage("Saving screenshot...", 3_000);
+        };
+        if (localStorage.getItem("optCopyScreenshotsChecked") === "true" && navigator.clipboard && window.ClipboardItem) {
+            cv.toBlob((blob) => {
+                if (!blob) return save();
+                navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+                    .then(() => global.createMessage("Screenshot copied to clipboard!", 3_000))
+                    .catch(() => save());
+            }, "image/png");
+            return;
+        }
+        save();
     }
 
     // Touchscreen Controls

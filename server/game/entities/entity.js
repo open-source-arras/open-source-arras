@@ -309,6 +309,8 @@ class Entity extends EventEmitter {
         if (set.HEALTH_WITH_LEVEL != null) this.settings.healthWithLevel = set.HEALTH_WITH_LEVEL;
         if (set.OBSTACLE != null) this.settings.obstacle = set.OBSTACLE;
         if (set.FULL_INVISIBLE != null) this.settings.fullyInvisible = set.FULL_INVISIBLE;
+        if (set.MIDDLE_FIRE != null) this.settings.middleFire = set.MIDDLE_FIRE;
+        if (set.CAN_SELECT_SELF != null) this.settings.canSelectSelf = set.CAN_SELECT_SELF;
         if (set.CAN_SEE_INVISIBLE_ENTITIES != null) this.settings.canSeeInvisible = set.CAN_SEE_INVISIBLE_ENTITIES;
         if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
         if (set.CRAVES_ATTENTION != null) this.settings.attentionCraver = set.CRAVES_ATTENTION;
@@ -364,10 +366,11 @@ class Entity extends EventEmitter {
             this.settings.variesInSize = set.VARIES_IN_SIZE;
             this.squiggle = this.settings.variesInSize ? ran.randomRange(0.8, 1.2) : 1;
         }
-        if (set.RESET_UPGRADES || set.RESET_STATS) {
-            let caps = this.skill.caps.map(x => x);
-            this.skill.setCaps(Array(10).fill(0));
-            this.skill.setCaps(caps);
+        if (set.RESET_UPGRADES) {
+            for (let instance of entities.values()) {
+                if (instance.settings.clearOnMasterUpgrade && instance.master.id === this.id) instance.kill();
+            };
+            this.skill.setCaps(this.skill.caps.map(x => x));
             this.upgrades = [];
             this.isArenaCloser = false;
             this.ac = false;
@@ -375,6 +378,7 @@ class Entity extends EventEmitter {
             this.reset();
         }
         if (set.RESET_UPGRADE_MENU) this.upgrades = [];
+        if (set.RESET_STATS) this.skill.setCaps(Array(10).fill(0));
         if (set.ARENA_CLOSER != null) this.isArenaCloser = set.ARENA_CLOSER, this.ac = set.ARENA_CLOSER;
         if (set.BRANCH_LABEL != null) this.branchLabel = set.BRANCH_LABEL;
         if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
@@ -579,7 +583,7 @@ class Entity extends EventEmitter {
             this.settings.necroDefineGuns = {};
             for (let shape of this.settings.necroTypes) {
                 // Pick the first gun with the right necroType to use for stats and use its defineBullet function
-                this.settings.necroDefineGuns[shape] = this.gunsArrayed.filter((gun) => gun.bulletType.NECRO && (gun.bulletType.NECRO === shape || (gun.bulletType.NECRO === true && gun.bulletType.SHAPE === this.shape) || gun.bulletType.NECRO.includes(shape)))[0];
+                this.settings.necroDefineGuns[shape] = this.gunsArrayed.filter((gun) => gun.bulletType?.NECRO && (gun.bulletType?.NECRO === shape || (gun.bulletType?.NECRO === true && gun.bulletType?.SHAPE === this.shape) || gun.bulletType?.NECRO.includes(shape)))[0];
             }
 
             this.necro = (host) => {
@@ -588,7 +592,7 @@ class Entity extends EventEmitter {
 
                 let savedFacing = host.facing;
                 let savedSize = host.SIZE;
-                
+
                 host.controllers = [];
                 host.define("genericEntity");
                 gun.bulletInit(host);
@@ -772,9 +776,9 @@ class Entity extends EventEmitter {
     set gunStatScale(gunStatScale) {
         if (!Array.isArray(gunStatScale)) gunStatScale = [gunStatScale];
         for (let gun of this.guns.values()) {
-            if (!gun.shootSettings) continue;
-            gun.shootSettings = combineStats([gun.shootSettings, ...gunStatScale]);
-            gun.trueRecoil = gun.shootSettings.recoil;
+            if (!gun.canShoot || !gun.settings) continue;
+            gun.settings = combineStats([gun.settings, ...gunStatScale]);
+            gun.trueRecoil = gun.settings.recoil;
             gun.interpret();
         }
     }
@@ -946,6 +950,7 @@ class Entity extends EventEmitter {
             }
         }
         let upgraded = false;
+        let oldRaw = [...this.skill.raw];
         if (dailyTankRequest && Config.daily_tank && Config.daily_tank.tank) {
             let hasWatchedAd = this.socket.status.daily_tank_watched_ad;
             if (!Config.daily_tank.ads) hasWatchedAd = true;
@@ -975,6 +980,13 @@ class Entity extends EventEmitter {
             }
         }
         if (!upgraded) return;
+        for (let i = 0; i < 10; i++) {
+            let capped = Math.min(oldRaw[i], this.skill.caps[i]);
+            if (capped > this.skill.raw[i]) {
+                this.skill.points -= capped - this.skill.raw[i];
+                this.skill.raw[i] = capped;
+            }
+        }
         this.emit("upgrade", { body: this });
         if (this.settings.shakeProperties) {
             this.settings.shakeProperties.forEach(info => {
@@ -999,7 +1011,7 @@ class Entity extends EventEmitter {
             if (info.definition.length === 1) this.define(info.definition[0]);
             else {
                 for (let e of info.definition) {
-                    if (e.includes("_dreadsV2")) {
+                    if (e.includes("_dreadsV2")) { // Should just check if the upgrade is batched, why is this hardcoded?
                         this.batchUpgrades = true;
                     }
                 }

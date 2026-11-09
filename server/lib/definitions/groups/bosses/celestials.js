@@ -8,14 +8,8 @@ require("../generics.js");
 require("../food.js");
 require("../projectiles.js");
 require("../tanks/main.js");
-require("../tanks/special.js");
-require("../tanks/nostalgia.js");
-require("../tanks/scrapped.js");
-require("../tanks/retrograde.js");
-require("../tanks/armsRace.js");
-require("../dev.js");
-require("../turrets.js");
 require("../hats.js");
+require("../turrets.js");
 
 Class.celestial = {
     PARENT: "miniboss",
@@ -58,7 +52,7 @@ paladin.addLayer({turret: {
     TYPE: ["swarmerTurret", {GUN_STAT_SCALE: {speed: 1.45, maxSpeed: 0.5, health: 1.3, range: 1.3}}]
 }}, true, 6);
 
-let freyja = new LayeredBoss(null, "Freyja", "celestial", 9, "lime", "baseTrapTurret", 6.5, 5.5);
+let freyja = new LayeredBoss(null, "Freyja", "celestial", 9, "aqua", "baseTrapTurret", 6.5, 5.5);
 freyja.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 180, 0],
     TYPE: ["cruiserTurret", {GUN_STAT_SCALE: {health: 1.2, damage: 1.3, speed: 1.1, maxSpeed: 1.1, resist: 1.05}}]

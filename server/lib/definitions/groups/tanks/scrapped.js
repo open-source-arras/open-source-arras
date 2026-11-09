@@ -277,7 +277,6 @@ Class.volute = {
     PARENT: "genericTank",
     LABEL: "Volute",
     DANGER: 6,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -305,22 +304,9 @@ Class.volute = {
 };
 
 // Tier 3 (Level 45)
-Class.bigMama = {
-    PARENT: "genericFlail",
-    LABEL: "BIG MAMA",
-    DANGER: 7,
-    TURRETS: [{
-        POSITION: [6, 10, 0, 0, 190, 0],
-        TYPE: ["mamaBolt3", {
-            INDEPENDENT: true
-        }]
-    }]
-};
-Class.cocci = makeSnake("smasher", 5, "Cocci");
-Class.dreadnought_old = {
+Class.badDreadnought = {
     PARENT: "genericTank",
-    LABEL: "Dreadnought",
-    UPGRADE_LABEL: "Bad Dreadnought",
+    LABEL: "Bad Dreadnought",
     DANGER: 7,
     FACING_TYPE: "locksFacing",
     STAT_NAMES: statnames.swarm,
@@ -471,6 +457,47 @@ Class.dreadnought_old = {
         }
     ]
 };
+Class.bender = {
+    PARENT: "genericTank",
+    LABEL: "Bender",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.spawner.BODY,
+    GUNS: [
+        {
+            POSITION: [4.5, 10, 1, 10.5, 0, 0, 0]
+        },
+        {
+            POSITION: [1, 12, 1, 15, 0, 0, 0],
+            PROPERTIES: {
+                MAX_CHILDREN: 4, // todo: check if this is still 3
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
+                TYPE: "desmosMinion",
+                STAT_CALCULATOR: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        },
+        {
+            POSITION: [11.5, 12, 1, 0, 0, 0, 0]
+        },
+        ...weaponMirror({
+            POSITION: [5, 7.5, 2.5, 1, -4.5, 95, 0]
+        })
+    ]
+};
+Class.bigMama = {
+    PARENT: "genericFlail",
+    LABEL: "BIG MAMA",
+    DANGER: 7,
+    TURRETS: [{
+        POSITION: [6, 10, 0, 0, 190, 0],
+        TYPE: ["mamaBolt3", {
+            INDEPENDENT: true
+        }]
+    }]
+};
+Class.cocci = makeSnake("smasher", 5, "Cocci");
 Class.flace = {
     PARENT: "genericFlail",
     LABEL: "Flace",
@@ -538,6 +565,30 @@ Class.itHurtsDontTouchIt = {
             INDEPENDENT: true
         }]
     }]
+};
+Class.iterator = {
+    PARENT: "genericTank",
+    LABEL: "Iterator",
+    DANGER: 7,
+    UPGRADE_TOOLTIP: "[DEV NOTE] This tank does not function as intended yet!",
+    GUNS: [
+        {
+            POSITION: [22, 8, -4 / 3, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                TYPE: ["superSplitterBullet", {CONTROLLERS: ["snake"]}] // nerf supersplitter when
+            }
+        },
+        ...weaponMirror([{
+            POSITION: [4.625, 10.5, 2.75, 0.375, 7, -91.5, 0]
+        },
+        {
+            POSITION: [4, 9, 3, 1.5, 5, -95, 0]
+        },
+        {
+            POSITION: [3.75, 10, 2.125, -1.5, 5.25, -50, 0]
+        }])
+    ]
 };
 Class.jumpSmasher = {
     PARENT: "genericSmasher",
@@ -638,7 +689,6 @@ Class.oroboros = {
     PARENT: "genericTank",
     LABEL: "Oroboros",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     BODY: Class.builder.BODY,
     GUNS: [
         {
@@ -674,53 +724,38 @@ Class.oroboros = {
         })
     ]
 };
-Class.prodigy = {
+Class.python = {
     PARENT: "genericTank",
-    LABEL: "Prodigy",
+    LABEL: "Python", //"Super Spiral",
     DANGER: 7,
-    STAT_NAMES: {
-        ...statnames.mixed,
-        RELOAD: "Reload / Max Drone Count"
-    },
-    SHAPE: 6,
     GUNS: [
-        ...weaponArray({
+        {
             POSITION: {
-                LENGTH: 13,
-                WIDTH: 7,
-                ASPECT: 1.6,
-                ANGLE: 180
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.sunchip, {reload: 0.5, size: 2, damage: 0.95}]),
-                TYPE: "sunchip",
-                AUTOFIRE: true,
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "necro",
-                WAIT_TO_CYCLE: true,
-                DELAY_SPAWN: false,
-                MAX_CHILDREN: 2
-            }
-        }, 3, {delayIncrement: 1 / 3}),
-        ...weaponArray([{
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 9
+                LENGTH: 22,
+                WIDTH: 12
             }
         },
         {
             POSITION: {
-                LENGTH: 4,
-                WIDTH: 9,
-                ASPECT: 1.5,
-                X: 14
+                LENGTH: 24,
+                WIDTH: 8,
+                ASPECT: -1.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, { range: 0.5, speed: 0.7, maxSpeed: 0.7 }]),
-                TYPE: "trap",
-                STAT_CALCULATOR: "trap"
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos, { reload: 5 / 3 }]),
+                TYPE: ["pythonBullet", {CONTROLLERS: ["snake"]}]
             }
-        }], 3)
+        },
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 6,
+                ASPECT: -4,
+                X: -6.75,
+                Y: -6,
+                ANGLE: 87.5
+            }
+        })
     ]
 };
 Class.rocket = makeSnake({

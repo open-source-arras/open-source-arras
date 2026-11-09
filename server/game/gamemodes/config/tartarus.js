@@ -1,5 +1,5 @@
 module.exports = {
-    spawn_message: "You will receive your divine punishment soon!\n" + "You have been warped to Tartarus.",
+    spawn_message: "You have been warped to Tartarus.\nYou will receive your divine punishment soon!",
     labyrinth: true,
     map_tile_width: 560,
     map_tile_height: 560,
