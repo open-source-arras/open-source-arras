@@ -33,6 +33,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
         this.skill = new Skill();
         this.health = new HealthType(1, "static", 0);
         this.shield = new HealthType(0, "dynamic");
+        this.blend = { amount: 0 };
         this.x = position.x;
         this.y = position.y;
         this.settings = {};
@@ -88,7 +89,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
     }
 
     life() {
-        bringToLife(this) 
+        bringToLife(this); 
     };
 
     addController(newIO) {
@@ -283,7 +284,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
                 host.SIZE = savedSize;
                 host.health.amount = host.health.max;
                 return true;
-            }
+            };
         }
         if (set.EXTRA_SKILL != null) this.skill.points += set.EXTRA_SKILL;
         if (set.BODY != null) {
@@ -352,10 +353,10 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
     updateBodyInfo() {};
 
     move() {
-        global.runMove(this) 
+        global.runMove(this); 
     };
     face() {
-        global.runFace(this) 
+        global.runFace(this); 
     };
 
     damageMultiplier() {
@@ -378,6 +379,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
             realSize: this.realSize,
             health: this.health.display(),
             shield: 0,
+            hit: this.blend.amount,
             alpha: this.alpha,
             facing: this.facing,
             vfacing: this.vfacing,
@@ -477,8 +479,9 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
         // Health damage
         if (this.damageReceived) {
             let healthDamage = this.health.getDamage(this.damageReceived);
+            this.blend.amount = 1;
             this.health.amount -= healthDamage;
-        }
+        } else this.blend.amount = 0;
         this.damageReceived = 0;
         // Check for death
         if (this.isDead()) {

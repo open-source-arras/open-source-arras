@@ -21,5 +21,5 @@ let room_siege_fortress = [
     [X__X, ____, boss, boss, ____, ____, ____, ____, ____, boss, boss, ____, X__X],
     [spwn, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, spwn],
     [spwn, spwn, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, spwn, spwn]
-]
+];
 module.exports = room_siege_fortress;

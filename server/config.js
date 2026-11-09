@@ -1,41 +1,50 @@
 module.exports = {
-    // Development
-    dev_build: false, // Whether this version is unstable and should be clearly marked as such.
-
-    // Client
-    main_menu: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:3000", // Game server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    // Public
+    index: "index.html", // Where the main menu is located (in the /public folder).
+    host: "localhost:3000", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
     port: 3000, // Which port to run the web server on.
 
     // Server
-    visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    startup_logs: true, // Enable detailed startup logs and log speed loop warnings in the terminal
+    broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
+    enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
+    verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
+    visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
+    delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
+    per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
+        threshold: 1024, // Don't bother compressing messages smaller than this.
+        concurrencyLimit: 10, // How many messages can be compressed at once.
+        zlibDeflateOptions: {
+            level: 3, // 1 (fast) - 9 (small). 3 is plenty for game traffic.
+            memLevel: 8 // 1-9. Higher uses more memory per player for slightly smaller packets.
+        }
+    },
+    max_fov: 25000, // Hard cap for camera FOV sent to clients.
+    view_extra_margin: 150, // Extra margin beyond the visible viewport.
     editor: true, // Enable the editor at '[host]/ext/editor'.
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
-    share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
-    - Only one server at a time can have this enabled.
-    - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
+        share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
+        - Only one server at a time can have this enabled.
+        - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
 
-    host        - Server host location.
-    port        - The port on the server.
-    id          - (<host>/#<id>)
+        host        - Server host location.
+        port        - The port on the server.
+        id          - (<host>/#<id>)
 
-    region      - The region tab the server is sorted into on the main menu.
-    serverhost  - The host of the server in the server list tooltip.
-    location    - The location of the server in the server list tooltip.
+        region      - The region tab the server is sorted into on the main menu.
+        location    - The location of the server in the server list tooltip.
+        gamemode    - The selected gamemode.
+        player_cap  - Not including bots. Set to 0 to disable.
 
-    gamemode    - The selected gamemode.
-    player_cap  - Not including bots. Set to 0 to disable.
+        featured    - Whether the server is featured or not.
+        hidden      - Whether the server shows up in the server list (if its id isn't in the url).
+        private     - Whether the server requires a privileged token to join (except through server travel).
 
-    featured    - Whether the server is featured or not.
-    unlisted    - Whether the server shows up in the server list (if its id isn't in the url).
-    private     - Whether the server requires a privileged token to join (except through server travel).
-
-    properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
-  */
+        properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
+    
+    */
 
     servers: [
         {
@@ -45,19 +54,19 @@ module.exports = {
             id: "la",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["ffa"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
+                allow_server_travel: true,
                 bot_cap: 20,
                 daily_tank: {
-                    tank: "whirlwind",
+                    tank: "desmos",
                     tier: 3,
                     ads: true,
                     ad_sources: [
@@ -80,17 +89,17 @@ module.exports = {
             id: "lb",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
-            gamemode: ["maze"],
+            gamemode: ["space", "open_tdm"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
-                allow_server_travel: true
+                round_arena: true,
+                teams: 3
             }
         },
         {
@@ -100,28 +109,27 @@ module.exports = {
             id: "lc",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["tdm"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
                 teams: 2,
-                bot_cap: 40,
+                bot_cap: 20,
                 server_travel_properties: {
                     loop_interval: 10_000, // how often the portal loop executes in seconds
                     portals: 1 // amount of portals to spawn
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3002", // destination server host, don't add "https://" or any slashes to it
+                        ip: "localhost:3001", // destination server host, don't add "https://" or any slashes to it
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "red" // portal color
+                            color: "blue" // portal color
                         }
                     }
                 ]
@@ -134,43 +142,125 @@ module.exports = {
             id: "ld",
 
             region: "Local",
-            serverhost: "Local",
             location: "Localhost",
             gamemode: ["mothership"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
             properties: {
                 mothership_time_limit: 30_000,
-                teams: 3,
+                teams: 2,
                 bot_cap: 30
             }
         },
         {
             share_client_server: false,
-            host: "localhost:3099",
-            port: 3099,
+            host: "localhost:3100",
+            port: 3100,
             id: "lz",
 
             region: "Local",
-            serverhost: "Local",
+            location: "Localhost",
+            gamemode: ["sandbox_nexus"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                server_travel_properties: {
+                    loop_interval: 60_000,
+                    portals: 1
+                },
+                server_travel: [
+                    {
+                        ip: "localhost:3101",
+                        portal_properties: {
+                            spawn_chance: 2,
+                            color: "blue"
+                        }
+                    },
+                    {
+                        ip: "localhost:3102",
+                        portal_properties: {
+                            spawn_chance: 2,
+                            color: "blue"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3101",
+            port: 3101,
+            id: "lpa",
+
+            region: "Local",
             location: "Localhost",
             gamemode: ["sandbox"],
             player_cap: 80,
 
             featured: false,
-            unlisted: false,
+            hidden: false,
             private: false,
 
-            properties: {}
+            properties: {
+                allow_server_travel: true
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3102",
+            port: 3102,
+            id: "lpb",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["arms_race", "retrograde", "sandbox"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                allow_server_travel: true
+            }
         }
     ],
 
+    /* Proof of concept, not functional (+ assuming all Sandbox servers in a region can run from the same thread)
+
+    sandbox_servers: [
+        {
+            host: "localhost:3100", // all servers run on the same thread
+            port: 3100,
+            count: 32, // number of sandbox servers to run from this thread
+            starting_id: "lpa", // increments alphabetically per total count (lpa => lpb => ... => lpz => lqa => lqb => ...)
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["arms_race"], // modifiers to put on the sandboxes
+            player_cap: 80, // player cap for all sandboxes on this thread
+
+            // featured/hidden/private aren't available for sandbox servers (the non-nexus servers are hidden by default)
+
+            nexus: true, // enable sandbox nexus in server + related commands
+            nexus_id: "lz", // nexus shares properties with all other sandbox servers
+
+            properties: {} // just in case you want to do wacky shit
+        }
+    ]
+    
+    */
+
     // Web Server
-    allow_ACAO: false, // Access-Control-Allow-Origin, allows any server/client to access data from the WebServer.
+    allow_ACAO: false, // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
 
     // Map
     map_tile_width: 420,
@@ -179,25 +269,30 @@ module.exports = {
     // The message that appears once a player spawns.
     spawn_message: "You have spawned! Welcome to the game.\n"
                  + "You will be invulnerable until you move or shoot.",
-    token_message: "Friendly reminder: Please do not repeatedly kill others with an overpowered tank.",
 
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
     sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
+    broadcast_leader_usurped: false, // Broadcasts "The leader has been usurped by..." when the leader dies.
 
     // Seasonal
-    fireworks: false, // Toggles fireworks (automatic around July 4 in US-region servers)
-    thanksgiving: false, // Toggles the seasonal thanksgiving theme (replaces Motherships with Turkeys)
-    spooky_theme: false, // Toggles the seasonal halloween theme (adds eyes to walls and replaces rocks to pumpkins)
+    seasonal_events: true, // Enable seasonal events at specific times of the year
+
+    force_fireworks: false, // Forcefully enable fireworks (automatic around 4th of July (should be only in US region servers tbh))
+    force_spooky_theme: false, // Forcefully enable seasonal halloween theme (adds eyes to walls and replaces rocks with pumpkins)
+    force_thanksgiving: false, // Forcefully enable seasonal american thanksgiving theme (replaces Motherships with Turkeys)
 
     // Gameplay
     game_speed: 1, // General game speed.
     run_speed: 1.5, // General multiplier for acceleration and max speeds.
     max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
     respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
+    instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
+    afk_key_commands: false, // Allow AFK players to use key commands.
 
     upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
     upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.
+    reverse_tank_cooldown: true, // Enable the "Please slow down!" cooldown when spamming Reverse Tank.
 
     bullet_spawn_offset: 1, // Where the bullet spawns, where 1 is fully outside the barrel and -1 is fully inside the barrel, and 0 is halfway between.
     damage_multiplier: 1, // General damage multiplier everytime damage is dealt.
@@ -239,7 +334,7 @@ module.exports = {
 
     // Food
     enable_food: true, // Allows food to spawn.
-    food_cap: 70, // Maximum number of regular food at any time.
+    food_cap: 150, // Maximum number of regular food at any time.
     food_cap_nest: 15, // Maximum number of nest food at any time.
     enemy_cap_nest: 10, // Maximum number of enemy nest food at any time.
     food_group_cap: 6, // Number of foods that random food groups spawn with
@@ -294,10 +389,10 @@ module.exports = {
         [1, [
             [65, "egg"], [64, "triangle"], [45, "square"], [7, "pentagon"]//, [1, "hexagon"]
         ]],
-        [1/50000, [
+        [1 / 50000, [
             [625, "gem"], [125, "shinyTriangle"], [25, "shinySquare"], [5, "shinyPentagon"]//, [1, "shinyHexagon"]
         ]],
-        [1/1000000, [
+        [1 / 1000000, [
             [1296, "jewel"], [216, "legendaryTriangle"], [36, "legendarySquare"], [6, "legendaryPentagon"]//, [1, "legendaryHexagon"]
         ]]
     ],
@@ -310,7 +405,7 @@ module.exports = {
         [1, [
             [1, "crasher"]
         ]],
-        [1/20, [
+        [1 / 20, [
             [1, "sentryGun"], [1, "sentrySwarm"], [1, "sentryTrap"]
         ]]
     ],
@@ -335,16 +430,16 @@ module.exports = {
             amount: [2, 2, 1], chance: 1, nameType: "a",
             message: "A strange trembling..."
         }
-    /*{
-      bosses: ["paladin", "freyja", "zaphkiel", "nyx", "theia"],
-      amount: [1], chance: 0.01,
-      message: "The world tremors as the celestials are reborn anew!",
-    },
-    {
-      bosses: ["julius", "genghis", "napoleon"],
-      amount: [1], chance: 0.1,
-      message: "The darkness arrives as the realms are torn apart!",
-    }*/
+        /*{
+            bosses: ["paladin", "freyja", "zaphkiel", "nyx", "theia"],
+            amount: [1], chance: 0.01,
+            message: "The world tremors as the celestials are reborn anew!",
+        },
+        {
+            bosses: ["julius", "genghis", "napoleon"],
+            amount: [1], chance: 0.1,
+            message: "The darkness arrives as the realms are torn apart!",
+        }*/
     ],
 
     // How many members a team can have in comparison to an unweighed team.
@@ -359,5 +454,8 @@ module.exports = {
     // Room setup (don't change these unless you know what you're doing)
     room_setup: ["room_default"],
     round_arena: false,
-    mode: "ffa"
-}
+    mode: "ffa",
+
+    // Development
+    dev_build: true // Whether this version is unstable and should be clearly marked as such.
+};

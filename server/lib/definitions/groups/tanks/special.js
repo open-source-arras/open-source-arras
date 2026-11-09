@@ -171,10 +171,10 @@ for (let tier of sancHealerTiers) {
                 }
             }
         ], tier)
-    }
+    };
 };
 for (let tier of sancTiers) {
-    let sancIndex = sancTiers.indexOf(tier)
+    let sancIndex = sancTiers.indexOf(tier);
     Class["sanctuaryTier" + (sancIndex + 1)] = {
         PARENT: "sanctuary",
         TURRETS: [],
@@ -192,14 +192,14 @@ for (let tier of sancTiers) {
                 }
             }
         ], tier)
-    }
+    };
     Class["sanctuaryTier" + (sancIndex + 1)].TURRETS.push({
         POSITION: { SIZE: 22 },
         TYPE: "dominationBody"
     }, {
         POSITION: { SIZE: 9.3, LAYER: 1 },
         TYPE: "sanctuaryHealerTier" + (sancIndex < 2 ? 1 : sancIndex < 4 ? 2 : sancIndex < 6 ? 3 : 3)
-    })
+    });
 };
 
 // Special Tanks (Motherships)
@@ -239,7 +239,7 @@ Class.mothership = {
                 WAIT_TO_CYCLE: true
             }
         }, {
-            POSITION: [4.3, 3.1, 1.2, 8, 0, 45, 1/32],
+            POSITION: [4.3, 3.1, 1.2, 8, 0, 45, 1 / 32],
             PROPERTIES: {
                 MAX_CHILDREN: 2,
                 SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
@@ -254,7 +254,7 @@ Class.mothership = {
                 WAIT_TO_CYCLE: true
             }
         }
-    ], 8, {delayIncrement: 1/16})
+    ], 8, {delayIncrement: 1 / 16})
 };
 Class.flagship = {
     PARENT: "mothership",
@@ -332,7 +332,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -342,7 +343,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -352,7 +354,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }  
         },
         {
@@ -362,7 +365,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {
@@ -372,7 +376,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         {
@@ -382,7 +387,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             }
         },
         { 
@@ -392,7 +398,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         },
         {   POSITION: [4, 5, 1, 10, 0, -105, 0],
@@ -401,7 +408,8 @@ Class.turkey = {
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone"
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
             } 
         }
     ],
@@ -414,19 +422,46 @@ Class.turkey = {
 };
 
 // Special Tanks (Spectators)
+function spectatorSelect(body, playersOnly, canSelectSelf) {
+    const cursor = {
+        x: body.control.target.x + body.x,
+        y: body.control.target.y + body.y
+    };
+    let lowest = Infinity, closest;
+    for (const instance of entities.values()) {
+        if (instance.source === body && (instance !== body || !canSelectSelf)) continue;
+        if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
+        const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
+        if (distance < lowest) {
+            lowest = distance;
+            closest = instance;
+        }
+    }
+    if (!closest || closest.bond) return;
+    const message = [
+        `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
+        `Score: ${closest.skill.score};`,
+        `Build: ${closest.skill.raw.join("/")};`
+    ];
+    body.socket.talk("Em", 20_000, JSON.stringify(message));
+    body.store.selectedEntity = closest;
+}
 Class.spectator = {
     PARENT: "genericTank",
     LABEL: "Spectator",
     ALPHA: 0,
     CAN_BE_ON_LEADERBOARD: false,
-    //CAN_GO_OUTSIDE_ROOM: true,
+    CAN_GO_OUTSIDE_ROOM: true,
     ACCEPTS_SCORE: false,
     DRAW_HEALTH: false,
     HITS_OWN_TYPE: "never",
     IGNORED_BY_AI: true,
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
+    IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
+    MIDDLE_FIRE: true,
+    CAN_SELECT_SELF: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
     BODY: {
@@ -440,14 +475,21 @@ Class.spectator = {
         REGEN: 1e100
     },
     GUNS: [{
-        POSITION: [0, 0, 0, 0, 0, 0, 0],
+        POSITION: {
+            LENGTH: 0,
+            WIDTH: 0
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
             TYPE: "bullet",
-            ALPHA: 0
+            ALPHA: 0,
+            IDENTIFIER: "spectatorSelect"
         }
     }, {
-        POSITION: [0, 0, 0, 0, 0, 0, 0],
+        POSITION: {
+            LENGTH: 0,
+            WIDTH: 0
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.25 }, g.fake]),
             TYPE: "bullet",
@@ -458,15 +500,22 @@ Class.spectator = {
     ON: [{
         event: "altFire",
         handler: ({ body }) => {
-            body.x = body.x + body.control.target.x
-            body.y = body.y + body.control.target.y
+            body.x = body.x + body.control.target.x;
+            body.y = body.y + body.control.target.y;
+        }
+    }, {
+        event: "fire",
+        handler: ({ body, gun }) => {
+            if (!body.socket || gun.identifier !== "spectatorSelect") return;
+            spectatorSelect(body, !body.socket.player.command.mmb, body.settings.canSelectSelf);
         }
     }]
 };
 Class.guillotine = {
     PARENT: "spectator",
     LABEL: "Guillotine",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to kill the selected entity.",
+    CAN_SELECT_SELF: false,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to kill the selected entity.`,
     GUNS: [
         {
             POSITION: {
@@ -506,35 +555,6 @@ Class.guillotine = {
     ],
     ON: [
         {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
-        {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (closest.bond) return;
-                let message = [
-                    `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
-                    `Score: ${closest.skill.score};`,
-                    `Build: ${closest.skill.raw.join("/")};`
-                ]
-                body.socket.talk("Em", 20_000, JSON.stringify(message));
-                s.selectedEntity = closest;
-            }
-        },
-        {
             event: "control",
             handler: ({body}) => {
                 const s = body.store;
@@ -548,7 +568,8 @@ Class.guillotine = {
 Class.banHammer = {
     PARENT: "spectator",
     LABEL: "Ban Hammer",
-    TOOLTIP: "Use left click to inspect and right click to teleport. Press F to ban the selected player.",
+    CAN_SELECT_SELF: false,
+    TOOLTIP: `Use left click to inspect players and middle click to inspect any entity. Right click to teleport. Press ${key("ability")} to ban the selected player.`,
     GUNS: [
         {POSITION: [30, 7, 1.3, 0, 0, 0, 0]},
         {POSITION: [3, 11, 0.75, 7.5, -36, 90, 0]},
@@ -559,42 +580,22 @@ Class.banHammer = {
     ],
     ON: [
         {
-            event: "altFire",
-            handler: ({ body }) => {
-                body.x = body.x + body.control.target.x
-                body.y = body.y + body.control.target.y
-            }
-        },
-        {
-            event: "fire",
-            handler: ({body, masterStore: s}) => {
-                const cursor = {x: body.control.target.x + body.x, y: body.control.target.y + body.y}
-                let lowest = Infinity, closest;
-                for (const instance of entities.values()) {
-                    let distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
-                    if (distance < lowest) {
-                        lowest = distance;
-                        closest = instance;
-                    }
-                }
-                if (closest.bond) return;
-                let message = [
-                    `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
-                    `Score: ${closest.skill.score};`,
-                    `Build: ${closest.skill.raw.join("/")};`
-                ]
-                body.socket.talk("Em", 20_000, JSON.stringify(message));
-                s.selectedEntity = closest;
-            }
-        },
-        {
             event: "control",
             handler: ({body}) => {
-                const s = body.store;
-                const e = s.selectedEntity
-                if (!e || !e.isPlayer) return;
-                global.gameManager.socketManager.ban(e.socket, "Ban Hammer");
-                body.sendMessage("Banned the selected player.");
+                const selected = body.store.selectedEntity;
+                if (!selected || !selected.isPlayer || !selected.socket) return;
+                if (selected.socket.status.opera >= 4) {
+                    body.sendMessage("You cannot ban this player!");
+                    return;
+                }
+                let type = body.store.banCommandType ?? 1;
+                if (type === 1) {
+                    global.gameManager.socketManager.ban(selected.socket, "Ban Hammer");
+                    body.sendMessage("Banned the selected player.");
+                } else {
+                    global.gameManager.socketManager.permaban(selected.socket, "Ban Hammer");
+                    body.sendMessage("Permanently banned the selected player.");
+                }
             }
         }
     ]
@@ -672,7 +673,6 @@ Class.arenaCloser = {
     DANGER: 10,
     SIZE: 34,
     COLOR: "yellow",
-    UPGRADE_COLOR: "yellow",
     LAYER: 13,
     BODY: {
         REGEN: 1e5,
@@ -687,7 +687,6 @@ Class.arenaCloser = {
     HITS_OWN_TYPE: "never",
     ARENA_CLOSER: true,
     IS_IMMUNE_TO_TILES: true,
-    UPGRADE_TOOLTIP: "Hackerman",
     GUNS: [
         {
             POSITION: {
@@ -788,7 +787,6 @@ Class.arrasPolice = {
 Class.baseProtector = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     ON_MINIMAP: false,
     SIZE: 64,
     DAMAGE_CLASS: 0,
@@ -835,10 +833,9 @@ Class.baseProtector = {
         }
     ], 4)
 };
-Class.baseProtector_alt = {
+Class.baseProtector_diep = {
     PARENT: "genericTank",
     LABEL: "Base",
-    UPGRADE_LABEL: "Base Protector",
     STAT_NAMES: statnames.drone,
     ON_MINIMAP: false,
     SIZE: 20,
@@ -877,7 +874,7 @@ Class.baseProtector_alt = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 1/3, size: 2/3 }]),
+                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 1 / 3, size: 2 / 3 }]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -892,6 +889,7 @@ Class.baseProtector_alt = {
 Class.manager_special = {
     PARENT: "spectator",
     LABEL: "Manager",
+    MIDDLE_FIRE: false,
     DANGER: 7,
     STAT_NAMES: statnames.drone,
     GUNS: [
@@ -921,7 +919,7 @@ Class.aeolus = {
     ANGLE: 60,
     CONTROLLERS: [["whirlwind", { maxDistance: 1, minDistance: 1 }]],
     HAS_NO_RECOIL: true,
-    STAT_NAMES: statnames.whirlwind,
+    STAT_NAMES: statnames.satellite,
     TURRETS: [
         {
             POSITION: [24, 0, 0, 0, 360, 0],
@@ -932,7 +930,7 @@ Class.aeolus = {
         SPEED: 2
     },
     GUNS: (() => {
-        let output = []
+        let output = [];
         for (let j = 0; j < 9; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
@@ -949,18 +947,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 11; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/11) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 11) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 5/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 5 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -968,18 +966,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 13; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/13) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 13) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 7/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 7 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -987,18 +985,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 15; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/15) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 15) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 9/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 9 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1006,18 +1004,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 17; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/17) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 17) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 11/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 11 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1025,18 +1023,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 19; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/19) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 19) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 13/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 13 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1044,18 +1042,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 21; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/21) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 21) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 15/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 15 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1063,18 +1061,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 23; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/23) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 23) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 17/3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 17 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1082,18 +1080,18 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
         for (let j = 0; j < 25; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
-                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360/25) },
+                    POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 25) },
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
-                            ANGLE: 45 * i + (j * (360/25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
-                                offset: 19/3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
+                            ANGLE: 45 * i + (j * (360 / 25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
+                                offset: 19 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
                             }]]
                         }],
                         MAX_CHILDREN: 1,
@@ -1101,10 +1099,10 @@ Class.aeolus = {
                         SYNCS_SKILLS: false,
                         WAIT_TO_CYCLE: true
                     }
-                })
+                });
             }
         }
-        return output
+        return output;
     })()
 };
 Class.alas = {
@@ -1500,7 +1498,7 @@ Class.damoclone = {
             SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone, g.spam]),
             TYPE: "bullet"
         }
-    }, 24, {delayIncrement: 1/24})
+    }, 24, {delayIncrement: 1 / 24})
 };
 Class.developer = {
     PARENT: "genericTank",
@@ -1546,7 +1544,7 @@ Class.developer = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
                 TYPE: "developerBullet"
             }
         }
@@ -1608,7 +1606,7 @@ Class.machineShot = {
                 WIDTH: 8,
                 Y: 3,
                 ANGLE: 30,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.machineShot]),
@@ -1621,7 +1619,7 @@ Class.machineShot = {
                 WIDTH: 8,
                 Y: 2,
                 ANGLE: 15,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.machineShot]),
@@ -1742,6 +1740,7 @@ Class.rapture = {
 Class.schoolShooter = {
     PARENT: "genericTank",
     LABEL: "School Shooter",
+    SHAPE: "m 7.93294,0.3852 c -0.0125,-0.025 -0.01,-0.2325 -0.01,-0.2325 l -0.0025,-0.105 -0.1025,0.0025 -0.095,0.2025 -0.095,0.145 c 0,0 -0.37496,0.0082 -0.535,0.005 -0.25,-0.005 -0.3925,-0.1425 -0.3925,-0.1425 l -0.0075,-0.095 -0.815,-0.005 c 0,0 0.005,-0.035 -0.015,-0.04 -0.02,-0.005 -0.99,-0.0025 -0.99,-0.0025 l -0.015,-0.0325 c 0,0 -0.1625,0 -0.2025,0.0025 -0.04,0.0025 -0.0875,0.055 -0.12,0.06 -0.0325,0.005 -0.1125,0.0025 -0.1125,0.0025 L 4.42044,0.0127 4.29794,0.0102 c 0,0 -0.005,0.05 0,0.115 -0.215,0 -1.80008,0.0032 -1.8775,0.0075 -0.045,0.0025 -0.09184,0.0296 -0.11302,0.05188 -0.02356,0.02476 -0.03814,0.06458 -0.03948,0.08562 -0.0675,0.005 -0.0825,0.0175 -0.12,0.055 -0.0375,0.0375 -0.03,0.125 -0.03,0.125 0,0 -0.57478,0.07816 -0.625,0.08 -0.16482,0.00598 -0.1125,-0.07 -0.3025,-0.05 -0.1014,0.01066 -1.09,0.125 -1.115,0.125 -0.025,0 -0.08438,0.01132 -0.0625,0.075 0.08812,0.25652 0.11084,0.58902 0.1025,0.69 -0.01078,0.13054 0.4025,-0.06 0.9225,-0.215 0.52,-0.155 1.095,-0.37 1.095,-0.37 0,0 0.05824,0.03246 0.0875,0.1025 0.02988,0.07156 0.0225,0.1575 0.0225,0.1575 0,0 -0.19,0.445 -0.24,0.52 -0.05,0.075 0.03,0.08 0.03,0.08 l 0.34,0.0925 c 0.035,0.00836 0.05582,-0.0025 0.06582,-0.03832 0.01532,-0.05488 0.02336,-0.27168 0.06336,-0.33168 0.04,-0.06 0.2175,-0.2675 0.2175,-0.2675 h 0.75832 l -0.00082,-0.31168 c 0,0 0.0025,0.01168 0.04914,0.005 0,0.80296 0.67824,1.48692 0.89502,1.59918 0.05768,0.02988 0.075,-0.005 0.09,-0.0325 0.015,-0.0275 0.18832,-0.30664 0.215,-0.36 0.02666,-0.05332 0.05332,-0.07332 -0.02668,-0.12664 C 4.0857,1.46426 4.10294,0.7702 4.10294,0.7702 c 0,0 0.285,-0.005 0.3175,-0.0025 0.0325,0.0025 0.13982,0.09734 0.1975,0.0975 0.23206,0.00074 0.2725,-0.1125 0.4475,-0.115 0.08006,-0.00114 0.9275,0 0.9275,0 v -0.1475 l 2.0025,0.0025 0.0025,-0.1975 c 0,0 -0.0525,0.0025 -0.065,-0.0225 z m -5.17634,0.66116 0.00134,-0.25164 0.5175,0.0025 c -0.02058,0.00796 0.0225,0.245 0.0225,0.245 l -0.54134,0.00414 z",
     GUNS: [
         {
             POSITION: {
@@ -1832,7 +1831,7 @@ Class.theAmalgamation = makeAuto({
                 POSITION: [7, 7.5, 0.6, 7, 0, -90, 0],
                 PROPERTIES: {
                     SHOOT_SETTINGS: combineStats([g.swarm]),
-                    TYPE: "autoswarm",
+                    TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                     STAT_CALCULATOR: "swarm"
                 }
             },
@@ -1883,7 +1882,7 @@ Class.theAmalgamation = makeAuto({
                 SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
                 TYPE: "bullet"
             }
-        }, 3, {lengthOffset: 2, delayIncrement: 1/3}),
+        }, 3, {lengthOffset: 2, delayIncrement: 1 / 3}),
         {
             POSITION: [19, 2, 1, 0, -2.5, 0, 0],
             PROPERTIES: {
@@ -2099,17 +2098,11 @@ Class.theConglomerate = {
     TURRETS: [
         {
             POSITION: [6, 40, 0, 0, 180, 1],
-            TYPE: [
-                "crowbarTurretTank",
-                { INDEPENDENT: true }
-            ]
+            TYPE: "crowbarTurretTank"
         },
         {
             POSITION: [6, 30, 0, 0, 180, 1],
-            TYPE: [
-                "crowbarTurretTank",
-                { INDEPENDENT: true }
-            ]
+            TYPE: "crowbarTurretTank"
         },
         ...weaponMirror({
             POSITION: [13, 8, 0, -90, 190, 0],
@@ -2159,7 +2152,12 @@ Class.worstTank = {
     PARENT: "genericTank",
     LABEL: "Worst Tank",
     DANGER: 7,
-    BODY: Class.machineGunner.BODY,
+    BODY: {
+        HEALTH: base.HEALTH * 0.4,
+        SHIELD: base.SHIELD * 0.4,
+        DENSITY: base.DENSITY * 0.3,
+        SPEED: base.SPEED * 13 / 15
+    },
     GUNS: [
         ...weaponMirror([{
             POSITION: {

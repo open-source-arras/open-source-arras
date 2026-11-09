@@ -1,55 +1,55 @@
 const MazeZone = class {
     constructor(array = [], offset = { x: 0, y: 0 }, length = array.map(row => row.filter(r => r).length).reduce((a, b) => a + b, 0)) {
-        this.array = array
-        this.offset = offset
-        this.length = length
+        this.array = array;
+        this.offset = offset;
+        this.length = length;
     }
     get width() {
-        return this.array.length
+        return this.array.length;
     }
     get height() {
-        return this.array.length === 0 ? 0 : this.array[0].length
+        return this.array.length === 0 ? 0 : this.array[0].length;
     }
     normalize() {
         while (this.array.length > 0 && this.array[0].every(r => !r)) {
-            this.offset.x++
-            this.array.shift()
+            this.offset.x++;
+            this.array.shift();
         }
         while (this.array.length > 0 && this.array[this.array.length - 1].every(r => !r)) {
-            this.array.pop()
+            this.array.pop();
         }
-        let minY = Infinity
-        let maxY = -Infinity
+        let minY = Infinity;
+        let maxY = -Infinity;
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
-                if (!this.array[x][y]) continue
-                minY = y < minY ? y : minY
-                maxY = y > maxY ? y : maxY
+                if (!this.array[x][y]) continue;
+                minY = y < minY ? y : minY;
+                maxY = y > maxY ? y : maxY;
             }
         }
-        this.offset.y += minY
+        this.offset.y += minY;
         if (minY === Infinity) {
-            this.array = []
+            this.array = [];
         } else {
-            this.array = this.array.map(row => row.slice(minY, maxY + 1))
+            this.array = this.array.map(row => row.slice(minY, maxY + 1));
         }
-        return this
+        return this;
     }
     blocks() {
-        let blocks = []
+        let blocks = [];
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 if (this.array[x][y]) {
-                    blocks.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 }) 
+                    blocks.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 }); 
                 } 
             } 
         }
-        return blocks
+        return blocks;
     }
     shaveSingles() {
-        let { width, height } = this
+        let { width, height } = this;
         if (this.length <= 3) {
-            return [null, this.blocks()] 
+            return [null, this.blocks()]; 
         }
         /*if (this.length === 4)
         if (width === 2 && height === 2)
@@ -57,115 +57,115 @@ const MazeZone = class {
         else
           return [null, this.blocks()]*/
   
-        let output = []
-        let shaveable = true
-        let shaved = false
+        let output = [];
+        let shaveable = true;
+        let shaved = false;
         while (shaveable) {
-            shaveable = false
+            shaveable = false;
             for (let x = 0; x < width; x++) {
                 for (let y = 0; y < height; y++) {
-                    if (!this.array[x][y]) continue
-                    let left = x > 0 && this.array[x - 1][y]
-                    let right = x + 1 < width && this.array[x + 1][y]
-                    let top = y > 0 && this.array[x][y - 1]
-                    let bottom = y + 1 < height && this.array[x][y + 1]
+                    if (!this.array[x][y]) continue;
+                    let left = x > 0 && this.array[x - 1][y];
+                    let right = x + 1 < width && this.array[x + 1][y];
+                    let top = y > 0 && this.array[x][y - 1];
+                    let bottom = y + 1 < height && this.array[x][y + 1];
                     if ((!left && !right) || (!top && !bottom)) {
-                        this.array[x][y] = false
-                        output.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 })
-                        shaveable = true
+                        this.array[x][y] = false;
+                        output.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 });
+                        shaveable = true;
                     }
                 }
             }
-            shaved = shaved || shaveable
+            shaved = shaved || shaveable;
         }
-        this.length -= output.length
+        this.length -= output.length;
         if (shaved) {
-            return [this.normalize(), output] 
+            return [this.normalize(), output]; 
         }
-        return null
+        return null;
     }
     takeBiggestSquare() {
-        let { width, height } = this
-        let best = null
-        let maxSize = 0
+        let { width, height } = this;
+        let best = null;
+        let maxSize = 0;
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (!this.array[x][y]) continue
-                let size = 1
+                if (!this.array[x][y]) continue;
+                let size = 1;
                 loop: while (x + size < width && y + size < height) {
                     for (let i = 0; i <= size; i++) {
                         if (!this.array[x + size][y + i]
                || !this.array[x + i][y + size]) {
-                            break loop 
+                            break loop; 
                         } 
                     }
-                    size++
+                    size++;
                 }
                 if (size > maxSize) {
-                    maxSize = size
-                    best = { x, y }
+                    maxSize = size;
+                    best = { x, y };
                 }
             }
         }
-        if (!best) return null
-        this.length -= maxSize * maxSize
+        if (!best) return null;
+        this.length -= maxSize * maxSize;
         for (let x = 0; x < maxSize; x++) {
             for (let y = 0; y < maxSize; y++) {
-                this.array[best.x + x][best.y + y] = false
+                this.array[best.x + x][best.y + y] = false;
             }
         }
-        let square = { x: best.x + this.offset.x, y: best.y + this.offset.y, size: maxSize }
+        let square = { x: best.x + this.offset.x, y: best.y + this.offset.y, size: maxSize };
         if (best.x === 0 || best.x + maxSize === width
        || best.y === 0 || best.y + maxSize === height) {
-            this.normalize() 
+            this.normalize(); 
         }
-        return square
+        return square;
     }
     shave() {
-        this.normalize()
-        let shave = this.shaveSingles()
+        this.normalize();
+        let shave = this.shaveSingles();
         if (shave) {
-            return shave 
+            return shave; 
         }
-        let biggestSquare = this.takeBiggestSquare()
-        return [this.width && this.height ? this : null, [biggestSquare]]
+        let biggestSquare = this.takeBiggestSquare();
+        return [this.width && this.height ? this : null, [biggestSquare]];
     }
     intoSquares() {
-        let current = this
-        let squares = []
+        let current = this;
+        let squares = [];
         while (current) {
-            let now = this.shave()
-            current = now[0]
-            squares.push(...now[1])
+            let now = this.shave();
+            current = now[0];
+            squares.push(...now[1]);
         }
-        return squares
+        return squares;
     }
     toString(filled = "[]", unfilled = "--") {
-        let map = Array(this.height).fill().map((_, i) => this.array.map(row => row[i]))
+        let map = Array(this.height).fill().map((_, i) => this.array.map(row => row[i]));
         return [
             `${ this.width }x${ this.height } (${ this.length })`,
             map.map(row => row.map(cell => cell ? filled : unfilled).join("")).join("\n"),
             `+(${ this.offset.x }, ${ this.offset.y })`
-        ].join("\n")
+        ].join("\n");
     }
-}
+};
   
 const MazeGenerator = class {
     constructor(type) { // TODO new config format
-        this.type = type
-        this.staticRand = Math.random()
-        this.clear()
+        this.type = type;
+        this.staticRand = Math.random();
+        this.clear();
     }
     clear(mapString) {
         if (mapString) {
-            let map = mapString.trim().split("\n").map(r => r.trim().split("").map(r => r === "#" ? 1 : r === "@"))
-            this.maze = Array(map[0].length).fill().map((_, y) => Array(map.length).fill().map((_, x) => map[x][y]))
-            this.width = map[0].length
-            this.height = map.length
+            let map = mapString.trim().split("\n").map(r => r.trim().split("").map(r => r === "#" ? 1 : r === "@"));
+            this.maze = Array(map[0].length).fill().map((_, y) => Array(map.length).fill().map((_, x) => map[x][y]));
+            this.width = map[0].length;
+            this.height = map.length;
         } else {
-            this.maze = Array(32).fill().map(() => Array(32).fill(false))
-            this.width = 32
-            this.height = 32
+            this.maze = Array(32).fill().map(() => Array(32).fill(false));
+            this.width = 32;
+            this.height = 32;
         }
     }
     isClosed() {
@@ -173,114 +173,114 @@ const MazeGenerator = class {
             ...this.maze.map((r, x) =>
                 r.map((r, y) => [x, y, r])
                     .filter(([x, y, r]) => !r))
-        ).map(([x, y]) => [x, y, x === 0 || x === this.width - 1 || y === 0 || y === this.height - 1])
+        ).map(([x, y]) => [x, y, x === 0 || x === this.width - 1 || y === 0 || y === this.height - 1]);
   
-        let work = true
+        let work = true;
         while (work) {
-            work = false
+            work = false;
             for (let [x, y, open] of cells) {
                 if (open) {
                     for (let other of cells) {
-                        let [ox, oy, oOpen] = other
+                        let [ox, oy, oOpen] = other;
                         if (!oOpen && (Math.abs(ox - x) + Math.abs(oy - y) === 1)) {
-                            other[2] = true
-                            work = true
+                            other[2] = true;
+                            work = true;
                         }
                     } 
                 } 
             }
         }
-        return cells.some(r => !r[2])
+        return cells.some(r => !r[2]);
     }
     randomErosion(side = null, corner = null) { // null = no requirement, 0 = neither, 1 = only one, 2 = both, true = one or two
         for (let i = 0; i < 10000; i++) {
             // find position
-            let x = Math.floor(Math.random() * this.width)
-            let y = Math.floor(Math.random() * this.height)
-            if (this.maze[x][y]) continue
+            let x = Math.floor(Math.random() * this.width);
+            let y = Math.floor(Math.random() * this.height);
+            if (this.maze[x][y]) continue;
             // find direction
-            if ((x === 0 || x === this.width - 1) && (y === 0 || y === this.height - 1)) continue
-            let direction = Math.floor(Math.random() * 4)
-            if (x === 0) direction = 0
-            else if (y === 0) direction = 1
-            else if (x === this.width - 1) direction = 2
-            else if (y === this.height - 1) direction = 3
+            if ((x === 0 || x === this.width - 1) && (y === 0 || y === this.height - 1)) continue;
+            let direction = Math.floor(Math.random() * 4);
+            if (x === 0) direction = 0;
+            else if (y === 0) direction = 1;
+            else if (x === this.width - 1) direction = 2;
+            else if (y === this.height - 1) direction = 3;
             // find target
-            let tx = direction === 0 ? x + 1 : direction === 2 ? x - 1 : x
-            let ty = direction === 1 ? y + 1 : direction === 3 ? y - 1 : y
-            if (this.maze[tx][ty] !== true) continue
+            let tx = direction === 0 ? x + 1 : direction === 2 ? x - 1 : x;
+            let ty = direction === 1 ? y + 1 : direction === 3 ? y - 1 : y;
+            if (this.maze[tx][ty] !== true) continue;
             // check corner
             if (corner !== null) {
                 let left = this.maze
                     [direction === 2 || direction === 3 ? x - 1 : x + 1]
-                    [direction === 0 || direction === 3 ? y - 1 : y + 1]
+                    [direction === 0 || direction === 3 ? y - 1 : y + 1];
                 let right = this.maze
                     [direction === 1 || direction === 2 ? x - 1 : x + 1]
-                    [direction === 2 || direction === 3 ? y - 1 : y + 1]
+                    [direction === 2 || direction === 3 ? y - 1 : y + 1];
                 if ((corner === true && (left || right)) || (corner === +left + +right)) {
                 } else {
-                    continue
+                    continue;
                 }
             }
             // check side
             if (side !== null) {
                 let left = this.maze
                     [direction === 3 ? x + 1 : direction === 1 ? x - 1 : x]
-                    [direction === 0 ? y + 1 : direction === 2 ? y - 1 : y]
+                    [direction === 0 ? y + 1 : direction === 2 ? y - 1 : y];
                 let right = this.maze
                     [direction === 1 ? x + 1 : direction === 3 ? x - 1 : x]
-                    [direction === 2 ? y + 1 : direction === 0 ? y - 1 : y]
+                    [direction === 2 ? y + 1 : direction === 0 ? y - 1 : y];
                 if ((side === true && (left || right)) || (side === +left + +right)) {
                 } else {
-                    continue
+                    continue;
                 }
             }
             // return it
-            return [tx, ty, x, y]
+            return [tx, ty, x, y];
         }
-        throw new Error(`Unable to find suitable erosion site; side = ${ side }, corner = ${ corner }`)
+        throw new Error(`Unable to find suitable erosion site; side = ${ side }, corner = ${ corner }`);
     }
     erode(side, corner) {
-        let [x, y] = this.randomErosion(side, corner)
-        this.maze[x][y] = false
+        let [x, y] = this.randomErosion(side, corner);
+        this.maze[x][y] = false;
     }
     erodeSym2(side, corner) {
-        let [x, y] = this.randomErosion(side, corner)
-        this.maze[x][y] = false
-        this.maze[this.width - 1 - x][this.height - 1 - y] = false
+        let [x, y] = this.randomErosion(side, corner);
+        this.maze[x][y] = false;
+        this.maze[this.width - 1 - x][this.height - 1 - y] = false;
     }
     erodeSym4(side, corner) {
         if (this.width !== this.height) {
-            throw new Error("Maze must be a square!") 
+            throw new Error("Maze must be a square!"); 
         }
-        let size = this.width - 1
-        let [x, y] = this.randomErosion(side, corner)
+        let size = this.width - 1;
+        let [x, y] = this.randomErosion(side, corner);
         if (this.staticRand < 0.5) {
-            this.maze[x][y] = false
-            this.maze[x][size - y] = false
-            this.maze[size - x][y] = false
-            this.maze[size - x][size - y] = false
+            this.maze[x][y] = false;
+            this.maze[x][size - y] = false;
+            this.maze[size - x][y] = false;
+            this.maze[size - x][size - y] = false;
         } else {
-            this.maze[x][y] = false
-            this.maze[y][size - x] = false
-            this.maze[size - x][size - y] = false
-            this.maze[size - y][x] = false
+            this.maze[x][y] = false;
+            this.maze[y][size - x] = false;
+            this.maze[size - x][size - y] = false;
+            this.maze[size - y][x] = false;
         }
     }
     erodeSym8(side, corner) {
         if (this.width !== this.height) {
-            throw new Error("Maze must be a square!") 
+            throw new Error("Maze must be a square!"); 
         }
-        let size = this.width - 1
-        let [x, y] = this.randomErosion(side, corner)
-        this.maze[x][y] = false
-        this.maze[y][x] = false
-        this.maze[x][size - y] = false
-        this.maze[size - y][x] = false
-        this.maze[size - x][y] = false
-        this.maze[y][size - x] = false
-        this.maze[size - x][size - y] = false
-        this.maze[size - y][size - x] = false
+        let size = this.width - 1;
+        let [x, y] = this.randomErosion(side, corner);
+        this.maze[x][y] = false;
+        this.maze[y][x] = false;
+        this.maze[x][size - y] = false;
+        this.maze[size - y][x] = false;
+        this.maze[size - x][y] = false;
+        this.maze[y][size - x] = false;
+        this.maze[size - x][size - y] = false;
+        this.maze[size - y][size - x] = false;
     }
     runNormal() {
         this.clear(`
@@ -316,13 +316,13 @@ const MazeGenerator = class {
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 75; i++) {
-            this.erode(0, 1) 
+            this.erode(0, 1); 
         } // Shaves outer rim
         for (let i = 0; i < 200; i++) {
-            this.erode(1, 2) 
-            this.erode(2, 2)
+            this.erode(1, 2); 
+            this.erode(2, 2);
         }
     }
     runNormal2() {
@@ -359,16 +359,16 @@ const MazeGenerator = class {
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 5; i++) {
-            this.erodeSym2(0, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
+            this.erodeSym2(0, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 180; i++) {
-            this.erode(1, 2) 
-            this.erode(2, 2)
+            this.erode(1, 2); 
+            this.erode(2, 2);
         }
     }
     run2Teams() {
@@ -405,34 +405,34 @@ const MazeGenerator = class {
         -@@@@@@@@@@@@@@@@@@@@@@@@@----@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 5; i++) {
-            this.erodeSym2(0, 2) 
+            this.erodeSym2(0, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erodeSym2(0, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
+            this.erodeSym2(0, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 10; i++) {
-            this.erodeSym2(1, 2)
-            this.erodeSym2(0, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
+            this.erodeSym2(1, 2);
+            this.erodeSym2(0, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 75; i++) {
-            this.erodeSym2(1, 2) 
+            this.erodeSym2(1, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erodeSym2(0, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
-            this.erodeSym2(2, 2)
+            this.erodeSym2(0, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
+            this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 25; i++) {
-            this.erodeSym2(0, 0) 
+            this.erodeSym2(0, 0); 
         }
     }
     run4Teams() {
@@ -469,34 +469,34 @@ const MazeGenerator = class {
         -@----@@@@@@@@@@@@@@@@@@@@----@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 5; i++) {
-            this.erodeSym4(0, 2) 
+            this.erodeSym4(0, 2); 
         }
         for (let i = 0; i < 2; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 5; i++) {
-            this.erodeSym4(1, 2)
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(1, 2);
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erodeSym4(1, 2) 
+            this.erodeSym4(1, 2); 
         }
         for (let i = 0; i < 2; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 12; i++) {
-            this.erodeSym4(0, 0) 
+            this.erodeSym4(0, 0); 
         }
     }
     run8Teams() {
@@ -533,34 +533,34 @@ const MazeGenerator = class {
         -@----@@@@@@@@----@@@@@@@@----@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 4; i++) {
-            this.erodeSym4(0, 2) 
+            this.erodeSym4(0, 2); 
         }
         for (let i = 0; i < 2; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 3; i++) {
-            this.erodeSym4(1, 2)
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(1, 2);
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 25; i++) {
-            this.erodeSym4(1, 2) 
+            this.erodeSym4(1, 2); 
         }
         for (let i = 0; i < 2; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 6; i++) {
-            this.erodeSym4(0, 0) 
+            this.erodeSym4(0, 0); 
         }
     }
     run8TeamsLabyrinth() {
@@ -693,34 +693,34 @@ const MazeGenerator = class {
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
         --------------------------------------------------------------------------------------------------------------------------------
-      `)
+      `);
         for (let i = 0; i < 32; i++) {
-            this.erodeSym4(0, 2) 
+            this.erodeSym4(0, 2); 
         }
         for (let i = 0; i < 32; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 27; i++) {
-            this.erodeSym4(1, 2)
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(1, 2);
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 500; i++) {
-            this.erodeSym4(1, 2) 
+            this.erodeSym4(1, 2); 
         }
         for (let i = 0; i < 32; i++) {
-            this.erodeSym4(0, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
-            this.erodeSym4(2, 2)
+            this.erodeSym4(0, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
+            this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 96; i++) {
-            this.erodeSym4(0, 0) 
+            this.erodeSym4(0, 0); 
         }
     }
     runBunker() {
@@ -749,34 +749,34 @@ const MazeGenerator = class {
         -@@@@@#@@#--#@@@@@@#--#@@#@@@@@-
         -@@@@@@##################@@@@@@-
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 8; i++) {
-            this.erode(0, 2) 
+            this.erode(0, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 10; i++) {
-            this.erode(1, 2)
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(1, 2);
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erode(1, 2) 
+            this.erode(1, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 15; i++) {
-            this.erode(0, 0) 
+            this.erode(0, 0); 
         }
     }
     runBooster() {
@@ -814,37 +814,37 @@ const MazeGenerator = class {
           ----------------@@@@#@@----------------------------
           ------------------@@@@-----------------------------
           ---------------------------------------------------
-        `)
+        `);
         for (let i = 0; i < 20; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
         for (let i = 0; i < 8; i++) {
-            this.erode(0, 2) 
+            this.erode(0, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 10; i++) {
-            this.erode(1, 2)
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(1, 2);
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erode(1, 2) 
+            this.erode(1, 2); 
         }
         for (let i = 0; i < 5; i++) {
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 15; i++) {
-            this.erode(0, 0) 
+            this.erode(0, 0); 
         }
     }
     runTrenches() {
@@ -871,9 +871,9 @@ const MazeGenerator = class {
         ----#-------------#------#--@#
         -############-#---#@@@##-#@@##
         ----------####################
-        `)
+        `);
         for (let i = 0; i < 25; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runLine() {
@@ -908,7 +908,7 @@ const MazeGenerator = class {
         -------#--#--#--------
         -------#-----#--------
         -------#######--------
-      `)
+      `);
     }
     runEye() {
         this.clear(`
@@ -936,9 +936,9 @@ const MazeGenerator = class {
           ----@##@@@@@@#####@@@---------
           ---------@@@@@--@@@-----------
           ------------------------------
-        `)
+        `);
         for (let i = 0; i < 35; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runAcropolis() {
@@ -978,16 +978,16 @@ const MazeGenerator = class {
           -----------------------------------
           -----------------------------------
           -----------------------------------
-        `)
+        `);
         for (let i = 0; i < 15; i++) {
-            this.erode(0, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
-            this.erode(2, 2)
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
         }
         for (let i = 0; i < 130; i++) {
-            this.erode(1, 2) 
-            this.erode(2, 2)
+            this.erode(1, 2); 
+            this.erode(2, 2);
         }
     }
     runYinYang() {
@@ -1024,16 +1024,16 @@ const MazeGenerator = class {
           ----@-####----#---#-#---####----
           -------@@################-------
           --------------------------------
-        `)
+        `);
         for (let i = 0; i < 8; i++) {
-            this.erodeSym2(0, 2) 
+            this.erodeSym2(0, 2); 
         }
-        this.erodeSym2(1, 2)
+        this.erodeSym2(1, 2);
         for (let i = 0; i < 6; i++) {
-            this.erodeSym2(null) 
+            this.erodeSym2(null); 
         }
         for (let i = 0; i < 4; i++) {
-            this.erodeSym2(1, 2) 
+            this.erodeSym2(1, 2); 
         }
     }
     runBlitz() {
@@ -1070,9 +1070,9 @@ const MazeGenerator = class {
           -@############################@-
           -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
           --------------------------------
-        `)
+        `);
         for (let i = 0; i < 100; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runCitadel() {
@@ -1103,9 +1103,9 @@ const MazeGenerator = class {
           -------@@@@@--@@@@@-------
           --------------------------
           --------------------------
-        `)
+        `);
         for (let i = 0; i < 15; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runSiegeOld() {
@@ -1142,9 +1142,9 @@ const MazeGenerator = class {
         --------------------------------
         --------------------------------
         --------------------------------
-      `)
+      `);
         for (let i = 0; i < 100; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runFortress() {
@@ -1177,9 +1177,9 @@ const MazeGenerator = class {
         ----@@@@@@##----##@@@@@@----
         ----------------------------
         ----------------------------
-      `)
+      `);
         for (let i = 0; i < 45; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runMothership() {
@@ -1218,43 +1218,43 @@ const MazeGenerator = class {
         -#--------------------------#---#-
         -#####@##############@#####@#####-
         ----------------------------------
-      `)
+      `);
         for (let i = 0; i < 5; i++) {
-            this.erode(null, null) 
+            this.erode(null, null); 
         }
     }
     runTrial() {
         try {
             switch (this.type) {
                 case 0:
-                    this.runNormal()
-                    break
+                    this.runNormal();
+                    break;
                 case 1:
                     this.runNormal2();
                     break;
                 case 2:
-                    this.run2Teams()
-                    break
+                    this.run2Teams();
+                    break;
                 case 4:
-                    this.run4Teams()
-                    break
+                    this.run4Teams();
+                    break;
                 case 8:
-                    this.run8Teams()
-                    break
+                    this.run8Teams();
+                    break;
                 case 9:
-                    this.runMothership()
+                    this.runMothership();
                     break;
                 case 10:
-                    this.runBunker()
-                    break
+                    this.runBunker();
+                    break;
                 case 11:
-                    this.runFortress()
-                    break
+                    this.runFortress();
+                    break;
                 case 12:
-                    this.runCitadel()
-                    break
+                    this.runCitadel();
+                    break;
                 case 13:
-                    this.runBlitz()
+                    this.runBlitz();
                     this.hasToBeClosed = true;
                     break;
                 case 14:
@@ -1279,49 +1279,49 @@ const MazeGenerator = class {
                     this.runYinYang();
                     break;
                 case 80:
-                    this.run8TeamsLabyrinth()
+                    this.run8TeamsLabyrinth();
                     this.hasToBeClosed = true;
-                    break
+                    break;
                 default:
-                    console.log("Invalid maze type! Generating aborted.")
-                    return null
-                    break
+                    console.log("Invalid maze type! Generating aborted.");
+                    return null;
+                    break;
             }
         } catch(e) {
-            return null
+            return null;
         }
         if (this.isClosed()) {
             if (!this.hasToBeClosed) {
                 console.error("Generating maze failed, reattemping to regenerate the maze...");
-                return null
+                return null;
             }
         }
-        return new MazeZone(this.maze)
+        return new MazeZone(this.maze);
     }
     placeMinimal() {
-        let bestSquares = null
+        let bestSquares = null;
   
         for (let i = 0; i < 10; i++) {
-            let trial = this.runTrial()
-            if (!trial) continue
-            let squares = trial.intoSquares()
+            let trial = this.runTrial();
+            if (!trial) continue;
+            let squares = trial.intoSquares();
             if (bestSquares === null || squares.length < bestSquares.length) {
-                bestSquares = squares
-                continue
+                bestSquares = squares;
+                continue;
             }
         }
   
         for (let i = 0; !bestSquares && i < 500; i++) {
-            let trial = this.runTrial()
-            if (!trial) continue
-            bestSquares = trial.intoSquares()
+            let trial = this.runTrial();
+            if (!trial) continue;
+            bestSquares = trial.intoSquares();
         }
   
         return {
             squares: bestSquares,
             width: this.width,
             height: this.height
-        }
+        };
     }
 };
 

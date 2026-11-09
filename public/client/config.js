@@ -1,3 +1,5 @@
+import { global } from "./global.js";
+import { translateServerMessage } from "./keybinds.js";
 const config = {
     graphical: {
         borderChunk: 6,
@@ -10,9 +12,12 @@ const config = {
         darkBorders: false,
         fancyAnimations: true,
         interpolation: false,
-        lerpAnimations: false,
+        lerpAnimations: true,
+        smoothcamera: true,
         lowResolution: false,
+        force169AspectRatio: false,
         oldUIStyle: false,
+        renderSkins: true,
         coloredNest: false,
         colors: "normal",
         pointy: true,
@@ -49,6 +54,8 @@ const config = {
         autoLevelUp: false,
         centeredMinimap: false,
         incognitoMode: false,
+        deltaEntities: true,
+        rainbowTeamColors: false,
     }
 };
 export { config }
@@ -59,13 +66,13 @@ function createMessage(con, dur = 10_000, JSONMessage = false) {
         global.messages.push({
             text: "Nah that aint the text",
             faded: 0,
-            textJSON: JSON.parse(con),
+            textJSON: JSON.parse(con).map(line => translateServerMessage(line)),
             time: Date.now(),
             duration: dur,
         });
     } else {
         global.messages.push({
-            text: con,
+            text: translateServerMessage(con),
             faded: 0,
             time: Date.now(),
             duration: dur,
@@ -76,18 +83,15 @@ function resetTarget() {
     global.player.target.x = 0;
     global.player.target.y = 0;
 }
-import { global } from "./global.js";
 global.tips = [
     [
         "Tip: You can view and edit your keybinds in the options menu.",
         `Tip: You can play on mobile by just going to ${window.location.host} on your phone!`,
-
         "Tip: You can have the shield and health bar be separated by going to the options menu.",
         `Tip: If ${window.location.host} is having a low frame rate, you can try reducing your graphics level in the options menu.`,
-        //"Tip: You can edit or create your own theme in the options menu.",
+        "Tip: You can edit or create your own theme in the options menu.",
         `Tip: If you're new to the game, you can press T to see all of ${window.location.host}'s 100+ classes in the class tree.`,
         "Tip: Tired of being targeted constantly when you're the leader? Try enabling incognito mode in the options menu.",
-
         "You can sometimes see sneak peeks of content before it's released in our Discord and Reddit community!",
         "Want to connect with other members of the community? Join our public Discord server!"
     ]

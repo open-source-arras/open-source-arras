@@ -2,6 +2,60 @@ import { global } from "./global.js";
 import { util } from "./util.js";
 import { config } from "./config.js";
 import { protocol } from "./protocol.js";
+// Common "u" colors sent as palette ids instead of full strings. Must match the server table.
+const U_COLOR_TABLE = [
+    "grey 0 1 0 false", "16 0 1 0 false", "black 0 1 0 false", "blue 0 1 0 false",
+    "red 0 1 0 false", "green 0 1 0 false", "gold 0 1 0 false", "orange 0 1 0 false",
+    "purple 0 1 0 false", "aqua 0 1 0 false", "pink 0 1 0 false", "white 0 1 0 false",
+    "lightGray 0 1 0 false", "veryLightGrey 0 1 0 false", "lightGrey 0 1 0 false", "darkGrey 0 1 0 false",
+    "lavender 0 1 0 false", "yellow 0 1 0 false", "teal 0 1 0 false", "pureBlack 0 1 0 false",
+    "magenta 0 1 0 false", "mirror 0 1 0 false", "-1 0 1 0 false", "10 0 1 0 false",
+    "11 0 1 0 false", "12 0 1 0 false", "0 0 1 0 false", "13 0 1 0 false",
+    "36 0 1 0 false", "mustard 0 1 0 false", "tangerine 0 1 0 false", "brown 0 1 0 false",
+    "cyan 0 1 0 false", "dgrey 0 1 0 false", "gray 0 1 0 false", "darkGray 0 1 0 false",
+    "veryLightGray 0 1 0 false", "vlgrey 0 1 0 false", "lgrey 0 1 0 false", "lgreen 0 1 0 false",
+    "egg 0 1 0 false", "crasher 0 1 0 false", "triangle 0 1 0 false", "square 0 1 0 false",
+    "hexagon 0 1 0 false", "pentagon 0 1 0 false", "lime 0 1 0 false", "pureWhite 0 1 0 false",
+    "trans 0 1 0 false", "1 0 1 0 false", "2 0 1 0 false", "3 0 1 0 false",
+    "4 0 1 0 false", "5 0 1 0 false", "6 0 1 0 false", "7 0 1 0 false",
+    "8 0 1 0 false", "9 0 1 0 false", "14 0 1 0 false", "15 0 1 0 false",
+    "17 0 1 0 false", "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
+    "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
+    "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
+    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false",
+];
+const FALLBACK_COLOR = U_COLOR_TABLE[1];
+const decodeColor = value => typeof value === "number" ? (U_COLOR_TABLE[value] ?? FALLBACK_COLOR) : value;
+// Key table; must match the server.
+const MOCKUP_KEYS = ["index","name","x","y","color","strokeWidth","glow","radius","alpha","recursion","borderless","drawFill","shape","imageInterpolation","size","realSize","mirrorMasterAngle","sendAllMockups","position","axis","middle","rerootUpgradeTree","className","upgrades","tier","guns","offset","direction","length","width","aspect","angle","drawAbove","layer","turrets","props","statnames","body_damage","max_health","bullet_speed","bullet_health","bullet_pen","bullet_damage","reload","move_speed","shield_regen","shield_cap","sizeFactor","isProp","forceAngle","visibleOnBlackout"];
+const decodeMockupVal = v => {
+    if (!Array.isArray(v)) return v;
+    if (v[0] === "o") {
+        const o = {};
+        for (let i = 1; i < v.length;) {
+            let k = v[i++];
+            k = k === -1 ? v[i++] : MOCKUP_KEYS[k];
+            const val = decodeMockupVal(v[i++]);
+            o[k] = k === "color" && typeof val === "number" ? (U_COLOR_TABLE[val] ?? val) : val;
+        }
+        return o;
+    }
+    return v.slice(1).map(decodeMockupVal);
+};
+// Room grids arrive as [cols, forms, runs].
+const expandRoom = ([cols, forms, runs], blackout) => {
+    const grid = [];
+    let row = [];
+    for (let r = 0; r < runs.length; r += 2) {
+        const f = forms[runs[r]];
+        for (let k = 0; k < runs[r + 1]; k++) {
+            row.push(blackout ? { color: f[0], visibleOnBlackout: f[1], image: f[2] } : { color: f[0], image: f[1] });
+            if (row.length === cols) { grid.push(row); row = []; }
+        }
+    }
+    if (row.length) grid.push(row);
+    return grid;
+};
 window.fakeLagMS = 0;
 var sync = [];
 var clockDiff = 0;
@@ -452,8 +506,8 @@ const process = (z = {}) => {
     if (type & 0x01) { // issa turret
         z.facing = get.next();
         z.layer = get.next();
-        z.index = get.next();
-        z.color = get.next();
+        z.index = String(get.next());
+        z.color = decodeColor(get.next());
         z.size = get.next();
         z.realSize = get.next();
         z.sizeFactor = get.next();
@@ -484,7 +538,7 @@ const process = (z = {}) => {
         // Either way, keep pulling information
         // For limited entities only by only pulling their limited information.
         if (type & 0x10) {
-            z.index = get.next();
+            z.index = String(get.next());
             z.x = get.next();
             z.y = get.next();
             z.vx = get.next();
@@ -495,9 +549,9 @@ const process = (z = {}) => {
             z.vfacing = isNew ? z.facing : z.facing - oldFacing;
             z.vfacing = get.next();
             z.layer = get.next();
-            z.color = get.next();
+            z.color = decodeColor(get.next());
         } else { // Else pull all information.
-            z.index = get.next();
+            z.index = String(get.next());
             z.x = get.next();
             z.y = get.next();
             z.vx = get.next();
@@ -509,7 +563,7 @@ const process = (z = {}) => {
             z.vfacing = get.next();
             z.twiggle = get.next();
             z.layer = get.next();
-            z.color = get.next();
+            z.color = decodeColor(get.next());
             z.borderless = get.next();
             z.drawFill = get.next();
         }
@@ -533,6 +587,7 @@ const process = (z = {}) => {
             }
         }
         z.alpha = get.next() / 255;
+        let hit = get.next();
         z.drawsHealth = !!(type & 0x02); // force to boolean
         // Nameplates
         if (type & 0x04) { // has a nameplate
@@ -579,22 +634,21 @@ const process = (z = {}) => {
         z.render.xAnim.add(z.x);
         z.render.yAnim.add(z.y);
         z.render.faceAnim.add(z.facing);
+        if (hit) z.render.status.set("injured");
         // Figure out if the class changed (and if so, refresh the guns and turrets)
         if (!isNew && z.oldIndex !== z.index) isNew = true;
         z.oldIndex = z.index;
     }
     // If it needs to have a gun container made, make one
     let gunnumb = get.next();
-    if (isNew) {
+    if (isNew || gunnumb !== z.guns.length) {
         z.guns = GunContainer(gunnumb);
-    } else if (gunnumb !== z.guns.length) {
-        throw new Error("Mismatch between data gun number and remembered gun number!");
     }
     // Decide if guns need to be fired one by one
     for (let i = 0; i < gunnumb; i++) {
         let time = get.next(),
             power = get.next(),
-            color = get.next(),
+            color = decodeColor(get.next()),
             alpha = get.next(),
             strokeWidth = get.next(),
             borderless = get.next(),
@@ -628,37 +682,201 @@ const process = (z = {}) => {
     // Return our monsterous creation
     return z;
 };
+const killEntity = (e, output) => {
+    e.render.status.set(e.health === 1 ? "dying" : "killed");
+    if (e.render.status.getFade() !== 0 && util.isInView(e.render.x - global.player.renderx, e.render.y - global.player.rendery, e.size, true)) {
+        output.push(e);
+    } else {
+        if (global.chats[e.id]) {
+            for (let o of global.chats[e.id]) {
+                util.remove(global.chats[e.id], global.chats[e.id].indexOf(o));
+            };
+            delete global.chats[e.id];
+        };
+        if (e.render.textobjs != null) {
+            for (let o of e.render.textobjs) {
+                o.remove();
+            }
+        }
+    }
+};
+const patch = (z, mask) => {
+    if (z) {
+        z.interval = global.metrics.rendergap;
+        z.render.lastRender = global.player.time;
+    }
+    if (mask & 0x0001) {
+        if (z) {
+            z.render.lastx = z.x;
+            z.render.lasty = z.y;
+        }
+        let x = get.next(),
+            y = get.next();
+        if (z) {
+            z.x = x;
+            z.y = y;
+        }
+    }
+    if (mask & 0x0002) {
+        if (z) {
+            z.render.lastvx = z.vx;
+            z.render.lastvy = z.vy;
+        }
+        let vx = get.next(),
+            vy = get.next();
+        if (z) {
+            z.vx = vx;
+            z.vy = vy;
+        }
+    }
+    if (mask & 0x0004) {
+        let size = get.next();
+        if (z) {
+            z.size = size;
+            z.render.size.add(z.size);
+        }
+    }
+    if (mask & 0x0008) {
+        if (z) z.render.lastf = z.facing;
+        let facing = get.next(),
+            vfacing = get.next();
+        if (z) {
+            z.facing = facing;
+            z.vfacing = vfacing;
+        }
+    }
+    if (mask & 0x0010) {
+        let health = get.next() / 65535,
+            shield = get.next() / 65535;
+        if (z) {
+            let hh = z.health,
+                ss = z.shield;
+            z.health = health;
+            z.shield = shield;
+            z.render.health.set(z.health);
+            z.render.shield.set(z.shield);
+            if (z.health < hh || z.shield < ss) {
+                z.render.status.set("injured");
+            } else if (z.render.status.getFade() !== 1) {
+                z.render.status.set("normal");
+            }
+        }
+    }
+    if (mask & 0x0020) {
+        let alpha = get.next() / 255;
+        if (z) z.alpha = alpha;
+    }
+    if (mask & 0x0040) {
+        // bit0 twiggle, bit1 invuln, bit2 borderless, bit3 drawFill
+        let flags = get.next();
+        if (z) {
+            z.twiggle = !!(flags & 1);
+            z.invuln = (flags & 2) ? (z.invuln || Date.now()) : 0;
+            z.borderless = !!(flags & 4);
+            z.drawFill = !!(flags & 8);
+            if (flags & 2) z.render.status.set("invuln");
+            else if (z.render.status.getState() === "invuln") z.render.status.set("normal");
+        }
+    }
+    if (mask & 0x0080) {
+        let color = decodeColor(get.next());
+        if (z) z.color = color;
+    }
+    if (mask & 0x0100) {
+        let name = get.next();
+        if (z) z.name = name;
+    }
+    if (mask & 0x0200) {
+        let score = get.next();
+        if (z) z.score = score;
+    }
+    if (mask & 0x0400) {
+        let layer = get.next();
+        if (z) z.layer = layer;
+    }
+    if (mask & 0x0800) {
+        let gunnumb = get.next();
+        if (z && gunnumb !== z.guns.length) z.guns = GunContainer(gunnumb);
+        for (let i = 0; i < gunnumb; i++) {
+            let gunMask = get.next();
+            let time = gunMask & 0x0001 ? get.next() : 0,
+                power = gunMask & 0x0002 ? get.next() : 0,
+                color = gunMask & 0x0004 ? decodeColor(get.next()) : "",
+                alpha = gunMask & 0x0008 ? get.next() : 1,
+                strokeWidth = gunMask & 0x0010 ? get.next() : 1,
+                borderless = gunMask & 0x0020 ? get.next() : false,
+                drawFill = gunMask & 0x0040 ? get.next() : true,
+                drawAbove = gunMask & 0x0080 ? get.next() : false,
+                length = gunMask & 0x0100 ? get.next() : 0,
+                width = gunMask & 0x0200 ? get.next() : 0,
+                aspect = gunMask & 0x0400 ? get.next() : 0,
+                angle = gunMask & 0x0800 ? get.next() : 0,
+                direction = gunMask & 0x1000 ? get.next() : 0,
+                offset = gunMask & 0x2000 ? get.next() : 0,
+                layer = gunMask & 0x4000 ? get.next() : 0;
+            if (z) {
+                z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer});
+                if (time > global.player.lastUpdate - global.metrics.rendergap) z.guns.fire(i, power);
+            }
+        }
+    }
+    if (mask & 0x1000) {
+        const turnumb = get.next();
+        const rebuild = !z || z.turrets.length !== turnumb;
+        if (z && rebuild) z.turrets = [];
+        for (let i = 0; i < turnumb; i++) {
+            const tflag = get.next();
+            if (tflag === 1) {
+                const facing = get.next();
+                if (z && !rebuild) z.turrets[i].facing = facing;
+            } else if (tflag === 2) {
+                if (!z) process();
+                else if (rebuild) z.turrets.push(process());
+                else z.turrets[i] = process(z.turrets[i]);
+            }
+        }
+    }
+    if (mask & 0x2000) {
+        let hit = get.next();
+        if (z && hit) z.render.status.set("injured");
+    }
+    if (z) {
+        z.render.xAnim.add(z.x);
+        z.render.yAnim.add(z.y);
+        z.render.faceAnim.add(z.facing);
+    }
+};
 // This is what we use to figure out what the hell the server is telling us to look at
 const convert = {
     begin: data => get.set(data),
     // Make a data convertor
     data: () => {
-        // Set up the output thingy+
         let output = [];
-        // Get the number of entities and work through them
-        for (let i = 0, len = get.next(); i < len; i++) {
-            output.push(process());
-        }
-        // Handle the dead/leftover entities
-        for (let e of global.entities) {
-            // Kill them
-            e.render.status.set(e.health === 1 ? "dying" : "killed");
-            // And only push them if they're not entirely dead and still visible
-            if (e.render.status.getFade() !== 0 && util.isInView(e.render.x - global.player.renderx, e.render.y - global.player.rendery, e.size, true)) {
-                output.push(e);
-            } else {
-                if (global.chats[e.id]) {
-                    for (let o of global.chats[e.id]) {
-                        util.remove(global.chats[e.id], global.chats[e.id].indexOf(o)); // Remove it properly
-                    };
-                    delete global.chats[e.id]; // Now we can delete it entirely
-                };
-                if (e.render.textobjs != null) {
-                    for (let o of e.render.textobjs) {
-                        o.remove();
-                    }
-                }
+        if (global.deltaEntities) {
+            for (let i = 0, len = get.next(); i < len; i++) {
+                output.push(process());
             }
+            for (let i = 0, len = get.next(); i < len; i++) {
+                let id = get.next(),
+                    mask = get.next(),
+                    index = global.entities.findIndex(x => x.id === id),
+                    z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
+                patch(z, mask);
+                if (z) output.push(z);
+            }
+            for (let i = 0, len = get.next(); i < len; i++) {
+                let id = get.next();
+                let index = global.entities.findIndex(x => x.id === id);
+                if (index !== -1) killEntity(global.entities.splice(index, 1)[0], output);
+            }
+            for (let e of global.entities) if (e.render.status.getFade() !== 0) output.push(e);
+        } else {
+            // Get the number of entities and work through them
+            for (let i = 0, len = get.next(); i < len; i++) {
+                output.push(process());
+            }
+            // Handle the dead/leftover entities
+            for (let e of global.entities) killEntity(e, output);
         }
         // Save the new entities list
         global.entities = output;
@@ -694,7 +912,7 @@ const convert = {
         }
         if (indices.label) {
             gui.type = get.next();
-            gui.color = get.next();
+            gui.color = decodeColor(get.next());
             gui.playerid = get.next();
         }
         if (indices.score) {
@@ -772,7 +990,7 @@ const convert = {
                 type: data[0],
                 x: (data[1] * global.gameWidth) / 255,
                 y: (data[2] * global.gameHeight) / 255,
-                color: data[3],
+                color: decodeColor(data[3]),
                 size: data[4]
             });
         }
@@ -785,7 +1003,7 @@ const convert = {
                 type: 0,
                 x: (data[0] * global.gameWidth) / 255,
                 y: (data[1] * global.gameHeight) / 255,
-                color: data[2],
+                color: decodeColor(data[2]),
                 size: 0
             });
         }
@@ -798,11 +1016,11 @@ const convert = {
             entries.push({
                 id,
                 score: data[0],
-                index: data[1],
+                index: String(data[1]),
                 name: data[2],
-                color: data[3],
-                bar: data[4],
-                nameColor: data[5],
+                color: decodeColor(data[3]),
+                bar: decodeColor(data[4]),
+                nameColor: decodeColor(data[5]),
                 label: data[6],
                 renderEntity: data[7],
             })
@@ -816,9 +1034,11 @@ const protocols = {
     "https:": "wss://"
 };
 let incoming = async function(message, socket) {
+    global.metrics.lastPacketTime = Date.now();
     await new Promise(Resolve => setTimeout(Resolve, window.fakeLagMS));
     // Make sure it looks legit.
     global.bandwidth.currentFa += message.data.byteLength;
+    global.bandwidth.totalFa += message.data.byteLength;
     let m = protocol.decode(message.data);
     if (m === -1) {
         throw new Error("Malformed packet.");
@@ -828,7 +1048,7 @@ let incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey);
+                socket.talk("k", global.playerKey, config.game.deltaEntities ? 1 : 0);
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);
@@ -841,6 +1061,7 @@ let incoming = async function(message, socket) {
 
 
             case "w": { // welcome to the game
+                global.deltaEntities = m[1] === 1; // server tells us if it will send delta entity packets
                 if (m[0]) { // Ask to get the room data first
                     socket.talk("s", "", 1, 0, false, 0);
                 }
@@ -850,7 +1071,7 @@ let incoming = async function(message, socket) {
                 global.gameHeight = m[1];
                 global.player.roomAnim.x.add(m[0]);
                 global.player.roomAnim.y.add(m[1]);
-                global.roomSetup = JSON.parse(m[2]);
+                global.roomSetup = expandRoom(JSON.parse(m[2]), true);
                 serverStart = JSON.parse(m[3]);
                 global.serverStart = serverStart;
                 config.roomSpeed = m[4];
@@ -858,6 +1079,7 @@ let incoming = async function(message, socket) {
                 global.advanced.blackout.active = blackoutData.active;
                 global.advanced.blackout.color = blackoutData.color;
                 global.advanced.roundArena = m[6];
+                config.game.instantRespawn = m[7];
                 // Start syncing
                 socket.talk("S", getNow());
             } break;
@@ -866,13 +1088,33 @@ let incoming = async function(message, socket) {
                 global.gameHeight = m[1];
                 global.player.roomAnim.x.add(m[0]);
                 global.player.roomAnim.y.add(m[1]);
-                global.roomSetup = JSON.parse(m[2]);
+                global.roomSetup = expandRoom(JSON.parse(m[2]), false);
             } break;
-            case "temporaryban": {
-                global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
+            case "ru": {
+                let x = m[0], y = m[1];
+                if (global.roomSetup[y] && global.roomSetup[y][x]) {
+                    global.roomSetup[y][x].color = m[2];
+                    global.roomSetup[y][x].image = m[3];
+                }
             } break;
-            case "permanentban": {
-                global.message = "You have been banned from the game.";
+            /*
+                TODO:
+                - Display ban ID when trying to connect under any of these circumstances (right now just a "XXXXXXXX" placeholder)
+                - Ban IDs are always 8 chars long, in hex, and (seemingly) randomly generated
+                - Each IP ban generates a different code, each temp/perm ban uses the same one from the ban it's referring to
+                - Try to avoid duplicate ban IDs just in case of a 1 in 4 billion chance
+            */
+            case "ipBan": {
+                global.message = `Your network has been flagged and is currently restricted.\nIf you are using a VPN or proxy, please turn it off.\nIf you are not using a VPN or proxy of any kind, please contact support at [DISCORD LINK HERE].\nConnection ID: C-${"XXXXXXXX"}`;
+            } break;
+            case "temporaryBan": {
+                global.message = `You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.\nBan ID: B-${"XXXXXXXX"}`;
+            } break;
+            case "tempModBan": {
+                global.message = `You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.\nBan ID: M-${"XXXXXXXX"}`;
+            } break;
+            case "permanentBan": {
+                global.message = `You have been permanently banned from the game.\nReason: \nBan ID: U-${"XXXXXXXX"}`;
             } break;
             case "svInfo": {
                 // For debugging.
@@ -954,7 +1196,8 @@ let incoming = async function(message, socket) {
         } break;
         case "M": {
             if (!m[1]) return;
-            global.mockups[m[0]] = JSON.parse(m[1]);
+            const raw = JSON.parse(m[1]);
+            global.mockups[m[0]] = Array.isArray(raw) ? decodeMockupVal(raw) : raw;
         } break;
         case "u": { // uplink
             // Pull the camera info
@@ -1048,6 +1291,7 @@ let incoming = async function(message, socket) {
             0 < c && global.metrics.latency.push(c);
         } break;
         case "F": { // to pay respects
+            global.deathTimestamp = Date.now();
             global.deathAnimation = util.AdvancedSmoothBar(0, 4, 1);
             global.deathAnimation.set(4);
             global.finalScore = util.AdvancedSmoothBar(0, 1.5);
@@ -1056,6 +1300,15 @@ let incoming = async function(message, socket) {
             global.finalLifetime.set(m[1]);
             global.finalKills = [util.AdvancedSmoothBar(0, 4), util.AdvancedSmoothBar(0, 5.5), util.AdvancedSmoothBar(0, 2.5), util.AdvancedSmoothBar(0, 6)];
             global.respawnTimeout = m[2];
+            global.readyToRespawn = false;
+            if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+            if (config.game.instantRespawn) {
+                global.readyToRespawn = true;
+            } else {
+                global.respawnReadyTimeout = setTimeout(() => {
+                    global.readyToRespawn = true;
+                }, 3000);
+            }
             if (global.respawnTimeout > 0) {
                 global.cannotRespawn = true;
                 setTimeout(() => {
@@ -1076,7 +1329,7 @@ let incoming = async function(message, socket) {
             global.finalKills[3].set(m[6]);
             global.finalKillers = [];
             for (let i = 0; i < m[7]; i++) {
-                global.finalKillers.push(m[8 + i]);
+                global.finalKillers.push(String(m[8 + i]));
             }
             global.canvas.reverseDirection = false;
             global.died = true;
@@ -1222,7 +1475,15 @@ let incoming = async function(message, socket) {
             // Put your code while being kicked from the server.
         } break;
         case "z": { // name color
-            global.nameColor = m[0];
+            global.nameColor = decodeColor(m[0]);
+        } break;
+        case "Op": { // operator status change telling
+            global.hasOperator = m[0];
+            // If lost op remove the key buttons
+            if (!global.hasOperator) {
+                global.operatorKeyboard.open = false;
+                global.operatorKeyboard.prefix = null;
+            }
         } break;
         case "RM": { // Reset minimap teams if needed
             minimapTeamInt.reset();
@@ -1322,6 +1583,7 @@ const socketInit = () => {
         message = protocol.encode(message)
         socket.send(message);
         global.bandwidth.currentHa += message.byteLength;
+        global.bandwidth.totalHa += message.byteLength;
     };
 
     socket.onopen = function socketOpen() {
@@ -1339,11 +1601,13 @@ const socketInit = () => {
         if (global.dailyTankAd.render) global.dailyTankAd.exit();
         socket.open = false;
         global.disconnected = true;
+        global.disconnectTimestamp = Date.now();
     };
 
     socket.onerror = error => {
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
+        //global.message = "Socket timed out.";
     };
 
     return socket;

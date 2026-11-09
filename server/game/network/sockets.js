@@ -1,10 +1,86 @@
 let crypto = require("crypto"),
     net = require("net"),
     fs = require("fs");
-PERMABAN_FILE = "./permanentBans.json";
+const { handleChatCommand } = require("../chatCommands.js");
+PERMABAN_FILE = "./server/permanentBans.json";
 let bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
 global.chatID = 0;
+const GUN_PHOTO_FIELDS = 15;
+const numIndex = (index) => (typeof index === "string" && /^\d+$/.test(index) && index.length < 10 ? parseInt(index, 10) : index);
+const U_COLOR_TABLE = [
+    "grey 0 1 0 false", "16 0 1 0 false", "black 0 1 0 false", "blue 0 1 0 false",
+    "red 0 1 0 false", "green 0 1 0 false", "gold 0 1 0 false", "orange 0 1 0 false",
+    "purple 0 1 0 false", "aqua 0 1 0 false", "pink 0 1 0 false", "white 0 1 0 false",
+    "lightGray 0 1 0 false", "veryLightGrey 0 1 0 false", "lightGrey 0 1 0 false", "darkGrey 0 1 0 false",
+    "lavender 0 1 0 false", "yellow 0 1 0 false", "teal 0 1 0 false", "pureBlack 0 1 0 false",
+    "magenta 0 1 0 false", "mirror 0 1 0 false", "-1 0 1 0 false", "10 0 1 0 false",
+    "11 0 1 0 false", "12 0 1 0 false", "0 0 1 0 false", "13 0 1 0 false",
+    "36 0 1 0 false", "mustard 0 1 0 false", "tangerine 0 1 0 false", "brown 0 1 0 false",
+    "cyan 0 1 0 false", "dgrey 0 1 0 false", "gray 0 1 0 false", "darkGray 0 1 0 false",
+    "veryLightGray 0 1 0 false", "vlgrey 0 1 0 false", "lgrey 0 1 0 false", "lgreen 0 1 0 false",
+    "egg 0 1 0 false", "crasher 0 1 0 false", "triangle 0 1 0 false", "square 0 1 0 false",
+    "hexagon 0 1 0 false", "pentagon 0 1 0 false", "lime 0 1 0 false", "pureWhite 0 1 0 false",
+    "trans 0 1 0 false", "1 0 1 0 false", "2 0 1 0 false", "3 0 1 0 false",
+    "4 0 1 0 false", "5 0 1 0 false", "6 0 1 0 false", "7 0 1 0 false",
+    "8 0 1 0 false", "9 0 1 0 false", "14 0 1 0 false", "15 0 1 0 false",
+    "17 0 1 0 false", "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
+    "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
+    "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
+    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false"
+];
+const U_COLOR_ID = new Map(U_COLOR_TABLE.map((color, id) => [color, id]));
+// Quantize floats to small ints for the wire; the client divides them back.
+const qnum = (v, k) => Number.isFinite(v) ? Math.round(v * k) : 0;
+const qpos = v => qnum(v, 4);
+const qvel = v => qnum(v, 20);
+const qsize = v => qnum(v, 16);
+const qpct = v => qnum(v, 100);
+const qangle = v => qnum(v, 2048 / Math.PI);
+const qfrac = v => qnum(v || 0, 255);
+// Key table; must match the client.
+const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout"];
+const MOCKUP_KEY_ID = new Map(MOCKUP_KEYS.map((k, i) => [k, i]));
+const encodeMockupVal = (v, colorOk) => {
+    if (Array.isArray(v)) return ["l", ...v.map(x => encodeMockupVal(x, false))];
+    if (v && typeof v === "object") {
+        const o = ["o"];
+        for (let k in v) {
+            // Drop what JSON.stringify drops.
+            if (typeof v[k] === "function" || typeof v[k] === "undefined" || typeof v[k] === "symbol") continue;
+            const id = MOCKUP_KEY_ID.get(k);
+            o.push(id ?? -1);
+            if (id === undefined) o.push(k);
+            o.push(encodeMockupVal(v[k], k === "color"));
+        }
+        return o;
+    }
+    if (colorOk && typeof v === "string") {
+        const id = U_COLOR_ID.get(v);
+        if (id !== undefined) return id;
+    }
+    return typeof v === "number" && !Number.isInteger(v) ? Math.round(v * 1e4) / 1e4 : v;
+};
+const encodeMockup = o => JSON.stringify(encodeMockupVal(o, false));
+// Room grids go as run lengths over distinct cell forms.
+const encodeRoom = (grid, blackout) => {
+    const forms = [], ids = new Map(), runs = [];
+    let cols = 0;
+    for (let row of grid) {
+        cols = row.length;
+        for (let t of row) {
+            const f = blackout ? [t.color, t.visibleOnBlackout ?? false, t.image ?? false] : [t.color, t.image ?? false];
+            const k = f.join("\x00");
+            let id = ids.get(k);
+            if (id === undefined) {
+                id = forms.length; forms.push(f); ids.set(k, id); 
+            }
+            if (runs.length && runs[runs.length - 2] === id) runs[runs.length - 1]++;
+            else runs.push(id, 1);
+        }
+    }
+    return JSON.stringify([cols, forms, runs]);
+};
 
 class socketManager {
     constructor(parent) {
@@ -16,7 +92,7 @@ class socketManager {
         this.playersReceived = [];
         this.bans = [];
         // Import permissions
-        for (let entry of require("../permissions.js")) {
+        for (let entry of require("../../permissions.js")) {
             if (entry.key != null) {
                 this.permissionsDict[entry.key] = entry;
             }
@@ -29,23 +105,30 @@ class socketManager {
         }
     };
     broadcastRoom() {
+        let data = encodeRoom(global.gameManager.room.setup, false);
         for (let i = 0; i < this.clients.length; i++) {
             this.clients[i].talk(
                 "r",
                 global.gameManager.room.width,
                 global.gameManager.room.height,
-                JSON.stringify(global.gameManager.room.setup.map(x => x.map(t => { 
-                    return {
-                        color: t.color,
-                        image: t.image ?? false
-                    }
-                })))
+                data
+            );
+        }
+    };
+    broadcastRoomUpdate(gridX, gridY, color, image) {
+        for (let i = 0; i < this.clients.length; i++) {
+            this.clients[i].talk(
+                "ru",
+                gridX,
+                gridY,
+                color,
+                image ?? false
             );
         }
     };
     ban(socket, reason) {
         let time = Date.now();
-        util.warn((reason || "No reason given.") + " Banning.");
+        util.warn((reason || "No reason given.") + " Temporarily banning.");
 
         let s = this.clients.filter((c) => c.ip === socket.ip);
 
@@ -72,7 +155,7 @@ class socketManager {
 
     permaban(socket, reason) {
         let time = Date.now();
-        util.warn((reason || "No reason given.") + " Permanent Banning.");
+        util.warn((reason || "No reason given.") + " Permanently banning.");
 
         let s = this.clients.filter((c) => c.ip === socket.ip);
         for (let i = 0; i < s.length; i++) {
@@ -108,27 +191,34 @@ class socketManager {
         for (let view of global.gameManager.views) {
             let nearby = view.getNearby(),
                 array = [];
+            let viewerChannel = view.socket.status.selectedChannel ?? "global";
+            let viewerTeam = view.socket.player?.body?.team;
 
             for (let entity of nearby.values()) {
+                if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) continue;
                 let id = entity.id;
                 if (chats[id]) {
                     array.push({ id: id, messages: [] });
                     let index = array.length - 1;
                     for (let chat of chats[id].messages) {
+                        let chatChannel = chat.channel ?? "global";
+                        if (chatChannel !== viewerChannel) continue;
+                        if (chatChannel === "team" && chat.team !== viewerTeam) continue;
                         array[index].messages.push({ text: chat.message, id: chat.id });
                     }
                 }
             }
             if (view.socket.status.disablechat) {
                 view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array.map(o => {
-                    return {id: o.id, messages: []} 
+                    return {id: o.id, messages: []}; 
                 })));
             } else view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array));
         }
     }
 
     close(socket) {
-    // Figure out who the player was
+        socket.closed = true;
+        // Figure out who the player was
         let player = socket.player,
             index = this.players.indexOf(player);
         // Remove it from any group if there was one...
@@ -176,6 +266,10 @@ class socketManager {
         util.remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
         // Remove the socket
         util.remove(this.clients, this.clients.indexOf(socket));
+        if (Config.sandbox && this.clients.length && !this.clients.some((c) => c.status.permissionLevel >= 3)) {
+            setPermissionLevel(this.clients[0], 3);
+            this.clients[0].talk("m", 8_000, `You have inherited the sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
+        }
         if (!global.gameManager.parentPort) {
             for (let i = 0; i < global.servers.length; i++) {
                 let server = global.servers[i];
@@ -187,7 +281,8 @@ class socketManager {
         util.log("[INFO]: The connection has closed. Views: " + global.gameManager.views.length + ". Clients: " + this.clients.length + ".");
     }
     incoming(message, socket) {
-    // Decode it
+        socket.status.requests++;
+        // Decode it
         let m = protocol.decode(message);
         // Remember who we are
         let player = socket.player;
@@ -196,30 +291,33 @@ class socketManager {
             socket.kick("Malformed packet.");
             return 1;
         }
-        // Handle the request
-        if (socket.resolveResponse(m[0], m)) {
-            return;
-        }
-        switch (m.shift()) {
+        const packetType = m.shift();
+        switch (packetType) {
             case "k": { // key verification
-                if (m.length > 1) {
+                if (m.length > 2) {
                     socket.kick("Ill-sized key request."); return 1; 
                 }
                 if (socket.status.verified) {
                     socket.kick("Duplicate player spawn attempt."); return 1; 
                 }
-                socket.talk("w", true);
-                if (m.length === 1) {
+                // Optional capability flags: bit 0 = understands delta entity packets.
+                socket.status.deltaEntities = Config.delta_entities && ((m[1] || 0) & 1) === 1;
+                socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
+                if (m.length >= 1) {
                     let key = m[0].toString().trim();
-                    // Use hasOwnProperty to avoid prototype chain lookup
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
                     if (socket.permissions) {
                         util.log(`[INFO]: A socket was verified with the token: ${key}`);
+                        if (socket.permissions.level >= 1) {
+                            socket.status.hasOperator = true;
+                        }
                     } else {
                         util.log(`[WARNING]: A socket failed to verify with the token: ${key}`);
                     }
                     socket.key = key;
+                    setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
                 }
+                if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
                 if (this.clients.length == 1) {
                     util.log("[INFO]: " + this.clients.length + " client connected");
@@ -228,24 +326,25 @@ class socketManager {
                 }
             } break;
             case "s": { // spawn request
-                if (!socket.status.deceased) {
+                if (socket.status.spawning || !socket.status.deceased) {
                     socket.kick("Trying to spawn while already alive."); return 1; 
                 }
+                socket.status.spawning = true;
                 if (global.gameManager.private && !socket.permissions) {
                     return (
                         socket.talk("message", "This server seems to be private."),
                         socket.kick("Tried to join private server without valid token.")
-                    ) 
+                    ); 
                 }
                 if (!global.gameManager.webProperties.maxPlayers < 1 && this.clients.length > global.gameManager.webProperties.maxPlayers) {
                     return (
                         socket.talk("message", "This server is full, please rejoin later."),
                         socket.kick("Server full.")
-                    ) 
+                    ); 
                 }
                 let b = bans.find((ban) => ban.ip === socket.ip);
                 if (b) {
-                    socket.talk("temporaryban"); // Important, kick the user after calling temporaryban in order to see the ban message.
+                    socket.talk(b.reason === "Ban Hammer" ? "tempModBan" : "temporaryBan");
                     socket.kick("Temporarily banned player detected!");
                     return 1;
                 }
@@ -253,8 +352,8 @@ class socketManager {
                     (bannedIP) => bannedIP.ip === socket.ip
                 );
                 if (permB) {
-                    socket.talk("permanentban");
-                    socket.permaban("Permanently banned player found!");
+                    socket.talk("permanentBan"); 
+                    socket.permaban("Permanently banned player detected!");
                     return 1;
                 }
                 // Get data
@@ -302,32 +401,28 @@ class socketManager {
 
                 // Give it the room state and move the camera.
                 if (needsRoom) {
+                    socket.status.spawning = false;
                     if (Config.hidden) return socket.close(); // If the server is hidden then just kick the client.
                     this.newPlayer(socket);
                     socket.talk(
                         "R",
                         global.gameManager.room.width,
                         global.gameManager.room.height,
-                        JSON.stringify(global.gameManager.room.setup.map(x => x.map(t => { 
-                            return {
-                                color: t.color,
-                                visibleOnBlackout: t.visibleOnBlackout,
-                                image: t.image ?? false
-                            }
-                        }))),
+                        encodeRoom(global.gameManager.room.setup, true),
                         JSON.stringify(util.serverStartTime),
                         global.gameManager.roomSpeed,
                         JSON.stringify({
                             active: Config.blackout,
                             color: Config.blackout_fog
                         }),
-                        Config.round_arena
+                        Config.round_arena,
+                        Config.instant_respawn
                     );
                     return;
                 }
                 let loop = setInterval(() => {
                     // You can put your code here to prevent players from spawning.
-                    if (!global.cannotRespawn && !global.gameManager.arenaClosed && socket.status.readyToSpawn) {
+                    if (!global.cannotRespawn && !global.gameManager.arenaClosed && socket.status.readyToSpawn && !socket.closed) {
                         clearInterval(loop);
                         let epackage = {};
                         epackage.name = name;
@@ -339,8 +434,9 @@ class socketManager {
                             epackage.braindamagemode = true;
                         }
                         this.initalizePlayer(epackage, socket);
+                        socket.status.spawning = false;
                     }
-                }, 20)
+                }, 20);
             } break;
             case "S": { // clock syncing
                 if (m.length !== 1) {
@@ -417,6 +513,15 @@ class socketManager {
                 // Put the new target in
                 if (!socket.player.body.eastereggs.braindamage) player.target = target;
                 // Reverse the tank's facing if we want.
+                if (Config.reverse_tank_cooldown && reverseTank !== player.body.reverseTank && reverseTank !== socket.status.lastReverseTank) {
+                    socket.status.reverseSpam = (socket.status.reverseSpam || 0) + 1;
+                    setTimeout(() => socket.status.reverseSpam--, 10_000);
+                    if (socket.status.reverseSpam >= 7) {
+                        player.body.sendMessage("Please slow down!");
+                        reverseTank = player.body.reverseTank;
+                    }
+                }
+                socket.status.lastReverseTank = m[2];
                 player.body.reverseTank = reverseTank;
                 // Process the commands
                 if (player.command != null) {
@@ -427,9 +532,19 @@ class socketManager {
                     player.command.lmb = (commands & 16) >> 4;
                     player.command.mmb = (commands & 32) >> 5;
                     player.command.rmb = (commands & 64) >> 6;
+                    if (socket.status.isAFK) {
+                        // AFK players may rotate but cannot move or shoot themselves.
+                        player.command.up = player.command.down = player.command.left = player.command.right = 0;
+                        player.command.lmb = player.command.mmb = player.command.rmb = 0;
+                    }
                 }
             } break;
             case "#": {
+                // AFK players cannot use operator actions
+                if (!Config.afk_key_commands && socket.status.isAFK && player.body != null) {
+                    player.body.sendMessage("Exit AFK mode before using operator actions.");
+                    return;
+                }
                 try {
                     runKeyCommand(socket, m);
                 } catch(e) { 
@@ -463,6 +578,8 @@ class socketManager {
                     socket.kick("Bad toggle.");
                     return 1;
                 }
+                // AFK players may only toggle autospin.
+                if (socket.status.isAFK && given !== "autospin") return;
                 // Apply a good request.
                 if (player.command != null && player.body != null) {
                     player.command[given] = !player.command[given];
@@ -485,7 +602,7 @@ class socketManager {
                     return;
                 }
                 // Verify the request
-                if (typeof upgrade != "number" || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
+                if (typeof upgrade != "number" || upgrade < 0 || upgrade >= player.body.upgrades.length || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
                     socket.kick("Bad upgrade request.");
                     return 1;
                 }
@@ -526,7 +643,7 @@ class socketManager {
                     let limit = 256;
                     do {
                         player.body.skillUp(stat);
-                    } while (limit-- && max && player.body.skill.points && player.body.skill.amount(stat) < player.body.skill.cap(stat))
+                    } while (limit-- && max && player.body.skill.points && player.body.skill.amount(stat) < player.body.skill.cap(stat));
                 }
                 
             } break;
@@ -570,7 +687,7 @@ class socketManager {
                         body.isDominator ? "dominator" : 
                             body.isMothership ? "mothership" :
                                 body.isBoss ? "visitor" :
-                                    "special tank"
+                                    "special tank";
                     player.body.sendMessage(`You have relinquished control of the ${relinquishedControlMessage}.`);
                     body.giveUp(player, body.isDominator ? "" : undefined);
                     return 1;
@@ -595,7 +712,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the mothership.");
-                    player.body.sendMessage("Press F to relinquish control of the mothership.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the mothership.`);
                     if (Config.mothership_time_limit != 0) {
                         if (Config.mothership_time_limit <= 10_000) {
                             if (player.body == null) return;
@@ -604,7 +721,7 @@ class socketManager {
                                 if (player.body == null) return;
                                 player.body.sendMessage("You have lost control of the mothership.");
                                 body.giveUp(player, body.isDominator ? "" : undefined);
-                            }, Config.mothership_time_limit)
+                            }, Config.mothership_time_limit);
                         } else {
                             setTimeout(function() {
                                 if (player.body == null) return;
@@ -613,8 +730,8 @@ class socketManager {
                                     if (player.body == null) return;
                                     player.body.sendMessage("You have lost control of the mothership.");
                                     body.giveUp(player, body.isDominator ? "" : undefined);
-                                }, 10_000)
-                            }, Config.mothership_time_limit - 10_000)
+                                }, 10_000);
+                            }, Config.mothership_time_limit - 10_000);
                         }
                     }
                 } else if (Config.domination) {
@@ -638,7 +755,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the dominator.");
-                    player.body.sendMessage("Press F to relinquish control of the dominator.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the dominator.`);
                 } else if (Config.boss_control) {
                     let bosses = ent.map((entry) => {
                         if (entry.isBoss && !entry.underControl) return entry;
@@ -659,7 +776,7 @@ class socketManager {
                     player.body.refreshBodyAttributes();
                     player.body.name = body.name;
                     player.body.sendMessage("You are now controlling the visitor.");
-                    player.body.sendMessage("Press F to relinquish control of the visitor.");
+                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the visitor.`);
                 }/* else {
                     player.body.sendMessage("There are no special tanks in this mode that you can control.");
                 }*/
@@ -680,14 +797,16 @@ class socketManager {
                     message = message.replace(/§/g, "§§§§");
                     original = original.replace(/§/g, "§§§§");
                 }
-    
+
+                if (handleChatCommand(socket, message)) break;
+
                 Events.emit("chatMessage", { gameManager: global.gameManager, message: original, socket, preventDefault: () => abort = true, setMessage: str => message = str });
     
                 // we are not anti-choice here.
                 if (abort) break;
     
                 if (message !== original) {
-                    util.log("changed to: " + message);
+                    util.log(`Filtered message "${original}" changed to "${message}"`);
                 }
     
                 let id = player.body.id;
@@ -696,7 +815,7 @@ class socketManager {
                     chats[id].messages = [];
                 }
 
-                chats[id].messages.unshift({ message, expires: Date.now() + Config.chat_message_duration, id: global.chatID++ });
+                chats[id].messages.unshift({ message, channel: socket.status.selectedChannel ?? "global", team: player.body.team, expires: Date.now() + Config.chat_message_duration, id: global.chatID++ });
     
                 // do one tick of the chat loop so they don't need to wait 100ms to receive it.
                 this.chatLoop();
@@ -726,14 +845,14 @@ class socketManager {
                 if (!Config.daily_tank) return socket.kick("Bad daily tank ad request");
                 if (player.body && player.body.skill.level >= Config.tier_multiplier * Config.daily_tank.tier && Config.daily_tank.ads && !socket.status.daily_tank_watched_ad) {
                     let chosenAd = ran.choose(Config.daily_tank.ad_sources);
-                    let isImage = chosenAd.file.endsWith(".png") || chosenAd.file.endsWith(".jpg") || chosenAd.file.endsWith(".jpeg")
+                    let isImage = chosenAd.file.endsWith(".png") || chosenAd.file.endsWith(".jpg") || chosenAd.file.endsWith(".jpeg");
                     socket.talk("DTA", JSON.stringify({src: chosenAd.file, normalAdSize: chosenAd.use_regular_ad_size ?? true, waitTime: isImage ? chosenAd.image_wait_time : "isVideo"}));
                     if (isImage) {
                         setTimeout(() => {
                             setTimeout(() => {
                                 socket.status.daily_tank_watched_ad_client = true;
-                            }, `${chosenAd.image_wait_time ?? "3"}000`)
-                        }, socket.camera.ping) // make the counter accurate sycned as possible with the client.
+                            }, `${chosenAd.image_wait_time ?? "3"}000`);
+                        }, socket.camera.ping); // make the counter accurate sycned as possible with the client.
                     }
                 }
             } break;
@@ -751,15 +870,18 @@ class socketManager {
                 setTimeout(() => {
                     setTimeout(() => {
                         socket.status.daily_tank_watched_ad_client = true;
-                    }, `${time}000`)
+                    }, `${time}000`);
                 }, socket.camera.ping);
             }
             case "NWB": {
                 socket.status.forceNewBroadcast = true;
             } break;
+            case "G": {
+                // TODO: Actually make this do something
+                socket.talk("m", Config.popup_message_duration, "Score saving is WIP.");
+            } break;
             default: {
-                console.log(m)
-                console.log("Invalid registered packet." + m);
+                console.log("Unknown packet type: " + packetType);
             } break;
         }
     };
@@ -1096,6 +1218,16 @@ class socketManager {
         };
         // Bring to life
         socket.status.deceased = false;
+        if (Config.sandbox && !socket.status.hasSpawned) {
+            if (!this.players.length) {
+                if (socket.status.permissionLevel < 3) {
+                    setPermissionLevel(socket, 3);
+                };
+                socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
+            } else {
+                socket.talk("m", 8_000, "You have joined a sandbox.");
+            }
+        }
         // Define the player.
         if (this.players.indexOf(socket.player) != -1) {
             util.remove(this.players, this.players.indexOf(socket.player));  
@@ -1129,9 +1261,9 @@ class socketManager {
                         socket.player.body.facing = ran.randomAngle();
                         let stressFov = 0.5 + Math.floor(Math.random() * 2);
                         socket.player.body.FOV = stressFov * socket.player.body.orginFov;
-                    }, 20)
+                    }, 20);
                 }
-            }, 100)
+            }, 100);
             if (autoLVLup) {
                 if (!socket.player.body) return;
                 while (socket.player.body.skill.level < Config.level_cap_cheat) {
@@ -1139,6 +1271,8 @@ class socketManager {
                     socket.player.body.skill.maintain();
                     socket.player.body.refreshBodyAttributes();
                 }
+            } else {
+                socket.talk("m", 5_000, "You have auto-level up disabled. Enable auto-level up in the options menu to get level 45.");
             }
         }
         // Log it 
@@ -1196,7 +1330,7 @@ class socketManager {
             body = new Entity(loc);
             body.protect();
             body.isPlayer = true;
-            body.define(Config.spawn_class);
+            body.define(socket.permissions?.spawnAs || Config.spawn_class);
             body.name = name;
             body.incognito = socket.status.incognito ?? false;
             if (socket.permissions && socket.permissions.nameColor) {
@@ -1210,6 +1344,8 @@ class socketManager {
         player.body = body;
         body.socket = socket;
         body.hasOperator = socket.status.hasOperator;
+        // socket talk thing lets client know to show the mobile sandbox cmd board
+        socket.talk("Op", body.hasOperator);
         socket.status.daily_tank_watched_ad = false;
         socket.status.daily_tank_watched_ad_client = false;
         // Decide how to color and team the body
@@ -1240,7 +1376,7 @@ class socketManager {
                                     clearInterval(loop);
                                 } else body.team = getRandomTeam();
                             }
-                        })
+                        });
                     }
                 } break;
                 default: {
@@ -1254,7 +1390,7 @@ class socketManager {
                                 clearInterval(loop);
                             } else body.team = team;
                         }
-                    })
+                    });
                 }
             } 
         }
@@ -1311,10 +1447,14 @@ class socketManager {
 
         //send the welcome message
         if (!doNotTakeAction.dontSendWelcomeMessage) {
-            let msg = Config.spawn_message.split("\n");
-            for (let i = 0; i < msg.length; i++) {
+            let msg = ("" + Config.spawn_message).split(/\r\n|\r|\n/);
+            if (msg.length > 1 && msg[msg.length - 1] === "") msg.pop();
+            // reverse
+            for (let i = msg.length - 1; i >= 0; i--) {
+                if (msg[i] === "") continue;
                 body.sendMessage(msg[i]);
             }
+            if (Config.dev_build) socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
         }
         // Move the client camera
         socket.talk("c", socket.camera.x, socket.camera.y, socket.camera.fov);
@@ -1323,12 +1463,15 @@ class socketManager {
     }
 
     flatten(data) {
+        for (let k of ["x", "y", "vx", "vy", "size", "realSize", "facing", "vfacing"]) {
+            if (typeof data[k] === "number") data[k] = Math.fround(data[k]);
+        }
         let output = [data.type]; // We will remove the first entry in the persepective method
         if (data.type & 0x01) {
             output.push(
                 /*  1 */ data.facing,
                 /*  2 */ data.layer,
-                /*  3 */ data.index,
+                /*  3 */ numIndex(data.index),
                 /*  4 */ data.color,
                 /*  5 */ data.size,
                 /*  6 */ data.realSize,
@@ -1341,7 +1484,7 @@ class socketManager {
         } else if (data.type & 0x10) {
             output.push(
                 /*  1 */ data.id,
-                /*  2 */ data.index,
+                /*  2 */ numIndex(data.index),
                 /*  3 */ data.x,
                 /*  4 */ data.y,
                 /*  5 */ data.vx,
@@ -1353,12 +1496,13 @@ class socketManager {
                 /* 12 */ data.color,
                 /* 14 */ Math.ceil(65535 * data.health),
                 /* 15 */ Math.round(65535 * data.shield),
-                /* 16 */ Math.round(255 * data.alpha)
+                /* 16 */ Math.round(255 * data.alpha),
+                /* 17 */ data.hit
             );
         } else {
             output.push(
                 /*  1 */ data.id,
-                /*  2 */ data.index,
+                /*  2 */ numIndex(data.index),
                 /*  3 */ data.x,
                 /*  4 */ data.y,
                 /*  5 */ data.vx,
@@ -1374,7 +1518,8 @@ class socketManager {
                 /* 16 */ data.invuln,
                 /* 17 */ Math.ceil(65535 * data.health),
                 /* 18 */ Math.round(65535 * data.shield),
-                /* 19 */ Math.round(255 * data.alpha)
+                /* 19 */ Math.round(255 * data.alpha),
+                /* 20 */ data.hit
             );
             if (data.type & 0x04) {
                 output.push(
@@ -1395,6 +1540,203 @@ class socketManager {
         for (let i = 0; i < data.turrets.length; i++) output.push(...this.flatten(data.turrets[i]));
         // Return it
         return output;
+    }
+
+    // Builds the created/changed/removed sections of a "u" packet for a view.
+    // `sent` holds the last flattened record sent for each entity id.
+    buildEntityDelta(msg, visible, sent) {
+        let created = this.dCreated || (this.dCreated = []);
+        let changed = this.dChanged || (this.dChanged = []);
+        let removed = this.dRemoved || (this.dRemoved = []);
+        let seen = this.dSeen || (this.dSeen = new Set());
+        created.length = 0;
+        changed.length = 0;
+        removed.length = 0;
+        seen.clear();
+        let changedCount = 0;
+
+        for (let i = 0; i < visible.length; i++) {
+            let data = visible[i];
+            // Top level turrets/props carry no id, always send them in full.
+            if (data[0] & 0x01) {
+                created.push(data);
+                continue;
+            }
+            let id = data[1];
+            seen.add(id);
+            let prev = sent.get(id);
+            if (prev === undefined || prev[0] !== data[0] || prev[2] !== data[2]) {
+                // New entity, or its class changed: send it whole.
+                created.push(data);
+                sent.set(id, data.slice());
+            } else if (this.diffEntity(prev, data, changed)) {
+                changedCount++;
+                sent.set(id, data.slice());
+            }
+        }
+        // Anything we sent before and no longer see is gone from this view.
+        for (let id of sent.keys()) {
+            if (!seen.has(id)) removed.push(id);
+        }
+        for (let i = 0; i < removed.length; i++) sent.delete(removed[i]);
+
+        msg.push(created.length);
+        for (let i = 0; i < created.length; i++) {
+            let data = created[i];
+            for (let j = 0; j < data.length; j++) msg.push(data[j]);
+        }
+        msg.push(changedCount);
+        for (let i = 0; i < changed.length; i++) msg.push(changed[i]);
+        msg.push(removed.length);
+        for (let i = 0; i < removed.length; i++) msg.push(removed[i]);
+    }
+
+    // Compares two flattened records and appends `id, mask, values` to `out`
+    // when anything tracked changed. Returns whether a record was appended.
+    diffEntity(prev, now, out) {
+        const type = now[0];
+        const limited = (type & 0x10) !== 0;
+        let mask = 0;
+        if (prev[3] !== now[3] || prev[4] !== now[4]) mask |= 0x0001;
+        if (prev[5] !== now[5] || prev[6] !== now[6]) mask |= 0x0002;
+        if (prev[7] !== now[7]) mask |= 0x0004;
+        const stopped = Math.abs(now[5]) + Math.abs(now[6]) <= 1;
+        if (prev[8] !== now[8] || (!stopped && prev[9] !== now[9])) mask |= 0x0008;
+        if (limited) {
+            if (prev[12] !== now[12] || prev[13] !== now[13]) mask |= 0x0010;
+            if (prev[14] !== now[14]) mask |= 0x0020;
+            if (prev[11] !== now[11]) mask |= 0x0080;
+            if (prev[10] !== now[10]) mask |= 0x0400;
+            if (prev[15] !== now[15]) mask |= 0x2000;
+        } else {
+            if (prev[16] !== now[16] || prev[17] !== now[17]) mask |= 0x0010;
+            if (prev[18] !== now[18]) mask |= 0x0020;
+            if (prev[10] !== now[10] || prev[13] !== now[13] || prev[14] !== now[14] || prev[15] !== now[15]) mask |= 0x0040;
+            if (prev[12] !== now[12]) mask |= 0x0080;
+            if (prev[11] !== now[11]) mask |= 0x0400;
+            if (prev[19] !== now[19]) mask |= 0x2000;
+            if (type & 0x04) {
+                if (prev[20] !== now[20]) mask |= 0x0100;
+                if (prev[21] !== now[21]) mask |= 0x0200;
+            }
+        }
+        // Guns come next. Only send the fields that actually changed per gun.
+        const gunStart = limited ? 16 : ((type & 0x04) ? 22 : 20);
+        const gunLen = now[gunStart];
+        const countChanged = prev[gunStart] !== gunLen;
+        let anyGunChanged = countChanged;
+        if (!anyGunChanged) {
+            for (let g = 0; g < gunLen; g++) {
+                const off = gunStart + 1 + g * GUN_PHOTO_FIELDS;
+                for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                    if (prev[off + f] !== now[off + f]) {
+                        anyGunChanged = true; break; 
+                    }
+                }
+                if (anyGunChanged) break;
+            }
+        }
+        if (anyGunChanged) mask |= 0x0800;
+        // Turret records are inlined into the tail, so the whole tail is the block.
+        const turretStart = gunStart + 1 + gunLen * GUN_PHOTO_FIELDS;
+        const turretsChanged = prev.length !== now.length || prev[turretStart] !== now[turretStart] || !this.sameRange(prev, now, turretStart + 1, now.length);
+        if (turretsChanged) mask |= 0x1000;
+        if (mask === 0) return false;
+
+        out.push(now[1], mask);
+        if (mask & 0x0001) out.push(now[3], now[4]);
+        if (mask & 0x0002) out.push(now[5], now[6]);
+        if (mask & 0x0004) out.push(now[7]);
+        if (mask & 0x0008) out.push(now[8], now[9]);
+        if (mask & 0x0010) out.push(limited ? now[12] : now[16], limited ? now[13] : now[17]);
+        if (mask & 0x0020) out.push(limited ? now[14] : now[18]);
+        if (mask & 0x0040) out.push((now[10] ? 1 : 0) | (now[15] ? 2 : 0) | (now[13] ? 4 : 0) | (now[14] ? 8 : 0));
+        if (mask & 0x0080) out.push(limited ? now[11] : now[12]);
+        if (mask & 0x0100) out.push(now[20]);
+        if (mask & 0x0200) out.push(now[21]);
+        if (mask & 0x0400) out.push(limited ? now[10] : now[11]);
+        if (mask & 0x0800) {
+            out.push(gunLen);
+            for (let g = 0; g < gunLen; g++) {
+                const off = gunStart + 1 + g * GUN_PHOTO_FIELDS;
+                let gunMask = 0;
+                if (countChanged || g >= prev[gunStart]) {
+                    gunMask = (1 << GUN_PHOTO_FIELDS) - 1;
+                } else {
+                    for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                        if (prev[off + f] !== now[off + f]) gunMask |= (1 << f);
+                    }
+                    if (gunMask & 1) gunMask |= 1 << 1;
+                }
+                out.push(gunMask);
+                for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
+                    if (gunMask & (1 << f)) out.push(now[off + f]);
+                }
+            }
+        }
+        if (mask & 0x1000) {
+            const count = now[turretStart];
+            out.push(count);
+            if (prev[turretStart] !== count) {
+                // Turret layout changed: resend every turret in full.
+                for (let k = 0, q = turretStart + 1; k < count; k++) {
+                    const end = this.recordEnd(now, q);
+                    out.push(2);
+                    for (let j = q; j < end; j++) out.push(now[j]);
+                    q = end;
+                }
+            } else {
+                // Same layout: skip identical turrets, send only a new facing
+                // for turrets that merely rotated, full records for the rest.
+                const prevTurretStart = gunStart + 1 + prev[gunStart] * GUN_PHOTO_FIELDS;
+                let p = prevTurretStart + 1, q = turretStart + 1;
+                for (let k = 0; k < count; k++) {
+                    const pe = this.recordEnd(prev, p), qe = this.recordEnd(now, q);
+                    if (qe - q === pe - p && this.spansEqual(prev, p, now, q, qe - q)) {
+                        out.push(0);
+                    } else if (
+                        now[q] & 0x01 && qe - q === pe - p && prev[p] === now[q] &&
+                        this.spansEqual(prev, p + 2, now, q + 2, qe - q - 2)
+                    ) {
+                        out.push(1, now[q + 1]);
+                    } else {
+                        out.push(2);
+                        for (let j = q; j < qe; j++) out.push(now[j]);
+                    }
+                    p = pe; q = qe;
+                }
+            }
+        }
+        if (mask & 0x2000) out.push(limited ? now[15] : now[19]);
+        return true;
+    }
+
+    // True when every value in `[from, to)` is identical between the two records.
+    sameRange(a, b, from, to) {
+        for (let i = from; i < to; i++) {
+            if (a[i] !== b[i]) return false;
+        }
+        return true;
+    }
+
+    // End offset (exclusive) of one flattened record starting at `from`:
+    // type + fields + guns + nested turrets, mirroring flatten().
+    recordEnd(a, from) {
+        let i = from + 1;
+        const type = a[from];
+        i += (type & 0x01) ? 11 : ((type & 0x10) ? 15 : 19 + ((type & 0x04) ? 2 : 0));
+        i += 1 + a[i] * GUN_PHOTO_FIELDS;
+        const turrets = a[i++];
+        for (let k = 0; k < turrets; k++) i = this.recordEnd(a, i);
+        return i;
+    }
+
+    // True when prev[p..p+len) and now[q..q+len) hold identical values.
+    spansEqual(prev, p, now, q, len) {
+        for (let j = 0; j < len; j++) {
+            if (prev[p + j] !== now[q + j]) return false;
+        }
+        return true;
     }
 
     getInvisEntityAlpha(player, other, canSeeInvisible = false) {
@@ -1422,7 +1764,7 @@ class socketManager {
     perspective(e, player, data) {
         if (player.body != null) {
             if (e.alpha < 1 && !e.limited && !player.body.settings.canSeeInvisible) {
-                data[18] = Math.round(255 * this.getInvisEntityAlpha(player, e));
+                data[18] = qfrac(this.getInvisEntityAlpha(player, e));
             }
             if (player.body.id === e.master.id) {
                 data = data.slice(); // So we don't mess up references to the original
@@ -1435,9 +1777,17 @@ class socketManager {
             }
             if (player.body.settings.canSeeInvisible) {
                 data = data.slice();
-                let alpha = this.getInvisEntityAlpha(player, e);
-                if (e.limited) data[14] = Math.round(255 * alpha);
-                else data[18] = Math.round(255 * alpha);
+                let alpha = this.getInvisEntityAlpha(player, e, player.body.settings.canSeeInvisible);
+                if (e.limited) data[14] = qfrac(alpha);
+                else data[18] = qfrac(alpha);
+            }
+            if (e.master?.socket?.status?.isAFK && player.body.id !== e.master.id) {
+                data = data.slice();
+                const dist = Math.sqrt((player.body.x - e.x) ** 2 + (player.body.y - e.y) ** 2),
+                    fade = Math.max(0, (200 - dist) / 160),
+                    alpha = Math.max(0.5, 1 - 0.625 * fade ** 2.25),
+                    i = e.limited ? 14 : 18;
+                data[i] = qfrac(Math.min(data[i] / 255, alpha));
             }
             if (
                 player.body.team === e.source.team &&
@@ -1478,7 +1828,7 @@ class socketManager {
                 mockup = this.generateMockup(index);
             }
             // Send the mockup to the client.
-            socket.talk("M", index, JSON.stringify(mockup));
+            socket.talk("M", index, encodeMockup(mockup));
             // Also push it to the socket's status so we know it.
             socket.status.mockupData.receivedMockups.push(mockup);
             // Push the index so the function doesnt run a thousens of times.
@@ -1519,12 +1869,17 @@ class socketManager {
 
     eyes(socket) {
         const check = (camera, obj) => {
-            let fov = global.gameManager.arenaClosed ? 1.6 : 1;
-            return Math.abs(obj.x - camera.x) < camera.fov * fov + 1.5 * obj.size + 100 &&
-                Math.abs(obj.y - camera.y) < camera.fov * fov * 0.5625 + 1.5 * obj.size + 100;
+            let fov = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
+            return Math.abs(obj.x - camera.x) < fov / 2 + Config.view_extra_margin + 1.5 * obj.size &&
+                Math.abs(obj.y - camera.y) < fov * 9 / 32 + Config.view_extra_margin + 1.5 * obj.size;
         };
-        let lastVisibleUpdate = 0;
+        let lastVisibleUpdate = 0, lastNearX = socket.camera.x, lastNearY = socket.camera.y;
         let nearby = new Map();
+        let visible = [];
+        let view = [];
+        let msg = [];
+        let sent = socket.status.entitySent || (socket.status.entitySent = new Map());
+        let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
             getNearby: () => nearby,
@@ -1532,7 +1887,7 @@ class socketManager {
                 if (check(socket.camera, e)) nearby.set(e.id, e); 
             },
             remove: e => {
-                nearby.delete(e.id) 
+                nearby.delete(e.id); 
             },
             check: (e) => {
                 return check(socket.camera, e); 
@@ -1560,6 +1915,12 @@ class socketManager {
                         }
                         let die = () => { // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
+                            socket.status.isAFK = false;
+                            let delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
+                            if (delay > 0) {
+                                socket.status.readyToSpawn = false;
+                                setTimeout(() => socket.status.readyToSpawn = true, delay);
+                            }
                             // Leave the clan party if clan wars is active
                             if (Config.clan_wars) Config.clan_wars_ft.remove(player.body);
                             // Let the client know it died
@@ -1567,7 +1928,7 @@ class socketManager {
                             purge(); // Call the function so it can remove the body.
                             // Start the timeout
                             socket.timeout.start();
-                        }
+                        };
                         if (player.body.master.label == "Bacteria") { // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
                             let exit = () => die();
                             let newgui = (player) => this.newgui(player);
@@ -1599,75 +1960,55 @@ class socketManager {
                         }
                     }
                 }
+                if (fovNow > Config.max_fov) fovNow = Config.max_fov;
                 // The only reason this exists is because the client is smoothing to its updated fov, and so server does it the same.
                 camera.fov += Math.max((fovNow - camera.fov) / 30, fovNow - camera.fov);
+                if (camera.fov > Config.max_fov) camera.fov = Config.max_fov;
 
                 // Grab entities that we can see
-                if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval) {
-                    // Update our timer
+                // Re-query when due or the camera jumped.
+                let dx = camera.x - lastNearX, dy = camera.y - lastNearY;
+                if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval || dx * dx + dy * dy > 250 * 250) {
                     lastVisibleUpdate = camera.lastUpdate;
-                    
-                    // Reuse the nearby array instead of recreating it
+                    lastNearX = camera.x;
+                    lastNearY = camera.y;
                     nearby.clear();
-                    
-                    // Pre-calculate camera bounds for the broad check
-                    const camFovBroad = camera.fov * (global.gameManager.arenaClosed ? 1.6 : 1);
-                    const camXBound = camFovBroad + 100;
-                    const camYBound = camFovBroad * 0.5625 + 100;
-                    
-                    // Get nearby entities with single efficient check
-                    for (const entity of entities.values()) { 
-                        // Simplified check that combines both visibility checks
-                        if (Math.abs(entity.x - camera.x) < camXBound + 1.5 * entity.size &&
-                            Math.abs(entity.y - camera.y) < camYBound + 1.5 * entity.size) {
-                            nearby.set(entity.id, entity);
-                        }
+                    const camFovBroad = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
+                    const camXBound = camFovBroad / 2 + Config.view_extra_margin + 250;
+                    const camYBound = camFovBroad * 9 / 32 + Config.view_extra_margin + 250;
+                    for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
+                        nearby.set(entity.id, entity);
                     }
                 }
                 
-                // Reset the nearby for this frame and prepare for detailed visibility check
-                let visible = [];
+                visible.length = 0;
                 
-                // Pre-calculate constants for the detailed visibility check
-                const camX = camera.x, camY = camera.y, camFov = camera.fov;
-                const limitDistance = 1.5;  // Recommended value is 2
-                const fovDiv = camFov / limitDistance;
-                const fovDivY = fovDiv * (9 / 13);
-                
-                // Prepare a batch of mockups to send
+                const camX = camera.x, camY = camera.y, camFov = Math.min(camera.fov, Config.max_fov);
+                const fovDiv = camFov / 2 + Config.view_extra_margin;
+                const fovDivY = camFov * 9 / 32 + Config.view_extra_margin;
                 const mockupsToSend = new Set();
-                
-                // Check each nearby entity for detailed visibility
+
                 for (const entity of nearby.values()) {
-                    
-                    // Detailed visibility check
-                    if (entity.photo && 
+                    // Never broadcast the dead: a destroyed body can linger in the
+                    // per-socket nearby cache until its refresh, and re-sending it
+                    // as created resurrects it client-side as a ghost.
+                    // Removals still flow, so the death fade still plays once.
+                    if (entity.isGhost || (typeof entity.isDead === "function" && entity.isDead())) continue;
+                    if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(player.body && player.body.settings.canSeeInvisible)) continue;
+                    if (entity.photo &&
                         Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
                         Math.abs(entity.y - camY) < fovDivY + 1.5 * entity.size
                     ) {
-                        // Add mockup to batch if needed
-                        if (!Config.load_all_mockups && entity.index) {
-                            mockupsToSend.add(entity.index);
-                        }
-                
-                        // Lazily initialize flattened photo
-                        if (!entity.flattenedPhoto) {
-                            entity.flattenedPhoto = this.flatten(entity.photo);
-                        }
-                        
-                        // Add to visible entities
+                        if (!Config.load_all_mockups && entity.index) mockupsToSend.add(entity.index);
+                        if (!entity.flattenedPhoto) entity.flattenedPhoto = this.flatten(entity.photo);
                         visible.push(this.perspective(entity, player, entity.flattenedPhoto));
                     }
                 }
-                
-                // Send mockups as a batch if needed
                 if (!Config.load_all_mockups && mockupsToSend.size > 0) {
                     for (const index of mockupsToSend) {
                         this.sendMockup(index, socket);
                     }
                 }
-                // Spread it for upload
-                const view = [].concat(...visible);
                 if (!Config.load_all_mockups) {
                     for (let upgrade of (player.body?.upgrades || [])) {
                         if (player.body.skill.level >= upgrade.level) {
@@ -1682,10 +2023,14 @@ class socketManager {
                         camera.x,
                         camera.y
                     );
-                } else {
-                    // Update the gui
-                    player.gui.update();
-                    // Send it to the player
+                    lastSentCamX = NaN; // force a full packet next time
+                } else if (
+                    !socket.status.deltaEntities &&
+                    visible.length === 0 &&
+                    camera.x === lastSentCamX && camera.y === lastSentCamY &&
+                    fovNow === lastSentFov && camera.vx === lastSentVx &&
+                    camera.vy === lastSentVy && camera.scoping === lastSentScope
+                ) {
                     socket.talk(
                         "u",
                         lastCycle,
@@ -1694,11 +2039,47 @@ class socketManager {
                         fovNow,
                         camera.vx,
                         camera.vy,
-                        camera.scoping,
-                        ...player.gui.publish(),
-                        visible.length,
-                        ...view
+                        camera.scoping
                     );
+                } else {
+                    // Update the gui
+                    player.gui.update();
+                    msg.length = 0;
+                    msg.push(
+                        "u",
+                        lastCycle,
+                        camera.x,
+                        camera.y,
+                        fovNow,
+                        camera.vx,
+                        camera.vy,
+                        camera.scoping
+                    );
+                    const gui = player.gui.publish();
+                    if (gui) {
+                        for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
+                    }
+                    if (socket.status.deltaEntities) {
+                        this.buildEntityDelta(msg, visible, sent);
+                    } else {
+                        // Full snapshot for clients without delta support.
+                        view.length = 0;
+                        for (let i = 0; i < visible.length; i++) {
+                            let data = visible[i];
+                            for (let j = 0; j < data.length; j++) view.push(data[j]);
+                        }
+                        msg.push(visible.length);
+                        for (let i = 0; i < view.length; i++) msg.push(view[i]);
+                    }
+                    socket.talkArr(msg);
+                }
+                if (!updateCam) {
+                    lastSentCamX = camera.x;
+                    lastSentCamY = camera.y;
+                    lastSentFov = fovNow;
+                    lastSentVx = camera.vx;
+                    lastSentVy = camera.vy;
+                    lastSentScope = camera.scoping;
                 }
                 logs.network.mark();
             }
@@ -1804,7 +2185,7 @@ class socketManager {
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);
-        }
+        };
         let makeLeaderboardHPList = (list) => {
             let topTen = [];
             for (let i = 0; i < 10 && list.length; i++) {
@@ -1836,7 +2217,7 @@ class socketManager {
             }
             global.gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
             return topTen.sort((a, b) => a.id - b.id);
-        }
+        };
         // Deltas
         let minimapAll = new Delta(5, args => {
             let all = [];
@@ -1866,7 +2247,7 @@ class socketManager {
         let minimapTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap) {
+                if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap && !my.settings.fullyInvisible) {
                     all.push({
                         id: my.id,
                         data: [
@@ -1882,7 +2263,7 @@ class socketManager {
         let minimapAllTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.master === my && !my.lifetime) {
+                if (my.type === "tank" && my.master === my && my.allowedOnMinimap && !my.lifetime && !my.settings.fullyInvisible) {
                     all.push({
                         id: my.id,
                         data: [
@@ -1976,7 +2357,7 @@ class socketManager {
                 ) list.push(instance);
             }
             return makeLeaderboardList(list, args);
-        })
+        });
         let bossLeaderboard = new Delta(7, args => {
             let list = [];
             for (const instance of entities.values()) {
@@ -1989,7 +2370,7 @@ class socketManager {
                 ) list.push(instance);
             }
             return makeLeaderboardHPList(list);
-        })
+        });
         let subscribers = [];
         setInterval(() => {
             logs.minimap.set();
@@ -2013,7 +2394,12 @@ class socketManager {
                     socket.id,
                     (Config.groups || (Config.mode == "ffa" && !Config.tag)) && socket.player.body ? socket.player.body.id : null
                 );
-                let team = socket.status.seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
+                let seesAllTeams = socket.status.seesAllTeams || !!socket.player.body?.settings.canSeeInvisible;
+                if (seesAllTeams !== socket.status.seesAllTeamsOnMinimap) {
+                    socket.status.seesAllTeamsOnMinimap = seesAllTeams;
+                    socket.status.needsNewBroadcast = true;
+                }
+                let team = seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
                 
                 // Send the leaderboard tanks' mockups
                 if (global.gameManager.gameHandler.active) {
@@ -2062,7 +2448,7 @@ class socketManager {
         return {
             subscribe: (socket) => broadcast.add(socket),
             unsubscribe: (socket) => broadcast.remove(socket)
-        }
+        };
     })();
 
     sendToServer(socket, server) {
@@ -2108,6 +2494,31 @@ class socketManager {
         };
         socket.talk = (...message) => {
             if (socket.readyState === socket.OPEN) {
+                if (message[0] === "m" && typeof message[2] === "string") {
+                    let lines = message[2].split(/\r\n|\r|\n/);
+                    if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
+                    message = lines.length > 1
+                        ? ["Em", message[1], JSON.stringify(lines)]
+                        : ["m", message[1], lines[0]];
+                }
+                for (let i = 0; i < message.length; i++) {
+                    if (typeof message[i] === "string") {
+                        const id = U_COLOR_ID.get(message[i]);
+                        if (id !== undefined) message[i] = id;
+                    }
+                }
+                socket.send(protocol.encode(message), { binary: true });
+            }
+        };
+        // Same as talk(), but takes an array. Only used for "u" packets.
+        socket.talkArr = (message) => {
+            if (socket.readyState === socket.OPEN) {
+                for (let i = 0; i < message.length; i++) {
+                    if (typeof message[i] === "string") {
+                        const id = U_COLOR_ID.get(message[i]);
+                        if (id !== undefined) message[i] = id;
+                    }
+                }
                 socket.send(protocol.encode(message), { binary: true });
             }
         };
@@ -2130,8 +2541,8 @@ class socketManager {
                 receivedUpgradePackIndexes: [],
                 receivedUpgradePackMockups: [],
                 requestMockups: []
-            }
-        }
+            };
+        };
         socket.messageManager = socket.on("message", message => this.incoming(message, socket));
         socket.connectedTo = global.gameManager.name;
         let timer = 0;
@@ -2144,28 +2555,12 @@ class socketManager {
                 timer = 0;
             }
         };
-        socket.awaiting = {};
-        socket.awaitResponse = function(options, callback) {
-            socket.awaiting[options.packet] = {
-                callback: callback,
-                timeout: setTimeout(() => {
-                    console.log("Socket did not respond to the eval packet, kicking...");
-                    socket.kick("Did not comply with the server's protocol.");
-                }, options.timeout)
-            };
-        };
-        socket.resolveResponse = function(id, packet) {
-            if (socket.awaiting[id]) {
-                clearTimeout(socket.awaiting[id].timeout);
-                socket.awaiting[id].callback(packet);
-                return true;
-            }
-            return false;
-        };
         // Set up the status container
         socket.status = {
             verified: false,
+            deltaEntities: false,
             receiving: 0,
+            spawning: false,
             deceased: true,
             requests: 0,
             hasSpawned: false,
@@ -2173,10 +2568,13 @@ class socketManager {
             needsNewBroadcast: true,
             forceNewBroadcast: false,
             selectedLeaderboard: false,
+            selectedChannel: "global",
             seesAllTeams: false,
+            seesAllTeamsOnMinimap: false,
             daily_tank_watched_ad: false,
             readyToSpawn: true,
             hasOperator: false,
+            permissionLevel: 0,
             readyToBroadcast: false,
             mockupData: socket.initMockupList(),
             lastHeartbeat: util.time()
@@ -2242,7 +2640,7 @@ class socketManager {
             if (fs.existsSync(PERMABAN_FILE)) {
                 permBans = JSON.parse(fs.readFileSync(PERMABAN_FILE));
                 if (permBans.some(b => b.ip === socket.ip)) {
-                    socket.talk("permanentban");
+                    socket.talk("permanentBan");
                     socket.kick("Permanent Banned player found!");
                     return;
                 }
@@ -2267,7 +2665,7 @@ class socketManager {
 
         if (Config.load_all_mockups) {
             for (let i = 0; i < mockupData.length; i++) {
-                socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
+                socket.talk("M", mockupData[i].index, encodeMockup(mockupData[i]));
             }
         }
 

@@ -10,8 +10,8 @@
     <meta property="og:image:width" content="54">
     <meta property="og:image:height" content="54">
     <title>Custom Shape Builder - Open Source Arras</title>
-    <link rel="stylesheet" href="/font.css" />
-    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/font.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
     <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
@@ -26,9 +26,6 @@
     <link rel="icon" type="image/png" sizes="1024x1024" href="/favicon/1024x1024.png">
     <link rel="icon" type="image/png" sizes="2048x2048" href="/favicon/2048x2048.png">
     <link rel="icon" type="image/svg+xml" sizes="400x400" href="/favicon/base.svg">
-    <meta name="theme-color" content="#8abc3f">
-    <meta name="application-name" content="OSA">
-    <meta name="msapplication-TileColor" content="#8abc3f">
     <style>
         #startMenuWrapper {
             max-width: 780px;
@@ -69,7 +66,13 @@
 </head>
 
 <body oncontextmenu="return false" id="mainBody">
-    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=dcb31709b452b1cf9dc26972add0fda6"></script>
+    <script>
+        function error() {
+            alert("Could not connect to Desmos. This is most likely because the owner of this server has not added a valid API key, or JavaScript is disabled/not available in your browser.\n\nThe Custom Shape Builder will not run.");
+            history.back();
+        };
+    </script>
+    <script src="https://www.desmos.com/api/v1.2/calculator.js?apiKey=INSERT_DESMOS_API_KEY_HERE" onerror="error()"></script>
     <div class="mainWrapper">
         <div id="startMenuWrapper">
             <div id="menuTabs" class="menuTabs" style="text-align: center;">

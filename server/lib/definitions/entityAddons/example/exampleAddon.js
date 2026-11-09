@@ -66,6 +66,6 @@ Class.abomination = {
     EXTRA_SKILL: 28,
     MAX_CHILDREN, GUNS, TURRETS
 };
-Class.exampleAddon = makeMenu("Example Addon")
-Class.exampleAddon.UPGRADES_TIER_0 = ["abomination"]
+Class.exampleAddon = makeMenu("Example Addon");
+Class.exampleAddon.UPGRADES_TIER_0 = ["abomination"];
 Class.menu_addons.UPGRADES_TIER_0.push("exampleAddon");

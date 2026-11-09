@@ -11,19 +11,15 @@ class Canvas {
         this.target = global.target;
         this.socket = global.socket;
         this.directions = [];
-        this.chatListener = function(id, event) {
-            if (!["Enter", "Escape"].includes(event.code)) return;
+        this.chatListener = function(id, event) { // i changed 14 to 31
+            if (!["Enter", "Escape", "Send"].includes(event.code)) return;
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
-            setTimeout(() => {
-                if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
-            }, 50)
+            setTimeout(() => { if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false; }, 50)
             if (!this[id].value) return;
             if (event.code === "Enter") this.socket.talk("M", this[id].value);
-            this[id].value = "";
-        }
-
+            this[id].value = ""; }
         this.cv = document.getElementById("gameCanvas");
         this.cvb = document.getElementById("gameCanvas-background");
         this.cvg = document.getElementById("gameCanvas-gameplay");
@@ -34,6 +30,7 @@ class Canvas {
         };
         this.cv.resize(innerWidth, innerHeight);
         this.reverseDirection = false;
+        this.reverseSpam = [];
         this.inverseMouse = false;
         this.spinLock = false;
         this.mouseMoved = false;
@@ -66,6 +63,24 @@ class Canvas {
         );
         this.cv.addEventListener("keydown", (event) => {if (global.gameStart) this.keyDown(event)});
         this.cv.addEventListener("keyup", (event) => {if (global.gameStart) this.keyUp(event)});
+        window.addEventListener("keydown", (event) => {
+            const el = global.ingameRebind;
+            if (!el) return;
+            event.preventDefault();
+            event.stopPropagation();
+            if (event.code !== "Escape") {
+                const name = event.key.length === 1 ? event.key.toUpperCase() : event.key;
+                el.textContent = name;
+                global[el.dataset.key] = event.code;
+                let kb = {};
+                try { kb = JSON.parse(localStorage.getItem("keybinds") || "{}"); } catch (e) { kb = {}; }
+                kb[el.dataset.key] = [name, event.code];
+                localStorage.setItem("keybinds", JSON.stringify(kb));
+            }
+            const td = el.closest("td");
+            if (td) td.classList.remove("editing");
+            global.ingameRebind = null;
+        }, true);
         window.addEventListener("gamepadconnected", (e) => {
             global.createMessage("Controller detected! Initalizing Gamepad mode...");
             this.runGamepad();
@@ -75,6 +90,15 @@ class Canvas {
             this.stopGamepad();
         });
         this.initalized = true;
+    }
+
+    toggleReverse() {
+        let now = Date.now();
+        this.reverseSpam = this.reverseSpam.filter(t => now - t < 10_000);
+        this.reverseSpam.push(now);
+        if (this.reverseSpam.length >= 7) return global.createMessage("Please slow down!");
+        this.reverseDirection = !this.reverseDirection;
+        global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
     }
 
     wheel(event) {
@@ -106,7 +130,16 @@ class Canvas {
             this.chatInput = document.createElement("input");
             this.chatInput.id = "chatInput";
             this.chatInput.style.zIndex = 11;
+            if (global.mobile) {
+                this.chatInput.setAttribute("enterkeyhint", "send");
+                this.chatInput.setAttribute("autocomplete", "off");
+            };
             this.chatInput.addEventListener("keydown", event => this.chatListener("chatInput", event));
+            if (global.mobile) {
+                this.chatInput.addEventListener("beforeinput", event => {
+                 if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
+                }); // i changed
+            };
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
         }
         this.chatInput.focus();
@@ -114,9 +147,13 @@ class Canvas {
     }
 
     respawn() {
-        if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
             this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, false, 1 * config.game.incognitoMode);
             global.died = false;
+            if (config.game.instantRespawn) {
+                global.cannotRespawn = false;
+                global.respawnTimeout = false;
+            }
         }
     }
 
@@ -194,7 +231,7 @@ class Canvas {
 
             case "Enter":
                 // Enter to respawn
-                if (global.died && !global.cannotRespawn) {
+                if (global.died && global.readyToRespawn && !global.cannotRespawn) {
                     this.respawn();
                     global.selfDestructed = false;
                     global.died = false;
@@ -279,8 +316,7 @@ class Canvas {
                     global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
                     break;
                 case global.KEY_REVERSE_TANK:
-                    this.reverseDirection = !this.reverseDirection;
-                    global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+                    this.toggleReverse();
                     break;
                 case global.KEY_PING:
                     global.showDebug = !global.showDebug;
@@ -294,6 +330,9 @@ class Canvas {
                     break;
                 case global.KEY_SCREENSHOT:
                     this.screenshot();
+                    break;
+                case global.KEY_PAUSE:
+                    this.socket.talk("G");
                     break;
             }
             if (global.canSkill) {
@@ -437,6 +476,21 @@ class Canvas {
                     global.classTreeDrag.momentum = { x: 0, y: 0 };
                     break;
                 }
+                if (global.ingameThemeSlider && global.ingameThemeSetBlend) {
+                    const s = global.ingameThemeSlider;
+                    if (mpos.x >= s.x && mpos.x <= s.x + s.w && mpos.y >= s.y - 8 && mpos.y <= s.y + s.h + 8) {
+                        global.ingameThemeSliderDrag = true;
+                        global.ingameThemeSetBlend(mpos.x <= s.x ? 0 : (mpos.x - s.x) / s.w);
+                        return;
+                    }
+                }
+                if (global.ingameThemeNeon && global.ingameThemeToggleNeon) {
+                    const c = global.ingameThemeNeon;
+                    if (mpos.x >= c.x && mpos.x <= c.x + c.w && mpos.y >= c.y && mpos.y <= c.y + c.h) {
+                        global.ingameThemeToggleNeon();
+                        return;
+                    }
+                }
                 let statIndex = global.clickables.stat.check(mpos);
                 let upgradeCheck = global.clickables.upgrade.check(mpos);
                 let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
@@ -496,6 +550,10 @@ class Canvas {
         switch (mouse.button) {
             case 0:
                 global.optionsMenu_Anim.sliderMoving = false;
+                if (global.ingameThemeSliderDrag) {
+                    global.ingameThemeSliderDrag = false;
+                    return;
+                }
                 if (global.optionsMenu_Anim.currentOptionMenu) {
                     global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch = true;
                 };
@@ -522,30 +580,53 @@ class Canvas {
                     break;
                 }
                 if (optionsMenu_Switch === 1) {
+                    document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
+                    global.ingameRebind = null;
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
                     }
                     break;
                 }
+                if (global.ingameKeybindRects) {
+                    for (const r of global.ingameKeybindRects) {
+                        if (mpos.x >= r.x && mpos.x <= r.x + r.w && mpos.y >= r.y && mpos.y <= r.y + r.h) {
+                            document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
+                            const td = r.el.closest("td");
+                            if (td) td.classList.add("editing");
+                            global.ingameRebind = r.el;
+                            return;
+                        }
+                    }
+                }
                 if (optionsMenu_tabClick !== -1) {
                     global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
                     global.optionsMenu_Anim.tabOffset.set(optionsMenu_tabClick);
                     global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[optionsMenu_tabClick][1]);
+                    if (optionsMenu_tabClick !== 2) global.ingameKeybindRects = null;
+                    if (global.optionsMenu_Anim.currentOptionMenu) {
+                        global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
+                        global.optionsMenu_Anim.currentOptionMenu = false;
+                    }
+                    global.clickables.optionsMenu.toggleBoxes.hide();
+                    global.clickables.optionsMenu.HoverBoxes.hide();
+                    global.clickables.optionsMenu.optionBoxes.hide();
                     if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
                     break;
                 }
                 if (optionsMenu_toggleBox !== -1) {
                     let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    if (box.placeholder) break;
                     if (box.type === "checkbox") {
                         let doc = document.getElementById(box.id);
                         box.value = !box.value;
                         if (doc) doc.checked = box.value;
                         if (doc) util.submitToLocalStorage(box.id);
+                        else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
                     }
                     break;
                 }
@@ -637,7 +718,10 @@ class Canvas {
         if (this.spinLock) return;
         global.mouse.x = mouse.clientX * global.ratio;
         global.mouse.y = mouse.clientY * global.ratio;
-        if (global.optionsMenu_Anim.sliderMoving) {
+        if (global.ingameThemeSliderDrag && global.ingameThemeSlider && global.ingameThemeSetBlend) {
+            const s = global.ingameThemeSlider;
+            global.ingameThemeSetBlend(global.mouse.x <= s.x ? 0 : (global.mouse.x - s.x) / s.w);
+        } else if (global.optionsMenu_Anim.sliderMoving) {
             global.optionsMenu_Anim.sliderMoving.trigger({}, global.optionsMenu_Anim.sliderMoving);
         }
         if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch) {
@@ -693,12 +777,12 @@ class Canvas {
             if (this.videoRecorder) {
                 switch (this.videoRecorder.state) {
                     case "inactive":
-                        global.createMessage("Recorder Started!", 2_000);
+                        global.createMessage("Recorder started!", 2_000);
                         this.videoRecorderCanvas.start();
                         this.videoRecorder.start();
                         break;
                     case "recording":
-                        global.createMessage("Recorder Stopped! Saving file...", 5_000);
+                        global.createMessage("Recorder stopped! Saving file...", 5_000);
                         this.videoRecorder.stop();
                         this.videoRecorderCanvas.stop();
                         setTimeout(() => this.videoRecorder.download(), 200);
@@ -708,7 +792,7 @@ class Canvas {
                 this.videoRecorderCanvas.init();
                 this.videoRecorderCanvas.start();
                 this.videoRecorder = new AdvancedRecorder(this.videoRecorderCanvas.getCanvas(), 60);
-                global.createMessage("Recorder Started!", 2_000);
+                global.createMessage("Recorder started!", 2_000);
                 this.videoRecorder.start();
             }
         }
@@ -749,29 +833,41 @@ class Canvas {
             this.screenshotCanvas.capture();
         }
         let cv = this.screenshotCanvas.getCanvas();
-        var x = cv.toDataURL(),
-            k = atob(x.split(",")[1]);
-        x = x.split(",")[0].split(":")[1].split(";")[0];
-        let p = new Uint8Array(k.length);
-        for (let a = 0; a < k.length; a++) p[a] = k.charCodeAt(a);
-        let q = URL.createObjectURL(new Blob([p], {type: x})),
-        w = document.createElement("a");
-        w.style.display = "none";
-        w.setAttribute("download", "osa-screenshot.png");
-        w.setAttribute("href", q);
-        document.body.appendChild(w);
-        setTimeout(() => {
-            URL.revokeObjectURL(q);
-            document.body.removeChild(w);
-        }, 100);
-        w.click();
-        global.createMessage("Saving screenshot...", 3_000);
+        let save = () => {
+            var x = cv.toDataURL(),
+                k = atob(x.split(",")[1]);
+            x = x.split(",")[0].split(":")[1].split(";")[0];
+            let p = new Uint8Array(k.length);
+            for (let a = 0; a < k.length; a++) p[a] = k.charCodeAt(a);
+            let q = URL.createObjectURL(new Blob([p], {type: x})),
+            w = document.createElement("a");
+            w.style.display = "none";
+            w.setAttribute("download", "image.png");
+            w.setAttribute("href", q);
+            document.body.appendChild(w);
+            setTimeout(() => {
+                URL.revokeObjectURL(q);
+                document.body.removeChild(w);
+            }, 100);
+            w.click();
+            //global.createMessage("Saving screenshot...", 3_000);
+        };
+        if (localStorage.getItem("optCopyScreenshotsChecked") === "true" && navigator.clipboard && window.ClipboardItem) {
+            cv.toBlob((blob) => {
+                if (!blob) return save();
+                navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+                    .then(() => global.createMessage("Screenshot copied to clipboard!", 3_000))
+                    .catch(() => save());
+            }, "image/png");
+            return;
+        }
+        save();
     }
 
     // Touchscreen Controls
     touchStart(e) {
         e.preventDefault();
-        if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
             this.respawn();
             global.resetTarget();
         } else {
@@ -781,6 +877,16 @@ class Canvas {
                     y: touch.clientY * global.ratio,
                 };
                 let id = touch.identifier;
+                // Sandbox mobile keys has priority over ui while its open
+                let operatorKeyIndex = global.clickables.operatorKeys.check(mpos);
+                if (operatorKeyIndex !== -1) {
+                   const heldKey = this.handleOperatorKeyboardTouch(operatorKeyIndex);
+                      if (heldKey) {
+                      if (!this.operatorKeyTouches) this.operatorKeyTouches = {};
+                        this.operatorKeyTouches[id] = heldKey;
+                      }
+                    continue;
+                }
                 let buttonIndex = global.clickables.mobileButtons.check(mpos);
                 if (buttonIndex !== -1) {
                     switch (buttonIndex) {
@@ -815,8 +921,7 @@ class Canvas {
                             this.socket.talk("t", 1, true);
                             break;
                         case 4:
-                            this.reverseDirection = !this.reverseDirection;
-                            global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+                            this.toggleReverse();
                             break;
                         case 5:
                             this.socket.talk("1");
@@ -951,26 +1056,46 @@ class Canvas {
         global.mouse = this.target;
     }
     touchEnd(e) {
-        e.preventDefault();
-        for (let touch of e.changedTouches) {
-            let id = touch.identifier;
-      
-            if (this.movementTouch === id) {
-                this.movementTouch = null;
-                this.movementTouchPos = { x: 0, y: 0 };
-                if (this.movementTop) this.socket.cmd.set(0, (this.movementTop = false));
-                if (this.movementBottom) this.socket.cmd.set(1, (this.movementBottom = false));
-                if (this.movementLeft) this.socket.cmd.set(2, (this.movementLeft = false));
-                if (this.movementRight) this.socket.cmd.set(3, (this.movementRight = false));
-            } else if (this.controlTouch === id) {
-                this.controlTouch = null;
-                this.controlTouchPos = { x: 0, y: 0 };
-                this.socket.cmd.set(4, false);
-                global.mobileStatus.showCrosshair = false;
+    e.preventDefault();
+    for (let touch of e.changedTouches) {
+        let id = touch.identifier;
+        if (this.operatorKeyTouches && this.operatorKeyTouches[id]) {
+            global.handleOperatorKeyUp(this.operatorKeyTouches[id]);
+            delete this.operatorKeyTouches[id];
+        }
+        if (this.movementTouch === id) {
+            this.movementTouch = null;
+            this.movementTouchPos = { x: 0, y: 0 };
+            if (this.movementTop) this.socket.cmd.set(0, (this.movementTop = false));
+            if (this.movementBottom) this.socket.cmd.set(1, (this.movementBottom = false));
+            if (this.movementLeft) this.socket.cmd.set(2, (this.movementLeft = false));
+            if (this.movementRight) this.socket.cmd.set(3, (this.movementRight = false));
+        } else if (this.controlTouch === id) {
+            this.controlTouch = null;
+            this.controlTouchPos = { x: 0, y: 0 };
+            this.socket.cmd.set(4, false);
+            global.mobileStatus.showCrosshair = false;
             }
         }
+   }
+ 
+    handleOperatorKeyboardTouch(index) {
+    if (index === 0) {
+        global.operatorKeyboard.open = !global.operatorKeyboard.open;
+        if (!global.operatorKeyboard.open) global.operatorKeyboard.prefix = null;
+        return null;
     }
-
+    let flatIndex = index - 1;
+    for (let row of global.operatorKeyboardRows) {
+        if (flatIndex < row.length) {
+            const key = row[flatIndex];
+            const isHeld = global.handleOperatorKeyDown(key);
+            return isHeld ? key : null;
+        }
+        flatIndex -= row.length;
+    }
+    return null;
+    }
     // Controller Controls
     runGamepad() {
         let sendHelp = () => {
@@ -1071,7 +1196,7 @@ class Canvas {
                 }
                 // Shoot
                 if (this.gamepad.buttons[7].pressed) {
-                    if (global.died && !global.cannotRespawn) {
+        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
                         this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp);
                         global.died = false;
                     } else {

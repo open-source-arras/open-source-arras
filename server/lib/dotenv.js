@@ -14,4 +14,4 @@ module.exports = data => Object.fromEntries(data.split(/\r?\n/g).map(line => {
     const key = line.slice(0, line.indexOf("="));
     const value = line.slice(line.indexOf("=") + 1);
     return (key && value) ? [key, value] : null;
-}).filter(item => item !== null))
+}).filter(item => item !== null));

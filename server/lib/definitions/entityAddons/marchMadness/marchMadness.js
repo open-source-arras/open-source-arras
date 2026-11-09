@@ -63,5 +63,5 @@ if (Config.march_madness) {
                 }
             }
         }
-    })(Class)
+    })(Class);
 }

@@ -1,13 +1,13 @@
-const { combineStats, weaponArray, weaponMirror } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
+const { combineStats, weaponArray, weaponMirror } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
 
 const mystical_gun_position = {
     LENGTH: 3.5,
     WIDTH: 8.65,
     ASPECT: 1.2,
     X: 8
-}
+};
 
 Class.sorcerer = {
     PARENT: "miniboss",
@@ -36,7 +36,7 @@ Class.sorcerer = {
             WAIT_TO_CYCLE: true
         }
     }, 2)
-}
+};
 Class.summoner = {
     PARENT: "miniboss",
     LABEL: "Summoner",
@@ -64,7 +64,7 @@ Class.summoner = {
             WAIT_TO_CYCLE: true
         }
     }, 4)
-}
+};
 Class.enchantress = {
     PARENT: "miniboss",
     LABEL: "Enchantress",
@@ -92,7 +92,7 @@ Class.enchantress = {
             WAIT_TO_CYCLE: true
         }
     }, 3)
-}
+};
 Class.exorcistor = {
     PARENT: "miniboss",
     LABEL: "Exorcistor",
@@ -119,8 +119,8 @@ Class.exorcistor = {
             STAT_CALCULATOR: "drone",
             WAIT_TO_CYCLE: true
         }
-    }, 5, {delayIncrement: 1/5})
-}
+    }, 5, {delayIncrement: 1 / 5})
+};
 Class.shaman = {
     PARENT: "miniboss",
     LABEL: "Shaman",
@@ -147,8 +147,8 @@ Class.shaman = {
             STAT_CALCULATOR: "drone",
             WAIT_TO_CYCLE: true
         }
-    }, 6, {delayIncrement: 1/6})
-}
+    }, 6, {delayIncrement: 1 / 6})
+};
 Class.sangoma = {
     PARENT: "miniboss",
     LABEL: "Sangoma",
@@ -178,8 +178,8 @@ Class.sangoma = {
             STAT_CALCULATOR: "drone",
             WAIT_TO_CYCLE: true
         }
-    }, 7, {delayIncrement: 1/7})
-}
+    }, 7, {delayIncrement: 1 / 7})
+};
 Class.preacher = {
     PARENT: "miniboss",
     LABEL: "Preacher",
@@ -210,7 +210,7 @@ Class.preacher = {
             WAIT_TO_CYCLE: true
         }
     }, 8, {delayIncrement: 0.125})
-}
+};
 Class.herbalist = {
     PARENT: "miniboss",
     LABEL: "Herbalist",
@@ -240,8 +240,8 @@ Class.herbalist = {
             STAT_CALCULATOR: "drone",
             WAIT_TO_CYCLE: true
         }
-    }, 9, {delayIncrement: 1/9})
-}
+    }, 9, {delayIncrement: 1 / 9})
+};
 Class.witch = {
     PARENT: "miniboss",
     LABEL: "Witch",
@@ -272,10 +272,10 @@ Class.witch = {
             WAIT_TO_CYCLE: true
         }
     }, {delayIncrement: 0.5}), 3)
-}
+};
 
 if (Config.classic_food) {
-    Class.menu_mysticalBosses.UPGRADES_TIER_0.splice(5, 0, "sangoma", "preacher", "herbalist")
-    Class.shaman.COLOR = "magenta"
-    Class.shaman.UPGRADE_COLOR = "magenta"
+    Class.menu_mysticalBosses.UPGRADES_TIER_0.splice(5, 0, "sangoma", "preacher", "herbalist");
+    Class.shaman.COLOR = "magenta";
+    Class.shaman.UPGRADE_COLOR = "magenta";
 }

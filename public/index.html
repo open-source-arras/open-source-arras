@@ -10,8 +10,8 @@
     <meta property="og:image:width" content="54">
     <meta property="og:image:height" content="54">
     <title>Open Source Arras</title>
-    <link rel="stylesheet" href="./font.css" />
-    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./font.css">
+    <link rel="stylesheet" href="./style.css">
     <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="/favicon/60x60.png">
     <link rel="apple-touch-icon" type="image/png" sizes="120x120" href="/favicon/120x120.png">
     <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="/favicon/180x180.png">
@@ -42,6 +42,9 @@
     <div class="mainWrapper">
         <div id="startMenuWrapper">
             <div id="menuTabs" class="menuTabs" style="text-align: center;">
+                <noscript><span class="menuTab" style="background: #f00">
+                    <a>JavaScript is not supported on your browser! Please upgrade your browser to the latest version or disable any conflicting extensions.</a>
+                </span></noscript>
                 <!--<span class="menuTab achieve">
                     <a>View Achievements</a>
                 </span>
@@ -60,16 +63,16 @@
             </div>
             <div class="startMenu">
                 <div class="startMenuHolder linkHolder">
-                    <div class="bannerHolder">
-                        <a id="banner-fallback" class="banner-fallback" href="https://example.com">
+                    <div class="spawnAdHolder">
+                        <a id="referral-fallback" class="referral-fallback" href="https://example.com">
                             <img src="img/ads/example_menu_ad.png" alt="Placeholder banner" width="336" height="280">
                         </a>
                     </div>
                     <div class="bottomHolder">
-                        <a style="width: 40px; background: #7289da;" href="https://discord.gg/arras">
+                        <a style="width: 40px; background: #7289da;" href="https://discord.gg/arras" title="Join the official Open Source Arras community Discord server!">
                             <img src="img/discord.svg" alt="Discord" width="24" height="24">
                         </a>
-                        <a style="width: 40px; background: #282038;" href="https://stt.gg/S4tqfeAK">
+                        <a style="width: 40px; background: #282038;" href="https://stt.gg/S4tqfeAK" title="Join the official Open Source Arras community Stoat server!">
                             <img src="img/stoat.svg" alt="Stoat" width="24" height="24">
                         </a>
                         <a style="width: 40px; background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
@@ -85,18 +88,17 @@
                     <div class="sliderHolder">
                         <div class="slider startMenuSlidingContent">
                             <div class="header">
-                                <a href="/" class="icon" tabindex="-1">
-                                    <img src="/favicon/base.svg" alt="OSA icon">
-                                </a>
+                                <a href="/" class="icon" tabindex="-1"><img src="/favicon/base.svg" alt="arras.io icon"></a>
                                 <h1>arras.io</h1>
                             </div>
                             <div>
-                                <div class="horizontalSelector" id="serverFilterRegion" style="display: none;"></div>
-                                <div class="horizontalSelector" id="serverFilterMode" style="display: none;"></div>
+                                <div class="horizontalSelector" id="serverFilterRegion"></div>
+                                <div class="horizontalSelector" id="serverFilterMode"></div>
                             </div>
                             <div class="serverSelector shadowScroll">
                                 <table>
-                                    <tbody id="serverSelector" />
+                                    <noscript><div class="serverSelectorError">Failed to fetch the server list!<br/>This is likely happening either because your game is very outdated, or because something is blocking the connection. Please try clearing your cache and disabling any extensions that may be interfering with the game.</div></noscript>
+                                    <tbody id="serverSelector"/>
                                 </table>
                             </div>
                             <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
@@ -131,14 +133,14 @@
                                     <option value="eggplant">Eggplant (by Road)</option>
                                     <option value="worldRecordSheet">World Record Sheet (by alettera)</option>
                                     <option value="lyric">Lyric (by evil isopod)</option>
-                                    <option value="bleach">Bleach (by definitelynot.)</option>
-                                    <option value="nebula">Nebula (by Unknown)</option>
-                                    <option value="forest">Forest (by Sterlon)</option>
-                                    <option value="pastel">Pastel (by Damocles)</option>
-                                    <option value="descent">Descent (by Rog456)</option>
-                                    <option value="badlands">Badlands (by Incognious)</option>
-                                    <option value="pumpkinSkeleton">Pumpkin Skeleton (by Road)</option>
-                                    <option value="blindness">Blindness (by Damocles)</option>
+                                    <option value="bleach" data-secret-theme>Bleach (by definitelynot.)</option>
+                                    <option value="nebula" data-secret-theme>Nebula (by Unknown)</option>
+                                    <option value="forest" data-secret-theme>Forest (by Sterlon)</option>
+                                    <option value="pastel" data-secret-theme>Pastel (by Damocles)</option>
+                                    <option value="descent" data-secret-theme>Descent (by Rog456)</option>
+                                    <option value="badlands" data-secret-theme>Badlands (by Incognious)</option>
+                                    <option value="pumpkinSkeleton" data-secret-theme>Pumpkin Skeleton (by Road)</option>
+                                    <option value="blindness" data-secret-theme>Blindness (by Damocles)</option>
                                     <option value="custom">Custom</option>
                                 </select>
                                 <select id="optMobile" tabindex="-1">
@@ -147,12 +149,14 @@
                                     <option value="desktop">Desktop</option>
                                 </select>
                                 <select id="optBorders" tabindex="-1">
-                                    <option value="normal">Soft Borders</option>
-                                    <option value="dark">Dark Borders</option>
-                                    <option value="neon">Neon Mode</option>
+                                    <option value="normal">Light</option>
+                                    <option value="neon">Dark</option>
+                                    <option value="normal">Classic Light (Placeholder)</option>
+                                    <option value="dark">Classic Dark</option>
                                     <option value="glass">Glass Mode</option>
                                 </select>
                                 <input style="display: none;" placeholder="Insert Custom Theme" id="optCustom" />
+                                <input style="display: none;" id="optTankSkins" type="checkbox" checked>
                                 <table>
                                     <tr>
                                         <td>
@@ -199,7 +203,7 @@
                                 <select id="optUiScale" tabindex="-1">
                                     <option value="auto">UI Scale (Auto)</option>
                                     <option value="small">UI Scale (Small)</option>
-                                    <option value="normal">UI Scale (Normal)</option>
+                                    <option value="normal">UI Scale (Regular)</option>
                                     <option value="large">UI Scale (Large)</option>
                                     <option value="mobile">UI Scale (Mobile)</option>
                                 </select>
@@ -318,6 +322,14 @@
                                             <div><label class="container"><input id="optSlowerFOV" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Slow FOV Animation</label></div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optDeltaEntities" tabindex="-1" class="checkbox" type="checkbox" checked><span class="checkmark" checked></span>Delta Entities</label></div>
+                                        </td>
+                                        <td>
+                                            <div></div>
+                                        </td>
+                                    </tr>
                                 </table>
                                 <div class="optionsHeader">Miscellaneous</div>
                                 <select id="optNames" tabindex="-1">
@@ -336,7 +348,7 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <input type="text" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
+                                <input type="password" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
                             </div>
                             <div id="tabControls">
                                 <div class="horizontalSelector" id="controlsMenuTabs">
@@ -373,54 +385,32 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_AUTO_FIRE">E</b><span> - </span>auto-fire</div>
+                                                        <div><b data-key="KEY_MOUSE_0">␣</b><span> - </span>primary control</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_AUTO_SPIN">C</b><span> - </span>auto-spin</div>
+                                                        <div><b data-key="KEY_MOUSE_2">⇧</b><span> - </span>secondary control</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_OVERRIDE">R</b><span> - </span>disable AI</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div><b data-key="KEY_LEVEL_UP">N</b><span> - </span>level up</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_REVERSE_TANK">V</b><span> - </span>reverse tank</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_REVERSE_MOUSE">B</b><span> - </span>reverse mouse</div>
+                                                        <div></div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_SCREENSHOT">Q</b><span> - </span>screenshot</div>
+                                                        <div><b data-key="KEY_AUTO_FIRE">E</b><span> - </span>autofire</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_MAX">M</b><span> - </span>maximize stat</div>
+                                                        <div><b data-key="KEY_AUTO_SPIN">C</b><span> - </span>autospin</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_CLASS_TREE">T</b><span> - </span>show class tree</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div><b data-key="KEY_RECORD">Z</b><span> - </span>record video</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_SUICIDE">O</b><span> - </span>self-destruct</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_PING">L</b><span> - </span>debug info</div>
+                                                        <div><b data-key="KEY_OVERRIDE">R</b><span> - </span>override</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_SPIN_LOCK">G</b><span> - </span>spin lock</div>
+                                                        <div><b data-key="KEY_REVERSE_TANK">V</b><span> - </span>reverse aim</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_ABILITY">F</b><span> - </span>use action</div>
+                                                        <div><b data-key="KEY_REVERSE_MOUSE">B</b><span> - </span>reverse control</div>
                                                     </td>
                                                     <td>
                                                         <div><b data-key="KEY_SPECIAL">`</b><span> - </span>sandbox</div>
@@ -428,98 +418,120 @@
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div></div>
+                                                        <div><b data-key="KEY_LEVEL_UP">N</b><span> - </span>level up</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_AUTO_ALT">X</b><span> - </span>auto-alt</div>
+                                                        <div><b data-key="KEY_PAUSE">G</b><span> - </span>score pause</div>
                                                     </td>
                                                     <td>
-                                                        <div></div>
+                                                        <div><b data-key="KEY_SUICIDE">O</b><span> - </span>self-destruct</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_1">Y</b><span> - </span>upgrade 1</div>
+                                                        <div><b data-key="KEY_ABILITY">F</b><span> - </span>ability</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_2">U</b><span> - </span>upgrade 2</div>
+                                                        <div><b data-key="KEY_AUTO_ALT">X</b><span> - </span>autoalt</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_3">I</b><span> - </span>upgrade 3</div>
+                                                        <div><b data-key="KEY_SPIN_LOCK">P</b><span> - </span>spin lock</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_4">H</b><span> - </span>upgrade 4</div>
+                                                        <div><b data-key="KEY_UPGRADE_1">Y</b><span> - </span>upgrade #1</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_5">J</b><span> - </span>upgrade 5</div>
+                                                        <div><b data-key="KEY_UPGRADE_2">U</b><span> - </span>upgrade #2</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_6">K</b><span> - </span>upgrade 6</div>
+                                                        <div><b data-key="KEY_UPGRADE_3">I</b><span> - </span>upgrade #3</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_7"></b><span> - </span>upgrade 7</div>
+                                                        <div><b data-key="KEY_UPGRADE_4">H</b><span> - </span>upgrade #4</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_8"></b><span> - </span>upgrade 8</div>
+                                                        <div><b data-key="KEY_UPGRADE_5">J</b><span> - </span>upgrade #5</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_9"></b><span> - </span>upgrade 9</div>
+                                                        <div><b data-key="KEY_UPGRADE_6">K</b><span> - </span>upgrade #6</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_10"></b><span> - </span>upgrade 10</div>
+                                                        <div><b data-key="KEY_UPGRADE_7"></b><span> - </span>upgrade #7</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_11"></b><span> - </span>upgrade 11</div>
+                                                        <div><b data-key="KEY_UPGRADE_8"></b><span> - </span>upgrade #8</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_UPGRADE_12"></b><span> - </span>upgrade 12</div>
+                                                        <div><b data-key="KEY_UPGRADE_9"></b><span> - </span>upgrade #9</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_1">1</b><span> - </span>skill 1</div>
+                                                        <div><b data-key="KEY_SKILL_MAX">M</b><span> - </span>maximize upgrade</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_2">2</b><span> - </span>skill 2</div>
+                                                        <div><b data-key="KEY_PING">L</b><span> - </span>debug info</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_3">3</b><span> - </span>skill 3</div>
+                                                        <div><b data-key="KEY_CLASS_TREE">T</b><span> - </span>class tree</div>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_4">4</b><span> - </span>skill 4</div>
+                                                        <div><b data-key="KEY_SCREENSHOT">Q</b><span> - </span>take screenshot</div>
                                                     </td>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_5">5</b><span> - </span>skill 5</div>
+                                                        <div><b data-key="KEY_RECORD">Z</b><span> - </span>record video</div>
                                                     </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_SKILL_6">6</b><span> - </span>skill 6</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td>
-                                                        <div><b data-key="KEY_SKILL_7">7</b><span> - </span>skill 7</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_SKILL_8">8</b><span> - </span>skill 8</div>
-                                                    </td>
-                                                    <td>
-                                                        <div><b data-key="KEY_SKILL_9">9</b><span> - </span>skill 9</div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
                                                     <td>
                                                         <div></div>
                                                     </td>
+                                                </tr>
+                                                <tr>
                                                     <td>
-                                                        <div><b data-key="KEY_SKILL_10">0</b><span> - </span>skill 10</div>
+                                                        <div><b data-key="KEY_SKILL_1">1</b><span> - </span>skill #1</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_2">2</b><span> - </span>skill #2</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_3">3</b><span> - </span>skill #3</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_4">4</b><span> - </span>skill #4</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_5">5</b><span> - </span>skill #5</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_6">6</b><span> - </span>skill #6</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_7">7</b><span> - </span>skill #7</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_8">8</b><span> - </span>skill #8</div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_9">9</b><span> - </span>skill #9</div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div></div>
+                                                    </td>
+                                                    <td>
+                                                        <div><b data-key="KEY_SKILL_10">0</b><span> - </span>skill #10</div>
                                                     </td>
                                                     <td>
                                                         <div></div>
@@ -660,6 +672,17 @@
                                                             <div><b data-key="KEY_SPECIAL_ATTRIBUTE">A</b><span> - </span>attribute</div>
                                                         </td>
                                                     </tr>
+                                                    <tr>
+                                                        <td>
+                                                            <div></div>
+                                                        </td>
+                                                        <td>
+                                                            <div><b data-key="KEY_SPECIAL_POLYGON">F</b><span> - </span>polygon</div>
+                                                        </td>
+                                                        <td>
+                                                            <div></div>
+                                                        </td>
+                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -751,7 +774,7 @@
                             <div id="tabAbout" class="shadowScroll" style="height: 88.5%;">
                                 <div class="optionsHeader">Original Game</div>
                                 <div class="moreLinks">
-                                    <a tabindex="-1" href="https://arras.io">arras.io</a><br />
+                                    <a tabindex="-1" href="https://arras.io">arras.io</a><br/>
                                     <a tabindex="-1" href="https://github.com/nepphhh/arrasio">Original Source Code</a>
                                 </div>
                                 <div class="optionsHeader">Original Game's Proxy Sites</div>

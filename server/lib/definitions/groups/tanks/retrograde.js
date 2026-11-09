@@ -1,7 +1,14 @@
-const { combineStats, skillSet, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeFlank, makeFore, makeGuard, makeOver, makeRadialAuto, makeSnake, makeGunner, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base, dfltskl, smshskl, statnames } = require("../../constants.js");
+const { combineStats, makeFlank, makeGuard, makeGunner, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
 const g = require("../../gunvals.js");
-const preset = require("../../presets.js");
+
+// Set the below variable to true to enable OSA-specific fixes and adjustments for Retrograde and certain tank designs.
+// This also enables the Arms Race Retrograde addon if it is present.
+const better_retrograde = true;
+
+// Set the below variable to true to correct certain LABELs to be closer to Arms Race's conventions.
+// This also affects tanks from the Arms Race Retrograde addon if it is present.
+const label_correction = true;
 
 // Tier 2 (Level 30)
 Class.blaster = {
@@ -146,7 +153,7 @@ Class.blower = makeGunner("destroyer", "Blower");
 Class.bonker = {
     PARENT: "genericSmasher",
     LABEL: "Bonker",
-    SIZE: Class.genericTank.SIZE * 0.7,
+    SIZE: 10,
     BODY: {
         FOV: 1.2 * base.FOV,
         HEALTH: 0.95 * base.HEALTH,
@@ -421,7 +428,7 @@ Class.subverter = {
             SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.minigun]),
             TYPE: "bullet"
         }
-    }, 3, {lengthOffset: 2, delayIncrement: 1/3})
+    }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
 };
 Class.triBlaster = {
     PARENT: "genericTank",
@@ -462,7 +469,7 @@ if (Config.retrograde) {
     Class.machineGun.UPGRADES_TIER_2.push("blaster", "gatlingGun", "machineFlank");
     Class.sniper.UPGRADES_TIER_2.push("gatlingGun");
 
-    Class.hexaTank.UPGRADES_TIER_3.push("tornado_AR");
+    if (!better_retrograde && !Config.arms_race) Class.hexaTank.UPGRADES_TIER_3.push("tornado_AR");
     Class.tripleShot.UPGRADES_TIER_3.push("triBlaster");
 };
 
@@ -473,4 +480,146 @@ if (Config.arms_race || Config.retrograde) {
     Class.hexaTank.UPGRADES_TIER_3.push("deathStar");
     Class.minigun.UPGRADES_TIER_3.push("subverter");
     Class.smasher.UPGRADES_TIER_3.push("bonker");
+};
+
+// OSA Retrograde Fixes
+module.exports = { better_retrograde, label_correction };
+if (label_correction) {
+    Class.machineFlank.LABEL = "Double Machine";
+    Class.machineTriple.LABEL = "Triple Machine";
+    Class.triBlaster.LABEL = "Bent Blaster";
+};
+if (better_retrograde) {
+    g.blasterFix = { size: 1.25 };
+    g.flamethrowerRG = {
+        reload: 1.75,
+        recoil: 4 / 3,
+        shudder: 2,
+        size: 0.25,
+        health: 10,
+        damage: 0.2,
+        pen: 4,
+        speed: 2,
+        maxSpeed: 0,
+        range: 3,
+        density: 0.25
+    };
+    Class.accurator.GUNS[0].POSITION = {
+        LENGTH: 8,
+        WIDTH: 8,
+        ASPECT: 0.1,
+        X: 18
+    };
+    Class.accurator.GUNS[1].POSITION = {
+        LENGTH: 14,
+        WIDTH: 9.5,
+        ASPECT: 1.25,
+        X: 8
+    };
+    Class.blaster.GUNS[0].POSITION = {
+        LENGTH: 13,
+        WIDTH: 8,
+        ASPECT: 1.9,
+        X: 4
+    };
+    Class.blaster.GUNS[0].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix]);
+    Class.flamethrower_RG = {
+        PARENT: "genericTank",
+        LABEL: "Flamethrower",
+        DANGER: 7,
+        GUNS: [
+            {
+                POSITION: {
+                    LENGTH: 3,
+                    WIDTH: 20,
+                    ASPECT: 0.95,
+                    X: 13
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.flamethrowerRG]),
+                    TYPE: "growBullet"
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 9,
+                    WIDTH: 12,
+                    ASPECT: 2,
+                    X: 4
+                }
+            }
+        ]
+    };
+    Class.gatlingGun.GUNS[0].POSITION = {
+        LENGTH: 14,
+        WIDTH: 9.5,
+        ASPECT: 1.25,
+        X: 8
+    };
+    Class.halfNHalf.GUNS[0].POSITION = {
+        LENGTH: 14,
+        WIDTH: 9.5,
+        ASPECT: 1.25,
+        X: 8
+    };
+    Class.halfNHalf.GUNS[1].POSITION = {
+        LENGTH: 13,
+        WIDTH: 8,
+        ASPECT: 1.9,
+        X: 4,
+        ANGLE: 180
+    };
+    Class.halfNHalf.GUNS[1].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.doubleTwin]);
+    Class.splasher.GUNS[0].POSITION = {
+        LENGTH: 20,
+        WIDTH: 7
+    };
+    Class.splasher.GUNS[1] = Class.blaster.GUNS[0];
+    Class.triBlaster.GUNS = [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 8,
+                ASPECT: 1.7,
+                X: 4,
+                Y: 2,
+                ANGLE: 15,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, { recoil: 0.5 }, g.lowPower]),
+                TYPE: "bullet"
+            }
+        }),
+        {
+            POSITION: {
+                LENGTH: 13,
+                WIDTH: 8,
+                ASPECT: 1.9,
+                X: 6
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, { recoil: 0.5 }]),
+                TYPE: "bullet"
+            }
+        }
+    ];
+
+    Class.blaster.UPGRADES_TIER_3.push("flamethrower_RG", "halfNHalf", "subverter");
+    Class.gatlingGun.UPGRADES_TIER_3.splice(0, 1, "focal");
+    Class.gatlingGun.UPGRADES_TIER_3.push("nailgun");
+
+    if (Config.retrograde) {
+        Class.flankGuard.UPGRADES_TIER_3.push("machineTriple");
+        Class.focal.BODY = Class.gatlingGun.BODY;
+        Class.focal.CONTROLLERS = ["zoom"];
+        Class.hunter.UPGRADES_TIER_3.push("focal");
+        Class.sprayer.UPGRADES_TIER_3.push("splasher");
+
+        if (Config.arms_race) {
+            require("./armsRace.js");
+        } else {
+            Class.pounder.UPGRADES_TIER_3.push("subverter", "deathStar");
+        };
+    };
 };

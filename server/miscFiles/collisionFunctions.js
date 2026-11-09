@@ -289,6 +289,9 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
             deathFactor._me = (stuff > my.health.amount) ? my.health.amount / stuff : 1;
             stuff = n.health.getDamage(damageToApply._me, false);
             deathFactor._n = (stuff > n.health.amount) ? n.health.amount / stuff : 1;
+            if (deathFactor._me < 1 && deathFactor._n < 1 && my.isPlayer && n.isPlayer) {
+                my.spared = n.spared = true;
+            }
             reductionFactor = Math.min(deathFactor._me, deathFactor._n);
             // Now apply it
             // my.damageReceived += damage._n * deathFactor._n;
@@ -358,8 +361,9 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
 }
 
 function mooncollide(moon, bounce) {
+    if (bounce.ac) return;
     let collisionRadius = util.getDistance(moon, bounce);
-    let properCollisionRadius = moon.size + bounce.size
+    let properCollisionRadius = moon.size + bounce.size;
     // Exit if too far
     if (collisionRadius >= properCollisionRadius) return;
     
@@ -391,7 +395,7 @@ function mooncollide(moon, bounce) {
 }
 
 function mazewallcollidekill(bounce, wall) {
-    if (bounce.type !== "tank" && bounce.type !== "miniboss" && bounce.type !== "food" && bounce.type !== "crasher") {
+    if (bounce.type !== "tank" && bounce.type !== "miniboss" && bounce.type !== "food" && bounce.type !== "crasher" && bounce.type !== "satellite") {
         bounce.destroy();
     } else {
         bounce.collisionArray.push(wall);
@@ -399,7 +403,7 @@ function mazewallcollidekill(bounce, wall) {
 }
 
 function mazewallcollide(wall, bounce) {
-    if (bounce.god === true || bounce.passive === true || bounce.isArenaCloser || (bounce.isArenaCloser !== false && bounce.master.isArenaCloser)) return;
+    if (bounce.ac || bounce.god === true || bounce.passive === true || bounce.isArenaCloser || (bounce.isArenaCloser !== false && bounce.master.isArenaCloser)) return;
     if (bounce.store.noWallCollision) return;
     if (bounce.team === wall.team && bounce.type === "tank") return;
     const trueWallSize = wall.size * lazyRealSizes[4] / Math.SQRT2 + 2;

@@ -1,10 +1,10 @@
-const {makeMenu} = require("../../facilitators.js")
-const {base} = require("../../constants.js")
+const {makeMenu} = require("../../facilitators.js");
+const {base} = require("../../constants.js");
 
 Class.ramMiniboss = {
     PARENT: "genericBoss",
     CONTROLLERS: ["nearestDifferentMaster", "canRepel", "mapTargetToGoal"]
-}
+};
 
 Class.bob = {
     PARENT: "ramMiniboss",
@@ -36,7 +36,7 @@ Class.bob = {
             POSITION: [23.75, 0, 0, 0, 360, 0]
         }
     ]
-}
+};
 Class.nemesis = {
     PARENT: "bob",
     LABEL: "Nemesis",
@@ -49,4 +49,4 @@ Class.nemesis = {
         DAMAGE: 1e5,
         FOV: 5
     }
-}
+};
