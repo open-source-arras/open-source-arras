@@ -2001,21 +2001,23 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 } else {
                     if ("string" === typeof sides) {
                         if (sides.startsWith("image=")) {
-                            const defaultDirectory = sides.startsWith("image=/");
-                            const clientRootDirectory = sides.startsWith("image=./");
-                            const onlineDirectory = sides.startsWith("image=https");
-                            drawPolyImgs[sides] = new Image();
-                            drawPolyImgs[sides].src =
-                            defaultDirectory ?
-                            `img${sides.slice(6)}` :
-                            clientRootDirectory || onlineDirectory ?
-                            `${onlineDirectory ? sides.slice(6) : sides.slice(7)}` :
-                            "img/missingno.png";
-                            drawPolyImgs[sides].onerror = function() {
-                                drawPolyImgs[sides].src = "img/missingno.png";
+                            let img = drawPolyImgs[sides];
+                            if (!img) {
+                                const defaultDirectory = sides.startsWith("image=/");
+                                const clientRootDirectory = sides.startsWith("image=./");
+                                const onlineDirectory = sides.startsWith("image=https");
+                                img = drawPolyImgs[sides] = new Image();
+                                img.src =
+                                defaultDirectory ?
+                                `img${sides.slice(6)}` :
+                                clientRootDirectory || onlineDirectory ?
+                                `${onlineDirectory ? sides.slice(6) : sides.slice(7)}` :
+                                "img/missingno.png";
+                                img.onerror = function() {
+                                    this.src = "img/missingno.png";
+                                }
                             }
 
-                            let img = drawPolyImgs[sides];
                             context.translate(centerX, centerY);
                             context.rotate(angle);
                             context.imageSmoothingEnabled = imageInterpolation;
