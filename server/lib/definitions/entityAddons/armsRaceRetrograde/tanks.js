@@ -207,7 +207,7 @@ Class.doubleGunner.UPGRADES_TIER_4.push("autoDoubleGunner");
 Class.doubleMinigun.UPGRADES_TIER_4.push("autoDoubleMinigun");
 Class.doubleSprayer.UPGRADES_TIER_4.push("doubleRedistributor", "doubleAtomizer", "doubleFocal", "doubleSplasher"/*, "triFrother"*/, "doubleFoamer", "autoDoubleSprayer");
 
-Class.fiftyOneOverfortyNine = attachTank("focal", "blaster", "51/49");
+Class.lawnmower = attachTank("focal", "blaster", "Lawnmower");
 Class.gatling3 = makeRadialAuto("gatlingAutoTankGun", { isTurret: true, danger: 8, size: 13, label: "Gatling-3", body: Class.sniper3.BODY });
 
 Class.gator.UPGRADES_TIER_4.push("mizzler", "accugator", "overnailer");
@@ -356,9 +356,9 @@ if (Config.retrograde && Config.arms_race) {
     Class.subverter.UPGRADES_TIER_4 = ["sacrificer"];
     Class.queller.UPGRADES_TIER_4 = ["throwgun"];
     Class.volley.UPGRADES_TIER_4 = ["trench"];
-    Class.focal.UPGRADES_TIER_4.push("winder", "fiftyOneOverfortyNine");
+    Class.focal.UPGRADES_TIER_4.push("winder", "lawnmower");
     Class.flamethrower_RG.UPGRADES_TIER_4 = ["autoFlamethrower_RG", "waterslide"];
-    Class.halfNHalf.UPGRADES_TIER_4 = ["thirdNTwoThirds", "twoThirdsNThird", "fiftyOneOverfortyNine", "slicer", "pneumonicGun", "assassinator", "doubleSpudger", "bentHalve", "waterslide", "eviscerator", "sacrificer", "throwgun", "trench", "autoHalfNHalf"];
+    Class.halfNHalf.UPGRADES_TIER_4 = ["thirdNTwoThirds", "twoThirdsNThird", "lawnmower", "slicer", "pneumonicGun", "assassinator", "doubleSpudger", "bentHalve", "waterslide", "eviscerator", "sacrificer", "throwgun", "trench", "autoHalfNHalf"];
     Class.machineTriple.UPGRADES_TIER_4 = ["machineQuadruple", "tripleArtillery", "tripleMinigun", "tripleGunner", "tripleSprayer", "tripleBlaster", "tripleGatling", "tripleDiesel"/*, "hexaMachine"*/, "autoMachineTriple"];
     Class.nailgun.UPGRADES_TIER_4.push("pneumonicGun");
 
