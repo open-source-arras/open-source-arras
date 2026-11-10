@@ -2311,7 +2311,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             const mockupIndex = +indexes[0];
             const m = global.mockups[mockupIndex] || global.missingno[0];
             const source = turretInfo === false ? instance : turretInfo;
-            const skin = instance.nameplate && skinShape(instance.name);
+            const hasHighLayer = (m.turrets || []).some(t => t.layer > 0) || (m.props || []).some(p => p.layer > 0);
+            const skin = instance.nameplate && !hasHighLayer && skinShape(instance.name);
 
             // --- Size calculations with cached values ---
             const instSize = instance.size;
