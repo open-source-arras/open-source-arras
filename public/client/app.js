@@ -5787,7 +5787,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         loadSettings();
                       }
                     },
-                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "Select what word filter to use.\nEach tier includes the tiers above it. Inappropiate is the default.",
+                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "Select what word filter to use.\nEach tier includes the tiers above it. Inappropriate is the default.",
                       optionData: Array.from(document.getElementById("optNames").options).map((option) => ({ value: option.value, label: option.textContent })),
                       width: 202.5,
                       location: "auto",
