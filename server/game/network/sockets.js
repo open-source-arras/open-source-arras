@@ -2410,6 +2410,7 @@ class socketManager {
 
                 if (socket.status.needsNewBroadcast) {
                     socket.talk("RM");
+                    socket.talk("RL");
                     socket.talk(
                         "b",
                         ...minimapUpdate.reset,
