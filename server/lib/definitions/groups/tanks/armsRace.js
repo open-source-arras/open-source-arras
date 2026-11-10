@@ -132,7 +132,7 @@ Class.machineTrapper = {
             }
         }
     ],
-    UPGRADES_TIER_3: [/*"dieselTrapper", */"barricade", "equalizer"/*, "machineGuard", "encircler", "machineMech", "triMachine"*/, "expeller"/*, "autoMachineTrapper", "deviation"*/, "frother"],
+    UPGRADES_TIER_3: [/*"dieselTrapper", */"barricade", "equalizer"/*, "machineGuard", "encircler", "machineMech"*/, "triMachine", "expeller"/*, "autoMachineTrapper", "deviation"*/, "frother"],
     UPGRADES_TIER_4: [/*"machineMegaTrapper"*/]
 };
 Class.mech = {
