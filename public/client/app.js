@@ -6,6 +6,7 @@ import { color as colors } from "./color.js";
 import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import { skinShape } from "./skins.js";
+import { censorChat } from "./chatFilter.js";
 import * as socketStuff from "./socketinit.js";
 
 const THEME_PALETTE_KEYS = [
@@ -3381,7 +3382,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         for (let i = 0; i < messages.length; i++) {
             let chatIndex = messages.length - 1 - i;
             let chat = messages[chatIndex],
-                text = chat.text,
+                text = censorChat(chat.text, document.getElementById("optNames").value),
                 msgLengthHalf = measureText(text, 0.5 * g) / 2,
                 barScale = global.GUIStatus.renderPlayerScores ? 2.66 : 2.26,
                 textScale = global.GUIStatus.renderPlayerScores ? 2.45 : 2.05,
@@ -5786,7 +5787,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         loadSettings();
                       }
                     },
-                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "[WIP] Select what word filter to use.\nNote: Offensive words, or slurs, are always filtered unless all filters are disabled.",
+                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "Select what word filter to use.\nNote: Offensive words, or slurs, are always filtered unless all filters are disabled.",
                       optionData: Array.from(document.getElementById("optNames").options).map((option) => ({ value: option.value, label: option.textContent })),
                       width: 202.5,
                       location: "auto",
