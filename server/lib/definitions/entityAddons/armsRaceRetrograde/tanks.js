@@ -358,7 +358,7 @@ if (Config.retrograde && Config.arms_race) {
     Class.volley.UPGRADES_TIER_4 = ["trench"];
     Class.focal.UPGRADES_TIER_4.push("winder", "fiftyOneOverfortyNine");
     Class.flamethrower_RG.UPGRADES_TIER_4 = ["autoFlamethrower_RG", "waterslide"];
-    Class.halfNHalf.UPGRADES_TIER_4 = ["thirdNTwoThirds", "twoThirdsNThird", "doubleSpudger", "fiftyOneOverfortyNine", "slicer", "pneumonicGun", "assassinator", /*"ak47", */"bentHalve", "waterslide", "eviscerator", "sacrificer", "throwgun", "trench", "autoHalfNHalf"];
+    Class.halfNHalf.UPGRADES_TIER_4 = ["thirdNTwoThirds", "twoThirdsNThird", "fiftyOneOverfortyNine", "slicer", "pneumonicGun", "assassinator", "doubleSpudger", "bentHalve", "waterslide", "eviscerator", "sacrificer", "throwgun", "trench", "autoHalfNHalf"];
     Class.machineTriple.UPGRADES_TIER_4 = ["machineQuadruple", "tripleArtillery", "tripleMinigun", "tripleGunner", "tripleSprayer", "tripleBlaster", "tripleGatling", "tripleDiesel"/*, "hexaMachine"*/, "autoMachineTriple"];
     Class.nailgun.UPGRADES_TIER_4.push("pneumonicGun");
 
