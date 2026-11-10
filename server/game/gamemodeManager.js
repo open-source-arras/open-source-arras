@@ -10,6 +10,8 @@ const { Labyrinth } = require("./gamemodes/scripts/labyrinth.js");
 const { Outbreak } = require("./gamemodes/scripts/outbreak.js");
 const { ClanWars } = require("./gamemodes/scripts/clan_wars.js");
 const { GroupHandler } = require("./gamemodes/scripts/groups.js");
+const { RockField } = require("./gamemodes/scripts/rockField.js");
+const { Manhunt } = require("./gamemodes/scripts/manhunt.js");
 
 class gamemodeManager {
     constructor() {
@@ -25,6 +27,8 @@ class gamemodeManager {
         this.gameOutbreak = new Outbreak(global.gameManager);
         this.gameClanwars = new ClanWars(global.gameManager);
         this.gameGroups = new GroupHandler(global.gameManager);
+        this.gameRockField = new RockField();
+        this.gameManhunt = new Manhunt();
     }
 
     request(type) {
@@ -37,6 +41,7 @@ class gamemodeManager {
             if (Config.maze && Config.maze_type !== undefined && !Config.siege) this.gameMaze.generate();
             if (Config.labyrinth) this.gameLabyrinth.generate();
             if (Config.outbreak) this.gameOutbreak.start();
+            if (Config.rock_field) this.gameRockField.start();
         }
         if (type == "loop") {
             global.gameManager.lagLogger.set();
@@ -53,6 +58,7 @@ class gamemodeManager {
         if (type == "quickloop") { // Mainly for sandbox and trainwars only, but you can also put your own gamemode loop here incase the regular loop doesnt fit.
             if (Config.sandbox) this.gameSandbox.update();
             if (Config.train) this.gameTrain.loop();
+            if (Config.manhunt) this.gameManhunt.loop();
         }
     }
 

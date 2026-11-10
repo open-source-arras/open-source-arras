@@ -46,6 +46,91 @@ class definitionCombiner {
             Class[key].index = i;
             classMap.set(i++, key);
         }
+        this.rerootUpgradeTrees();
+    }
+
+    rerootUpgradeTrees() {
+        let definitionOf = type => typeof type === "string" ? Class[type] : type,
+            parentsOf = definition => definition.PARENT == null ? [] : Array.isArray(definition.PARENT) ? definition.PARENT : [definition.PARENT],
+            rootOf = (type, seen = new Set()) => {
+                let definition = definitionOf(type);
+                if (!definition || seen.has(definition) || definition === Class.genericTank) return undefined;
+                seen.add(definition);
+                if (definition.REROOT_UPGRADE_TREE) return definition.REROOT_UPGRADE_TREE;
+                let parents = parentsOf(definition);
+                for (let i = parents.length - 1; i >= 0; i--) {
+                    let root = rootOf(parents[i], seen);
+                    if (root !== undefined) return root;
+                }
+                return undefined;
+            },
+            upgradesOf = (type, out = [], seen = new Set()) => {
+                let definition = definitionOf(type);
+                if (!definition || seen.has(definition)) return out;
+                seen.add(definition);
+                for (let parent of parentsOf(definition)) upgradesOf(parent, out, seen);
+                if (definition.RESET_UPGRADE_MENU) out.length = 0;
+                for (let key in definition) {
+                    if (!key.startsWith("UPGRADES_TIER_") || !Array.isArray(definition[key])) continue;
+                    for (let upgrade of definition[key]) {
+                        for (let name of Array.isArray(upgrade) ? upgrade : [upgrade]) {
+                            if (typeof name === "string" && Class[name]) out.push(name);
+                        }
+                    }
+                }
+                return out;
+            },
+            upgrades = new Map(),
+            parentsIn = new Map();
+        for (let key in Class) {
+            if (!Class.hasOwnProperty(key)) continue;
+            let list = upgradesOf(key);
+            upgrades.set(key, list);
+            for (let name of list) {
+                if (!parentsIn.has(name)) parentsIn.set(name, []);
+                let parents = parentsIn.get(name);
+                if (!parents.includes(key)) parents.push(key);
+            }
+        }
+        let normal = new Set(),
+            queue = [].concat(Class.genericTank.REROOT_UPGRADE_TREE ?? []);
+        while (queue.length) {
+            let key = queue.pop();
+            if (normal.has(key) || !upgrades.has(key)) continue;
+            normal.add(key);
+            for (let name of upgrades.get(key)) queue.push(name);
+        }
+        let roots = new Map();
+        for (let key in Class) {
+            if (!Class.hasOwnProperty(key) || rootOf(key) !== undefined) continue;
+            if (Class[key].IS_MENU) {
+                roots.set(key, key);
+                continue;
+            }
+            if (normal.has(key)) continue;
+            let visited = new Set([key]),
+                search = [key];
+            for (let i = 0; i < search.length; i++) {
+                let found = false;
+                for (let parent of parentsIn.get(search[i]) ?? []) {
+                    if (visited.has(parent)) continue;
+                    visited.add(parent);
+                    if (normal.has(parent)) {
+                        found = true;
+                        break;
+                    }
+                    let root = Class[parent].IS_MENU ? parent : rootOf(parent);
+                    if (root !== undefined) {
+                        roots.set(key, root);
+                        found = true;
+                        break;
+                    }
+                    search.push(parent);
+                }
+                if (found) break;
+            }
+        }
+        for (let [key, root] of roots) Class[key].REROOT_UPGRADE_TREE = root;
     }
 
     calculateGroupsLength(directory) {

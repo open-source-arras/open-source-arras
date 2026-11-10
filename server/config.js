@@ -8,6 +8,7 @@ module.exports = {
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
     enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
     load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
+    mockup_send_budget: 5,
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
@@ -47,6 +48,330 @@ module.exports = {
     */
 
     servers: [
+        {
+            share_client_server: false,
+            host: "localhost:3005",
+            port: 3005,
+            id: "le",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "manhunt", "maze_mixed"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "bot_cap": 24
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3006",
+            port: 3006,
+            id: "lf",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "rock_field"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "bot_cap": 24
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3007",
+            port: 3007,
+            id: "lg",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "maze_plain"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "bot_cap": 24
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3008",
+            port: 3008,
+            id: "lh",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "open_tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "teams": 2,
+                "bot_cap": 24,
+                "room_setup": [
+                    "room_open"
+                ],
+                "map_tile_width": 405,
+                "map_tile_height": 405,
+                "rock_field": {
+                    "across": 9,
+                    "count": [
+                        72,
+                        74
+                    ],
+                    "deal": {
+                        "rock": 14.9,
+                        "stone": 28.5,
+                        "gravel": 56.6
+                    },
+                    "sizes": {
+                        "rock": 60,
+                        "stone": 45,
+                        "gravel": 25
+                    },
+                    "variation": 0.3,
+                    "tiles": [
+                        [
+                            3,
+                            0,
+                            1
+                        ],
+                        [
+                            4,
+                            0,
+                            1
+                        ],
+                        [
+                            5,
+                            0,
+                            1
+                        ],
+                        [
+                            1,
+                            2,
+                            1
+                        ],
+                        [
+                            7,
+                            2,
+                            1
+                        ],
+                        [
+                            1,
+                            6,
+                            1
+                        ],
+                        [
+                            7,
+                            6,
+                            1
+                        ],
+                        [
+                            3,
+                            8,
+                            1
+                        ],
+                        [
+                            4,
+                            8,
+                            1
+                        ],
+                        [
+                            5,
+                            8,
+                            1
+                        ]
+                    ]
+                }
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3009",
+            port: 3009,
+            id: "li",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "open_tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "teams": 3,
+                "bot_cap": 36,
+                "room_setup": [
+                    "room_open"
+                ],
+                "map_tile_width": 438.75,
+                "map_tile_height": 438.75,
+                "rock_field": {
+                    "across": 9,
+                    "count": [
+                        51,
+                        53
+                    ],
+                    "deal": {
+                        "rock": 14.9,
+                        "stone": 28.5,
+                        "gravel": 56.6
+                    },
+                    "sizes": {
+                        "rock": 60,
+                        "stone": 45,
+                        "gravel": 25
+                    },
+                    "variation": 0.3,
+                    "tiles": [
+                        [
+                            3,
+                            0,
+                            1
+                        ],
+                        [
+                            4,
+                            0,
+                            1
+                        ],
+                        [
+                            5,
+                            0,
+                            1
+                        ],
+                        [
+                            3,
+                            8,
+                            1
+                        ],
+                        [
+                            4,
+                            8,
+                            1
+                        ],
+                        [
+                            5,
+                            8,
+                            1
+                        ]
+                    ]
+                }
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3010",
+            port: 3010,
+            id: "lj",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["growth", "arms_race", "open_tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                "spawn_class": "istrong_armsRaceBasic",
+                "food_cap": 70,
+                "teams": 4,
+                "bot_cap": 48,
+                "room_setup": [
+                    "room_open"
+                ],
+                "map_tile_width": 405,
+                "map_tile_height": 405,
+                "rock_field": {
+                    "across": 9,
+                    "count": [
+                        60,
+                        60
+                    ],
+                    "deal": {
+                        "rock": 14.9,
+                        "stone": 28.5,
+                        "gravel": 56.6
+                    },
+                    "sizes": {
+                        "rock": 60,
+                        "stone": 45,
+                        "gravel": 25
+                    },
+                    "variation": 0.3,
+                    "tiles": [
+                        [
+                            4,
+                            0,
+                            1
+                        ],
+                        [
+                            2,
+                            2,
+                            1
+                        ],
+                        [
+                            6,
+                            2,
+                            1
+                        ],
+                        [
+                            0,
+                            4,
+                            1
+                        ],
+                        [
+                            8,
+                            4,
+                            1
+                        ],
+                        [
+                            2,
+                            6,
+                            1
+                        ],
+                        [
+                            6,
+                            6,
+                            1
+                        ],
+                        [
+                            4,
+                            8,
+                            1
+                        ]
+                    ]
+                }
+            }
+        },
         {
             share_client_server: false,
             host: "localhost:3001",
@@ -229,7 +554,8 @@ module.exports = {
             private: false,
 
             properties: {
-                allow_server_travel: true
+                allow_server_travel: true,
+                spawn_class: "istrong_armsRaceBasic"
             }
         }
     ],
@@ -310,9 +636,14 @@ module.exports = {
         if (level <= 45 && level & 1 === 1) return 1;
         return 0;
     },
+    defineLevelSize: () => 1,
+    defineLevelHealth: () => 1,
+    respawn_score_kept: 0,
+    respawn_score_max: Infinity,
 
     level_cap: 45, // Maximum normally achievable level.
     level_cap_cheat: 45, // Maximum level via the level-up key and auto-level-up.
+    start_level: 45,
 
     skill_cap: 9, // Default skill caps.
     skill_cap_soft: 0, // TODO: Figure out what this does.
@@ -327,7 +658,7 @@ module.exports = {
     bot_name_prefix: "[AI] ", // This is prefixed before the bot's randomly chosen name.
 
     // The class that players and bots spawn as.
-    spawn_class: "basic",
+    spawn_class: "istrong_basic",
 
     // How every entity regenerates their health.
     regenerate_tick: 100,

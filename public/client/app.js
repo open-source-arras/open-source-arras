@@ -7,6 +7,9 @@ import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import { skinShape } from "./skins.js";
 import * as socketStuff from "./socketinit.js";
+import { createClassTree } from "./classTree.js";
+import { createMenu } from "./arrasMenu.js";
+import { slideStep, commas, abbreviate, killFill, killText, skillFillEnd, skillPreview, skillHideDistance, leaderboardPrefix, LeaderboardBoard, SKILL_SEGMENT, SKILL_START, SKILL_TRACK_LEFT } from "./hud.js";
 
 const THEME_PALETTE_KEYS = [
     "teal", "lgreen", "orange", "yellow", "aqua", "pink", "vlgrey", "lgrey",
@@ -64,8 +67,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     // Build the leaderboard object
-    let leaderboardEntries = {};
-    let leaderboardUpdate = 0;
+    const leaderboardBoard = new LeaderboardBoard();
+    let leaderboardVersion = -1,
+        leaderboardTime = 0,
+        leaderboardPrefixes = new Map();
     global.canUpgrade = false;
     global.canSkill = false;
     global.showTree = false;
@@ -307,33 +312,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         window.addEventListener("resize", resizeEvent);
         // Resizing stuff
         resizeEvent();
-    };
-
-    // Sliding between options menu.
-    function toggleOptionsMenu() {
-        let clicked = false,
-            a = document.getElementById("startMenuSlidingTrigger"), // Trigger ID
-            c = document.getElementById("optionArrow"), // Arrow
-            h = document.getElementById("viewOptionText"), // Text (view options)
-            u = document.getElementsByClassName("sliderHolder")[0], // Sliding.
-            y = document.getElementsByClassName("slider"), // For animations things.
-            toggle = () => {
-                c.style.transform = c.style.webkitTransform = clicked // Rotate the arrow.
-                    ? "translate(2px, -2px) rotate(45deg)"
-                    : "rotate(-45deg)";
-                h.innerText = clicked ? "close options" : "view options"; // Change the text.
-                clicked ? u.classList.add(global.uncappedMenu ? "slided2" : "slided") : u.classList.remove(global.uncappedMenu ? "slided2" : "slided"); // Slide it up.
-                y[0].style.opacity = clicked ? 0 : 1; // Fade it away.
-                y[2].style.opacity = clicked ? 1 : 0; // same for this.
-            };
-        a.onclick = () => { // When the button is triggered, This code runs.
-            clicked = !clicked;
-            global.optionsMenuToggle = clicked;
-            toggle();
-        };
-        return () => {
-            clicked || ((clicked = true), toggle());
-        };
+        global.menu = createMenu(menuHooks());
     };
 
     // Tab options
@@ -459,145 +438,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             mainDoc.appendChild(divDoc);
         }
-    }
-    function menuSettingsHandler() {
-        let menu_mainWrapperHeight = window.getComputedStyle(document.getElementsByClassName("mainWrapper")[0]).getPropertyValue("height").toString();
-        let menu_mainWrapperHeight_padding = window.getComputedStyle(document.getElementsByClassName("mainWrapper")[0]).getPropertyValue("padding").toString();
-        let menu_menuHeight = window.getComputedStyle(document.getElementsByClassName("startMenu")[0]).getPropertyValue("height").toString();
-        let menu_addonScrollHeight = window.getComputedStyle(document.getElementById("tabAddons")).getPropertyValue("height").toString();
-
-        // Uncap menu height
-        util.retrieveFromLocalStorage("unlimitedMenuHeight");
-        let menu_uncapbutton = document.getElementById("unlimitedMenuHeight");
-        let menu_uncap_lessHeight = false;
-        let menu_uncap_lessHeightReach = 750;
-
-        let menu_uncapClick = () => {
-            let setHeight = (doc, x) => doc.style.maxHeight = doc.style.height = x;
-            if (menu_uncapbutton.checked) {
-                document.getElementById("startMenuSlidingTrigger").style.display = "none";
-                // Thanks to Taureon's "Arras.io - Start Menu Modifier" Greasyfork script. (Modified by AE)
-                if (menu_uncap_lessHeight) {
-                    document.getElementById("startMenuSlidingTrigger").style.display = "block";
-                    document.getElementById("tabOptions").classList.remove("shadowScroll");
-                    document.getElementById("controlSettingsScollbar").classList.remove("shadowScroll");
-                    document.getElementById("tabAddons").style.height = "";
-                    document.getElementById("tabAddons").style.maxHeight = "300px";
-                    if (global.optionsMenuToggle) {
-                        document.getElementsByClassName("sliderHolder")[0].classList.remove("slided");
-                        document.getElementsByClassName("sliderHolder")[0].classList.add("slided2");
-                    } else document.getElementsByClassName("slider")[2].style.opacity = 0;
-                } else {
-                    document.getElementById("tabOptions").classList.add("shadowScroll");
-                    document.getElementById("controlSettingsScollbar").classList.add("shadowScroll");
-                    document.getElementById("tabAddons").style.height = menu_addonScrollHeight;
-                    document.getElementById("tabAddons").style.maxHeight = "";
-                    document.getElementsByClassName("sliderHolder")[0].classList.remove("slided");
-                    document.getElementsByClassName("sliderHolder")[0].classList.remove("slided2");
-                    document.getElementsByClassName("slider")[2].style.opacity = 1;
-                    document.getElementsByClassName("slider")[0].style.opacity = 1;
-                }
-                for (let docs of [".serverSelector", ".slider", ".sliderHolder", ".startMenuHolder", ".startMenuHolder.changelogHolder", ".startMenu", ".mainWrapper", "#startMenuWrapper", "#patchNotes"]) {
-                    let doc;
-                    if (docs.startsWith("#")) doc = document.getElementById(docs.substring(docs.length, 1));
-                    if (docs.startsWith(".")) doc = document.getElementsByClassName(docs.substring(docs.length, 1))[0];
-                    switch (docs) {
-                        case ".mainWrapper":
-                            doc.style.padding = "0px";
-                            setHeight(doc, "calc(100% - 55px)");
-                            break;
-                        case "#startMenuWrapper":
-                            setHeight(doc, "calc(100% - 20px)");
-                            break;
-                        case ".startMenuHolder":
-                            doc = document.getElementsByClassName("startMenuHolder")[1];
-                            setHeight(doc, "calc(100% - 20px)");
-                            break;
-                        case ".startMenu":
-                            setHeight(doc, "calc(100%)");
-                            break;
-                        case ".slider":
-                            doc = document.getElementsByClassName("slider")[0];
-                            if (menu_uncap_lessHeight) {
-                                setHeight(doc, "calc(100% - 30px)");
-                            } else setHeight(doc, "calc(100% - 280px)");
-                            break;
-                        case ".sliderHolder":
-                            setHeight(doc, "calc(100% - 50px)");
-                            break;
-                        case ".serverSelector":
-                            if (menu_uncap_lessHeight) {
-                                setHeight(doc, "calc(100% - 170px)");
-                            } else setHeight(doc, "calc(100% - 180px)");
-                            break;
-                        case ".startMenuHolder.changelogHolder":
-                            doc = document.getElementsByClassName("changelogHolder")[0];
-                            setHeight(doc, "calc(100% - 20px)");
-                            break;
-                        case "#patchNotes":
-                            setHeight(doc, "calc(100% - 39px)");
-                            break;
-                    }
-                }
-            } else {
-                document.getElementById("startMenuSlidingTrigger").style.display = "block";
-                if (menu_uncap_lessHeight) {
-                    document.getElementById("tabOptions").classList.add("shadowScroll");
-                    document.getElementById("controlSettingsScollbar").classList.add("shadowScroll");
-                    document.getElementById("tabAddons").style.height = menu_addonScrollHeight;
-                    document.getElementById("tabAddons").style.maxHeight = "";
-                }
-                for (let docs of [".serverSelector", ".slider", ".sliderHolder", ".startMenuHolder.changelogHolder", ".startMenu", ".mainWrapper", "#startMenuWrapper", "#patchNotes"]) {
-                    let doc;
-                    if (docs.startsWith("#")) doc = document.getElementById(docs.substring(docs.length, 1));
-                    if (docs.startsWith(".")) doc = document.getElementsByClassName(docs.substring(docs.length, 1))[0];
-                    switch (docs) {
-                        case ".mainWrapper":
-                            doc.style.padding = menu_mainWrapperHeight_padding;
-                            doc.style.height = menu_mainWrapperHeight;
-                            break;
-                        case ".startMenu":
-                            setHeight(doc, menu_menuHeight);
-                            break;
-                        case ".slider":
-                            doc = document.getElementsByClassName("slider")[0];
-                            doc.style = "";
-                            break;
-                        case ".sliderHolder":
-                            doc.style = "";
-                            doc.classList.remove("slided2");
-                            if (global.optionsMenuToggle) {
-                                doc.classList.add("slided");
-                            }
-                            break;
-                        case ".serverSelector":
-                            doc.style = "";
-                            if (global.fixedServerSelectorHeight) doc.style.height = global.fixedServerSelectorHeight;
-                            break;
-                        case "#patchNotes":
-                            doc.style = "";
-                            break;
-                    }
-                }
-            }
-            util.submitToLocalStorage("unlimitedMenuHeight");
-            global.uncappedMenu = menu_uncapbutton.checked;
-        }
-
-        menu_uncapbutton.onclick = () => menu_uncapClick();
-
-        if (menu_uncapbutton.checked) menu_uncapClick();
-        setInterval(() => {
-            if (menu_uncapbutton.checked) {
-                if (window.innerHeight < menu_uncap_lessHeightReach && !menu_uncap_lessHeight) {
-                    menu_uncap_lessHeight = true;
-                    menu_uncapClick();
-                } else if (window.innerHeight > menu_uncap_lessHeightReach && menu_uncap_lessHeight) {
-                    menu_uncap_lessHeight = false;
-                    menu_uncapClick();
-                }
-            }
-        }, 25);
     }
     // Custom theme display handler
     function customThemeDisplayHandler() {
@@ -768,13 +608,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     // Important functions
-    toggleOptionsMenu();
     tabOptionsMenuSwitcher();
     tabControlsMenuSwitcher();
     tabSandboxControlsMenuSwitcher();
     customThemeDisplayHandler();
     snowAndFireworkEffects();
-    menuSettingsHandler();
 
     // Prepare canvas
     function resizeEvent() {
@@ -1206,6 +1044,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.GUIStatus.minimapReducedInfo = document.getElementById("optReducedInfo").checked;
         global.GUIStatus.fullHDMode = document.getElementById("optFullHD").checked;
         global.GUIStatus.renderIngameOptions = document.getElementById("optAllowIngameOptions").checked;
+        global.GUIStatus.renderChatMessages = localStorage.getItem("optChatMessagesChecked") !== "false";
+        config.game.autoReconnect = localStorage.getItem("optAutoReconnectChecked") === "true";
         global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
@@ -1260,17 +1100,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         color = colors[a === "" ? "normal" : a];
         if (a == "custom") {
             let customTheme = document.getElementById("optCustom").value;
-            color = parseTheme(customTheme).content;
+            color = Object.assign({}, colors.normal, parseTheme(customTheme).content);
             util.submitToLocalStorage("optCustom");
         }
+        if (color.neon) config.graphical.neon = true;
         gameDraw.color = color;
         gameDraw.colorCache = {};
         global.refreshMonitorColoring(gameDraw);
-        if (global.themeOverlay) {
-            if (a === "custom") global.themeOverlay._ov.colorsSel.value = "custom";
-            else selectTheme(document.getElementById("optColors").selectedOptions[0]?.textContent.replace(/ \(by .*\)$/, ""));
-            syncThemeOverlay();
-        }
+        themeVersion++;
+        if (global.menu) global.menu.refresh();
     }
 
     function startGame() {
@@ -1329,7 +1167,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.submitToLocalStorage("optIncognitoMode");
         util.submitToLocalStorage("optDeltaEntities");
         loadSettings();
-        global.optionsCheckboxes = undefined;
         // Other more important stuff
         let optName = document.getElementById("optName");
         let playerKeyInput = document.getElementById("playerKeyInput");
@@ -1375,7 +1212,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     const statMenu = Smoothbar(0, 2, 0.1, 0.08, 0.025, true);
     const upgradeMenu = Smoothbar(0, 2, 3, 0.08, 0.025, true);
     const mobileUpgradeGlide = Smoothbar(0, 2, 3, 0.08, 0.025, true);
-    const lbGlide = AdvancedSmoothBar(0, 0.3, 1.5);
+    let skillMenuShown = 0,
+        skillMenuTime = 0;
     const chatInput = Smoothbar(0, 2, 0.1, 0.07, 0.025, true);
 
     // Define the graph constructor
@@ -1539,70 +1377,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
         // Return the raw keycode if it doesn't need to be truncated
         return truncateKeybind(key);
-    };
-
-    let tiles,
-        branches,
-        tankTree,
-        measureSize = (x, y, colorIndex, { index, tier = 0 }) => {
-            tiles.push({ x, y, colorIndex, index });
-            let { upgrades } = global.mockups[parseInt(index)],
-                xStart = x,
-                cumulativeWidth = 1,
-                maxHeight = 1,
-                hasUpgrades = [],
-                noUpgrades = [];
-            for (let i = 0; i < upgrades.length; i++) {
-                let upgrade = upgrades[i];
-                if (global.mockups[upgrade.index].upgrades.length) {
-                    hasUpgrades.push(upgrade);
-                } else {
-                    noUpgrades.push(upgrade);
-                }
-            }
-            for (let i = 0; i < hasUpgrades.length; i++) {
-                let upgrade = hasUpgrades[i],
-                    spacing = 2 * Math.max(1, upgrade.tier - tier),
-                    measure = measureSize(x, y + spacing, upgrade.upgradeColor ?? i, upgrade);
-                branches.push([{ x, y: y + Math.sign(i) }, { x, y: y + spacing + 1 }]);
-                if (i === hasUpgrades.length - 1 && !noUpgrades.length) {
-                    branches.push([{ x: xStart, y: y + 1 }, { x, y: y + 1 }]);
-                }
-                x += measure.width;
-                cumulativeWidth += measure.width;
-                if (maxHeight < measure.height) maxHeight = measure.height;
-            }
-            y++;
-            for (let i = 0; i < noUpgrades.length; i++) {
-                let upgrade = noUpgrades[i],
-                    height = 2 + upgrades.length;
-                measureSize(x, y + 1 + i + Math.sign(hasUpgrades.length) * 2, upgrade.upgradeColor ?? i, upgrade);
-                if (i === noUpgrades.length - 1) {
-                    if (hasUpgrades.length > 1) cumulativeWidth++;
-                    branches.push([{ x: xStart, y }, { x, y }]);
-                    branches.push([{ x, y }, { x, y: y + noUpgrades.length + Math.sign(hasUpgrades.length) * 2 }]);
-                }
-                if (maxHeight < height) maxHeight = height;
-            }
-            return {
-                width: cumulativeWidth,
-                height: 2 + maxHeight,
-            };
-        };
-
-    function generateTankTree(indexes) {
-        tiles = [];
-        branches = [];
-        tankTree = { width: 0, height: 0 };
-        let rightmostSoFar = 0;
-        if (!Array.isArray(indexes)) indexes = [indexes];
-        for (let index of indexes) {
-            rightmostSoFar += 3 + measureSize(rightmostSoFar, 0, 0, { index }).width;
-        }
-        for (let { x, y } of tiles) {
-            tankTree.width = Math.max(tankTree.width, x);
-            tankTree.height = Math.max(tankTree.height, y);
-        }
     };
 
     // Background clearing
@@ -2800,14 +2574,17 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 }
                 motion.set(instance.render.lastRender, instance.render.interval);
             }
-            let isize = instance.render.size.get(tick, 1 !== rst);
-            instance.render.x = !config.graphical.interpolation ?
+            let isize = instance.render.size.get(tick);
+            let resting = !instance.vx && !instance.vy && !instance.render.lastvx && !instance.render.lastvy;
+            instance.render.x = resting ? instance.render.xAnim.get(tick) :
+                !config.graphical.interpolation ?
                 motion.predict(instance.render.lastx, instance.x, instance.render.lastvx, instance.vx) :
                 config.graphical.lerpAnimations ?
                 util.lerp(instance.render.x, Math.round(instance.x + instance.vx), 0.1, true) :
                 instance.render.xAnim.get(tick, 1 !== rst);
 
-            instance.render.y = !config.graphical.interpolation ?
+            instance.render.y = resting ? instance.render.yAnim.get(tick) :
+                !config.graphical.interpolation ?
                 motion.predict(instance.render.lasty, instance.y, instance.render.lastvy, instance.vy) :
                 config.graphical.lerpAnimations ?
                 util.lerp(instance.render.y, Math.round(instance.y + instance.vy), 0.1, true) :
@@ -2838,7 +2615,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             y += global.screenHeight / 2;
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
             alpha = handleScreenDistance(alpha, instance, false);
-            drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize);
+            drawEntity(baseColor, x, y, instance, ratio, instance.id === gui.playerid ? instance.alpha * alpha : alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize);
         }
         for (let instance of global.entities) {
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
@@ -2847,7 +2624,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 y = instance.id === gui.playerid ? global.player.screeny : ratio * instance.render.y - py;
             drawHealth(x, y, instance, ratio, gui.visibleEntities ? 1 : alpha, instance.size);
             drawName(x, y, instance, ratio, gui.visibleEntities ? alpha * 0.75 + 0.25 : alpha, instance.size);
-            drawChatMessages(x, false, py, instance, ratio, gui.visibleEntities ? 1 : alpha, instance.size, px, py);
+            if (global.GUIStatus.renderChatMessages) drawChatMessages(x, false, py, instance, ratio, gui.visibleEntities ? 1 : alpha, instance.size, px, py);
             drawChatInput(x, y, instance, ratio, instance.size);
         }
         if (global.advanced.blackout.active) {
@@ -2914,385 +2691,54 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
     }
 
-    global.scrollX = global.scrollY = global.fixedScrollX = global.fixedScrollY = -1;
-    global.scrollVelocityY = global.scrollVelocityX = 0;
-    let lastGuiType = null;
-    let classTreeDrag = {
-        isDragging: false,
-        startX: 0,
-        startY: 0,
-        lastX: 0,
-        lastY: 0,
-        momentum: { x: 0, y: 0 }
-    };
-
-    // Search functionality - OPTIMIZED
-    let searchResults = [];
-    let filteredTiles = null;
-    let searchCache = new Map(); // Cache search results
-
-    // Optimize rendering with culling
-    const SHOW_NAMES_ZOOM_THRESHOLD = 1.5;
-    const CULL_MARGIN = 200;
-
-    let tankNameCache = new Map();
-    global.searchQuery = "";
-    function searchTankByName(query) {
-        if (!query || query.trim() === "") {
-            searchResults = [];
-            filteredTiles = null;
-            tankNameCache.clear();
-            global.searchQuery = ""; // Update global
-            return;
+    let lastTreeType = null;
+    global.classTree = createClassTree({
+        parent: document.getElementById("gameAreaWrapper"),
+        mockups: () => global.mockups,
+        theme: () => gameDraw.color,
+        playerColor: () => gui.color,
+        iconColor: index => config.graphical.oldUIStyle ? getOldIconColor(index) : gameDraw.getColor(getIconColor(index)),
+        boxColor: upgradeColor => gameDraw.modifyColor(upgradeColor),
+        ratio: () => global.ratio,
+        drawIcon: (context, index, x, y, size, lineWidth) => {
+            let picture = util.getEntityImageFromMockup(index, gui.color),
+                position = picture.position,
+                scale = size / position.axis,
+                angle = -Math.PI / 4;
+            x -= scale * (position.middle.x * Math.cos(angle) - position.middle.y * Math.sin(angle));
+            y -= scale * (position.middle.x * Math.sin(angle) + position.middle.y * Math.cos(angle));
+            drawEntity(picture.color, x, y, picture, 1, 1, scale / picture.size, lineWidth / Math.max(config.graphical.mininumBorderChunk, config.graphical.borderChunk), angle, true, context);
+        },
+        close: () => global.tankTree("exit"),
+        focusGame: () => global.canvas.cv.focus(),
+        keyUp: event => {
+            if (global.gameStart) global.canvas.keyUp(event);
         }
+    });
 
-        const lowerQuery = query.toLowerCase().trim();
-        global.searchQuery = query; // Update global
-
-        // Check cache first
-        if (searchCache.has(lowerQuery)) {
-            const cached = searchCache.get(lowerQuery);
-            searchResults = cached.results;
-            filteredTiles = cached.tiles;
-            return;
+    function drawUpgradeTree() {
+        if (global.died || global.disconnected) return global.tankTree("exit");
+        if (lastTreeType !== gui.type) {
+            lastTreeType = gui.type;
+            global.socket.talk("T");
         }
-
-        // Build name cache if empty
-        if (tankNameCache.size === 0) {
-            for (let i = 0; i < global.mockups.length; i++) {
-                const m = global.mockups[i];
-                if (m && m.name) {
-                    tankNameCache.set(i, m.name.toLowerCase());
-                }
+        if (global.generateTankTree) {
+            global.generateTankTree = false;
+            let names = [],
+                roots = [];
+            for (let index of String(gui.type).split("-")) {
+                let mockup = global.mockups[parseInt(index)];
+                if (!mockup || !mockup.rerootUpgradeTree) continue;
+                for (let name of mockup.rerootUpgradeTree.split("\\/")) if (!names.includes(name)) names.push(name);
             }
+            for (let name of names) {
+                let mockup = global.mockups.find(i => i && i.className === name);
+                if (mockup) roots.push(mockup.index);
+            }
+            if (roots.length) global.classTree.setRoots(roots);
         }
-
-        // Search using cache
-        searchResults = [];
-        const matchingIndexes = new Set();
-
-        for (let [index, name] of tankNameCache) {
-            if (name.includes(lowerQuery)) {
-                searchResults.push(global.mockups[index]);
-                matchingIndexes.add(index);
-            }
-        }
-
-        if (searchResults.length > 0) {
-            // FIXED: Find all tiles in the upgrade path to matching tanks
-            filteredTiles = [];
-
-            // Helper function to check if a tank leads to any search result
-            const leadsToSearchResult = (tankIndex, visited = new Set()) => {
-                if (visited.has(tankIndex)) return false;
-                visited.add(tankIndex);
-
-                // Check if this tank is in search results
-                if (matchingIndexes.has(parseInt(tankIndex))) return true;
-
-                // Check if any of its upgrades lead to search results
-                const mockup = global.mockups[parseInt(tankIndex)];
-                if (mockup && mockup.upgrades) {
-                    for (let upgrade of mockup.upgrades) {
-                        if (leadsToSearchResult(upgrade.index, visited)) {
-                            return true;
-                        }
-                    }
-                }
-                return false;
-            };
-
-            // Include all tiles that either match or lead to matching tanks
-            for (let tile of tiles) {
-                const tileIndex = parseInt(tile.index);
-                if (matchingIndexes.has(tileIndex) || leadsToSearchResult(tile.index)) {
-                    filteredTiles.push(tile);
-                }
-            }
-        } else {
-            // Show only basic if no results found
-            filteredTiles = tiles.filter(tile => {
-                const mockup = global.mockups[parseInt(tile.index)];
-                return mockup && mockup.className === "basic";
-            });
-        }
-
-        // Cache the results
-        searchCache.set(lowerQuery, {
-            results: searchResults,
-            tiles: filteredTiles
-        });
-    }
-    global.searchTankByName = searchTankByName;
-
-    function drawUpgradeTree(spacing, alcoveSize) {
-        if (lastGuiType != gui.type || global.generateTankTree) {
-            try {
-                let m = util.requestEntityImage(gui.type),
-                    rootName = m.rerootUpgradeTree,
-                    rootIndex = [];
-                for (let name of rootName) {
-                    let mockup = global.mockups.find(i => i && i.className === name);
-                    let ind = name == undefined || !mockup ? -1 : mockup.index;
-                    rootIndex.push(ind);
-                }
-                if (!rootIndex.includes(-1)) {
-                    generateTankTree(rootIndex);
-                }
-                lastGuiType = gui.type;
-                global.generateTankTree = false;
-                // Clear search when tree regenerates
-                global.searchQuery = ""; // Use global
-                searchResults = [];
-                filteredTiles = null;
-                searchCache.clear();
-            } catch { }
-        }
-
-        if (!tankTree) {
-            console.log("No class tree rendered yet.");
-            return;
-        }
-        // Draw semi-transparent overlay
-        ctx[2].globalAlpha = 0.5;
-        ctx[2].fillStyle = color.guiwhite;
-        ctx[2].fillRect(0, 0, global.screenWidth, global.screenHeight);
-        ctx[2].globalAlpha = 1;
-
-        // Render the class tree if ready.
-        if (global.renderTankTree) {
-            let tileSize = alcoveSize / 2,
-                size = tileSize - 4,
-                spaceBetween = 10,
-                screenDivisor = (spaceBetween + tileSize) * 2 * global.treeScale,
-                padding = tileSize / screenDivisor,
-                dividedWidth = global.screenWidth / screenDivisor,
-                dividedHeight = global.screenHeight / screenDivisor,
-                treeFactor = 1 + spaceBetween / tileSize;
-
-            // Apply momentum decay with optimization
-            if (!classTreeDrag.isDragging) {
-                const friction = 0.92;
-                classTreeDrag.momentum.x *= friction;
-                classTreeDrag.momentum.y *= friction;
-
-                // Stop momentum if very small
-                if (Math.abs(classTreeDrag.momentum.x) < 0.1) classTreeDrag.momentum.x = 0;
-                if (Math.abs(classTreeDrag.momentum.y) < 0.1) classTreeDrag.momentum.y = 0;
-            }
-
-            // Update scroll position with momentum
-            global.scrollVelocityX = classTreeDrag.momentum.x;
-            global.scrollVelocityY = classTreeDrag.momentum.y;
-
-            global.fixedScrollX = Math.max(
-                dividedWidth - padding,
-                Math.min(
-                    tankTree.width * treeFactor + padding - dividedWidth,
-                    global.fixedScrollX + global.scrollVelocityX
-                )
-            );
-            global.fixedScrollY = Math.max(
-                dividedHeight - padding,
-                Math.min(
-                    tankTree.height * treeFactor + padding - dividedHeight,
-                    global.fixedScrollY + global.scrollVelocityY
-                )
-            );
-            if (Math.abs(global.targetTreeScale - global.treeScale) > 0.001) {
-                global.treeScale += (global.targetTreeScale - global.treeScale) * 0.15;
-                if (Math.abs(global.targetTreeScale - global.treeScale) < 0.001) {
-                    global.treeScale = global.targetTreeScale;
-                }
-            }
-            // Smooth scroll interpolation
-            global.scrollX = util.lerp(global.scrollX, global.fixedScrollX, 0.10, true);
-            global.scrollY = util.lerp(global.scrollY, global.fixedScrollY, 0.10, true);
-
-            // Determine which tiles to render based on search
-            const tilesToRender = filteredTiles || tiles;
-
-            // OPTIMIZED: Pre-calculate values
-            const halfWidth = global.screenWidth / 2;
-            const halfHeight = global.screenHeight / 2;
-            const tileSpacing = tileSize + spaceBetween;
-            const scaledSpacing = tileSpacing * global.treeScale;
-            const halfSize = 0.5 * size;
-
-            // Draw branches (optimized with culling)
-            ctx[2].strokeStyle = color.black;
-            ctx[2].lineWidth = 2 * global.treeScale;
-            ctx[2].beginPath();
-
-            for (let [start, end] of branches) {
-                let sx = ((start.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth,
-                    sy = ((start.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight,
-                    ex = ((end.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth,
-                    ey = ((end.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight;
-
-                // Culling check with margin
-                if (ex < -CULL_MARGIN || sx > global.screenWidth + CULL_MARGIN ||
-                    ey < -CULL_MARGIN || sy > global.screenHeight + CULL_MARGIN) continue;
-
-                ctx[2].moveTo(sx, sy);
-                ctx[2].lineTo(ex, ey);
-            }
-            ctx[2].stroke();
-
-            // Draw tank icons (optimized with culling)
-            let angle = -Math.PI / 4;
-            const scaledTileSize = tileSize * global.treeScale;
-
-            for (let { x, y, colorIndex, index } of tilesToRender) {
-                let ax = (x - global.scrollX) * scaledSpacing + halfWidth,
-                    ay = (y - global.scrollY) * scaledSpacing + halfHeight;
-
-                // Culling check with margin
-                if (ax < -scaledTileSize - CULL_MARGIN || ax > global.screenWidth + CULL_MARGIN ||
-                    ay < -scaledTileSize - CULL_MARGIN || ay > global.screenHeight + CULL_MARGIN) continue;
-
-                drawEntityIcon(index.toString(), ax, ay, scaledTileSize, scaledTileSize, global.treeScale, angle, 1, colorIndex, false, false, 1);
-            }
-        }
-
-
-        // Draw UI elements
-        drawClassTreeUI(spacing);
-
-        ctx[2].globalAlpha = 1;
-    }
-    global.targetTreeScale = 1;
-    global.classTreeDrag = classTreeDrag;
-    function drawClassTreeUI(spacing) {
-        if (!global.renderTankTree) {
-            //drawText("Loading class tree...", global.screenWidth / 2, global.screenHeight / 2, 25, color.guiwhite, "center");
-            return;
-        }
-        const uiY = spacing + 20;
-        const buttonSize = 40;
-        const buttonSpacing = 10;
-
-        // Draw text for a tip
-        drawText("Arrow keys or mouse to navigate the class tree. Shift to navigate faster. Scroll wheel, (+/- keys) or zoom buttons to zoom in/out.", global.screenWidth / 2, spacing + 10, 17, color.guiwhite, "center");
-
-        // Draw search bar (centered)
-        const searchBarWidth = 300;
-        const searchBarHeight = 35;
-        const searchBarX = global.screenWidth / 2 - searchBarWidth / 2;
-        const searchBarY = uiY;
-
-        // Highlight if active
-        ctx[2].globalAlpha = global.searchBarActive ? 0.95 : 0.8;
-        ctx[2].fillStyle = global.searchBarActive ? color.vlgrey : color.white;
-        ctx[2].fillRect(searchBarX, searchBarY, searchBarWidth, searchBarHeight);
-        ctx[2].strokeStyle = global.searchBarActive ? color.blue : color.black;
-        ctx[2].lineWidth = global.searchBarActive ? 3 : 2;
-        ctx[2].strokeRect(searchBarX, searchBarY, searchBarWidth, searchBarHeight);
-        ctx[2].globalAlpha = 1;
-
-        const displayText = global.searchBarActive && !global.searchQuery
-            ? "Type to search..."
-            : global.searchQuery || "Search";
-        const textColor = color.white;
-        const showCursor = global.searchBarActive && Date.now() % 1000 < 500;
-
-        drawText(
-            displayText + (showCursor ? "|" : ""),
-            searchBarX + 10,
-            searchBarY + searchBarHeight / 2,
-            14,
-            textColor,
-            "left",
-            true
-        );
-
-        // Draw zoom buttons (moved to accommodate search bar position)
-        const zoomInX = searchBarX + searchBarWidth + buttonSpacing + 20;
-        const zoomOutX = zoomInX + buttonSize + buttonSpacing;
-
-        // Zoom In button
-        drawButton(
-            zoomInX,
-            searchBarY,
-            buttonSize,
-            searchBarHeight,
-            1,
-            "rect",
-            "+",
-            20,
-            color.grey,
-            color.black,
-            color.black,
-            true,
-            "classTreeZoomIn",
-            global.canvas.height / global.screenHeight / global.ratio,
-            {
-                index: 0
-            }
-        );
-
-        // Zoom Out button
-        drawButton(
-            zoomOutX,
-            searchBarY,
-            buttonSize,
-            searchBarHeight,
-            1,
-            "rect",
-            "-",
-            20,
-            color.grey,
-            color.black,
-            color.black,
-            true,
-            "classTreeZoomOut",
-            global.canvas.height / global.screenHeight / global.ratio,
-            {
-                index: 1
-            }
-        );
-
-        // Draw close button (X) on the left
-        const closeButtonSize = 35;
-        const closeButtonX = searchBarX - buttonSpacing * 2.6;
-        const closeButtonY = uiY;
-        // Draw close button
-        drawButton(
-            closeButtonX,
-            closeButtonY,
-            closeButtonSize,
-            closeButtonSize,
-            1,
-            "rect",
-            "✕",
-            32,
-            color.red,
-            color.black,
-            color.black,
-            true,
-            "classTreeClose",
-            global.canvas.height / global.screenHeight / global.ratio,
-            {
-                index: 0,
-                textOutline: false
-            }
-        );
-
-        // Draw search results info
-        const instructionY = searchBarY + searchBarHeight + 5;
-        if (global.searchQuery) {
-            const resultsText = searchResults.length > 0
-                ? `Found ${searchResults.length} tank${searchResults.length !== 1 ? "s" : ""} (showing upgrade paths)`
-                : "No tanks found - showing Basic";
-            drawText(
-                resultsText,
-                global.screenWidth / 2,
-                instructionY + 10,
-                11,
-                searchResults.length > 0 ? color.green : color.orange,
-                "center"
-            );
-        }
+        global.classTree.setHidden((global.menu && global.menu.isOpen()) || global.dailyTankAd.renderUI);
+        global.classTree.frame();
     }
 
     function drawMessages(spacing, alcoveSize) {
@@ -3481,154 +2927,125 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
     }
 
+    function drawHudText(text, x, y, size, fill, align = "center", stroke = size / 4) {
+        size += config.graphical.fontSizeBoost;
+        ctx[2].font = "bold " + size + "px Ubuntu";
+        ctx[2].textAlign = align;
+        ctx[2].textBaseline = "middle";
+        ctx[2].lineJoin = "round";
+        ctx[2].lineWidth = stroke;
+        ctx[2].strokeStyle = color.black;
+        ctx[2].fillStyle = fill;
+        ctx[2].strokeText(text, x, y);
+        ctx[2].fillText(text, x, y);
+        ctx[2].textAlign = "left";
+    }
+
     function drawSkillBars(spacing, alcoveSize) {
-        // Draw skill bars
         if (global.mobile) return drawMobileSkillUpgrades(spacing, alcoveSize);
-        statMenu.set(0 + (global.died || global.statHover || (global.canSkill && !gui.skills.every(skill => skill.cap === skill.amount))));
         global.clickables.stat.hide();
-
-        let vspacing = 5;
-        let height = 14;
-        let gap = 44.5;
-        let len = alcoveSize - 10; // * global.screenWidth; // The 30 is for the value modifiers
-        let save = len;
-        let x = spacing + 3 + (statMenu.get() - 1) * (height + 50 + len * ska(gui.skills.reduce((largest, skill) => Math.max(largest, skill.cap), 0)));
-        let y = global.screenHeight - spacing - 5.5 - height;
-        let ticker = 11;
-        let namedata;
+        global.clickables.hover.hide();
+        let now = performance.now(),
+            seconds = skillMenuTime ? (now - skillMenuTime) / 1000 : 0,
+            points = gui.points,
+            toScreen = global.screenWidth / global.canvas.width,
+            mouseX = global.mouse.x * toScreen,
+            mouseY = global.mouse.y * toScreen,
+            bottom = global.screenHeight - 1080,
+            clickableRatio = global.canvas.height / global.screenHeight / global.ratio,
+            colors = ["orange", "gold", "teal", "green", "yellow", "red", "lgreen", "blue", "pink", "purple"],
+            rows = [],
+            widest = 0,
+            open = false,
+            names;
+        skillMenuTime = now;
         try {
-            namedata = gui.getStatNames(global.mockups[parseInt(gui.type.split("-")[0])].statnames);
+            names = gui.getStatNames(global.mockups[parseInt(gui.type.split("-")[0])].statnames);
         } catch (e) {
-            namedata = gui.getStatNames(global.missingno[0].statnames);
+            names = gui.getStatNames(global.missingno[0].statnames);
         }
-        let clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
-
-        for (let i = 0; i < gui.skills.length; i++) {
-            ticker--;
-            //information about the bar
-            let skill = gui.skills[i],
-                name = namedata[ticker - 1],
-                level = skill.amount,
-                col = color[skill.color],
-                cap = skill.softcap,
-                maxLevel = skill.cap;
-
-            if (!cap) continue;
-
-            len = save;
-            let max = 0,
-                extension = cap > max,
-                blocking = cap < maxLevel;
-            if (extension) {
-                max = cap;
-            }
-
-            //bar fills
-            drawBar(x + height / 2, x - height / 2 + len * ska(cap) - 14, y + height / 2, height - 2.8 + config.graphical.barChunk, color.black);
-            drawBar(x + height / 2, x + height / 2 + len * ska(cap) - gap, y + height / 2, height - 3, color.grey);
-            drawBar(x + height / 2, x + height / 2 + len * ska(level) - gap, y + height / 2, height - 5.5 + config.graphical.barChunk, color.black);
-            drawBar(x + height / 2, x + height / 2 + len * ska(level) - gap, y + height / 2, height - 3.5, col);
-
-            // Blocked-off area
-            if (blocking) {
-                ctx[2].lineWidth = 1;
-                ctx[2].strokeStyle = color.grey;
-                for (let j = cap + 1; j < max; j++) {
-                    drawGuiLine(x + len * ska(j) - gap, y + 1.5, x + len * ska(j) - gap, y - 3 + height);
-                }
-            }
-
-            // Vertical dividers
-            ctx[2].strokeStyle = color.black;
-            ctx[2].lineWidth = 1;
-            for (let j = 1; j < level + 1; j++) {
-                drawGuiLine(x + len * ska(j) - gap, y + 1.5, x + len * ska(j) - gap, y - 3 + height);
-            }
-
-            // Skill name
-            len = save * ska(max);
-            let textcolor = level == maxLevel ? col : !gui.points || (cap !== maxLevel && level == cap) ? color.grey : color.guiwhite;
-            drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
-
-            // Skill key
-            drawText(`[${getKeybind(`KEY_SKILL_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
-            if (textcolor === color.guiwhite) {
-                // If it's active
-                global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
-            }
-
-            // Skill value
-            if (level) {
-                drawText("+" + level, Math.round(x + len + 4) - 5.5, y + height / 2, height - 5, col, "left", true);
-            }
-
-            // Move on
-            y -= height + vspacing;
+        for (let stat = 0; stat < 10; stat++) {
+            let skill = gui.skills[9 - stat];
+            if (!skill || !skill.softcap) continue;
+            let level = Math.min(skill.amount, skill.softcap);
+            rows.push({ stat, level, max: skill.softcap, name: names[stat], color: color[colors[stat]] });
+            if (skill.softcap > widest) widest = skill.softcap;
+            if (level < skill.softcap) open = true;
         }
+        let target = (points > 0 && open) || (mouseX < 20 && mouseY >= global.screenHeight - 120) ? 1 : 0;
+        if (global.pullSkillBar) target = 0;
+        skillMenuShown = slideStep(skillMenuShown, target, seconds);
+        global.statBuy = [];
+        if (!skillMenuShown || !rows.length) return;
+        let left = -(1 - skillMenuShown) * skillHideDistance(widest);
+        for (let r = 0; r < rows.length; r++) {
+            let row = rows[r],
+                y = bottom + 1047.5 - (rows.length - 1 - r) * 19,
+                end = left + SKILL_TRACK_LEFT + SKILL_SEGMENT * row.max,
+                preview = row.level,
+                buyable = points > 0 && row.level < row.max;
+            if (buyable && Math.abs(mouseY - y) <= 8 && mouseX >= left + SKILL_TRACK_LEFT && mouseX < end) {
+                preview = skillPreview(row.level, Math.floor((mouseX - left - SKILL_TRACK_LEFT) / SKILL_SEGMENT), points, row.max);
+            }
+            global.statBuy[row.stat] = preview - row.level;
+            if (buyable) global.clickables.stat.place(row.stat, (left + SKILL_TRACK_LEFT) * clickableRatio, (y - 8) * clickableRatio, SKILL_SEGMENT * row.max * clickableRatio, 16 * clickableRatio);
+            drawBar(left + SKILL_START, end + 11.5, y, 16, color.black);
+            drawBar(left + SKILL_START, end - 5.5, y, 11, color.grey);
+            if (preview > row.level) drawSkillFill(left, y, preview, row.level + 1, gameDraw.mixColors(row.color, color.white, 153 / 256));
+            drawSkillFill(left, y, row.level, 1, row.color);
+            let textColor = row.level >= row.max ? row.color : points <= 0 ? color.grey : color.guiwhite,
+                plus = Math.max(preview, row.level);
+            drawHudText(row.name, left + 33 + SKILL_SEGMENT * row.max / 2, y, 11, textColor);
+            drawHudText(`[${getKeybind(`KEY_SKILL_${row.stat + 1}`)}]`, left + 40 + SKILL_SEGMENT * row.max, y, 9, textColor, "right");
+            if (plus > 0) drawHudText("+" + plus, left + 48.4 + SKILL_SEGMENT * row.max, y, 11, preview > row.level ? color.guiwhite : row.color, "left");
+        }
+        if (points > 0) drawHudText("x" + points, left + 41 + SKILL_SEGMENT * widest, bottom + 1027 - (rows.length - 1) * 19, 20, color.guiwhite, "right", 4);
+    }
 
-        global.clickables.hover.place(0, 0, y * clickableRatio, 0.8 * len * clickableRatio, (global.screenHeight - y) * clickableRatio);
-        if (gui.points !== 0) {
-            // Draw skillpoints to spend
-            drawText("x" + gui.points, Math.round(x + len - 2) - 13, Math.round(y + height - 4) + 2, 18.5, color.guiwhite, "right");
+    function drawSkillFill(left, y, level, firstSeparator, fill) {
+        let end = left + skillFillEnd(level);
+        ctx[2].fillStyle = color.black;
+        drawGuiCircle(end, y, 6.75);
+        if (level > 0) {
+            drawBar(left + SKILL_START, end, y, 11, fill);
+        } else {
+            ctx[2].fillStyle = fill;
+            drawGuiCircle(left + SKILL_START, y, 5.5);
+        }
+        ctx[2].strokeStyle = color.black;
+        ctx[2].lineWidth = 1.25;
+        ctx[2].lineCap = "round";
+        for (let i = firstSeparator; i < level; i++) {
+            let x = left + SKILL_TRACK_LEFT + SKILL_SEGMENT * i;
+            ctx[2].beginPath();
+            ctx[2].moveTo(x, y - 4.875);
+            ctx[2].lineTo(x, y + 4.875);
+            ctx[2].stroke();
         }
     }
 
     function drawSelfInfo(max) {
         if (global.died) return;
-        //rendering information
-        let width = 440,
-            scorewidth = 70,
-            scorelength = 0,
-            height = 25.5,
-            x = (global.screenWidth - width) / 2,
-            y = global.screenHeight - 22 - height;
-        if (config.graphical.oldUIStyle) {
-            y += 2.5;
-            width -= 90;
-            scorewidth -= 37;
-            height = 25;
-            x = (global.screenWidth - width) / 2;
-        }
-        ctx[2].lineWidth = 10;
-        let extraHeight = config.graphical.oldUIStyle ? 5 : 3;
-        drawBar(x, x + width, y + height / 2, height - 3 + config.graphical.barChunk, color.black);
-        drawBar(x, x + width, y + height / 2, height - 3, color.grey);
-        drawBar(x, x + width * gui.__s.getProgress(), y + height / 2, height - 3.5, color.gold);
-        drawText("Level " + gui.__s.getLevel() + " " + gui.class, x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
-        height = 17;
-        y -= height + 5;
-        if (config.graphical.oldUIStyle) {
-            y += 2;
-            scorewidth = 35;
-        }
+        let left = global.screenWidth / 2 - 960,
+            bottom = global.screenHeight - 1080,
+            score = Math.round(gui.__s.getScore()),
+            kills = gui.__s.getKills(),
+            name = global.player.name.substring(7, global.player.name.length + 1);
+        drawPlayerBar(left + 740, left + 1180, bottom + 1045, 22, gui.__s.getProgress(), color.purple, "Level " + gui.__s.getLevel() + " " + gui.class);
         if (global.GUIStatus.renderPlayerKillbar) {
-            scorelength = -112.2;
-            scorewidth = 160;
-            if (config.graphical.oldUIStyle) {
-                scorelength = -90.2;
-                scorewidth = 120;
-            }
-            drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, color.black);
-            drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, color.grey);
-            drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (1 ? Math.min(1, gui.__s.getKills()[0] / 1) : 1)), y + height / 2, height - extraHeight - 0.5, color.purple);
-            extraHeight = config.graphical.oldUIStyle ? 5 : 6;
-            drawText("Kills: " + util.formatKills(...gui.__s.getKills()), x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12 : 13, color.guiwhite, "center");
-            extraHeight = config.graphical.oldUIStyle ? 5 : 3;
-            scorelength = 72.5;
-            scorewidth = 120;
-            if (config.graphical.oldUIStyle) {
-                scorelength = 65.5;
-                scorewidth = 95;
-            }
+            drawPlayerBar(left + 788, left + 988, bottom + 1019, 14, score / max, color.green, "Score: " + commas(score));
+            drawPlayerBar(left + 1012, left + 1132, bottom + 1019, 14, killFill(kills[0], kills[2], score), color.teal, killText(kills[0], kills[1], kills[2]));
+        } else {
+            drawPlayerBar(left + 810, left + 1110, bottom + 1019, 14, score / max, color.green, "Score: " + commas(score));
         }
-        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, color.black);
-        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, color.grey);
-        drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (max ? Math.min(1, gui.__s.getScore() / max) : 1)), y + height / 2, height - extraHeight - 0.5, color.green);
-        extraHeight = config.graphical.oldUIStyle ? 6 : 6;
-        drawText("Score: " + util.formatLargeNumber(Math.round(gui.__s.getScore())), x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12.5 : 13, color.guiwhite, "center");
-        ctx[2].lineWidth = 4;
-        var name = global.player.name.substring(7, global.player.name.length + 1);
-        drawText(name, Math.round(x + width / 2) + 1.5, Math.round(y - 10 - 4) - 1, 31, global.nameColor == "#FFFFFF" ? color.guiwhite : global.nameColor, "center");
+        if (name) drawHudText(name, left + 960, bottom + 985, 32, global.nameColor == "#FFFFFF" ? color.guiwhite : global.nameColor, "center", 6.4);
+    }
+
+    function drawPlayerBar(x0, x1, y, height, fill, fillColor, text) {
+        drawBar(x0, x1, y, height + 5, color.black);
+        drawBar(x0, x1, y, height, color.grey);
+        drawBar(x0, x0 + (x1 - x0) * Math.max(0, Math.min(1, fill)), y, height, fillColor);
+        drawHudText(text, (x0 + x1) / 2, y, height, color.guiwhite);
     }
 
     function handleSpeedMonitor() {
@@ -3663,9 +3080,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             let centerX = x + len / 2;
             let centerY = y + height / 2;
 
-            ctx[2].globalAlpha = 0.4;
+            ctx[2].globalAlpha = 0.5;
             ctx[2].save();
-            ctx[2].fillStyle = color.white;
+            ctx[2].fillStyle = gameDraw.mixColors(color.grey, color.white, 0.5);
             global.advanced.roundArena == true ? drawGuiCircle(x + len / 2, y + height / 2, len / 2) : drawGuiRect(x, y, len, height);
             ctx[2].beginPath(); // We will not allow to draw outside of the minimap so we are only allowing minimap entities to draw INSIDE the minimap only
             global.advanced.roundArena == true ? ctx[2].arc(x + len / 2, y + height / 2, len / 2, 0, 2 * Math.PI) : ctx[2].rect(x, y, len, height); // Draw everything inside the minimap
@@ -3707,7 +3124,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                                 ctx[2].globalAlpha = 1;
                                 ctx[2].drawImage(cell.renderImage, minimapX, minimapY, cellWidth, cellHeight);
                             }
-                            ctx[2].globalAlpha = 0.4;
+                            ctx[2].globalAlpha = 0.5;
                             ctx[2].fillStyle = gameDraw.getColor(color);
                             if (gameDraw.getColor(color) !== color.white) {
                                 drawGuiRect(minimapX, minimapY, cellWidth, cellHeight);
@@ -3831,114 +3248,70 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         } else drawText(watermarkText, x + len, y - 22 - 2 * 14 - 2, 15, watermarkColor, "right");
     }
 
+    function updateLeaderboard() {
+        let now = performance.now();
+        if (leaderboard.version !== leaderboardVersion) {
+            leaderboardVersion = leaderboard.version;
+            leaderboardBoard.update(leaderboard.latest, now, entry => ({ entry }));
+        }
+        leaderboardBoard.step(leaderboardTime ? (now - leaderboardTime) / 1000 : 0);
+        leaderboardTime = now;
+        return leaderboardBoard.fold(now);
+    }
+
     function drawLeaderboard(spacing, alcoveSize, max) {
-        // Draw leaderboard
-        let lb = leaderboard.get();
-        let vspacing = 4;
-        let len = alcoveSize; // * global.screenWidth;
-        let height = 14;
-        let x = global.screenWidth - spacing - 10;
-        let y = spacing + height + 13;
-        if (config.graphical.oldUIStyle) {
-            x += 10;
-            y -= 5;
-        }
-        lbGlide.set(0 + lb.data.length > 0);
-        let glide = lbGlide.get();
-        x -= lb.data.length ? len * glide : len * glide;
-
-        // Animation things
-        let mobileGlide = mobileUpgradeGlide.get();
+        let right = global.screenWidth,
+            top = 0;
         if (global.mobile) {
-            if (global.canUpgrade && 2 * 20 + gui.upgrades.length * (6.5 * 23 + 17) > 1.4 * x) {
-                y += (alcoveSize / 1.4) * mobileGlide;
+            if (global.canUpgrade && 2 * 20 + gui.upgrades.length * (6.5 * 23 + 17) > 1.4 * (right - 260)) {
+                top += (alcoveSize / 1.4) * mobileUpgradeGlide.get();
             }
-            y += global.canSkill || global.showSkill ? (alcoveSize / 2.2 /*+ spacing * 2*/) * statMenu.get() : 0;
+            top += global.canSkill || global.showSkill ? (alcoveSize / 2.2 /*+ spacing * 2*/) * statMenu.get() : 0;
         }
-        drawText("Leaderboard", Math.round(x + len / 2) + 0.5, Math.round(y - 6) + 0.5, height + 3.5, color.guiwhite, "center", false, 1, 5.5);
-        y += 7;
-
-        for (let i = 0; i < lb.data.length; i++) {
-            let entry = lb.data[i];
-            let lbEntry = leaderboardEntries[entry.id];
-            if (!lbEntry) {
-                lbEntry = leaderboardEntries[entry.id] = {
-                    ...entry,
-                    leaderboardUpdate,
-                    animX: Smoothbar(0, 0.30, 1.5, 0.045, true),
-                    animY: Smoothbar(0, 0.30, 1.5, 0.045, true),
-                    x: 0,
-                    y: i,
-                    targetX: 1,
-                    targetY: i
-                };
-            }
-            if (lbEntry.y !== i && lbEntry.targetY !== i) lbEntry.targetY = i;
-
-            lbEntry.image = entry.image;
-            lbEntry.position = entry.position;
-            lbEntry.barColor = entry.barColor;
-            lbEntry.label = entry.label;
-            lbEntry.score = entry.score;
-            lbEntry.nameColor = entry.nameColor;
-            lbEntry.visible = true;
-            lbEntry.update = leaderboardUpdate;
-        }
-        for (let id in leaderboardEntries) {
-            let entry = leaderboardEntries[id];
-            if (entry.update !== leaderboardUpdate && entry.targetX !== 0) entry.targetX = 0;
-            if (entry.update === leaderboardUpdate && entry.targetX === 0) entry.targetX = 1;
-            if (entry.animX.get() > 0.999) {
-                entry.animX.force(0);
-                entry.x = entry.targetX;
-                if (entry.x === 0) {
-                    entry.visible = false;
-                    delete leaderboardEntries[id];
-                };
-            }
-            if (entry.animY.get() > 0.999) {
-                entry.animY.force(0);
-                entry.y = entry.targetY;
-            }
-            if (entry.x !== entry.targetX) entry.animX.set(1);
-            if (entry.y !== entry.targetY) entry.animY.set(1);
-
-            if (entry.visible) {
-                let scale = height / entry.position.axis;
-                let fullX = global.screenWidth + 1.5 * height + scale * entry.position.middle.x * Math.SQRT1_2 + 10;
-                let entryX = entry.x ? x : fullX;
-                if (entry.x !== entry.targetX) entryX = entryX + entry.animX.get() * ((entry.targetX ? x : fullX) - entryX);
-                let entryPos = entry.y;
-                if (entry.y !== entry.targetY) entryPos = entry.y + entry.animY.get() * (entry.targetY - entry.y);
-                let entryY = y + (vspacing + height) * entryPos;
-
-                drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3 + config.graphical.barChunk, color.black);
-                drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3, color.grey);
-                let shift = Math.min(1, entry.score / max);
-                drawBar(entryX, entryX + len * shift, entryY + height / 2 - .7, height - 3.5, gameDraw.modifyColor(entry.barColor, "mirror 0 1 0 false"));
-
-                // Leadboard name + score
-                let nameColor = entry.nameColor || "#FFFFFF";
-                let overwritelabel = entry.label.includes("#")
-                    ? entry.label.replace("##", Math.round(entry.score).toString()).replace("#s", 1 === Math.round(entry.score) ? "" : "s")
-                    : false;
-                drawText(overwritelabel ? overwritelabel : entry.label + (": " + util.handleLargeNumber(Math.round(entry.score))), entryX + len / 2, entryY + height / 2, height - 4.5, nameColor == "#FFFFFF" ? color.guiwhite : nameColor, "center", true);
-
-                // Mini-image
-                if (entry.renderEntity) {
-                    let xx = entryX - 1.5 * height - scale * entry.position.middle.x * Math.SQRT1_2,
-                        yy = entryY + 0.5 * height - scale * entry.position.middle.y * Math.SQRT1_2,
-                        baseColor = entry.color;
-                    drawEntity(baseColor, xx, yy, entry.image, 1 / scale, 1, (scale * scale) / entry.image.size, (scale * scale) / entry.image.size / 8.5, -Math.PI / 4, true, ctx[2], false, entry.image.render, false, true);
+        let titleOffset = leaderboardBoard.titleOffset() * 300;
+        if (titleOffset < 300) drawHudText("Leaderboard", right - 130.5 + titleOffset, top + 35.5, 19, color.guiwhite, "center", 20 / 4.5);
+        if (leaderboardPrefixes.size > 1000) leaderboardPrefixes.clear();
+        for (let row of leaderboardBoard.held) {
+            if (row.offset * 300 >= 262) continue;
+            let entry = row.entry,
+                x = right + row.offset * 300,
+                y = top + 60 + 19 * row.rank,
+                value = Math.round(row.shown),
+                label = (entry.name ? entry.name + " - " : "") + entry.label;
+            drawBar(x - 230.5, x - 30.5, y, 16, color.black);
+            drawBar(x - 230.5, x - 30.5, y, 11, color.grey);
+            drawBar(x - 230.5, x - 230.5 + 200 * Math.min(1, row.shown / max), y, 11, gameDraw.modifyColor(entry.bar, "mirror 0 1 0 false"));
+            if (label.includes("#")) {
+                label = label.replace("##", value.toString()).replace("#s", value === 1 ? "" : "s");
+            } else {
+                let number = abbreviate(value),
+                    key = entry.name + "\n" + entry.label + "\n" + number.replace(/\d/g, "8"),
+                    prefix = leaderboardPrefixes.get(key);
+                if (prefix === undefined) {
+                    ctx[2].font = "bold " + (11 + config.graphical.fontSizeBoost) + "px Ubuntu";
+                    prefix = leaderboardPrefix(entry.name, entry.label, value, text => ctx[2].measureText(text).width);
+                    leaderboardPrefixes.set(key, prefix);
                 }
+                label = prefix + number;
             }
+            drawHudText(label, x - 130.5, y, 11, entry.nameColor == "#FFFFFF" ? color.guiwhite : entry.nameColor, "center", 12 / 4.5);
+            if (entry.renderEntity) drawLeaderboardIcon(entry, x - 251.5, y);
         }
-        leaderboardUpdate++;
+    }
+
+    function drawLeaderboardIcon(entry, x, y) {
+        let picture = util.requestEntityImage(entry.index, entry.color),
+            position = picture.position,
+            scale = 13.5 / position.axis,
+            angle = -Math.PI / 4;
+        x -= scale * (position.middle.x * Math.cos(angle) - position.middle.y * Math.sin(angle));
+        y -= scale * (position.middle.x * Math.sin(angle) + position.middle.y * Math.cos(angle));
+        drawEntity(picture.color, x, y, picture, 1, 1, scale / picture.size, 13.5 * 6 / 80 / Math.max(config.graphical.mininumBorderChunk, config.graphical.borderChunk), angle, true, ctx[2]);
     }
 
     function drawAvailableUpgrades(spacing, alcoveSize) {
         // Draw upgrade menu
-        if (global.optionsMenu_Anim.isOpened) global.clickables.upgrade.hide();
+        if (global.menu && global.menu.isOpen()) global.clickables.upgrade.hide();
         global.clickables.dailyTankUpgrade.hide();
         global.clickables.dailyTankAd.hide();
         if (gui.upgrades.length > 0) {
@@ -3999,7 +3372,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                 if (y > initialY) initialY = y;
                 rowWidth = x;
-                !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
+                !(global.menu && global.menu.isOpen()) && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
                 let upgradeKey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
 
                 drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? upgradeKey : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
@@ -4639,8 +4012,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         let spacing = 20;
         let alcoveSize = 200 / ratio; // drawRatio * global.screenWidth;
         gui.__s.update();
-        let lb = leaderboard.get();
-        let max = lb.max;
+        let max = updateLeaderboard();
         global.canSkill = !!gui.points && !global.showTree && !global.pullSkillBar;
         let shake = false;
         if (config.graphical.shakeProperties.UIShake.shakeStartTime !== -1) shake = applyScreenShake("gui", true);
@@ -4660,167 +4032,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
         } else if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
         if (global.showTree) {
-            drawUpgradeTree(spacing, alcoveSize);
+            drawUpgradeTree();
         }
         if (shake) ctx[2].translate(-shake.dx, -shake.dy);
         global.metrics.lastrender = getNow();
-    }
-
-    function optionsMenu_drawRoundedRect(x, y, w, h, r) {
-        ctx[2].beginPath();
-        ctx[2].moveTo(x+r, y);
-        ctx[2].lineTo(x+w-r, y);
-        ctx[2].quadraticCurveTo(x+w, y, x+w, y+r);
-        ctx[2].lineTo(x+w, y+h-r);
-        ctx[2].quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-        ctx[2].lineTo(x+r, y+h);
-        ctx[2].quadraticCurveTo(x, y+h, x, y+h-r);
-        ctx[2].lineTo(x, y+r);
-        ctx[2].quadraticCurveTo(x, y, x+r, y);
-        ctx[2].closePath();
-    }
-
-    function drawToolip(cb) {
-        // Draw tooltip
-
-        // Set fade animation
-        cb.tooltipService.alpha.set(cb.tooltipService.targetAlpha);
-
-        // And get it
-        const anim = cb.tooltipService.alpha.get();
-
-        // And dont forget the ratio
-        const clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
-        // invisible → skip
-        if (anim > 0.001) {
-            ctx[2].save();
-            ctx[2].globalAlpha = anim;
-
-            const paddingX = 9;
-            const paddingY = 6;
-
-            const splitTooltip = cb.tooltipService.text.split("\n");
-
-            let textW = cb.tooltipService.text.length;
-            for (let line of splitTooltip) textW = Math.max(textW, measureText(line, 13.5));
-            const textH = 16; // font size
-            const boxW = textW + paddingX * 2;
-            let boxH = 0;
-            if (splitTooltip.length === 1) boxH = textH + paddingY * 2.5;
-            if (splitTooltip.length !== 1) for (let line of splitTooltip) boxH += textH;
-            // convert from screen → canvas
-            const tipX = cb.tooltipService.x / clickableRatio;
-            const tipY = cb.tooltipService.y / clickableRatio;
-
-            // tooltip sits BELOW checkbox
-            const bx = tipX;
-            const by = tipY;
-            let textY = by;
-            // background
-            ctx[2].fillStyle = "rgba(30, 30, 30, 0.40)";
-            optionsMenu_drawRoundedRect(bx, by, boxW, splitTooltip.length === 1 ? boxH : boxH + 15, 8);
-            ctx[2].fill();
-            ctx[2].globalAlpha = anim;
-
-            // Text
-            for (let i = 0; i < splitTooltip.length; i++) {
-                let text = splitTooltip[i];
-                let increaseLength = splitTooltip.length === 1 ? 22 : 17.6;
-                textY += increaseLength;
-                drawText(text, bx + paddingX, splitTooltip.length === 1 ? textY : textY + 3, 13.5, color.guiwhite);
-            }
-
-            ctx[2].restore();
-        }
-    }
-
-    function optionsMenu_getPointer(pointer = global.mouse) {
-        const canvasWidth = global.canvas.width || global.screenWidth;
-        const canvasHeight = global.canvas.height || global.screenHeight;
-        return {
-            x: pointer.x * (global.screenWidth || canvasWidth) / canvasWidth,
-            y: pointer.y * (global.screenHeight || canvasHeight) / canvasHeight,
-        };
-    }
-
-    function optionsMenu_getUserInterfaceOptions() {
-        let doc = document.getElementById("optUiScale");
-        if (!doc) return [];
-        return Array.from(doc.options).filter((option) => option.value).map((option) => ({
-            value: option.value,
-            label: option.textContent.replace("UI Scale", "").replace("(", "").replace(")", "").replace(" ", ""),
-        }))
-    }
-    function optionsMenu_getGraphicsOptions() {
-        let doc = document.getElementById("optGraphics");
-        if (!doc) return [];
-        console.log(Array.from(doc.options).filter((option) => option.value).map((option) => ({
-            value: option.value,
-            label: option.textContent,
-        })))
-        return Array.from(doc.options).filter((option) => option.value).map((option) => ({
-            value: option.value,
-            label: option.textContent,
-        }))
-    }
-
-    const THEME_SWATCHES = [
-        ["blue",     "Blue"],    ["vlgrey", "Eggs"],      ["lgrey",    "Walls"],
-        ["green",    "Green"],   ["gold",   "Squares"],   ["lgreen",   "Health Bars"],
-        ["red",      "Red"],     ["orange", "Triangles"], ["teal",     "Shield Bars"],
-        ["magenta",  "Purple"],  ["purple", "Pentagons"], ["grey",     "Barrels"],
-        ["yellow",   "Neutral"], ["aqua",   "Hexagons"],  ["white",    "Background"],
-        ["dgrey",    "Rogues"],  ["pink",   "Crashers"],  ["guiblack", "Grid"],
-        ["guiwhite", "Text"],    ["black",  "Borders"],
-    ];
-
-    const OV_ROW1 = 41, OV_ROW2 = 81, OV_ROW3 = 121;
-    const OV_COLORS_HEAD = 183, OV_GRID_TOP = 201, OV_GRID_PITCH = 40;
-    const OV_BORDERS_HEAD = 503, OV_SLIDER_TOP = 524, OV_NEON_TOP = 561;
-    const OV_CTRL_H = 28, OV_SWATCH = 28, OV_GAP = 13, OV_COL_PITCH = 145, OV_BADGE = 26;
-    const OV_INSET_L = 24, OV_INSET_R = 18, OV_CODE_GAP = 11, OV_REMOVE_W = 98;
-    const OV_SLIDER_W = 152, OV_TITLE_TOP = 30;
-    const THEME_PANEL_H = 608;
-    const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
-    const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
-    const SECRET_SECTION_LAYOUT = {
-        secret: { title: "Secret Options", titleY: 30,  rowTop: 45 },
-        beta:   { title: "Beta Options",   titleY: 230, rowTop: 245 },
-        legacy: { title: "Legacy Options", titleY: 310, rowTop: 325 },
-    };
-    const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
-
-    const LEGACY_THEMES = [
-        ["bleach", "Bleach", "definitelynot."],
-        ["nebula", "Nebula", "Unknown"],
-        ["forest", "Forest", "Sterlon"],
-        ["pastel", "Pastel", "Damocles"],
-        ["descent", "Descent", "Rog456"],
-        ["badlands", "Badlands", "Incognious"],
-        ["pumpkinSkeleton", "Pumpkin Skeleton", "Road"],
-        ["blindness", "Blindness", "Damocles"],
-    ];
-
-    let _themeList = null;
-    function loadThemes() {
-        if (!_themeList) {
-            _themeList = fetch("themes.json")
-                .then((r) => r.json())
-                .then((list) => list.concat(LEGACY_THEMES.map(([key, name, author]) => {
-                    const theme = colors[key];
-                    return {
-                        name,
-                        author,
-                        content: theme,
-                        paletteSize: theme.paletteSize,
-                        border: theme.border,
-                        neon: theme.neon,
-                        legacy: true,
-                    };
-                })))
-                .catch(() => []);
-        }
-        return _themeList;
     }
 
     const PERSONAL_THEMES_KEY = "personalThemes";
@@ -4831,27 +4046,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
     function savePersonalThemes(list) {
         try { localStorage.setItem(PERSONAL_THEMES_KEY, JSON.stringify(list)); } catch { }
-    }
-
-    let _keybindEntries = null;
-    function getKeybindEntries() {
-        if (_keybindEntries) return _keybindEntries;
-        const out = [];
-        document.querySelectorAll("#controlSettings tr").forEach((tr) => {
-            tr.querySelectorAll("td").forEach((td) => {
-                const b = td.querySelector("b");
-                if (!b) return;
-                const label = td.textContent.replace(b.textContent, "").replace(/^[\s-]+/, "").trim()
-                    .replace(/[a-z]+/g, (wd) => wd.charAt(0).toUpperCase() + wd.slice(1));
-                out.push({ el: b, label });
-            });
-        });
-        _keybindEntries = out;
-        return out;
-    }
-    function keybindsPanelHeight() {
-        const rows = Math.max(1, Math.ceil(getKeybindEntries().length / 2));
-        return KB_ROW_TOP + (rows - 1) * KB_ROW_PITCH + OV_BADGE + 13;
     }
 
     function themeCode(palette, name, author) {
@@ -4878,436 +4072,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         return btoa(bin).replace(/=+$/, "");
     }
 
-    const OV_BASE = "position:absolute;box-sizing:border-box;margin:0;border:3px solid #484848;border-radius:0;outline:none;pointer-events:auto";
-    const OV_STROKE = "color:#fff;-webkit-text-stroke:3px #484848;paint-order:stroke fill";
-    const OV_INPUT = OV_BASE + ";background:#fff;color:#000;text-align:left;font:14px Ubuntu,sans-serif;padding:0 7px";
-    const OV_ARROW = "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7'%3E%3Cpath d='M0 0l6 7 6-7z' fill='%23484848'/%3E%3C/svg%3E\")";
-    const OV_SELECT = OV_BASE + ";appearance:none;-webkit-appearance:none;background-color:#fff;background-image:" +
-        OV_ARROW + ";background-repeat:no-repeat;background-position:calc(100% - 9px) center;background-size:12px 7px;" +
-        OV_STROKE + ";text-align:left;font:bold 14px Ubuntu,sans-serif;padding:0 24px 0 7px;cursor:pointer";
-    const OV_BTN = OV_BASE + ";background:#8f8f8f;" + OV_STROKE + ";font:bold 14px Ubuntu,sans-serif;cursor:pointer";
-    const OV_COLOR = OV_BASE + ";width:27px;height:27px;padding:0;background:none;cursor:pointer";
-
-    function themeBlend() {
-        const c = gameDraw.color;
-        if (!c) return 0.65;
-        if (typeof c.border !== "number") c.border = 0.65;
-        return Math.max(0, Math.min(1, c.border));
-    }
-    global.ingameThemeSetBlend = (t) => {
-        if (!gameDraw.color) return;
-        gameDraw.color.border = Math.max(0, Math.min(1, t));
-        gameDraw.colorCache = {};
-        markThemeCustom();
-        refreshThemeCode();
-    };
-    global.ingameThemeToggleNeon = () => {
-        const wrap = global.themeOverlay;
-        if (!wrap) return;
-        const sel = wrap._ov.bordersSel;
-        sel.value = sel.value === "neon" ? "normal" : "neon";
-        sel.dispatchEvent(new Event("change"));
-    };
-
-    function ensureThemeOverlay() {
-        if (global.themeOverlay) return global.themeOverlay;
-        const wrap = document.createElement("div");
-        wrap.id = "ingameThemeOverlay";
-        wrap.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;display:none;z-index:20;pointer-events:none;font-family:Ubuntu,sans-serif";
-
-        const st = document.createElement("style");
-        st.textContent =
-            "#ingameThemeOverlay input[type=color]::-webkit-color-swatch-wrapper{padding:0}" +
-            "#ingameThemeOverlay input[type=color]::-webkit-color-swatch{border:none}" +
-            "#ingameThemeOverlay input[type=text]::placeholder{color:#8f8f8f}";
-        document.head.appendChild(st);
-
-        const mk = (tag, css, id) => {
-            const e = document.createElement(tag);
-            e.style.cssText = css;
-            if (id) e.id = id;
-            wrap.appendChild(e);
-            return e;
-        };
-
-        const name = mk("input", OV_INPUT, "ovName"); name.type = "text"; name.placeholder = "Theme Name";
-        const author = mk("input", OV_INPUT, "ovAuthor"); author.type = "text"; author.placeholder = "Author";
-        const code = mk("input", OV_INPUT, "ovCode"); code.type = "text"; code.spellcheck = false; code.autocomplete = "off";
-        const remove = mk("button", OV_BTN, "ovRemove"); remove.type = "button"; remove.textContent = "Remove";
-        const colorsSel = mk("select", OV_SELECT, "ovColors");
-        const bordersSel = mk("select", OV_SELECT, "ovBorders");
-        const borderColor = mk("input", OV_COLOR, "ovBorderColor"); borderColor.type = "color";
-        const swatches = THEME_SWATCHES.map(([key]) => {
-            const inp = mk("input", OV_COLOR);
-            inp.type = "color";
-            inp.dataset.key = key;
-            return inp;
-        });
-
-        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches };
-        document.body.appendChild(wrap);
-        global.themeOverlay = wrap;
-
-        for (const [value, label] of [["normal", "Light"], ["dark", "Dark"], ["neon", "Neon"], ["glass", "Glass"]]) {
-            const o = document.createElement("option");
-            o.value = value;
-            o.textContent = label;
-            bordersSel.appendChild(o);
-        }
-        bordersSel.value = config.graphical.neon ? "neon" : config.graphical.darkBorders ? "dark" : "normal";
-
-        loadThemes().then((list) => {
-            wrap._themes = Array.isArray(list) ? list : [];
-            wrap._personal = loadPersonalThemes();
-            rebuildThemeSelect();
-            const srcColors = document.getElementById("optColors");
-            if (srcColors && srcColors.value === "custom") {
-                colorsSel.value = "custom";
-                applyCustomTheme();
-            } else {
-                selectTheme(srcColors?.selectedOptions[0]?.textContent.replace(/ \(by .*\)$/, ""));
-                syncThemeOverlay();
-            }
-        });
-
-        colorsSel.addEventListener("change", () => {
-            updateThemeButton();
-            if (colorsSel.value === "custom") {
-                applyCustomTheme();
-                return;
-            }
-            const theme = selectedTheme();
-            if (theme) applyTheme(theme);
-        });
-        bordersSel.addEventListener("change", () => {
-            config.graphical.darkBorders = bordersSel.value === "dark" || bordersSel.value === "neon";
-            config.graphical.neon = bordersSel.value === "neon" || bordersSel.value === "glass";
-            if (gameDraw.color) { gameDraw.color.neon = config.graphical.neon; gameDraw.colorCache = {}; }
-            const src = document.getElementById("optBorders");
-            if (src) src.value = bordersSel.value;
-            refreshThemeCode();
-        });
-        borderColor.addEventListener("input", (e) => {
-            if (gameDraw.color) { gameDraw.color.black = e.target.value; gameDraw.colorCache = {}; }
-            markThemeCustom();
-            refreshThemeCode();
-        });
-        swatches.forEach((inp) => {
-            inp.addEventListener("input", () => {
-                if (gameDraw.color) { gameDraw.color[inp.dataset.key] = inp.value; gameDraw.colorCache = {}; }
-                if (inp.dataset.key === "black") wrap._ov.borderColor.value = inp.value;
-                markThemeCustom();
-                refreshThemeCode();
-            });
-        });
-        remove.addEventListener("click", () => {
-            if (colorsSel.value === "custom") {
-                addCustomTheme();
-                return;
-            }
-            const mine = /^p(\d+)$/.exec(colorsSel.value);
-            if (mine) {
-                wrap._personal.splice(parseInt(mine[1], 10), 1);
-                savePersonalThemes(wrap._personal);
-                rebuildThemeSelect();
-            }
-            const list = wrap._themes;
-            if (list && list.length) {
-                colorsSel.value = "t0";
-                applyTheme(list[0]);
-            } else {
-                const c = colors["normal"];
-                gameDraw.color = c; gameDraw.colorCache = {}; global.currentColors = c;
-                syncThemeOverlay();
-            }
-        });
-        name.addEventListener("input", () => { markThemeCustom(); refreshThemeCode(); });
-        author.addEventListener("input", () => { markThemeCustom(); refreshThemeCode(); });
-        code.addEventListener("change", () => {
-            const parsed = parseTheme(code.value);
-            if (parsed && parsed.content) {
-                const c = Object.assign({}, colors["normal"], parsed.content);
-                c.border = parsed.content.border;
-                c.neon = !!parsed.content.neon;
-                gameDraw.color = c;
-                gameDraw.colorCache = {};
-                global.currentColors = c;
-                markThemeCustom();
-                syncThemeOverlay(parsed.name, parsed.author);
-            }
-        });
-        return wrap;
-    }
-
-    function rebuildThemeSelect() {
-        const wrap = global.themeOverlay;
-        if (!wrap) return;
-        const o = wrap._ov;
-        const previous = o.colorsSel.value;
-        o.colorsSel.textContent = "";
-        const add = (value, label) => {
-            const opt = document.createElement("option");
-            opt.value = value;
-            opt.textContent = label;
-            o.colorsSel.appendChild(opt);
-        };
-        const legacyEnabled = localStorage.getItem("optLegacyThemesChecked") === "true";
-        (wrap._themes || []).forEach((theme, i) => {
-            if (!theme.legacy || legacyEnabled) add("t" + i, theme.name);
-        });
-        (wrap._personal || []).forEach((theme, i) => add("p" + i, theme.name));
-        add("custom", "Custom");
-        if (previous && o.colorsSel.querySelector(`option[value="${previous}"]`)) o.colorsSel.value = previous;
-        updateThemeButton();
-    }
-
-    function selectedTheme() {
-        const wrap = global.themeOverlay;
-        if (!wrap) return null;
-        const match = /^([tp])(\d+)$/.exec(wrap._ov.colorsSel.value);
-        if (!match) return null;
-        const list = match[1] === "t" ? wrap._themes : wrap._personal;
-        return (list && list[parseInt(match[2], 10)]) || null;
-    }
-
-    function selectTheme(name) {
-        const wrap = global.themeOverlay;
-        if (!wrap || !wrap._themes) return;
-        const index = wrap._themes.findIndex((theme) => theme.name === name);
-        wrap._ov.colorsSel.value = index === -1 ? "t0" : "t" + index;
-    }
-
-    function updateThemeButton() {
-        const wrap = global.themeOverlay;
-        if (!wrap) return;
-        wrap._ov.remove.textContent = wrap._ov.colorsSel.value === "custom" ? "Add" : "Remove";
-    }
-
-    function addCustomTheme() {
-        const wrap = global.themeOverlay;
-        if (!wrap || !gameDraw.color) return;
-        const o = wrap._ov;
-        const c = gameDraw.color;
-        const content = {};
-        THEME_PALETTE_KEYS.forEach((key) => {
-            const v = c[key];
-            content[key] = typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v : "#000000";
-        });
-        if (!wrap._personal) wrap._personal = [];
-        wrap._personal.push({
-            name: o.name.value.trim() || "Custom",
-            author: o.author.value.trim(),
-            content,
-            paletteSize: THEME_PALETTE_KEYS.length,
-            border: typeof c.border === "number" ? c.border : 0.6,
-            neon: !!c.neon,
-        });
-        savePersonalThemes(wrap._personal);
-        rebuildThemeSelect();
-        o.colorsSel.value = "p" + (wrap._personal.length - 1);
-        updateThemeButton();
-    }
-
-    function markThemeCustom() {
-        const wrap = global.themeOverlay;
-        if (wrap && wrap._ov.colorsSel.value !== "custom") {
-            wrap._ov.colorsSel.value = "custom";
-            updateThemeButton();
-        }
-    }
-
-    function applyCustomTheme() {
-        const src = document.getElementById("optCustom");
-        const code = (src && src.value) || localStorage.getItem("optCustomValue") || "";
-        const parsed = code ? parseTheme(code) : null;
-        if (parsed && parsed.content) {
-            const c = Object.assign({}, colors["normal"], parsed.content);
-            c.border = parsed.content.border;
-            c.neon = !!parsed.content.neon;
-            gameDraw.color = c;
-            gameDraw.colorCache = {};
-            global.currentColors = c;
-            config.graphical.darkBorders = !!parsed.content.neon;
-            config.graphical.neon = !!parsed.content.neon;
-            const wrap = global.themeOverlay;
-            if (wrap) wrap._ov.bordersSel.value = parsed.content.neon ? "neon" : "normal";
-            syncThemeOverlay(parsed.name, parsed.author);
-        } else {
-            syncThemeOverlay();
-        }
-    }
-
-    function applyTheme(theme) {
-        if (!theme || !theme.content) return;
-        const c = Object.assign({}, colors["normal"], theme.content);
-        c.paletteSize = theme.paletteSize || THEME_PALETTE_KEYS.length;
-        c.border = typeof theme.border === "number" ? theme.border : 0.6;
-        c.neon = !!theme.neon;
-        gameDraw.color = c;
-        gameDraw.colorCache = {};
-        global.currentColors = c;
-        config.graphical.darkBorders = !!theme.neon;
-        config.graphical.neon = !!theme.neon;
-        const wrap = global.themeOverlay;
-        if (wrap) wrap._ov.bordersSel.value = theme.neon ? "neon" : "normal";
-        const src = document.getElementById("optBorders");
-        if (src) src.value = theme.neon ? "neon" : "normal";
-        syncThemeOverlay(theme.name, theme.author);
-    }
-
-    function refreshThemeCode() {
-        const wrap = global.themeOverlay;
-        if (!wrap || !gameDraw.color) return;
-        const o = wrap._ov;
-        const name = o.name.value || "Custom";
-        const author = o.author.value || "";
-        if (document.activeElement !== o.code) o.code.value = themeCode(gameDraw.color, name, author);
-    }
-
-    function syncThemeOverlay(name, author) {
-        const wrap = global.themeOverlay;
-        if (!wrap || !gameDraw.color) return;
-        const o = wrap._ov;
-        const c = gameDraw.color;
-        o.swatches.forEach((inp) => {
-            const v = c[inp.dataset.key];
-            if (typeof v === "string" && /^#/.test(v) && inp.value.toLowerCase() !== v.toLowerCase()) inp.value = v;
-        });
-        if (typeof c.black === "string" && /^#/.test(c.black)) o.borderColor.value = c.black;
-        if (name === undefined) {
-            const theme = selectedTheme();
-            name = theme ? theme.name : o.name.value;
-            author = theme ? theme.author : o.author.value;
-        }
-        if (document.activeElement !== o.name) o.name.value = name || "";
-        if (document.activeElement !== o.author) o.author.value = author || "";
-        updateThemeButton();
-        refreshThemeCode();
-    }
-
-    function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
-        const wrap = global.themeOverlay || ensureThemeOverlay();
-        const o = wrap._ov;
-        if (wrap.style.display !== "block") syncThemeOverlay();
-        wrap.style.display = "block";
-        const r = clickableRatio;
-        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[1]
-            ? global.optionsMenu_Anim.scrollOffsets[1].get() : 0;
-        const L = PANEL_X + OV_INSET_L, W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R, T = PANEL_Y - scrollY;
-        const hw = (W - OV_GAP) / 2;
-        const put = (el, x, y, w, h) => {
-            el.style.left = (x * r) + "px";
-            el.style.top = (y * r) + "px";
-            el.style.width = (w * r) + "px";
-            el.style.height = (h * r) + "px";
-            el.style.borderWidth = (3 * r) + "px";
-        };
-        put(o.name, L, T + OV_ROW1, hw, OV_CTRL_H);
-        put(o.author, L + hw + OV_GAP, T + OV_ROW1, hw, OV_CTRL_H);
-        put(o.code, L, T + OV_ROW2, W - OV_REMOVE_W - OV_CODE_GAP, OV_CTRL_H);
-        put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
-        put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
-        put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
-        put(o.borderColor, L + 2 * OV_COL_PITCH, T + OV_SLIDER_TOP - 2, OV_SWATCH, OV_SWATCH);
-        o.swatches.forEach((inp, i) => {
-            const col = i % 3, row = (i / 3) | 0;
-            put(inp, L + col * OV_COL_PITCH, T + OV_GRID_TOP + row * OV_GRID_PITCH, OV_SWATCH, OV_SWATCH);
-        });
-
-        const cx = PANEL_X + PANEL_WIDTH / 2;
-        drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, color.guiwhite, "center", true);
-        drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, color.guiwhite, "center", true);
-        o.swatches.forEach((inp, i) => {
-            const col = i % 3, row = (i / 3) | 0;
-            drawText(THEME_SWATCHES[i][1], L + col * OV_COL_PITCH + OV_SWATCH + 9,
-                T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
-        });
-
-        const sx = L, sy = T + OV_SLIDER_TOP, SW = OV_SLIDER_W, SH = 20;
-        const sv = themeBlend();
-        ctx[2].fillStyle = color.guiwhite;
-        drawGuiRect(sx, sy + 2.5, SW, SH);
-        ctx[2].fillStyle = color.green;
-        ctx[2].globalAlpha *= 0.7;
-        drawGuiRect(sx, sy + 2.5, SW * sv, SH);
-        ctx[2].globalAlpha /= 0.7;
-        ctx[2].strokeStyle = color.black;
-        ctx[2].lineWidth = 3;
-        drawGuiRect(sx, sy + 2.5, SW, SH, true);
-        const knob = sx + (SW - 12.5) * sv;
-        ctx[2].fillStyle = color.green;
-        drawGuiRect(knob, sy, 12.5, SH + 5);
-        ctx[2].strokeStyle = color.black;
-        drawGuiRect(knob, sy, 12.5, SH + 5, true);
-        const midY = sy + SH / 2 + 2.5;
-        drawText("Blend Ratio", sx + SW + 8, midY, 13.5, color.guiwhite, "left", true);
-        drawText("Borders", sx + 2 * OV_COL_PITCH + OV_SWATCH + 9, midY, 13.5, color.guiwhite, "left", true);
-
-        const nx = L, ny = T + OV_NEON_TOP;
-        const on = !!config.graphical.neon;
-        ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], on ? color.green : color.guiwhite);
-        drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH);
-        if (on) {
-            ctx[2].strokeStyle = "#FFFFFF";
-            ctx[2].lineWidth = 3;
-            ctx[2].beginPath();
-            ctx[2].moveTo(nx + 5.5, ny + OV_SWATCH / 1.8);
-            ctx[2].lineTo(nx + OV_SWATCH / 2 - 3, ny + OV_SWATCH - 7);
-            ctx[2].lineTo(nx + OV_SWATCH - 6, ny + 8);
-            ctx[2].stroke();
-        }
-        gameDraw.setColor(ctx[2], color.black);
-        drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH, true);
-        drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
-
-        global.ingameKeybindRects = null;
-        const cr = r * global.ratio;
-        global.ingameThemeSlider = { x: sx * cr, y: sy * cr, w: SW * cr, h: (SH + 5) * cr, track: SW };
-        global.ingameThemeNeon = { x: nx * cr, y: ny * cr, w: OV_SWATCH * cr, h: OV_SWATCH * cr };
-    }
-
-    function drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
-        if (global.themeOverlay) global.themeOverlay.style.display = "none";
-        global.ingameThemeSlider = null;
-        global.ingameThemeNeon = null;
-        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[2]
-            ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
-        const L = PANEL_X + 22, W = PANEL_WIDTH - 44;
-        const T = PANEL_Y - scrollY;
-        const cr = clickableRatio * global.ratio;
-        const colW = W / 2;
-        const entries = getKeybindEntries();
-        const rows = Math.max(1, Math.ceil(entries.length / 2));
-
-        drawText("Keybinds", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
-
-        const rects = [];
-        entries.forEach((e, i) => {
-            const col = i % 2, row = (i / 2) | 0;
-            const x = L + col * colW;
-            const y = T + KB_ROW_TOP + row * KB_ROW_PITCH;
-            const td = e.el.closest("td");
-            ctx[2].lineWidth = 3;
-            ctx[2].fillStyle = color.guiwhite;
-            drawGuiRect(x, y, OV_BADGE, OV_BADGE);
-            if (td && td.classList.contains("editing")) {
-                ctx[2].fillStyle = color.green;
-                drawGuiRect(x, y, OV_BADGE, OV_BADGE);
-            }
-            ctx[2].strokeStyle = color.black;
-            drawGuiRect(x, y, OV_BADGE, OV_BADGE, true);
-            drawText(getKeybind(e.el.dataset.key) || "", x + OV_BADGE / 2, y + OV_BADGE / 2, 12, color.black, "center", true, 1, false);
-            ctx[2].save();
-            ctx[2].beginPath();
-            ctx[2].rect(x + OV_BADGE + 10, y, colW - OV_BADGE - 18, OV_BADGE);
-            ctx[2].clip();
-            drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
-            ctx[2].restore();
-            rects.push({ el: e.el, x: x * cr, y: y * cr, w: colW * cr, h: OV_BADGE * cr });
-        });
-        global.ingameKeybindRects = rects;
-    }
 
     global.refreshBrainrotOption = () => {
         const select = document.getElementById("optNames");
@@ -5333,7 +4097,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             option.hidden = option.disabled = !enabled;
         }
         if (!enabled && select.selectedOptions[0]?.hidden) select.value = "normal";
-        rebuildThemeSelect();
     };
     global.applyCrosshairCursor = () => {
         const enabled = localStorage.getItem("optCrosshairCursorChecked") === "true";
@@ -5341,53 +4104,80 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     };
     global.applyCrosshairCursor();
 
-    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked) {
-        if (global.themeOverlay) global.themeOverlay.style.display = "none";
-        global.ingameThemeSlider = null;
-        global.ingameThemeNeon = null;
-        global.ingameKeybindRects = null;
-        const BOX_SIZE = 25;
-        const LINE_HEIGHT = 40;
-        global.clickables.optionsMenu.toggleBoxes.hide();
-        global.clickables.optionsMenu.HoverBoxes.hide();
-        const secretTooltips = [];
-        const fullExtra = fullUnlocked ? 40 : 0;
-        for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, color.guiwhite, "center");
+
+    let themeVersion = 0, themeCache = null;
+    function themeOptions() {
+        let list = [];
+        for (let option of document.getElementById("optColors").options) {
+            if (option.value === "custom" || option.hidden) continue;
+            let match = option.textContent.match(/^(.*?)(?: \(by (.*)\))?$/);
+            list.push({ value: option.value, name: match[1], author: match[2] || "" });
         }
-        for (let i = 0; i < global.optionsCheckboxes.length; i++) {
-            const cb = global.optionsCheckboxes[i];
-            if (!isSecretSection(cb.section)) continue;
-            if (cb.fullSecret && !fullUnlocked) {
-                if (cb.tooltipService) cb.tooltipService.targetAlpha = 0;
-                continue;
-            }
-            const layout = SECRET_SECTION_LAYOUT[cb.section];
-            const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-            const y = PANEL_Y + layout.rowTop + (cb.section === "secret" ? 0 : fullExtra) + cb.row * LINE_HEIGHT;
-            const hitSize = BOX_SIZE * clickableRatio;
-            if (!cb.tooltipService) cb.tooltipService = {
-                text: cb.tooltip,
-                targetAlpha: 0,
-                alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
-                x: 0,
-                y: 0
-            };
-            cb.tooltipService.x = x * clickableRatio;
-            cb.tooltipService.y = (y + BOX_SIZE + 10) * clickableRatio;
-            global.clickables.optionsMenu.HoverBoxes.place(i, x * clickableRatio, y * clickableRatio, hitSize + (10.5 + measureText(cb.label, BOX_SIZE) * 0.65 + 1) * clickableRatio, hitSize);
-            cb.tooltipService.targetAlpha = global.clickables.optionsMenu.HoverBoxes.check({ x: global.mouse.x, y: global.mouse.y }) === i ? 1 : 0;
-            if (!cb.placeholder && cb.lastValue !== cb.value) {
-                cb.lastValue = cb.value;
-                localStorage.setItem(cb.id + "Checked", cb.value ? "true" : "false");
-                if (cb.id === "optBrainrotFilter") global.refreshBrainrotOption();
-                if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
-                if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
-                if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
-                if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
-                if (cb.id === "optShowLocalhost") {
-                    if (cb.value) global.servers.unshift({
-                        id: "x",
+        loadPersonalThemes().forEach((theme, i) => list.push({ value: "p" + i, name: theme.name, author: theme.author || "", personal: i }));
+        list.push({ value: "custom", name: "Custom", author: "" });
+        return list;
+    }
+    function themeState() {
+        if (themeCache && themeCache.version === themeVersion) return themeCache;
+        let value = document.getElementById("optColors").value;
+        let list = themeOptions();
+        let personal = value === "custom" ? parseInt(localStorage.getItem("optPersonalTheme") || "-1", 10) : -1;
+        let entry = value === "custom" ? list.find((t) => personal >= 0 && t.personal === personal) : list.find((t) => t.value === value);
+        let parsed = value === "custom" ? parseTheme(document.getElementById("optCustom").value, false) : null;
+        let palette = gameDraw.color || colors.normal;
+        let state = {
+            version: themeVersion,
+            value: entry ? entry.value : "custom",
+            personal: entry && entry.personal !== undefined ? entry.personal : -1,
+            custom: value === "custom" && !(entry && entry.personal !== undefined),
+            name: entry ? entry.name : parsed && parsed.content ? parsed.name : "Custom",
+            author: entry ? entry.author : parsed && parsed.content ? parsed.author : "",
+            colors: {},
+            blend: typeof palette.border === "number" ? palette.border : 0.6,
+            neon: !!palette.neon
+        };
+        for (let key of THEME_PALETTE_KEYS) state.colors[key] = palette[key];
+        state.code = themeCode(palette, state.name, state.author);
+        themeCache = state;
+        return state;
+    }
+    function setCustomTheme(code, personal = -1) {
+        document.getElementById("optColors").value = "custom";
+        document.getElementById("optCustom").value = code;
+        localStorage.setItem("optPersonalTheme", personal);
+        util.submitToLocalStorage("optColors");
+        util.submitToLocalStorage("optCustom");
+        loadSettings();
+    }
+    function editTheme(changes, name, author) {
+        let state = themeState();
+        let palette = Object.assign({}, state.colors, { border: state.blend, neon: state.neon }, changes);
+        setCustomTheme(themeCode(palette, name ?? state.name, author ?? state.author));
+    }
+    function pickTheme(value) {
+        localStorage.setItem("optPersonalTheme", -1);
+        document.getElementById("optColors").value = value;
+        util.submitToLocalStorage("optColors");
+        loadSettings();
+    }
+    function menuHooks() {
+        return {
+            colors: () => gameDraw.color || colors.normal,
+            save: (id) => util.submitToLocalStorage(id),
+            apply: () => loadSettings(),
+            borderThickness: (t) => {
+                config.graphical.borderChunk = 0.7 + 5.3 * t;
+            },
+            token: () => document.getElementById("playerKeyInput").dispatchEvent(new Event("input")),
+            rainbow: (on) => {
+                config.game.rainbowTeamColors = on;
+            },
+            localhost: (on) => {
+                if (!Array.isArray(global.servers) || !global.servers.length) return;
+                let list = global.servers.filter((server) => server.ip !== "localhost:5000");
+                if (on) {
+                    list.unshift({
+                        id: list.some((server) => server.id === "x") ? "localhost" : "x",
                         ip: "localhost:5000",
                         players: 0,
                         maxPlayers: 80,
@@ -5398,787 +4188,67 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         location: "Localhost",
                         gameMode: "Private"
                     });
-                    else global.servers = global.servers.filter(s => s.id !== "localhost");
-                    global.loadServerSelector(global.servers);
                 }
+                global.servers = list;
+                document.getElementById("serverFilterRegion").innerHTML = "";
+                document.getElementById("serverFilterMode").innerHTML = "";
+                global.loadServerSelector(list);
+            },
+            requestPlayers: () => {
+                if (global.socket && global.socket.talk) global.socket.talk("pl");
+            },
+            playerAction: (id, action) => {
+                if (global.socket && global.socket.talk) global.socket.talk("pa", id, action);
+            },
+            drawTank: (context, index, tint, x, y, size, alpha) => {
+                let picture = util.requestEntityImage(index, tint),
+                    position = picture.position,
+                    scale = size / position.axis,
+                    angle = -Math.PI / 4;
+                x -= scale * (position.middle.x * Math.cos(angle) - position.middle.y * Math.sin(angle));
+                y -= scale * (position.middle.x * Math.sin(angle) + position.middle.y * Math.cos(angle));
+                drawEntity(picture.color, x, y, picture, 1, alpha, scale / picture.size, size * 6 / 80 / Math.max(config.graphical.mininumBorderChunk, config.graphical.borderChunk), angle, true, context);
+            },
+            keys: {
+                select: (element) => keybinderHandler.select(element),
+                press: (event) => keybinderHandler.press(event),
+                cancel: () => keybinderHandler.cancel(),
+                editing: () => keybinderHandler.editing()
+            },
+            themes: {
+                list: themeOptions,
+                state: themeState,
+                pick: (value) => {
+                    if (value[0] !== "p") return pickTheme(value);
+                    let index = parseInt(value.slice(1), 10);
+                    let theme = loadPersonalThemes()[index];
+                    if (theme) setCustomTheme(themeCode(Object.assign({}, theme.content, { border: theme.border, neon: theme.neon }), theme.name, theme.author), index);
+                },
+                rename: (name, author) => editTheme({}, name, author),
+                importCode: (code) => {
+                    let parsed = parseTheme(code.trim(), false);
+                    if (parsed && parsed.content) setCustomTheme(code.trim());
+                },
+                save: () => {
+                    let state = themeState();
+                    let list = loadPersonalThemes();
+                    list.push({ name: state.name, author: state.author, content: Object.assign({}, state.colors), paletteSize: THEME_PALETTE_KEYS.length, border: state.blend, neon: state.neon });
+                    savePersonalThemes(list);
+                    setCustomTheme(state.code, list.length - 1);
+                },
+                remove: () => {
+                    let state = themeState();
+                    if (state.personal < 0) return;
+                    let list = loadPersonalThemes();
+                    list.splice(state.personal, 1);
+                    savePersonalThemes(list);
+                    pickTheme("normal");
+                },
+                color: (key, value) => editTheme({ [key]: value }),
+                blend: (value) => editTheme({ border: value }),
+                neon: (value) => editTheme({ neon: value })
             }
-            const isOn = !cb.placeholder && !!cb.value;
-            if (!cb.placeholder) {
-                global.clickables.optionsMenu.toggleBoxes.place(i, x * clickableRatio, y * clickableRatio, hitSize, hitSize);
-            }
-            ctx[2].lineWidth = 3;
-            gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
-            drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-            gameDraw.setColor(ctx[2], color.black);
-            drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
-            if (isOn) {
-                ctx[2].strokeStyle = "#FFFFFF";
-                ctx[2].lineWidth = 3;
-                ctx[2].beginPath();
-                ctx[2].moveTo(x + 5.5, y + BOX_SIZE / 1.8);
-                ctx[2].lineTo(x + BOX_SIZE / 2 - 3, y + BOX_SIZE - 7);
-                ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
-                ctx[2].stroke();
-            }
-            drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
-            secretTooltips.push(cb);
-        }
-        for (const cb of secretTooltips) drawToolip(cb);
-    }
-
-    function drawOptionsMenu() {
-        global.ingameKeybindRects = null;
-        global.ingameThemeSlider = null;
-        global.ingameThemeNeon = null;
-
-        // Initialize tab offset for sliding animation and menu height animation
-        if (!global.optionsMenu_Anim.tabOffset) {
-            global.optionsMenu_Anim.tabOffset = Smoothbar(global.optionsMenu_Anim.activeTab || 0, 2, 3, 0.08, 0.025, true);
-            global.optionsMenu_Anim.scrollOffsets = [
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-            ];
-            global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0]
-        }
-
-        const RENDERX = global.optionsMenu_Anim.switchMenu_button.get();
-        const BTN_SIZE = 30;
-        const BTN_WIDTH_COLLAPSED = BTN_SIZE / 1.57; // Half width when not hovering
-        const BTN_WIDTH_EXPANDED = 119; // Increased from 100 to make it wider
-        const BTN_X = config.graphical.oldUIStyle ? -4 : 1;
-        const BTN_Y = config.graphical.oldUIStyle ? 19 : 25;
-        const clickableRatio = global.canvas ? global.canvas.height / global.screenHeight / global.ratio : 1;
-        const animValue = global.optionsMenu_Anim.optionsButtonProgress.get();
-        // Check hover state
-        let mpos = {
-            x: global.mouse.x,
-            y: global.mouse.y
         };
-
-        // Update clickable area
-        const currentWidth = BTN_WIDTH_COLLAPSED + (BTN_WIDTH_EXPANDED - BTN_WIDTH_COLLAPSED) * animValue;
-        if (global.clickables && global.clickables.optionsMenu.switchButton) {
-            if (global.optionsMenu_Anim.isOpened) {
-                global.clickables.optionsMenu.switchButton.hide();
-            } else global.clickables.optionsMenu.switchButton.place(0, BTN_X * clickableRatio - 4, BTN_Y * clickableRatio, currentWidth * clickableRatio + 4, BTN_SIZE * clickableRatio);
-        }
-
-        let hover = global.clickables && global.clickables.optionsMenu.switchButton ? global.clickables.optionsMenu.switchButton.check(mpos) === 0 : false;
-
-        // Change value to activate animation
-        if (hover) {
-            global.optionsMenu_Anim.optionsButtonProgress.set(1);
-        } else {
-            global.optionsMenu_Anim.optionsButtonProgress.set(0);
-        }
-
-        const animatedWidth = BTN_WIDTH_COLLAPSED + (BTN_WIDTH_EXPANDED - BTN_WIDTH_COLLAPSED) * animValue;
-        ctx[2].translate(RENDERX, 0);
-        ctx[2].save();
-
-        // Draw button background
-        ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], color.green);
-        drawGuiRect(BTN_X, BTN_Y, animatedWidth, BTN_SIZE);
-        if (hover) {
-            gameDraw.setColor(ctx[2], global.clickables.clicked ? "#000" : "#fff");
-            ctx[2].globalAlpha = global.clickables.clicked ? 0.15 : 0.2;
-            drawGuiRect(BTN_X, BTN_Y, animatedWidth, BTN_SIZE);
-            ctx[2].globalAlpha = 1;
-        }
-        // Draw "Options" text
-        if (animValue > 0.1) {
-            const textX = BTN_X + BTN_WIDTH_COLLAPSED / 2 + animatedWidth - 105;
-            const textY = BTN_Y + BTN_SIZE / 2;
-            drawText("Options", textX, textY * 1.13, 12, color.guiwhite, "left");
-        }
-        ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], color.black);
-        drawGuiRect(BTN_X, BTN_Y, animatedWidth, BTN_SIZE, true); // Draw stroke(Outline) between the box
-
-        // Draw THICK border
-
-        // Draw separator line between options area and arrow area (when expanded)
-        if (animValue > 0.001) {
-            const separatorX = BTN_X + animatedWidth - BTN_WIDTH_COLLAPSED - 2;
-            ctx[2].strokeStyle = color.black;
-            ctx[2].lineWidth = 6;
-            ctx[2].beginPath();
-            ctx[2].moveTo(separatorX, BTN_Y + 2);
-            ctx[2].lineTo(separatorX, BTN_Y + BTN_SIZE - 2);
-            ctx[2].stroke();
-        }
-
-        // Draw arrow - slides to the right as button expands - KEEP YOUR ORIGINAL ARROW
-        const arrowW = BTN_WIDTH_COLLAPSED * 0.3; // Arrow width (horizontal)
-        const arrowH = BTN_SIZE * 0.3; // Arrow height (vertical)
-
-        // Arrow position moves from center of collapsed button to right edge of expanded button
-        const arrowBaseX = BTN_X + BTN_WIDTH_COLLAPSED / 2;
-        const arrowCenterX = arrowBaseX + animatedWidth - 19;
-        const arrowCenterY = BTN_Y + BTN_SIZE / 2;
-
-
-        const leftX = arrowCenterX - arrowW / 3;
-        const tipX = arrowCenterX + arrowW / 2;
-        const topY = arrowCenterY - arrowH / 2;
-        const botY = arrowCenterY + arrowH / 2;
-
-        ctx[2].fillStyle = "#FFFFFF";
-        ctx[2].lineJoin = "round";
-        ctx[2].lineCap = "round";
-        ctx[2].lineWidth = 3;
-
-        ctx[2].beginPath();
-        ctx[2].moveTo(leftX, topY);
-        ctx[2].lineTo(tipX, arrowCenterY);
-        ctx[2].lineTo(leftX, botY);
-        ctx[2].closePath();
-        ctx[2].fill();
-        ctx[2].strokeStyle = "#FFFFFF";
-        ctx[2].stroke();
-
-        ctx[2].restore();
-        ctx[2].translate(-RENDERX, -0);
-
-        const mainMenuAnim = global.optionsMenu_Anim.mainMenu.get();
-        if (mainMenuAnim < -470) { // fully hidden
-            if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
-            return;
-        }
-        const extraLeftX = config.graphical.oldUIStyle ? 5 : 0;
-        const extraTopY = config.graphical.oldUIStyle ? 6 : 0;
-        const PANEL_WIDTH = 460;
-        const PANEL_Y = 75 - extraTopY;
-        const MAX_PANEL_HEIGHT = global.screenHeight - PANEL_Y - 25; // 25px bottom margin
-        const PANEL_HEIGHT = Math.min(global.optionsMenu_Anim.mainMenuHeight.get(), MAX_PANEL_HEIGHT);
-
-        // slide from off-screen left → visible
-        const PANEL_VISIBLE_X = mainMenuAnim;
-        const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
-        const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optFullSecretOptions");
-        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optFullSecretOptionsChecked") === "true";
-        const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
-        const TAB_CONTENT_HEIGHTS = [
-            (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
-            THEME_PANEL_H,
-            keybindsPanelHeight(),
-            secretPanelH
-        ];
-        const TAB_CONTENT_MAX_SCROLL = [
-            0,
-            THEME_PANEL_H,
-            keybindsPanelHeight(),
-            secretPanelH
-        ];
-        global.optionsMenu_Anim.tabs[1][1] = THEME_PANEL_H;
-        global.optionsMenu_Anim.tabs[2][1] = TAB_CONTENT_HEIGHTS[2];
-        global.optionsMenu_Anim.tabs[3][1] = secretPanelH;
-        const secretBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSecretOptions");
-        const secretUnlocked = secretBox ? !!secretBox.value : localStorage.getItem("optSecretOptionsChecked") === "true";
-        global.clickables.optionsMenu.mainMenuIdle.set(PANEL_X * clickableRatio, PANEL_Y * clickableRatio, PANEL_WIDTH * clickableRatio, PANEL_HEIGHT * clickableRatio);
-        if (!secretUnlocked && (global.optionsMenu_Anim.activeTab || 0) === 3) {
-            global.optionsMenu_Anim.activeTab = 0;
-            global.optionsMenu_Anim.tabOffset.set(0);
-            global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[0][1]);
-        }
-        const activeTab = global.optionsMenu_Anim.activeTab || 0;
-        const scrollOffsetAnim = global.optionsMenu_Anim.scrollOffsets[activeTab];
-        const contentH = TAB_CONTENT_HEIGHTS[activeTab];
-        const contentM = TAB_CONTENT_MAX_SCROLL[activeTab];
-        const maxScroll = Math.max(0, contentH - PANEL_HEIGHT);
-
-        if (global.optionsMenu_Anim.scrollTargets[activeTab] < 0)
-            global.optionsMenu_Anim.scrollTargets[activeTab] = 0;
-        if (global.optionsMenu_Anim.scrollTargets[activeTab] > maxScroll)
-            global.optionsMenu_Anim.scrollTargets[activeTab] = maxScroll;
-
-        scrollOffsetAnim.set(global.optionsMenu_Anim.scrollTargets[activeTab]);
-        const scrollY = scrollOffsetAnim.get();
-
-        // Store live panel bounds for the wheel handler to read each frame
-        global.optionsMenu_Anim._PANEL_X = PANEL_X;        // already defined above
-        global.optionsMenu_Anim._panelY = PANEL_Y;
-        global.optionsMenu_Anim._panelW = PANEL_WIDTH;
-        global.optionsMenu_Anim._panelH = PANEL_HEIGHT;
-        if (global.optionsMenu_Anim.isOpened && global.optionsMenu_Anim._wheelHandler === undefined) {
-            global.optionsMenu_Anim._wheelHandler = (e) => {
-                if (!global.clickables.optionsMenu.mainMenuIdle.check({x: global.mouse.x, y: global.mouse.y})) return;
-                const tab = global.optionsMenu_Anim.activeTab || 0;
-                global.optionsMenu_Anim.scrollTargets[tab] =
-                    (global.optionsMenu_Anim.scrollTargets[tab] || 0) + e.deltaY * 0.8;
-            };
-            window.addEventListener("wheel", global.optionsMenu_Anim._wheelHandler, { passive: true });
-        } else if (!global.optionsMenu_Anim.isOpened && global.optionsMenu_Anim._wheelHandler) {
-            window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
-            global.optionsMenu_Anim._wheelHandler = undefined;
-        }
-        ctx[2].save();
-        ctx[2].globalAlpha = 1;
-
-        // background
-        ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], color.grey);
-        drawGuiRect(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT);
-        gameDraw.setColor(ctx[2], color.black);
-        drawGuiRect(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT, true);
-
-        // Top tabs with interactive functionality
-        const TAB_NAMES = secretUnlocked ? global.optionsMenu_Anim.tabs : global.optionsMenu_Anim.tabs.slice(0, 3);
-        const TAB_WIDTH = PANEL_WIDTH / (TAB_NAMES.length === 4 ? 5.03 : 3.73);
-        const TAB_HEIGHT = 50;
-        const TAB_Y = PANEL_Y - TAB_HEIGHT;
-
-        drawText("ingame options is not finished, expect missing features and bugs lol", PANEL_X + PANEL_WIDTH / 2, PANEL_Y - 57, 9.5, color.guiwhite, "center");
-
-        // Initialize tab clickables
-        global.optionsMenu_Anim.tabClickables.hide();
-
-        // Draw tabs backgrounds and place clickables
-        for (let tabIndex = 0; tabIndex < TAB_NAMES.length; tabIndex++) {
-            const x = PANEL_X + tabIndex * TAB_WIDTH * 1.162;
-            const TAB_X = x + 50;
-            const tabClickableX = TAB_X * clickableRatio;
-            const tabClickableY = TAB_Y * clickableRatio;
-            const tabClickableW = TAB_WIDTH * clickableRatio;
-            const tabClickableH = TAB_HEIGHT * clickableRatio;
-
-            global.optionsMenu_Anim.tabClickables.place(tabIndex, tabClickableX, tabClickableY, tabClickableW, tabClickableH);
-
-            const tabHover = global.optionsMenu_Anim.tabClickables.check(mpos) === tabIndex;
-
-            // Draw tab background
-            ctx[2].lineWidth = 3;
-            gameDraw.setColor(ctx[2], gameDraw.mixColors(color.grey, color.black, 0.3));
-            drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT);
-            if (tabHover) {
-                gameDraw.setColor(ctx[2], global.clickables.clicked ? color.guiblack : color.lgrey);
-                ctx[2].globalAlpha = global.clickables.clicked ? 0.10 : 1;
-                drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT);
-                ctx[2].globalAlpha = 1;
-            }
-        }
-
-        // Draw tabs borders
-        for (let tabIndex = 0; tabIndex < TAB_NAMES.length; tabIndex++) {
-            const x = PANEL_X + tabIndex * TAB_WIDTH * 1.162;
-            const TAB_X = x + 50;
-
-            // Draw tab border
-            ctx[2].lineWidth = 3;
-            gameDraw.setColor(ctx[2], color.black);
-            drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT, true);
-        }
-
-        // Sliding tab background and border (above borders, below text)
-        const currentTab = global.optionsMenu_Anim.tabOffset.get();
-        const bgX = PANEL_X + currentTab * TAB_WIDTH * 1.162 + 50;
-        gameDraw.setColor(ctx[2], color.grey);
-        drawGuiRect(bgX, TAB_Y, TAB_WIDTH, TAB_HEIGHT + 3); // Extend height to cover bottom border
-        // Draw border without bottom
-        ctx[2].strokeStyle = color.black;
-        ctx[2].lineWidth = 3;
-        ctx[2].beginPath();
-        ctx[2].moveTo(bgX, TAB_Y);
-        ctx[2].lineTo(bgX + TAB_WIDTH, TAB_Y); // top
-        ctx[2].moveTo(bgX, TAB_Y);
-        ctx[2].lineTo(bgX, TAB_Y + TAB_HEIGHT); // left
-        ctx[2].moveTo(bgX + TAB_WIDTH, TAB_Y);
-        ctx[2].lineTo(bgX + TAB_WIDTH, TAB_Y + TAB_HEIGHT); // right
-        ctx[2].stroke();
-
-        // Draw tabs labels
-        for (let tabIndex = 0; tabIndex < TAB_NAMES.length; tabIndex++) {
-            const x = PANEL_X + tabIndex * TAB_WIDTH * 1.162;
-            const TAB_X = x + 50;
-
-            // Tab label, centered on the tab
-            const cx = TAB_X + TAB_WIDTH / 2;
-            const cy = TAB_Y + TAB_HEIGHT - 18;
-            drawText(TAB_NAMES[tabIndex][0], cx, cy, TAB_NAMES.length === 4 ? 13.5 : 16, color.guiwhite, "center");
-        }
-
-        // Draw tab content with fade animation
-        const fadeOptions = Math.max(0, 1 - Math.abs(0 - currentTab));
-        const fadeTheme = Math.max(0, 1 - Math.abs(1 - currentTab));
-        const fadeKeybinds = Math.max(0, 1 - Math.abs(2 - currentTab));
-        const fadeSecret = Math.max(0, 1 - Math.abs(3 - currentTab));
-
-        ctx[2].save();
-        ctx[2].globalAlpha *= fadeOptions;
-        ctx[2].beginPath();
-        ctx[2].rect(PANEL_X, PANEL_Y + 15, PANEL_WIDTH, PANEL_HEIGHT - 30);
-        ctx[2].clip();
-        ctx[2].translate(0, -scrollY);
-        if (fadeOptions > 0.01) {
-
-            // OPTIONS TAB
-
-            drawText("Game Appearance", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP,       15.5, color.guiwhite, "center");
-            drawText("UI Elements",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 320, 15.5, color.guiwhite, "center");
-            drawText("Extra",           PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 480, 15.5, color.guiwhite, "center");
-            drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, color.guiwhite, "center");
-
-            if (!global.optionsCheckboxes) {
-                global.optionsCheckboxes = [
-                    // Game Appearance
-                    { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
-                    { type: "checkbox",   id: "optRenderScores",        label: "Player Scores",         column: 0, row: 1, section: "appearance", tooltip: "Show player scores." },
-                    { type: "checkbox",   id: "optNoGrid",              label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid.", reverseCheck: true },
-                    { type: "checkbox",   id: "optPointy",              label: "Sharp Traps",           column: 0, row: 3, section: "appearance", tooltip: "Sharpen the corners of traps." },
-                    { type: "checkbox",   id: "optSharpEdges",          label: "Sharp Polygons",        column: 0, row: 4, section: "appearance", tooltip: "Sharpen the corners of all polygons.\n" + "May slightly lower the frame rate." },
-                    //{ type: "checkbox",   id: "coloredHealthbars",      label: "Colored Health Bars",   column: 0, row: 5, section: "appearance", tooltip: "Make the health and shield bar(s) of entities match their body color." },
-                    { type: "checkbox",   id: "optSecretOptions",       label: "Secret Options",        column: 0, row: 5, section: "appearance", tooltip: "Unlock the secret options tab.\n" + "Note: Some of these options are hidden for a reason. They can cause glitches, and may get removed at any time." },
-                    { type: "slidingBar", id: "strokeThickness",        label: "Border Thickness",      column: 0, row: 6, section: "appearance", tooltip: "Choose the thickness of the border of entities.",
-                      maxValue: 6, maxLowestValue: 0.7, listTarget: "graphical", target: "borderChunk",
-                      trigger: (mouse, data) => {
-                        let pointer = optionsMenu_getPointer();
-                        if (data.bounds) {
-                            let listFolder = config[data.listTarget];
-                            const knobWidth = 12.2;
-                            const halfKnob = knobWidth / 2;
-                            const adjustedX = data.bounds.x + halfKnob;
-                            const adjustedWidth = data.bounds.width - knobWidth;
-                            const ratio = Math.max(0, Math.min(1, (pointer.x - adjustedX) / adjustedWidth));
-                            const range = data.maxValue - data.maxLowestValue;
-                            let value = (ratio * range) + data.maxLowestValue;
-                            listFolder[data.target] = value;
-                        }
-                      }
-                    },
-
-                    { type: "checkbox", id: "optChatMessages",        label: "Chat Messages",         column: 1, row: 0, section: "appearance", tooltip: "Show chat messages." },
-                    { type: "checkbox", id: "optRenderHealth",        label: "Health Bars",           column: 1, row: 1, section: "appearance", tooltip: "Show health bars." },
-                    { type: "checkbox", id: "separatedHealthbars",    label: "Separate Shield Bar",   column: 1, row: 2, section: "appearance", tooltip: "Separate the shield bar from the health bar." },
-                    { type: "checkbox", id: "optCurvyTraps",          label: "Curvy Traps",           column: 1, row: 3, section: "appearance", tooltip: "Add curvature to the sides of traps.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optTankSkins",           label: "Tank Skins",            column: 1, row: 4, section: "appearance", tooltip: "Show tank skins.\n" + "Note: Skins will be in grayscale if the low WebGL driver is selected." },
-                    //{ type: "checkbox", id: "optHexaGrid",            label: "Hexagon Grid",          column: 1, row: 5, section: "appearance", tooltip: "Make the background grid hexagonal.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optFullSecretOptions",   label: "Full Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock more of the secret options tab.\n" + "Note: This is not supposed to be public..." },
-
-                    // UI Elements
-                    { type: "checkbox", id: "optRenderUpgrades",      label: "Upgrades",              column: 0, row: 0, section: "ui", tooltip: "Toggle the visibility of the class and skill upgrade menus." },
-                    { type: "checkbox", id: "optRenderPlayerBars",    label: "Player Bars",           column: 0, row: 1, section: "ui", tooltip: "Toggle the visibility of the score and level bars." },
-                    { type: "checkbox", id: "optRenderKillbar",       label: "Kill Bar",              column: 0, row: 2, section: "ui", tooltip: "Toggle the visibility of the kill bar, which shows the number of kills, assists, and boss kills." },
-                    //{ type: "checkbox", id: "optOldUiStyle",          label: "Classic UI",            column: 0, row: 3, section: "ui", tooltip: "Changes the UI to the classic layout." },
-
-                    { type: "checkbox", id: "optRenderLeaderboard",   label: "Leaderboard",           column: 1, row: 0, section: "ui", tooltip: "Toggle the visibility of the leaderboard." },
-                    { type: "checkbox", id: "optRenderMinimap",       label: "Minimap",               column: 1, row: 1, section: "ui", tooltip: "Toggle the visibility of the minimap." },
-                    { type: "checkbox", id: "optReducedInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner.", reverseCheck: true },
-
-                    // Extra
-                    { type: "option",    id: "optUiScale",             label: "",                      column: 0, row: 0, section: "extra", tooltip: "Configure the size of the user interface.",
-                      optionData: optionsMenu_getUserInterfaceOptions(),
-                      width: 202.5,
-                      location: "auto",
-                      trigger: (data, theChosenOne) => {
-                        let doc = document.getElementById(data.id);
-                        doc.value = theChosenOne.value;
-                        util.submitToLocalStorage(data.id);
-                        data.optionService.opened = false;
-                        data.optionService.selected = data.label;
-                        loadSettings();
-                      }
-                    },
-                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "[WIP] Select what word filter to use.\nNote: Offensive words, or slurs, are always filtered unless all filters are disabled.",
-                      optionData: Array.from(document.getElementById("optNames").options).map((option) => ({ value: option.value, label: option.textContent })),
-                      width: 202.5,
-                      location: "auto",
-                      trigger: (data, theChosenOne) => {
-                        let doc = document.getElementById(data.id);
-                        doc.value = theChosenOne.value;
-                        util.submitToLocalStorage(data.id);
-                        data.optionService.opened = false;
-                        data.optionService.selected = data.label;
-                      }
-                    },
-                    { type: "checkbox",  id: "smoothCamera",           label: "Smooth Camera",         column: 0, row: 1, section: "extra", tooltip: "Make the camera follow your tank instead of being fixed at it." },
-                    { type: "checkbox",  id: "autoLevelUp",            label: "Auto-Level Up",         column: 0, row: 2, section: "extra", tooltip: "Automatically level you up to level 45 upon joining the game." },
-                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", placeholder: true, tooltip: "[WIP] Automatically reconnect after a disconnection." },
-
-                    { type: "checkbox",  id: "optFancy",               label: "Fading Animation",      column: 1, row: 1, section: "extra", tooltip: "Make dying entities fade out instead of shrinking until disappearing.\nMay slightly lower the frame rate." },
-                    { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
-
-                    // Performance
-                    //{ type: "checkbox",  id: "optDeltaEntities",       label: "Delta Entities",        column: 0, row: 0, section: "perf", tooltip: "Support delta entity updates from the server.\nTakes effect on next connection." },
-                    { type: "option",    id: "optCanvas",              label: "",                      column: 0, row: 0, section: "perf", tooltip: "[WIP] Select which canvas rendering driver to use.\nMay affect the frame rate.",
-                      optionData: Array.from(document.getElementById("optCanvas").options).map((option) => ({ value: option.value, label: option.textContent })),
-                      width: 202.5,
-                      location: "auto",
-                      trigger: (data, theChosenOne) => {
-                        let doc = document.getElementById(data.id);
-                        doc.value = theChosenOne.value;
-                        util.submitToLocalStorage(data.id);
-                        data.optionService.opened = false;
-                        data.optionService.selected = data.label;
-                      }
-                    },
-                    { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",        column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
-
-                    // Secrets
-                    { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor." },
-                    { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow." },
-                    { type: "checkbox", id: "optUncappedFrameRate",   label: "Uncapped Frame Rate",     column: 0, row: 1, section: "secret", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
-                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 1, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
-                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 0, row: 2, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
-                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 1, row: 2, section: "secret", placeholder: true, tooltip: "[WIP] Make yourself always centered on the minimap." },
-                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 0, row: 3, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 0, row: 4, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 1, row: 3, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 1, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
-
-                    // Beta
-                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Add the ability save and load up to 10 sets of skill upgrades" }, // [sic], misspelling exists in arras.io too
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List (Preview)",   column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
-
-                    // Legacy
-                    {
-                        type: "checkbox", id: "opt3DMode",          label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 0, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
-                ];
-
-                for (const cb of global.optionsCheckboxes) {
-                    if (cb.type === "checkbox") {
-                        let doc = document.getElementById(cb.id);
-                        if (doc) cb.value = doc.checked, cb.lastValue = cb.value;
-                        else cb.value = localStorage.getItem(cb.id + "Checked") === "true", cb.lastValue = cb.value;
-                    }
-                }
-            }
-
-            const BOX_SIZE = 25;
-            const LINE_HEIGHT = 40;
-
-            for (let i = 0; i < global.optionsCheckboxes.length; i++) {
-                const cb = global.optionsCheckboxes[i];
-                if (isSecretSection(cb.section)) continue;
-                let baseY = PANEL_Y + 45;
-                if (cb.section === "ui")    baseY = PANEL_Y + 365;
-                if (cb.section === "extra") baseY = PANEL_Y + 525;
-                if (cb.section === "perf")  baseY = PANEL_Y + 725;
-
-                const baseXLeft  = PANEL_X + 20;
-                const baseXRight = PANEL_X + PANEL_WIDTH / 2 + 7.5;
-
-                const x = (cb.column === 0 ? baseXLeft : baseXRight);
-                const y = baseY + cb.row * LINE_HEIGHT;
-                const hitX = x * clickableRatio;
-                const hitY = y * clickableRatio;
-                let hitYCalc = hitY - scrollY * clickableRatio;
-                if (!cb.tooltipService) {
-                    global.optionsCheckboxes[i].tooltipService = {
-                        text: cb.tooltip,
-                        targetAlpha: 0,
-                        alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
-                        x: 0,
-                        y: 0
-                    }
-                }
-                if (cb.type === "option") {
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + 33 - scrollY * clickableRatio;
-                    cb.tooltipService.targetAlpha = 0;
-                    if (!cb.optionService) cb.optionService = {
-                        opened: false,
-                        smoothbar: Smoothbar(0, 2, 3, 0.07, 0.025, true),
-                        selected: "",
-                        x: x,
-                        y: y,
-                        hitX: hitX,
-                        hitY: hitY,
-                        hitYCalc: hitYCalc
-                    };
-                    if (!cb.optionService.selected) {
-                        if (cb.order) {
-                            let sorted = [];
-                            for (let e of cb.order) {
-                                for (let o of cb.optionData) {
-                                    if (o.value === e) sorted.push(o);
-                                }
-                            }
-                            cb.optionData = sorted;
-                        }
-                        let doc = document.getElementById(cb.id);
-                        let fd = cb.optionData.find(o => o.value === doc.value);
-                        if (fd) {
-                            cb.optionService.selected = fd.label;
-                        }
-                    }
-                    cb.optionService.x = x;
-                    cb.optionService.y = y - scrollY;
-                    cb.optionService.hitX = hitX;
-                    cb.optionService.hitY = hitY;
-                    cb.optionService.hitYCalc = hitYCalc;
-                    ctx[2].fillStyle = color.guiwhite;
-                    drawGuiRect(x, y, cb.width, 25);
-                    ctx[2].strokeStyle = color.black;
-                    ctx[2].lineWidth = 3;
-                    drawGuiRect(x, y, cb.width, 25, true);
-                    drawText(cb.optionService.selected, x + 13, y + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                    ctx[2].fillStyle = color.black;
-                    const arrowW = 5; // Arrow width (horizontal)
-                    const arrowH = 30 * 0.3; // Arrow height (vertical)
-                    const arrowBaseX = x + cb.width + 17;
-                    const arrowCenterX = arrowBaseX - 19;
-                    const arrowCenterY = y + 18.4;
-
-
-                    const leftX = arrowCenterX - arrowW;
-                    const tipX = arrowCenterX + arrowW;
-                    const topY = arrowCenterY - arrowH;
-                    const botY = arrowCenterY - 2.9;
-                    ctx[2].beginPath();
-                    ctx[2].moveTo(leftX - 14, topY);
-                    ctx[2].lineTo(tipX - 12, arrowCenterY - 9);
-                    ctx[2].lineTo(leftX - 8, botY);
-                    ctx[2].closePath();
-                    ctx[2].fill();
-                    global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
-                    global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
-                } else if (cb.type === "slidingBar") {
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + 35 - scrollY * clickableRatio;
-                    cb.tooltipService.targetAlpha = 0;
-                    cb.bounds = {x: x, width: 150};
-                    let listFolder = config[cb.listTarget];
-                    const rawStrokeValue = listFolder[cb.target] ?? 0;
-                    const strokeValue = Math.max(cb.maxLowestValue, Math.min(cb.maxValue, rawStrokeValue));
-                    const renderRange = cb.maxValue - cb.maxLowestValue;
-                    const strokeRatio = renderRange > 0 ? (strokeValue - cb.maxLowestValue) / renderRange : 0;
-                    ctx[2].fillStyle = color.guiwhite;
-                    drawGuiRect(x, y + 2.5, 150, 20);
-                    ctx[2].fillStyle = color.green;
-                    ctx[2].globalAlpha = 0.7 * fadeOptions;
-                    drawGuiRect(x, y + 2.5, 150 * strokeRatio, 20);
-                    ctx[2].globalAlpha = fadeOptions;
-                    ctx[2].strokeStyle = color.black;
-                    ctx[2].lineWidth = 3;
-                    drawGuiRect(x, y + 2.5, 150, 20, true);
-
-                    const knob = x + 137.5 * strokeRatio;
-                    ctx[2].fillStyle = color.green;
-                    drawGuiRect(knob, y, 12.5, 17 + 8);
-                    ctx[2].strokeStyle = color.black;
-                    drawGuiRect(knob, y, 12.5, 17 + 8, true);
-
-                    drawText(cb.label, x + 160, y + 18, 13.5, color.guiwhite, "left", false, 1, 5.5);
-
-                    global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc + 2.5, 150 + measureText(cb.label, 25 * clickableRatio) * 0.65, 22 * clickableRatio);
-                    global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc + 2.5, 150 * clickableRatio, 22 * clickableRatio);
-                } else if (cb.type === "checkbox") {
-                    const hitSize = BOX_SIZE * clickableRatio;
-
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + hitSize + 10 - scrollY * clickableRatio;
-                    if (fadeOptions > 0.2 && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
-                        if (!cb.placeholder) global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, hitSize, hitSize);
-                        global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, hitSize + (10.5 + measureText(cb.label, BOX_SIZE) * 0.65 + 1) * clickableRatio, hitSize);
-                    } else {
-                        global.clickables.optionsMenu.toggleBoxes.hide();
-                        global.clickables.optionsMenu.HoverBoxes.hide();
-                    }
-                    let clickHover = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                    let hovered = global.clickables.optionsMenu.HoverBoxes.check(mpos);
-
-                    if (hovered !== -1) {
-                        global.optionsCheckboxes[hovered].tooltipService.targetAlpha = 1;
-                    } else global.optionsCheckboxes[i].tooltipService.targetAlpha = 0;
-
-                    if (!cb.placeholder && cb.lastValue !== cb.value) {
-                        cb.lastValue = cb.value;
-                        loadSettings();
-                        if (cb.id === "optLowResolution") resizeEvent();
-                    }
-
-                    const isOn = !cb.placeholder && ((cb.reverseCheck && !cb.value) || (!cb.reverseCheck && cb.value));
-                    ctx[2].lineWidth = 3;
-                    gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
-                    drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-                    if (!cb.placeholder && clickHover !== -1 && clickHover === i) {
-                        gameDraw.setColor(ctx[2], !isOn ? global.clickables.clicked ? color.guiblack : color.black : global.clickables.clicked ? color.black : color.guiwhite);
-                        ctx[2].globalAlpha = global.clickables.clicked ? 0.25 : 0.2;
-                        drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-                        ctx[2].globalAlpha = 1 * fadeOptions;
-                    }
-                    gameDraw.setColor(ctx[2], color.black);
-                    drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
-
-                    if (isOn) {
-                        ctx[2].strokeStyle = "#FFFFFF";
-                        ctx[2].lineWidth = 3;
-                        ctx[2].beginPath();
-                        ctx[2].moveTo(x + 5.5, y + BOX_SIZE / 1.8);
-                        ctx[2].lineTo(x + BOX_SIZE / 2 - 3, y + BOX_SIZE - 7);
-                        ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
-                        ctx[2].stroke();
-                    }
-
-                    drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
-                }
-            }
-        }
-        ctx[2].restore();
-
-        for (const cb of global.optionsCheckboxes) {
-            if (isSecretSection(cb.section)) continue;
-            if (cb.type === "option" && cb.optionService) {
-                let above = cb.location === "top";
-                let height = 0;
-                for (let box of cb.optionData) {
-                    height += 25;
-                }
-                const bottomPos = cb.optionService.y + 25 + height;
-                if (bottomPos > global.screenHeight && cb.location === "auto") {
-                    above = true;
-                }
-                if (cb.optionService.opened) {
-                    cb.optionService.smoothbar.set(height);
-                    cb.optionService.visible = true;
-                } else if (cb.optionService.visible) {
-                    cb.optionService.smoothbar.set(0);
-                }
-                if (cb.optionService.visible) {
-                    const cbp = cb.optionService;
-                    const heightCalc = cbp.smoothbar.get();
-                    if (!cbp.opened && heightCalc < 0.5) {
-                        cbp.smoothbar.force(0);
-                        cbp.visible = false;
-                    }
-                    if (above) { // Above
-                        let yy = cbp.y - heightCalc;
-                        ctx[2].save();
-                        ctx[2].beginPath();
-                        ctx[2].rect(cbp.x - 3, cbp.y - cb.optionData.length * 25 - 3, cb.width + 6, cb.optionData.length * 25 + 3);
-                        ctx[2].clip();
-                        for (let i = 0; i < cb.optionData.length; i++) {
-                            let box = cb.optionData[i];
-                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                            ctx[2].fillStyle = color.guiwhite;
-                            drawGuiRect(cbp.x, yy, cb.width, 25);
-                            if (hover === i) {
-                                ctx[2].fillStyle = color.black;
-                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
-                                drawGuiRect(cbp.x, yy, cb.width, 25);
-                                ctx[2].globalAlpha = 1;
-                            }
-                            ctx[2].strokeStyle = color.black;
-                            ctx[2].lineWidth = 3;
-                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                            if (cbp.opened && cbp.canClick) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
-                            yy += 25;
-                        }
-                        ctx[2].restore();
-                        ctx[2].lineWidth = 3;
-                        drawGuiRect(cbp.x, cbp.y, cb.width, 0, true);
-                    } else { // Bottom
-                        let yy = cbp.y + 25;
-                        ctx[2].save();
-                        ctx[2].beginPath();
-                        ctx[2].rect(cbp.x, yy, cb.width, heightCalc);
-                        ctx[2].clip();
-                        for (let i = 0; i < cb.optionData.length; i++) {
-                            let box = cb.optionData[i];
-                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                            ctx[2].fillStyle = color.guiwhite;
-                            drawGuiRect(cbp.x, yy, cb.width, 25);
-                            if (hover === i) {
-                                ctx[2].fillStyle = color.black;
-                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
-                                drawGuiRect(cbp.x, yy, cb.width, 25);
-                                ctx[2].globalAlpha = 1;
-                            }
-                            ctx[2].strokeStyle = color.black;
-                            ctx[2].lineWidth = 3;
-                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                            if (cbp.opened) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
-                            yy += 25;
-                        }
-                        ctx[2].restore();
-                        ctx[2].lineWidth = 3;
-                        drawGuiRect(cbp.x, cbp.y + 25, cb.width, heightCalc, true);
-                    }
-                }
-            }
-            drawToolip(cb);
-        }
-
-        ctx[2].save();
-        ctx[2].globalAlpha *= fadeTheme;
-        ctx[2].translate(0, -scrollY);
-        if (fadeTheme > 0.01 && activeTab === 1) {
-            // THEME TAB
-            drawText("Theme", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
-            drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
-        } else if (global.themeOverlay) {
-            global.themeOverlay.style.display = "none";
-        }
-        ctx[2].restore();
-
-        ctx[2].save();
-        ctx[2].globalAlpha *= fadeKeybinds;
-        ctx[2].translate(0, -scrollY);
-        if (fadeKeybinds > 0.01 && activeTab === 2) {
-            // KEYBINDS TAB
-            drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
-        }
-        ctx[2].restore();
-
-        ctx[2].save();
-        ctx[2].globalAlpha *= fadeSecret;
-        ctx[2].translate(0, -scrollY);
-        if (fadeSecret > 0.01 && activeTab === 3 && secretUnlocked) {
-            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked);
-        }
-        ctx[2].restore();
-
-        // Close button
-        const CLOSE_SIZE = 30;
-        const closeX = PANEL_X;
-        const closeY = PANEL_Y - CLOSE_SIZE - 20;
-
-        global.clickables.optionsMenu.switchButton.place(
-            1,
-            closeX * clickableRatio,
-            closeY * clickableRatio,
-            CLOSE_SIZE * clickableRatio,
-            CLOSE_SIZE * clickableRatio
-        );
-
-        const cstate = global.clickables.optionsMenu.switchButton.check(mpos);
-        ctx[2].save();
-        ctx[2].globalAlpha = 1;
-
-        gameDraw.setColor(ctx[2], color.red);
-        ctx[2].lineWidth = 3;
-        drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE);
-        if (cstate === 1) {
-            gameDraw.setColor(ctx[2], global.clickables.clicked ? "#000" : "#fff");
-            ctx[2].globalAlpha = 0.25;
-            drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE);
-            ctx[2].globalAlpha = 1;
-        }
-        gameDraw.setColor(ctx[2], color.black);
-        drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE, true);
-
-        ctx[2].strokeStyle = "#FFFFFF";
-        ctx[2].lineWidth = 4;
-        ctx[2].beginPath();
-        ctx[2].moveTo(closeX + 8, closeY + 8);
-        ctx[2].lineTo(closeX + CLOSE_SIZE - 8, closeY + CLOSE_SIZE - 8);
-        ctx[2].moveTo(closeX + CLOSE_SIZE - 8, closeY + 8);
-        ctx[2].lineTo(closeX + 8, closeY + CLOSE_SIZE - 8);
-        ctx[2].stroke();
-
-        ctx[2].restore();
-
-        ctx[2].restore();
     }
 
     function runSecondary() {
@@ -6215,6 +4285,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawButton(global.screenWidth / 2 + 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Reconnect", 14, false, false, false, true, "reconnect", global.canvas.height / global.screenHeight / global.ratio, {
             index: 0
         });
+        if (config.game.autoReconnect && !global.kicked && !global.reconnectTimer) {
+            global.reconnectTimer = setTimeout(() => {
+                global.reconnectTimer = null;
+                if (global.disconnected && config.game.autoReconnect) global.reconnect();
+            }, 3000);
+        }
     };
 
     const drawResyncScreen = () => {
@@ -6240,8 +4316,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
       window.requestAnimationFrame) ||
     ((a) => setTimeout(() => a(Date.now()), 1e3 / 60));
     function isUncappedFrameRateEnabled() {
-        const cb = global.optionsCheckboxes?.find(cb => cb.id === "optUncappedFrameRate");
-        if (cb) return !!cb.value;
         return localStorage.getItem("optUncappedFrameRateChecked") === "true";
     }
     function animloop(tick) {
@@ -6354,8 +4428,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 drawDisconnectedScreen();
             }
             if (global.dailyTankAd.renderUI) drawAdScreen();
-            if (global.GUIStatus.renderIngameOptions) drawOptionsMenu(tick, 20, util.getScreenRatio());
-            else if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 
             //oh no we need to throw an error!

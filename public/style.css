@@ -1105,3 +1105,378 @@ i.flag.down::before {
 	margin: 18px 0;
 	transition: margin 500ms;
 }
+
+#startMenuWrapper {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	max-width: none;
+	margin: 0;
+	--u: calc(var(--s, 1) * 1px);
+}
+body.mobile #startMenuWrapper {
+	max-width: none;
+}
+#menuTabs {
+	position: absolute;
+	left: var(--card-x, 0px);
+	width: calc(1120 * var(--u));
+	top: calc(var(--card-y, 80px) - 34px);
+	margin: 0;
+}
+#optionsStore {
+	display: none;
+}
+.startMenu,
+body.mobile .startMenu {
+	position: absolute;
+	left: var(--card-x, 0px);
+	top: var(--card-y, 0px);
+	width: calc(1120 * var(--u));
+	height: calc(380 * var(--u));
+	max-height: none;
+	padding: 0;
+	display: block;
+	overflow: visible;
+	border-radius: calc(5 * var(--u));
+}
+.startMenuHolder,
+body.mobile .startMenuHolder,
+.startMenuHolder.changelogHolder,
+body.mobile .startMenuHolder.changelogHolder {
+	position: static;
+	display: block;
+	width: auto;
+	height: auto;
+	margin: 0;
+	overflow: visible;
+}
+body.mobile .startMenuHolder.linkHolder {
+	display: block;
+}
+.startMenu .spawnAdHolder {
+	position: absolute;
+	left: calc(22 * var(--u));
+	top: calc(19 * var(--u));
+	width: calc(336 * var(--u));
+	height: calc(280 * var(--u));
+	margin: 0;
+}
+.startMenu .spawnAdHolder img {
+	width: 100%;
+	height: 100%;
+}
+.bottomHolder > a.menuButton {
+	position: absolute;
+	top: calc(320 * var(--u));
+	width: calc(40 * var(--u));
+	height: calc(40 * var(--u));
+	margin: 0;
+	padding: 0 0 calc(4 * var(--u));
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: calc(5 * var(--u));
+	box-shadow: inset 0 calc(-4 * var(--u)) rgba(0, 0, 0, 0.2);
+	text-shadow: 0 calc(2.25 * var(--u)) 0 rgba(0, 0, 0, 0.2);
+}
+.bottomHolder > a.menuButton:nth-child(1) {
+	left: calc(17 * var(--u));
+}
+.bottomHolder > a.menuButton:nth-child(2) {
+	left: calc(64 * var(--u));
+}
+.bottomHolder > a.menuButton:nth-child(3) {
+	left: calc(111 * var(--u));
+}
+.bottomHolder > a.menuButton.wide {
+	left: calc(158 * var(--u));
+	width: calc(205 * var(--u));
+	justify-content: flex-start;
+	padding-left: calc(7.25 * var(--u));
+}
+.bottomHolder > a.menuButton > img {
+	width: calc(24 * var(--u));
+	height: calc(24 * var(--u));
+}
+.bottomHolder > a.menuButton > .text {
+	height: auto;
+	margin-left: calc(7.75 * var(--u));
+	font: bold calc(13.05 * var(--u)) Ubuntu;
+}
+.bottomHolder > a.menuButton:hover {
+	top: calc(322 * var(--u));
+	height: calc(38 * var(--u));
+	padding-bottom: calc(2 * var(--u));
+	box-shadow: inset 0 calc(-2 * var(--u)) rgba(0, 0, 0, 0.2);
+}
+.bottomHolder > a.menuButton:active {
+	top: calc(324 * var(--u));
+	height: calc(36 * var(--u));
+	padding-bottom: 0;
+	box-shadow: inset 0 calc(-36 * var(--u)) rgba(0, 0, 0, 0.2);
+	text-shadow: 0 calc(1.5 * var(--u)) 0 rgba(0, 0, 0, 0.2);
+}
+.startMenu .header {
+	position: absolute;
+	left: calc(447 * var(--u));
+	top: calc(19 * var(--u));
+	padding: 0;
+	align-items: center;
+}
+.startMenu .icon,
+body.mobile .startMenu .icon {
+	width: calc(60 * var(--u));
+	height: calc(60 * var(--u));
+}
+.startMenu h1,
+body.mobile .startMenu h1 {
+	position: relative;
+	top: calc(2 * var(--u));
+	padding: 0 0 0 calc(11.75 * var(--u));
+	font: bold calc(40 * var(--u)) / calc(60 * var(--u)) Ubuntu;
+	color: #000000;
+}
+.startMenu .horizontalSelector {
+	position: absolute;
+	left: 0;
+	width: calc(1120 * var(--u));
+	min-height: 0;
+	margin: 0;
+	padding: 0;
+	font: bold calc(12 * var(--u)) / calc(21 * var(--u)) Ubuntu;
+	white-space: nowrap;
+}
+#serverFilterRegion {
+	top: calc(87.25 * var(--u));
+}
+#serverFilterMode {
+	top: calc(112 * var(--u));
+}
+#changelogTabs {
+	top: calc(15.25 * var(--u));
+	left: calc(760 * var(--u));
+	width: calc(340 * var(--u));
+}
+.startMenu .horizontalSelector span {
+	display: inline-block;
+	padding: 0 calc(7.6 * var(--u));
+	margin: 0 calc(0.275 * var(--u));
+	border-radius: calc(5 * var(--u));
+}
+.startMenu .horizontalSelector span:hover {
+	color: #343434;
+}
+.startMenu .horizontalSelector span.active {
+	color: #ffffff;
+}
+.startMenu .serverSelector,
+body.mobile .startMenu .serverSelector {
+	position: absolute;
+	left: calc(387 * var(--u));
+	top: calc(139 * var(--u));
+	width: calc(346 * var(--u));
+	height: auto;
+	max-height: calc(127 * var(--u));
+	padding: 0;
+	overflow: hidden auto;
+	scrollbar-width: none;
+	font-size: calc(13.05 * var(--u));
+	line-height: calc(14.25 * var(--u));
+}
+.startMenu .serverSelector::-webkit-scrollbar {
+	width: 0;
+}
+.startMenu .serverSelector table,
+.startMenu .serverSelector #serverList {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: collapse;
+}
+.startMenu .serverSelector tr {
+	height: calc(14.25 * var(--u));
+}
+.startMenu .serverSelector td {
+	padding: 0 calc(1.5 * var(--u));
+	white-space: nowrap;
+}
+.startMenu .serverSelector td:first-child:not(:only-child) {
+	width: calc(72 * var(--u));
+	text-align: center;
+}
+.startMenu .serverSelector td:last-child:not(:only-child) {
+	width: calc(44.2 * var(--u));
+	padding-right: calc(10.4 * var(--u));
+	text-align: right;
+}
+.startMenu .serverSelector td.tdCenter {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.startMenu .tdCenter {
+	width: auto;
+	text-align: center;
+}
+.startMenu #optName {
+	position: absolute;
+	left: calc(387 * var(--u));
+	top: calc(272 * var(--u));
+	width: calc(346 * var(--u));
+	height: calc(40 * var(--u));
+	margin: 0;
+	padding: 0;
+	border: calc(2 * var(--u)) solid #cccccc;
+	border-radius: calc(5 * var(--u));
+	font: bold calc(16 * var(--u)) Ubuntu;
+	color: #000000;
+}
+.startMenu .startButtonHolder {
+	position: absolute;
+	left: calc(387 * var(--u));
+	top: calc(320 * var(--u));
+	width: calc(346 * var(--u));
+	height: calc(40 * var(--u));
+	margin: 0;
+}
+.startMenu #startButton {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: calc(40 * var(--u));
+	margin: 0;
+	padding: calc(2 * var(--u)) 0 calc(4 * var(--u));
+	border-radius: calc(5 * var(--u));
+	box-shadow: inset 0 calc(-4 * var(--u)) rgba(0, 0, 0, 0.2);
+	text-shadow: 0 calc(2.25 * var(--u)) 0 rgba(0, 0, 0, 0.2);
+	font: calc(16 * var(--u)) Ubuntu;
+}
+.startMenu #startButton:hover {
+	margin-top: 0;
+	top: calc(2 * var(--u));
+	height: calc(38 * var(--u));
+	padding-bottom: calc(2 * var(--u));
+	box-shadow: inset 0 calc(-2 * var(--u)) rgba(0, 0, 0, 0.2);
+}
+.startMenu #startButton:active {
+	margin-top: 0;
+	top: calc(4 * var(--u));
+	height: calc(36 * var(--u));
+	padding: calc(3 * var(--u)) 0 0;
+	box-shadow: inset 0 calc(-36 * var(--u)) rgba(0, 0, 0, 0.2);
+	text-shadow: 0 calc(1.5 * var(--u)) 0 rgba(0, 0, 0, 0.2);
+}
+.startMenu #startButton .playText,
+.startMenu #startButton:hover .playText,
+.startMenu #startButton:active .playText {
+	height: auto;
+}
+#moreOptions {
+	position: absolute;
+	left: calc(387 * var(--u));
+	top: calc(362 * var(--u));
+	width: calc(346 * var(--u));
+	margin: 0;
+	font: bold calc(11 * var(--u)) / calc(16 * var(--u)) Ubuntu;
+	color: #484848;
+	cursor: pointer;
+}
+#moreOptions:hover {
+	color: #323232;
+}
+#moreOptions > i.arrow {
+	border-width: 0 calc(1.5 * var(--u)) calc(1.5 * var(--u)) 0;
+	padding: calc(2.25 * var(--u));
+	transform: rotate(-45deg);
+}
+#moreOptions:hover > i.arrow {
+	border-color: #323232;
+}
+.startMenu #patchNotes {
+	position: absolute;
+	left: calc(763.25 * var(--u));
+	top: calc(46 * var(--u));
+	width: calc(341.25 * var(--u));
+	height: calc(318.75 * var(--u));
+	max-width: none;
+	padding: 0;
+	overflow: hidden auto;
+	scrollbar-width: none;
+	font: calc(14 * var(--u)) / calc(16.8 * var(--u)) Ubuntu;
+	color: #000000;
+}
+.startMenu #patchNotes::-webkit-scrollbar {
+	width: 0;
+}
+.startMenu #patchNotes div {
+	line-height: calc(16.8 * var(--u));
+	transition: none;
+}
+.startMenu #patchNotes div::after {
+	transition: none;
+}
+.startMenu #patchNotes.default div.balance,
+.startMenu #patchNotes.default div.patch,
+.startMenu #patchNotes.updates div.announcement,
+.startMenu #patchNotes.updates div.poll,
+.startMenu #patchNotes.updates div.event,
+.startMenu #patchNotes.updates div.balance,
+.startMenu #patchNotes.updates div.patch,
+.startMenu #patchNotes.balance div.update,
+.startMenu #patchNotes.balance div.announcement,
+.startMenu #patchNotes.balance div.poll,
+.startMenu #patchNotes.balance div.event,
+.startMenu #patchNotes.balance div.patch {
+	display: none;
+}
+.startMenu #patchNotes b {
+	display: block;
+	padding-left: calc(1.5 * var(--u));
+	font: bold calc(14 * var(--u)) / calc(16.8 * var(--u)) Ubuntu;
+}
+.startMenu #patchNotes ul {
+	margin: calc(13.95 * var(--u)) 0 0;
+	padding: 0;
+	list-style: none;
+}
+.startMenu #patchNotes li {
+	position: relative;
+	padding: 0 calc(2 * var(--u)) 0 calc(26.25 * var(--u));
+}
+.startMenu #patchNotes li::before {
+	content: "";
+	position: absolute;
+	left: calc(12.75 * var(--u));
+	top: calc(6.4 * var(--u));
+	width: calc(4 * var(--u));
+	height: calc(4 * var(--u));
+	border-radius: 50%;
+	background: #000000;
+}
+.startMenu #patchNotes div:nth-last-child(n+2)::after {
+	width: calc(330 * var(--u));
+	height: calc(2 * var(--u));
+	margin: calc(21.3 * var(--u)) 0 calc(13.9 * var(--u)) calc(1.75 * var(--u));
+	border: 0;
+	background: #bcc3c8;
+}
+.menuField {
+	position: fixed;
+	z-index: 11;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: #484848;
+	font-family: Ubuntu;
+	font-weight: bold;
+	text-align: left;
+	transition: none;
+}
+.menuField:focus {
+	border: 0;
+}

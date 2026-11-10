@@ -82,6 +82,7 @@ global.setPermissionLevel = (socket, level) => {
     let has = level > 0;
     socket.status.hasOperator = has;
     if (socket.player && socket.player.body) socket.player.body.hasOperator = has;
+    if (socket.talk) socket.talk("Op", has, level);
 };
 global.permissionLevelValue = (level) => {
     if (typeof level === "number") return level;
@@ -165,9 +166,12 @@ global.bringToLife = (() => {
         // Size animation
         if (my.permanentSize) {
             my.coreSize = my.permanentSize;
-        } else if (my.isPlayer && !my.settings.noSizeAnimation) {
+        } else if ((my.isPlayer || my.sizeGlides) && !my.settings.noSizeAnimation) {
             const diff = my.SIZE - my.coreSize;
-            if (diff) my.coreSize += diff / 11;
+            if (diff) {
+                const step = Math.max(Math.abs(diff) / 10, (0.1 * my.coreSize) / my.size);
+                my.coreSize = Math.abs(diff) <= step ? my.SIZE : my.coreSize + Math.sign(diff) * step;
+            }
         } else if (my.SIZE !== my.coreSize) {
             my.coreSize = my.SIZE;
         }
@@ -181,9 +185,13 @@ global.bringToLife = (() => {
         }
 
         // Control logic
-        const faucet = (my.settings.independent || my.source == null || my.source === my) ? {} : my.source.control;
+        let feeder = my.source;
+        if (["bullet", "drone", "swarm", "trap", "minion", "satellite"].includes(my.type)) {
+            while (feeder && feeder.bond && feeder.source && feeder.source !== feeder) feeder = feeder.source;
+        }
+        const faucet = (my.settings.independent || feeder == null || feeder === my) ? {} : feeder.control;
         let b = {
-            target: remapTarget(faucet, my.source, my),
+            target: remapTarget(faucet, feeder, my),
             goal: undefined,
             fire: faucet.fire,
             main: faucet.main,
@@ -192,7 +200,7 @@ global.bringToLife = (() => {
         };
 
         // Attention craver
-        if (my.settings.attentionCraver && !faucet.main && my.range) {
+        if (my.settings.attentionCraver && !my.settings.independent && !faucet.main && my.range) {
             my.range--;
         }
 
@@ -212,6 +220,11 @@ global.bringToLife = (() => {
         }
         logs.though.mark();
 
+        if (my.settings.fireWithMaster && my.source && my.source !== my) {
+            b.fire = my.source.control.fire;
+            b.main = my.source.control.main;
+            b.alt = my.source.control.alt;
+        }
         my.control.target = b.target == null ? my.control.target : b.target;
         my.control.goal = b.goal || { x: my.x, y: my.y };
         my.control.fire = b.fire ?? false;
@@ -255,6 +268,7 @@ global.bringToLife = (() => {
     };
 })();
 global.runMove = (() => {
+    const shapeDrift = 0.9534;
     return (my, now = Date.now()) => {
         let g = { x: my.control.goal.x - my.x, y: my.control.goal.y - my.y },
             gactive = (g.x !== 0 || g.y !== 0),
@@ -273,29 +287,31 @@ global.runMove = (() => {
             case "motor":
                 my.maxSpeed = 0;
                 if (my.topSpeed) {
-                    my.damp = a / my.topSpeed;
+                    my.damp = a / my.topSpeed * (my.brake ?? 1);
                 }
                 if (gactive) {
                     let len = Math.sqrt(g.x * g.x + g.y * g.y);
                     engine = { x: a * g.x / len, y: a * g.y / len };
                 }
+                my.spinPush = gactive ? a * my.control.power : 0;
                 break;
             case "swarm":
                 my.maxSpeed = my.topSpeed;
-                let l = util.getDistance({ x: 0, y: 0 }, g) + 1;
+                let l = util.getDistance({ x: 0, y: 0 }, g) + 1,
+                    turning = Math.max(5, Math.sqrt((my.topSpeed * Math.max(1, my.motionTypeArgs.turnVelocity ?? my.range) + 1) / 6.5));
                 if (gactive && l > my.size) {
                     let desiredxspeed = my.topSpeed * g.x / l,
-                        desiredyspeed = my.topSpeed * g.y / l,
-                        turning = Math.sqrt((my.topSpeed * Math.max(1, my.motionTypeArgs.turnVelocity ?? my.range) + 1) / a);
+                        desiredyspeed = my.topSpeed * g.y / l;
                     engine = {
-                        x: (desiredxspeed - my.velocity.x) / Math.max(5, turning),
-                        y: (desiredyspeed - my.velocity.y) / Math.max(5, turning)
+                        x: (desiredxspeed - my.velocity.x) / turning,
+                        y: (desiredyspeed - my.velocity.y) / turning
                     };
                 } else {
-                    if (my.velocity.length < my.topSpeed) {
+                    let speed = my.velocity.length;
+                    if (speed && speed < my.topSpeed) {
                         engine = {
-                            x: my.velocity.x * a / 20,
-                            y: my.velocity.y * a / 20
+                            x: my.velocity.x * (my.topSpeed - speed) / speed / turning,
+                            y: my.velocity.y * (my.topSpeed - speed) / speed / turning
                         };
                     }
                 }
@@ -330,7 +346,11 @@ global.runMove = (() => {
                 break;
             case "drift":
                 my.maxSpeed = 0;
-                engine = { x: g.x * a, y: g.y * a };
+                if (my.type === "food") {
+                    let keep = shapeKnockBody(my).glide, len = Math.sqrt(g.x * g.x + g.y * g.y);
+                    my.damp = 1 / keep - 1;
+                    engine = len ? { x: g.x / len * shapeDrift * (1 - keep) / keep, y: g.y / len * shapeDrift * (1 - keep) / keep } : engine;
+                } else engine = { x: g.x * a, y: g.y * a };
                 break;
             case "withMaster":
                 my.x = my.source.x;
@@ -364,8 +384,16 @@ global.runFace = (() => {
                 }
             } else {
                 givenangle = my.firingArc[0];
+                if (my.bond && ["bullet", "drone", "swarm", "trap", "minion", "satellite"].includes(my.bond.type)) {
+                    my.facing += my.bond.vfacing / global.gameManager.roomSpeed;
+                }
             }
-            my.facing += util.loopSmooth(my.facing, givenangle, (my.facingTypeArgs.smoothness ?? 4) / global.gameManager.runSpeed);
+            if (my.control.main && Math.abs(util.angleDifference(my.facing, givenangle)) <= 0.15 / global.gameManager.roomSpeed) {
+                my.facing = givenangle;
+            } else {
+                my.facing += util.loopSmooth(my.facing, givenangle, (my.facingTypeArgs.smoothness ?? 4) / global.gameManager.roomSpeed);
+                if (my.control.main && !my.settings.fireWithMaster) my.control.fire = false;
+            }
         };
         switch (my.facingType) {
             case "spin":
@@ -375,7 +403,7 @@ global.runFace = (() => {
                 if (t && my.control.fire) my.facing = Math.atan2(t.y, t.x); else my.facing += (my.facingTypeArgs.speed ?? 0.05) / global.gameManager.runSpeed;
                 break;
             case "turnWithSpeed":
-                my.facing += my.velocity.length / 90 * Math.PI / global.gameManager.roomSpeed * (my.facingTypeArgs.multiplier ?? 1);
+                my.facing += Math.max(0, my.velocity.length - my.spinPush) / 90 * Math.PI / global.gameManager.roomSpeed * (my.facingTypeArgs.multiplier ?? 1);
                 break;
             case "withMotion":
                 my.facing = my.velocity.direction;
@@ -523,7 +551,7 @@ global.defineSplit = (() => {
                 let i = parseInt(prop.split("_")[2]);
                 my.upgrades.push({
                     class: trueUpgrades,
-                    level: Config.tier_multiplier * i,
+                    level: set.UPGRADE_LEVEL ?? Config.tier_multiplier * i,
                     index: index.substring(0, index.length - 1),
                     tier: i,
                     branch,
@@ -688,17 +716,25 @@ global.makeHitbox = wall => {
 };
 
 global.wallTypes = [
-    { color: 16, label: "Wall",    alpha: 1, class: "wall" },
-    { color: 12, label: "deadly",  alpha: 1, class: "deadlyWall" },
-    { color: 11, label: "heal",    alpha: 1, class: "healingWall" },
-    { color: 19, label: "bouncy",  alpha: 1, class: "bouncyWall" },
-    { color: 5,  label: "breaker", alpha: 1, class: "breakerWall" },
-    { color: 0,  label: "chunks",  alpha: 1, class: "chunksWall" },
-    { color: 13, label: "optical", alpha: 1, class: "opticalWall" },
-    { color: 17, label: "!up",     alpha: 1, class: "oneWayWallUp" },
-    { color: 17, label: "!down",   alpha: 1, class: "oneWayWallDown" },
-    { color: 17, label: "!left",   alpha: 1, class: "oneWayWallLeft" },
-    { color: 17, label: "!right",  alpha: 1, class: "oneWayWallRight" }
+    { class: "wall" },
+    { class: "deadlyWall", hit: 0.6, bounce: 9.8 },
+    { class: "healingWall", heal: 0.6 },
+    { class: "bouncyWall", bounce: 19.6, round: "bounce" },
+    { class: "breakerWall", grow: 22.5, round: "stop" },
+    { class: "chunksWall", grow: -12 },
+    { class: "opticalWall", view: 2.5 },
+    { class: "oneWayWallUp", body: "oneWay", ax: 0, ay: -1 },
+    { class: "oneWayWallDown", body: "oneWay", ax: 0, ay: 1 },
+    { class: "oneWayWallLeft", body: "oneWay", ax: -1, ay: 0 },
+    { class: "oneWayWallRight", body: "oneWay", ax: 1, ay: 0 },
+    { class: "stickyWall", body: "sticky", round: "stick" },
+    { class: "trickWall", body: "pass", round: "pass" },
+    { class: "paintWall", paint: true, round: "stop" },
+    { class: "filterWall", body: "color" },
+    { class: "teamWall", team: true },
+    { class: "baseWall", body: "team", hit: 0.6, bounce: 9.8 },
+    { class: "portalWall", body: "pass", portal: true },
+    { class: "checkpointWall", body: "pass", checkpoint: true }
 ];
 
 global.becomeBulletChildren = (socket, player, exit, newgui) => {

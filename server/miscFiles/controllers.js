@@ -249,10 +249,10 @@ class io_boomerang extends IO {
     think(input) {
         if (this.b.range > this.r) this.r = this.b.range;
         let t = 1; //1 - Math.sin(2 * Math.PI * this.b.range / this.r) || 1
+        if (!this.turnover && this.r && this.b.range < this.r * 0.5) {
+            this.turnover = true;
+        }
         if (!this.turnover) {
-            if (this.r && this.b.range < this.r * 0.5) {
-                this.turnover = true;
-            }
             return {
                 goal: this.myGoal,
                 power: t
@@ -294,20 +294,48 @@ class io_goToMasterTarget extends IO {
             x: master.x + offsetX,
             y: master.y + offsetY
         };
-        this.countdown = 5;
+        this.age = 0;
+        this.settled = false;
     }
     think() {
-        if (this.countdown) {
-            if (util.getDistance(this.body, this.myGoal) < 5) {
-                this.countdown--;
-            }
-            return {
-                goal: {
-                    x: this.myGoal.x,
-                    y: this.myGoal.y
-                }
-            };
+        let body = this.body,
+            touched = body.blockTouch;
+        body.brake = 1;
+        body.blockTouch = false;
+        if (this.settled || ++this.age > 200 || !body.topSpeed) return;
+        let roomSpeed = global.gameManager.roomSpeed,
+            dx = this.myGoal.x - body.x,
+            dy = this.myGoal.y - body.y,
+            distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 0.5 && body.velocity.length < 0.2 && !touched) {
+            this.settled = true;
+            return;
         }
+        if (!distance) {
+            body.brake = 1.3;
+            return;
+        }
+        let push = body.acceleration / roomSpeed,
+            drag = push / body.topSpeed / roomSpeed,
+            brake = 1.3 * drag,
+            closing = (body.velocity.x * dx + body.velocity.y * dy) / distance;
+        if (closing >= roomSpeed * distance * brake) {
+            body.brake = closing / (roomSpeed * distance) / drag;
+            return;
+        }
+        let entry = roomSpeed * distance * brake / (1 + brake),
+            glide = closing / (1 + drag);
+        if (glide >= entry) {
+            body.brake = (closing / entry - 1) / drag;
+            return;
+        }
+        return {
+            goal: {
+                x: this.myGoal.x,
+                y: this.myGoal.y
+            },
+            power: Math.min(1, (entry - glide) / push)
+        };
     }
 }
 class io_canRepel extends IO {
@@ -456,7 +484,7 @@ class io_nearestDifferentMaster extends IO {
         if (e.bond) return false;
         if (e.invuln || e.godmode || theirMaster.godmode || theirMaster.passive || myMaster.passive) return false;
         if (isNaN(e.dangerValue)) return false;
-        if (!(aiSettings.seeInvisible || this.body.isArenaCloser || e.alpha > 0.5)) return false;
+        if (!(aiSettings.seeInvisible || this.body.isArenaCloser || util.shownTo(this.body, e) >= (this.targetLock === e ? 1e-9 : 0.05))) return false;
         if (!io_nearestDifferentMaster.validEntityTypes.has(e.type)) {
             if ((aiSettings.IGNORE_SHAPES || myMaster.aiSettings.IGNORE_SHAPES) && e.type === "food") return false;
         }
@@ -465,6 +493,7 @@ class io_nearestDifferentMaster extends IO {
             if ((e.y - m.y) * (e.y - m.y) >= sqrRange) return false;
         }
         if (!aiSettings.SKYNET) {
+            if (aiSettings.BLIND) sqrRangeMaster *= mm.size / 24;
             if ((e.x - mm.x) * (e.x - mm.x) >= sqrRangeMaster) return false;
             if ((e.y - mm.y) * (e.y - mm.y) >= sqrRangeMaster) return false;
         }
@@ -474,12 +503,18 @@ class io_nearestDifferentMaster extends IO {
         if (!this.lockThroughWalls) return wouldHitWall(this.body, entity);
         else return false;
     }
+    maker() {
+        let maker = this.body.source;
+        while (maker && maker.bond) maker = maker.bond;
+        return this.body.roundKind && maker && maker !== this.body && maker.roundKind ? maker : this.body.master.master;
+    }
     buildList(range) {
         const sqrRange = range * range;
         const sqrRangeMaster = sqrRange * 4 / 3;
         const validCandidates = [];
+        const maker = this.maker();
         for (const e of targetableEntities.values()) {
-            if (this.validate(e, this.body, this.body.master.master, sqrRange, sqrRangeMaster) && !this.wouldHitWall(e)) {
+            if (this.validate(e, this.body, maker, sqrRange, sqrRangeMaster) && !this.wouldHitWall(e)) {
                 if (this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
                     validCandidates.push(e);
                 }
@@ -520,9 +555,10 @@ class io_nearestDifferentMaster extends IO {
         let tracking = this.body.topSpeed,
             range = this.body.fov;
         // Use whether we have functional guns to decide
-        for (let i = 0; i < this.body.guns.length; i++) {
-            if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
-                let v = this.body.guns[i].getTracking();
+        for (let gun of this.body.guns.values()) {
+            if (gun.canShoot && !this.body.aiSettings.SKYNET) {
+                if ((gun.bulletType.MOTION_TYPE ?? "glide") !== "glide" || gun.bulletType.GUNS?.length) continue;
+                let v = gun.getTracking();
                 if (v.speed == 0 || v.range == 0) continue;
                 tracking = v.speed;
                 range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
@@ -567,7 +603,7 @@ class io_nearestDifferentMaster extends IO {
                 };
             if (this.tick % 2 === 0) {
                 this.lead = 0;
-                if (!this.body.aiSettings.CHASE) {
+                if (!this.body.aiSettings.CHASE && !this.body.aiSettings.NO_LEAD && !this.body.master.master.aiSettings.NO_LEAD) {
                     let toi = timeOfImpact(diff, radial, tracking);
                     this.lead = toi;
                 }
@@ -664,9 +700,10 @@ class io_healTeamMasters extends IO {
         let tracking = this.body.topSpeed,
             range = this.body.fov;
         // Use whether we have functional guns to decide
-        for (let i = 0; i < this.body.guns.length; i++) {
-            if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
-                let v = this.body.guns[i].getTracking();
+        for (let gun of this.body.guns.values()) {
+            if (gun.canShoot && !this.body.aiSettings.SKYNET) {
+                if ((gun.bulletType.MOTION_TYPE ?? "glide") !== "glide" || gun.bulletType.GUNS?.length) continue;
+                let v = gun.getTracking();
                 if (v.speed == 0 || v.range == 0) continue;
                 tracking = v.speed;
                 range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
@@ -777,7 +814,7 @@ class io_minion extends IO {
             this.turnwise = -1 * this.turnwise;
         }
         if (input.target != null && (input.alt || input.main)) {
-            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE);
+            let sizeFactor = Math.sqrt(this.body.master.size / 12);
             let leash = 82 * sizeFactor;
             let orbit = this.opts.turnwiserange ?? 140 * sizeFactor;
             let repel = 142 * sizeFactor;
@@ -1270,10 +1307,10 @@ class io_disableOnOverride extends IO {
 }
 
 class io_scaleWithMaster extends IO {
-    constructor(body) {
+    constructor(body, opts = {}) {
         super(body);
         this.storedSize = 0;
-        this.ratio = this.body.SIZE * 4.1;
+        this.ratio = opts.ratio ?? this.body.SIZE * 4.1;
     }
     think(input) {
         let masterSize = this.body.master.size;
@@ -1281,6 +1318,42 @@ class io_scaleWithMaster extends IO {
             this.storedSize = masterSize;
             this.body.SIZE = masterSize * this.ratio;
         }
+    }
+}
+
+class io_snakeSwing extends IO {
+    constructor(body, opts = {}) {
+        super(body);
+        this.swing = (opts.swing ?? 48.4) * Math.PI / 180;
+        this.rate = (opts.rate ?? 44.9) * Math.PI / 180;
+        this.firstRate = this.rate * 30.8 / 44.9;
+        this.delay = opts.delay ?? 0.475;
+        this.sign = opts.invert ? -1 : 1;
+        this.active = !opts.onAlt || !!body.master.control.alt;
+        this.age = 0;
+        this.turned = 0;
+    }
+    headingAt(age) {
+        let u = age - this.delay;
+        if (u <= 0 || !(this.swing > 0) || !(this.rate > 0)) return 0;
+        let firstTime = this.swing / this.firstRate;
+        if (u <= firstTime) return -this.firstRate * u * this.sign;
+        let m = ((u - firstTime) * this.rate) % (4 * this.swing);
+        return (m <= 2 * this.swing ? m - this.swing : 3 * this.swing - m) * this.sign;
+    }
+    think() {
+        if (!this.active) return;
+        let turn = this.headingAt(this.age + 1 / 60) - this.turned;
+        this.age += 1 / 30;
+        if (!turn) return;
+        let cos = Math.cos(turn),
+            sin = Math.sin(turn),
+            velocity = this.body.velocity,
+            x = velocity.x * cos - velocity.y * sin;
+        velocity.y = velocity.x * sin + velocity.y * cos;
+        velocity.x = x;
+        this.body.facing += turn;
+        this.turned += turn;
     }
 }
 
@@ -1437,6 +1510,7 @@ let ioTypes = {
     avoid: io_avoid,
     minion: io_minion,
     snake: io_snake,
+    snakeSwing: io_snakeSwing,
     hangOutNearMaster: io_hangOutNearMaster,
     fleeAtLowHealth: io_fleeAtLowHealth,
     wanderAroundMap: io_wanderAroundMap

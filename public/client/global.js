@@ -298,7 +298,6 @@ handleOperatorKeyDown: function (key) {
     if (key.code) global.canvas.socket.talk("#", "-" + key.code);
     },
     showTree: false,
-    scrollX: 0,
     realScrollX: 0,
 
     // Canvas
@@ -311,6 +310,7 @@ handleOperatorKeyDown: function (key) {
     gameLoading: false,
     gameStart: false,
     gameConnecting: false,
+    mockupPacks: null,
     gameUpdate: false,
     disconnected: false,
     deathTimestamp: 0,
@@ -353,20 +353,10 @@ handleOperatorKeyDown: function (key) {
         exitGame: Region(1),
         deathRespawn: Region(1),
         reconnect: Region(1),
-        classTreeZoomOut: Region(2),
-        classTreeZoomIn: Region(2),
-        classTreeClose: Region(1),
         // Daily tanks buttons
         dailyTankUpgrade: Clickable(),
         dailyTankAd: Clickable(),
         dailyTankCloseAd: Clickable(),
-        optionsMenu: {
-            switchButton: Region(2),
-            toggleBoxes: Region(100),
-            HoverBoxes: Region(100),
-            optionBoxes: Region(50),
-            mainMenuIdle: Clickable(),
-        }
     },
     dailyTankAd: {
         render: undefined,
@@ -482,23 +472,8 @@ handleOperatorKeyDown: function (key) {
     timezoneLocation: new Date().getTimezoneOffset() / -60,
     ratio: window.devicePixelRatio,
     mockupLoading: { then: cb => cb() },
-    treeScale: 1,
     chats: {},
     initPlayer: () => {
-        global.optionsMenu_Anim = {
-            switchMenu_button: util.Smoothbar(0, 2, 3, 0.08, 0.025, true),
-            optionsButtonProgress: util.Smoothbar(0, 2, 0.1, 0.08, 0.025, true),
-            mainMenu: util.Smoothbar(-500, 2, 3, 0.08, 0.025, true),
-            mainMenuHeight: util.Smoothbar(770, 2, 3, 0.08, 0.025, true),
-            isOpened: false,
-            tabClickables: Region(10),  // Pre-initialize for up to 10 tabs
-            themeClickables: Region(100),
-            activeTab: 0, // 0=Options, 1=Theme, 2=Keybinds, 3=Secret
-            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838], ["Secrets", 410]],
-            tabSlideAnim: util.Smoothbar(0, 0.3, 1.5, 0.03, 0.025, true),
-            sliderMoving: false,
-            currentOptionMenu: false
-        };
         let list = {
             // Set up the player
             id: -1,
@@ -550,20 +525,12 @@ handleOperatorKeyDown: function (key) {
             global.showTree = true;
             global.pullUpgradeMenu = true;
             global.pullSkillBar = true;
-            global.socket.talk("T");
+            global.classTree.open();
         } else if (type === "exit") {
             global.showTree = false;
-            global.renderTankTree = false;
             global.pullUpgradeMenu = false;
             global.pullSkillBar = false;
-            global.targetTreeScale = global.treeScale = 1;
-            global.scrollX = global.scrollY = global.fixedScrollX = global.fixedScrollY = -1;
-            global.scrollVelocityY = global.scrollVelocityX = 0;
-            global.classTreeDrag.isDragging = false;
-            global.classTreeDrag.momentum = { x: 0, y: 0 };
-            global.searchQuery = "";
-            global.searchBarActive = false;
-            global.canvas.tankTreeProps.enabled = false;
+            global.classTree.close();
         }
     },
     exit: () => { // When exiting and going back to the menu, reset things.

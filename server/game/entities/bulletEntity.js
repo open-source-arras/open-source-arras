@@ -7,6 +7,21 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
         this.master = master;
         this.source = this;
         this.limited = true;
+        this.thrustX = 0;
+        this.thrustY = 0;
+        this.brake = 1;
+        this.blockTouch = false;
+        this.spinPush = 0;
+        this.roundKind = "";
+        this.speedStat = 0;
+        this.holdId = -1;
+        this.holdClose = 1;
+        this.holdSpeed = 0;
+        this.fightDamage = 1;
+        this.fightTaken = 1;
+        this.fightResist = 0;
+        this.minionBite = 1;
+        this.minionTake = 1;
         this.onRender = false;
         this.control = {
             target: new Vector(0, 0),
@@ -273,6 +288,11 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
 
                 let savedFacing = host.facing;
                 let savedSize = host.SIZE;
+                let savedLook = host.index;
+                let nested = (host.defs ?? []).some(def => {
+                    for (let c = ensureIsClass(def); c; c = typeof c.PARENT === "string" ? Class[c.PARENT] : Array.isArray(c.PARENT) ? null : c.PARENT) if (c.PROPS?.length) return true;
+                    return false;
+                });
                 
                 host.controllers = [];
                 host.define("genericEntity");
@@ -283,6 +303,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
                 host.facing = savedFacing;
                 host.SIZE = savedSize;
                 host.health.amount = host.health.max;
+                if (nested) host.index = savedLook;
                 return true;
             };
         }
@@ -403,6 +424,12 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
             util.error(this);
             this.accel.null();
             this.velocity.null();
+        }
+        if (this.thrustX || this.thrustY) {
+            this.accel.x += this.thrustX * 0.1;
+            this.accel.y += this.thrustY * 0.1;
+            this.thrustX *= 0.9;
+            this.thrustY *= 0.9;
         }
         // Apply acceleration
         this.velocity.x += this.accel.x;

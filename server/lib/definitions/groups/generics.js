@@ -438,7 +438,7 @@ Class.drone = {
     BODY: {
         PENETRATION: 1.2,
         PUSHABILITY: 0.6,
-        ACCELERATION: 0.085,
+        ACCELERATION: 0.0533,
         HEALTH: 0.3,
         DAMAGE: 3.375,
         SPEED: 3.8,
@@ -564,7 +564,7 @@ Class.auraBase = {
     ALPHA: 0.3,
     CLEAR_ON_MASTER_UPGRADE: true,
     CAN_GO_OUTSIDE_ROOM: true,
-    CONTROLLERS: ["disableOnOverride", "scaleWithMaster"],
+    CONTROLLERS: ["scaleWithMaster"],
     BODY: {
         SHIELD: 1e9,
         REGEN: 1e6,

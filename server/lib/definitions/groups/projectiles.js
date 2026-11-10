@@ -667,7 +667,7 @@ Class.genericMinion = {
     BODY: {
         FOV: 0.5,
         SPEED: 1.8,
-        ACCELERATION: 1,
+        ACCELERATION: 0.4,
         HEALTH: 5,
         SHIELD: 0,
         DAMAGE: 1.2,
@@ -880,6 +880,7 @@ Class.setTrap = {
     CONTROLLERS: ["goToMasterTarget"],
     BODY: {
         SPEED: 1,
+        ACCELERATION: 1.0667,
         DENSITY: 5
     }
 };

@@ -1,0 +1,11 @@
+{
+	"name": "OSA iStrong Addon 2026",
+	"authors": [
+		"Arjuna"
+	],
+	"addon-version": "v0.1.0",
+	"osa-version": {
+		"minimum": "v2.1.2",
+		"target": "v2.1.2"
+	}
+}

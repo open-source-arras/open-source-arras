@@ -1,4 +1,5 @@
 import { global } from "./global.js";
+import { prefetchPacks } from "./mockupPack.js";
 
 let svFilterRegionDoc = document.getElementById("serverFilterRegion"),
 svFilterModeDoc = document.getElementById("serverFilterMode");
@@ -66,6 +67,7 @@ global.loadServerSelector = (serverData, text) => {
                 localStorage.setItem("lastServer", server.id);
                 tr.classList.add("selected"), (global.serverAdd = server.ip);
                 if (server.ip == "localhost") global.serverAdd = global.serverAdd + ":" + server.port;
+                prefetchPacks();
             };
             serversDocs.appendChild(tr);
             serverMap[server.id] = tr;
@@ -182,9 +184,6 @@ let initializeFilter = () => {
     let createFilter = (type, data, storageKey) => {
         let r = l.length;
         l.push(data[0].filter);
-        let e = document.getElementsByClassName("serverSelector");
-        global.mobile ? global.fixedServerSelectorHeight = "62px" : global.fixedServerSelectorHeight = "100px"
-        if (!global.uncappedMenu) e[0].style.height = global.fixedServerSelectorHeight;
         let v = null;
         let spans = [];
         for (let { name: textContent, filter: y } of data) {

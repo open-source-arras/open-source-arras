@@ -67,7 +67,10 @@ const keybinderHandler = (function() {
                         let element = cell.querySelector("b[data-key]");
                         if (!element) continue;
                         let key = element.dataset.key;
-                        if (storeInDefault) defaultKeybinds[key] = [element.innerText, global[key]];
+                        if (storeInDefault) {
+                            defaultKeybinds[key] = [element.innerText, global[key]];
+                            element.dataset.default = element.innerText;
+                        }
                         if (kb[key]) {
                             element.innerText = kb[key][0];
                             global[key] = kb[key][1];
@@ -106,8 +109,8 @@ const keybinderHandler = (function() {
                     resetButton.classList.remove("spin");
                 }, 400);
             });
-            let triggerKey = (e) => {
-                if (!(global.gameStart || e.shiftKey || e.ctrlKey || e.altKey)) {
+            let triggerKey = (e, force = false) => {
+                if (!((global.gameStart && !force) || e.shiftKey || e.ctrlKey || e.altKey)) {
                     let key = e.code;
                     if (selectedElement) {
                         if (1 !== e.key.length || 3 === e.location) {
@@ -120,11 +123,33 @@ const keybinderHandler = (function() {
                     }
                 }
             }
-            keybindsInits.push({triggerKey})
+            keybindsInits.push({
+                triggerKey,
+                select: (element) => {
+                    let found = controlsArray.find((c) => c.element === element);
+                    if (selectedElement) unselectElement();
+                    if (found) selectElement(found);
+                    return !!found;
+                },
+                cancel: () => {
+                    if (selectedElement) unselectElement();
+                },
+                editing: () => !!selectedElement
+            });
         },
         triggerKey: (e) => {
             keybindsInits.forEach(o => o.triggerKey(e));
-        }
+        },
+        select: (element) => {
+            keybindsInits.forEach(o => o.cancel());
+            return keybindsInits.some(o => o.select(element));
+        },
+        press: (e) => {
+            if (e.code === "Escape") return keybindsInits.forEach(o => o.cancel());
+            keybindsInits.forEach(o => o.triggerKey(e, true));
+        },
+        cancel: () => keybindsInits.forEach(o => o.cancel()),
+        editing: () => keybindsInits.some(o => o.editing())
     }
 })()
 

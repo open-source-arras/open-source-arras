@@ -1,6 +1,7 @@
 let crypto = require("crypto"),
     net = require("net"),
-    fs = require("fs");
+    fs = require("fs"),
+    zlib = require("zlib");
 const { handleChatCommand } = require("../chatCommands.js");
 PERMABAN_FILE = "./server/permanentBans.json";
 let bans = global.bans || (global.bans = []);
@@ -91,6 +92,10 @@ class socketManager {
         this.disconnections = [];
         this.playersReceived = [];
         this.bans = [];
+        this.packs = new Map();
+        this.packFor = null;
+        this.packsQueued = false;
+        this.mockupText = new Map();
         // Import permissions
         for (let entry of require("../../permissions.js")) {
             if (entry.key != null) {
@@ -294,15 +299,14 @@ class socketManager {
         const packetType = m.shift();
         switch (packetType) {
             case "k": { // key verification
-                if (m.length > 2) {
-                    socket.kick("Ill-sized key request."); return 1; 
+                if (m.length > 3) {
+                    socket.kick("Ill-sized key request."); return 1;
                 }
                 if (socket.status.verified) {
-                    socket.kick("Duplicate player spawn attempt."); return 1; 
+                    socket.kick("Duplicate player spawn attempt."); return 1;
                 }
                 // Optional capability flags: bit 0 = understands delta entity packets.
                 socket.status.deltaEntities = Config.delta_entities && ((m[1] || 0) & 1) === 1;
-                socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
@@ -319,6 +323,7 @@ class socketManager {
                 }
                 if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
+                this.welcomeWithPacks(socket, m[2], () => socket.talk("w", true, socket.status.deltaEntities ? 1 : 0));
                 if (this.clients.length == 1) {
                     util.log("[INFO]: " + this.clients.length + " client connected");
                 } else {
@@ -822,24 +827,8 @@ class socketManager {
             } break;
             case "T": {
                 // Send the class tree mockups
-                if (player.body && socket.status.lastTank != player.body.index) {
-                    socket.status.lastTank = player.body.index;
-                    this.sendMockup(player.body.index, socket);
-                    let allRoots = [],
-                        rerootUpgradeTree = [];
-                    for (let i of player.body.index.split("-")) {
-                        let mockup = mockupData.find(o => o.index === `${i}`);
-                        if (mockup.rerootUpgradeTree) allRoots.push(...mockup.rerootUpgradeTree.split("\\/"));
-                    }
-                    for (let root of allRoots) {
-                        if (!rerootUpgradeTree.includes(root)) rerootUpgradeTree.push(root);
-                    }
-                    for (let i of rerootUpgradeTree) {
-                        let ind = Class[i].index;
-                        this.sendMockupUpgrades(ind, socket);
-                    }
-                }
-                socket.talk("T");
+                if (player.body) this.queueMockupTree(player.body, socket, true);
+                else socket.talk("T");
             } break;
             case "DTA": {
                 if (!Config.daily_tank) return socket.kick("Bad daily tank ad request");
@@ -879,6 +868,58 @@ class socketManager {
             case "G": {
                 // TODO: Actually make this do something
                 socket.talk("m", Config.popup_message_duration, "Score saving is WIP.");
+            } break;
+            case "pl": {
+                if (m.length !== 0) {
+                    socket.kick("Ill-sized player list request.");
+                    return 1;
+                }
+                let role = socket.status.permissionLevel;
+                if (role < 2) return;
+                let list = [];
+                for (let client of this.clients) {
+                    if (!client.status.verified) continue;
+                    let rank = client.status.permissionLevel;
+                    let body = client.player && client.player.body && !client.player.body.isDead() ? client.player.body : null;
+                    let self = client === socket;
+                    let flags = 0;
+                    if (!self && !(rank >= 3 || (role === 2 && rank !== 0))) flags |= 1;
+                    if (!self && !(!rank || (rank > 3 && rank >= role) || (role === 2 && rank !== 1))) flags |= 2;
+                    if (!self && rank < role) flags |= 4;
+                    list.push(client.id, body ? body.name : client.status.name ?? "", Math.min(rank, 3), body ? body.index : -1, body ? body.color.compiled : 0, flags);
+                }
+                socket.talk("PL", list.length / 6, ...list);
+            } break;
+            case "pa": {
+                if (m.length !== 2) {
+                    socket.kick("Ill-sized player action.");
+                    return 1;
+                }
+                let role = socket.status.permissionLevel;
+                let target = this.clients.find((client) => client.id === m[0] && client !== socket);
+                if (role < 2 || !target) return;
+                let rank = target.status.permissionLevel;
+                let names = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator"];
+                switch (m[1]) {
+                    case 0: {
+                        if (rank >= 3 || (role === 2 && rank !== 0)) return socket.talk("m", 5_000, "You do not have sufficient permission to promote this player!");
+                        setPermissionLevel(target, rank + 1);
+                        target.talk("m", 8_000, "You have been promoted to " + names[rank + 1] + "!");
+                        socket.talk("m", 5_000, "Player promoted to " + names[rank + 1] + "!");
+                    } break;
+                    case 1: {
+                        if (!rank || (rank > 3 && rank >= role) || (role === 2 && rank !== 1)) return socket.talk("m", 5_000, "You do not have sufficient permission to demote this player!");
+                        setPermissionLevel(target, rank - 1);
+                        target.talk("m", 8_000, "You have been demoted to " + (names[rank - 1] ?? "player") + "!");
+                        socket.talk("m", 5_000, "Player demoted to " + (names[rank - 1] ?? "player") + "!");
+                    } break;
+                    case 2: {
+                        if (rank >= role) return socket.talk("m", 5_000, "You do not have sufficient permission to kick this player!");
+                        target.talk("message", "You have been kicked by an operator.");
+                        target.lastWords("K");
+                        socket.talk("m", 5_000, "Player kicked!");
+                    } break;
+                }
             } break;
             default: {
                 console.log("Unknown packet type: " + packetType);
@@ -1314,6 +1355,7 @@ class socketManager {
     spawn = (socket, name) => {
         let { player, loc } = this.getSpawnLocation(socket.rememberedTeam, name);
         if (socket.player.loc && !global.spawnPoint && !Config.clan_wars) loc = socket.player.loc;
+        if (socket.checkpoint && !socket.checkpoint.isGhost) loc = { x: socket.checkpoint.x, y: socket.checkpoint.y };
         // Create and bind a body for the player host
         let body;
         const filter = this.disconnections.filter(r => r.ip === socket.ip && r.body && !r.body.isDead());
@@ -1331,7 +1373,16 @@ class socketManager {
             body.protect();
             body.isPlayer = true;
             body.define(socket.permissions?.spawnAs || Config.spawn_class);
+            while (body.skill.level < Config.start_level) {
+                body.skill.score += body.skill.levelScore;
+                body.skill.maintain();
+            }
+            let keptScore = Math.min(Config.respawn_score_max, Math.floor((socket.status.lastScore ?? 0) * Config.respawn_score_kept));
+            if (body.skill.score < keptScore) body.skill.score = keptScore;
+            while (body.skill.maintain());
+            body.refreshBodyAttributes();
             body.name = name;
+            socket.status.name = name;
             body.incognito = socket.status.incognito ?? false;
             if (socket.permissions && socket.permissions.nameColor) {
                 body.nameColor = socket.permissions.nameColor;
@@ -1345,7 +1396,7 @@ class socketManager {
         body.socket = socket;
         body.hasOperator = socket.status.hasOperator;
         // socket talk thing lets client know to show the mobile sandbox cmd board
-        socket.talk("Op", body.hasOperator);
+        socket.talk("Op", body.hasOperator, socket.status.permissionLevel);
         socket.status.daily_tank_watched_ad = false;
         socket.status.daily_tank_watched_ad_client = false;
         // Decide how to color and team the body
@@ -1742,20 +1793,12 @@ class socketManager {
     getInvisEntityAlpha(player, other, canSeeInvisible = false) {
         let alpha;
         if (player.body.id === other.master.id) {
-            alpha = other.alpha ? other.alpha * 0.75 + 0.25 : 0.25;
+            alpha = util.ownShowing(other);
         } else {
             if (canSeeInvisible) {
                 alpha = other.alpha ? other.alpha * 0.55 + 0.45 : 0.45;
             } else if (!other.settings.fullyInvisible) {
-                let range = 300;
-                if (!other.alpha) alpha = 1;
-                let dist = Math.sqrt((player.body.x - other.x) ** 2 + (player.body.y - other.y) ** 2);
-                if (dist >= range) {
-                    alpha = other.alpha;
-                } else {
-                    const rangeAlpha = 1 - (dist / range);
-                    alpha = other.alpha ? other.alpha + rangeAlpha * 0.45 : rangeAlpha * 0.45;
-                }
+                alpha = util.shownTo(player.body, other);
             } else alpha = other.alpha;
         }
         return alpha;
@@ -1763,8 +1806,9 @@ class socketManager {
 
     perspective(e, player, data) {
         if (player.body != null) {
-            if (e.alpha < 1 && !e.limited && !player.body.settings.canSeeInvisible) {
-                data[18] = qfrac(this.getInvisEntityAlpha(player, e));
+            if (e.alpha < 1 && !player.body.settings.canSeeInvisible) {
+                data = data.slice();
+                data[e.limited ? 14 : 18] = qfrac(this.getInvisEntityAlpha(player, e));
             }
             if (player.body.id === e.master.id) {
                 data = data.slice(); // So we don't mess up references to the original
@@ -1789,8 +1833,19 @@ class socketManager {
                     i = e.limited ? 14 : 18;
                 data[i] = qfrac(Math.min(data[i] / 255, alpha));
             }
+            if (e.nearFade < 1) {
+                let reach = e.size * lazyRealSizes[4] / Math.SQRT2 + 1.5,
+                    gap = Math.hypot(Math.max(0, Math.abs(player.body.x - e.x) - reach), Math.max(0, Math.abs(player.body.y - e.y) - reach)) - player.body.size,
+                    near = gap >= 60 ? 0 : gap <= 0 ? 1 : 1 - gap / 60,
+                    i = e.limited ? 14 : 18;
+                data = data.slice();
+                data[i] = qfrac(Math.min(data[i] / 255, 1 - (1 - e.nearFade) * near));
+            }
+            let wearer = e.source;
+            while (wearer.master && wearer.master !== wearer && !wearer.isPlayer && !wearer.isBot) wearer = wearer.master;
             if (
                 player.body.team === e.source.team &&
+                !wearer.ownColor && !wearer.paintedColor && !wearer.manhuntGreen &&
                 (Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag))
             ) {
                 // groups
@@ -1819,7 +1874,7 @@ class socketManager {
 
     sendMockup(index, socket) {
         for (let splittedIndex of index.toString().split("-")) {
-            if (socket.status.mockupData.receivedIndexes.includes(splittedIndex)) continue; // Do NOT continue if we have the mockup already.
+            if (socket.status.mockupData.receivedIndexes.has(splittedIndex)) continue; // Do NOT continue if we have the mockup already.
 
             let index = parseInt(splittedIndex); // Parse it, without this wont work for some reason.
             // Now we need to find the mockup.
@@ -1828,11 +1883,11 @@ class socketManager {
                 mockup = this.generateMockup(index);
             }
             // Send the mockup to the client.
-            socket.talk("M", index, encodeMockup(mockup));
+            socket.talk("M", index, this.encodedMockup(splittedIndex, mockup));
             // Also push it to the socket's status so we know it.
             socket.status.mockupData.receivedMockups.push(mockup);
             // Push the index so the function doesnt run a thousens of times.
-            socket.status.mockupData.receivedIndexes.push(splittedIndex);
+            socket.status.mockupData.receivedIndexes.add(splittedIndex);
             // Now we need the turret mockups.
             for (let turrets of mockup.turrets) {
                 // Run the same function but it targets the turret mockups.
@@ -1851,20 +1906,246 @@ class socketManager {
 
     sendMockupUpgrades(index, socket) {
         for (let splittedIndex of index.toString().split("-")) {
-            if (socket.status.mockupData.receivedUpgradePackIndexes.includes(splittedIndex)) continue; // Do NOT continue if we have the mockup already.
+            if (socket.status.mockupData.receivedUpgradePackIndexes.has(splittedIndex)) continue; // Do NOT continue if we have the mockup already.
             this.sendMockup(index, socket);
             let parsedindex = parseInt(splittedIndex);
-            let mockup = mockupData.find(o => o.index === `${parsedindex}`);
+            let mockup = mockupData[mockupMap[parsedindex]];
             if (!mockup) {
-                let e = this.generateMockup(parsedindex);
-                mockup = mockupData.find(o => o.index === `${e.index}`);
+                mockup = this.generateMockup(parsedindex);
             }
             socket.status.mockupData.receivedUpgradePackMockups.push(mockup);
-            socket.status.mockupData.receivedUpgradePackIndexes.push(splittedIndex);
+            socket.status.mockupData.receivedUpgradePackIndexes.add(splittedIndex);
             for (let { index } of mockup.upgrades) {
                 for (let i of index.toString().split("-")) this.sendMockupUpgrades(i, socket);
             }
         }
+    }
+
+    queueMockupTree(body, socket, reply) {
+        if (Config.load_all_mockups) {
+            if (reply) socket.talk("T");
+            return;
+        }
+        let data = socket.status.mockupData,
+            roots = [];
+        this.sendMockup(body.index, socket);
+        for (let index of body.index.toString().split("-")) {
+            let mockup = mockupData[mockupMap[parseInt(index)]];
+            if (!mockup || !mockup.rerootUpgradeTree) continue;
+            for (let root of mockup.rerootUpgradeTree.split("\\/")) {
+                if (Class[root] && !roots.includes(`${Class[root].index}`)) roots.push(`${Class[root].index}`);
+            }
+        }
+        if (reply) {
+            data.treeQueue.items = roots.concat(data.treeQueue.items.slice(data.treeQueue.next), data.prefetchQueue.items.slice(data.prefetchQueue.next));
+            data.treeQueue.next = data.prefetchQueue.next = data.prefetchQueue.items.length = 0;
+            data.treeReply = true;
+        } else {
+            data.prefetchQueue.items.push(...roots);
+        }
+        this.pumpMockups(socket);
+    }
+
+    pumpMockups(socket) {
+        let data = socket.status.mockupData,
+            cycle = global.gameManager.room.lastCycle;
+        if (this.mockupCycle !== cycle) {
+            this.mockupCycle = cycle;
+            this.mockupTime = 0;
+        }
+        let start = performance.now();
+        for (let queue of [data.treeQueue, data.prefetchQueue]) {
+            while (queue.next < queue.items.length && this.mockupTime + performance.now() - start < Config.mockup_send_budget) {
+                let index = queue.items[queue.next++];
+                if (data.receivedUpgradePackIndexes.has(index)) continue;
+                this.sendMockup(index, socket);
+                let mockup = mockupData[mockupMap[parseInt(index)]];
+                if (!mockup) continue;
+                data.receivedUpgradePackMockups.push(mockup);
+                data.receivedUpgradePackIndexes.add(index);
+                for (let upgrade of mockup.upgrades) {
+                    for (let part of upgrade.index.toString().split("-")) queue.items.push(part);
+                }
+            }
+            if (queue.next >= queue.items.length) queue.items.length = queue.next = 0;
+        }
+        this.mockupTime += performance.now() - start;
+        if (data.treeReply && !data.treeQueue.items.length) {
+            data.treeReply = false;
+            socket.talk("T");
+        }
+    }
+
+    resetPacks() {
+        this.packFor = mockupData;
+        this.packsQueued = false;
+        this.packs.clear();
+        this.mockupText.clear();
+    }
+
+    encodedMockup(index, mockup) {
+        if (this.packFor !== mockupData) this.resetPacks();
+        let key = `${index}`,
+            text = this.mockupText.get(key);
+        if (text === undefined) {
+            text = encodeMockup(mockup);
+            this.mockupText.set(key, text);
+        }
+        return text;
+    }
+
+    mockupOf(index) {
+        return mockupData[mockupMap[index]] || this.generateMockup(index);
+    }
+
+    packNames() {
+        let names = [Config.spawn_class];
+        for (let key in this.permissionsDict) {
+            let entry = this.permissionsDict[key];
+            if (entry.spawnAs) names.push(entry.spawnAs);
+            if (entry.class) names.push(entry.class);
+        }
+        return [...new Set(names)].filter(name => typeof name === "string" && Class[name]);
+    }
+
+    socketPackNames(socket) {
+        let names = [socket.permissions?.spawnAs || Config.spawn_class, socket.permissions?.class];
+        return [...new Set(names)].filter(name => typeof name === "string" && Class[name]);
+    }
+
+    packJob(name) {
+        if (this.packFor !== mockupData) this.resetPacks();
+        let job = this.packs.get(name);
+        if (!job) {
+            job = { name, stack: [[2, `${Class[name].index}`]], seen: new Set(), trees: new Set(), list: [], texts: [], hash: crypto.createHash("sha1"), done: false, pack: null };
+            this.packs.set(name, job);
+        }
+        return job;
+    }
+
+    packStep(job) {
+        let [kind, index] = job.stack.pop();
+        for (let part of index.split("-")) {
+            let mockup;
+            if (kind === 2) {
+                mockup = this.mockupOf(parseInt(part));
+                job.stack.push([0, part]);
+                if (mockup && mockup.rerootUpgradeTree) {
+                    for (let root of mockup.rerootUpgradeTree.split("\\/")) if (Class[root]) job.stack.push([1, `${Class[root].index}`]);
+                }
+            } else if (kind === 1) {
+                if (job.trees.has(part)) continue;
+                mockup = this.mockupOf(parseInt(part));
+                if (!mockup) continue;
+                job.trees.add(part);
+                job.stack.push([0, part]);
+                for (let upgrade of mockup.upgrades) job.stack.push([1, `${upgrade.index}`]);
+            } else {
+                if (job.seen.has(part)) continue;
+                job.seen.add(part);
+                mockup = this.mockupOf(parseInt(part));
+                if (!mockup) continue;
+                let text = `${part},${this.encodedMockup(part, mockup)}`;
+                job.list.push(part);
+                job.texts.push(text);
+                job.hash.update(`${text}\n`);
+                for (let turret of mockup.turrets) job.stack.push([0, `${turret.index}`]);
+                if (mockup.sendAllMockups) for (let upgrade of mockup.upgrades) job.stack.push([1, `${upgrade.index}`]);
+            }
+        }
+    }
+
+    finishPack(job) {
+        job.stack = null;
+        let version = job.hash.digest("hex").slice(0, 16),
+            text = `{"v":"${version}","r":[${job.texts.join(",")}]}`;
+        job.texts = job.hash = null;
+        zlib.gzip(text, (error, gzip) => {
+            if (this.packs.get(job.name) !== job) return;
+            job.done = true;
+            if (!error) job.pack = { version, gzip, list: job.list, trees: [...job.trees] };
+            this.deliverPacks();
+        });
+    }
+
+    buildPacks(busy) {
+        if (Config.load_all_mockups) return;
+        if (this.packFor !== mockupData) this.resetPacks();
+        if (!this.packsQueued) {
+            this.packsQueued = true;
+            for (let name of this.packNames()) this.packJob(name);
+        }
+        let waiting = this.clients.some(socket => socket.status.packWait),
+            budget = !busy ? 25 : waiting ? 4 * Config.mockup_send_budget : Config.mockup_send_budget,
+            start = performance.now();
+        for (let job of this.packs.values()) {
+            if (!job.stack) continue;
+            try {
+                while (job.stack.length && performance.now() - start < budget) this.packStep(job);
+            } catch(error) {
+                util.error(error);
+                job.stack.length = 0;
+            }
+            if (!job.stack.length) this.finishPack(job);
+            if (performance.now() - start >= budget) break;
+        }
+    }
+
+    welcomeWithPacks(socket, have, welcome) {
+        if (Config.load_all_mockups) return welcome();
+        let names = this.socketPackNames(socket);
+        for (let name of names) this.packJob(name);
+        socket.status.packWait = { names, have: new Set(`${have || ""}`.split(",")), welcome };
+        this.deliverPacks();
+    }
+
+    deliverPacks() {
+        for (let socket of this.clients) {
+            let wait = socket.status.packWait;
+            if (!wait) continue;
+            if (wait.names.some(name => this.packs.has(name) && !this.packs.get(name).done)) continue;
+            socket.status.packWait = null;
+            let data = socket.status.mockupData;
+            for (let name of wait.names) {
+                let pack = this.packs.get(name)?.pack;
+                if (!pack) continue;
+                if (!wait.have.has(pack.version) && socket.readyState === socket.OPEN) socket.send(pack.gzip, { binary: true, compress: false });
+                for (let index of pack.list) data.receivedIndexes.add(index);
+                for (let index of pack.trees) data.receivedUpgradePackIndexes.add(index);
+            }
+            wait.welcome();
+        }
+    }
+
+    servePack(req, res) {
+        if (Config.load_all_mockups) {
+            res.writeHead(404);
+            return res.end();
+        }
+        let auth = `${req.headers.authorization || ""}`,
+            token = auth.startsWith("Bearer ") ? auth.slice(7).trim() : "",
+            entry = token && Object.prototype.hasOwnProperty.call(this.permissionsDict, token) ? this.permissionsDict[token] : null,
+            name = token ? entry?.class : Config.spawn_class;
+        if (typeof name !== "string" || !Class[name]) {
+            res.writeHead(404);
+            return res.end();
+        }
+        let job = this.packJob(name);
+        if (!job.done) {
+            res.writeHead(503, { "Retry-After": "1" });
+            return res.end();
+        }
+        if (!job.pack) {
+            res.writeHead(404);
+            return res.end();
+        }
+        let tag = `"${job.pack.version}"`;
+        if (req.headers["if-none-match"] === tag) {
+            res.writeHead(304, { "ETag": tag, "Cache-Control": "no-cache" });
+            return res.end();
+        }
+        res.writeHead(200, { "Content-Type": "application/json", "Content-Encoding": "gzip", "Cache-Control": "no-cache", "ETag": tag, "Access-Control-Expose-Headers": "ETag" });
+        res.end(job.pack.gzip);
     }
 
     eyes(socket) {
@@ -1916,6 +2197,7 @@ class socketManager {
                         let die = () => { // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
                             socket.status.isAFK = false;
+                            socket.status.lastScore = player.body.skill.score;
                             let delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
                             if (delay > 0) {
                                 socket.status.readyToSpawn = false;
@@ -2015,6 +2297,10 @@ class socketManager {
                             this.sendMockup(upgrade.index, socket);
                         }
                     }
+                    if (player.body && socket.status.mockupData.treeFor !== player.body.index) {
+                        socket.status.mockupData.treeFor = player.body.index;
+                        this.queueMockupTree(player.body, socket, false);
+                    } else this.pumpMockups(socket);
                 }
                 if (updateCam) {
                     socket.talk(
@@ -2536,11 +2822,15 @@ class socketManager {
         });
         socket.initMockupList = () => {
             return {
-                receivedIndexes: [], // The only reason why this exist is because to prevent lags from the socket gazeUpon, You can find it out by removing this.
+                receivedIndexes: new Set(), // The only reason why this exist is because to prevent lags from the socket gazeUpon, You can find it out by removing this.
                 receivedMockups: [],
-                receivedUpgradePackIndexes: [],
+                receivedUpgradePackIndexes: new Set(),
                 receivedUpgradePackMockups: [],
-                requestMockups: []
+                requestMockups: [],
+                treeQueue: { items: [], next: 0 },
+                prefetchQueue: { items: [], next: 0 },
+                treeReply: false,
+                treeFor: null
             };
         };
         socket.messageManager = socket.on("message", message => this.incoming(message, socket));
