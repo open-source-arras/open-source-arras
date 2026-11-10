@@ -1429,7 +1429,6 @@ Class.conqueror = {
     BODY: {
         SPEED: 0.8 * base.SPEED
     },
-    REVERSE_TARGET_WITH_TANK: true,
     GUNS: [
         {
             POSITION: {
