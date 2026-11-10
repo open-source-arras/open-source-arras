@@ -329,29 +329,28 @@ exports.weaponStack = (weapons, count, options = {}) => {
 };
 
 // Tank Modifiers
-exports.attachTank = (base, attached, name, options = {}) => {
-    const baseProperties = { ...Class[base] };
+exports.attachTank = (baseType, attachType, name, options = {}) => {
+    const angle = options.angle ??= 0;
 
+    const baseProperties = {...Class[baseType]};
     for (const key of Object.keys(baseProperties)) {
         if (/^UPGRADES_TIER_\d+$/.test(key)) {
             delete baseProperties[key];
         }
     };
 
-    const angle = options.angle ??= 0;
-
     return {
         ...baseProperties,
         LABEL: name,
         GUNS: [
-            ...(Class[base].GUNS || []).map(gun => ({
+            ...(Class[baseType].GUNS || []).map(gun => ({
                 ...gun,
                 POSITION: {
                     ...gun.POSITION,
                     ANGLE: ((gun.POSITION.ANGLE || 0) + angle) % 360
                 }
             })),
-            ...(Class[attached].GUNS || []).map(gun => ({
+            ...(Class[attachType].GUNS || []).map(gun => ({
                 ...gun,
                 POSITION: {
                     ...gun.POSITION,
