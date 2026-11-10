@@ -48,6 +48,236 @@ function init() {
         }
         return closest;
     }
+    const colorWheel = [10, 11, 12, 15, 3, 17, 6, 13, 2, 14, 4, 5, 1, 0, 7, 9, 16, 8, 18, 19];
+    const menuDead = 15, menuStep = 120, menuArm = 22, wallCell = 60, shapeSizes = 5, shapeLimit = 2500;
+    const rockSlice = global.wallTypes.length, rockMin = 30, rockMax = 1500;
+    let lastColor = -1, lastDesign = 0, lastWallType = 0;
+    Class.keyCommandDot = {
+        PARENT: "genericEntity",
+        LABEL: "Unknown Entity",
+        TYPE: "dot",
+        SIZE: 15,
+        SHAPE: 0,
+        COLOR: "pureWhite",
+        ALPHA: 0.3,
+        INTANGIBLE: true,
+        NO_COLLISIONS: true,
+        ACCEPTS_SCORE: false,
+        CAN_BE_ON_LEADERBOARD: false,
+        HEALTH_WITH_LEVEL: false,
+        IS_IMMUNE_TO_TILES: true,
+        IS_IMMUNE_TO_PORTALS: true,
+        CAN_GO_OUTSIDE_ROOM: true,
+        HITS_OWN_TYPE: "never",
+        FACING_TYPE: "noFacing",
+        IGNORED_BY_AI: true
+    };
+    function clockwise(dx, dy) {
+        return ((Math.atan2(dx, -dy) * 180 / Math.PI) % 360 + 360) % 360;
+    }
+    function makeDot(at) {
+        let o = new Entity(at);
+        o.define("keyCommandDot");
+        o.team = TEAM_ROOM;
+        o.godmode = true;
+        return o;
+    }
+    function everyTick(body, key, hold, step) {
+        body.store[key] = hold;
+        let run = () => {
+            if (body.store[key] !== hold || body.isGhost) {
+                if (hold.dot && !hold.dot.isGhost) hold.dot.kill();
+                return;
+            }
+            if (step(hold) === false) return endHold(body, key);
+            setSyncedTimeout(run, 0);
+        };
+        setSyncedTimeout(run, 0);
+    }
+    function endHold(body, key) {
+        let hold = body.store[key];
+        if (!hold) return;
+        delete body.store[key];
+        if (hold.dot && !hold.dot.isGhost) {
+            hold.dot.godmode = false;
+            hold.dot.kill();
+        }
+        for (let o of [hold.wall, hold.rock]) if (o && o.hiddenByMenu && !o.isGhost) o.kill();
+    }
+    function wearerOf(o) {
+        while (o.master && o.master !== o && !o.isPlayer && !o.isBot) o = o.master;
+        return o;
+    }
+    function isTankBody(o) {
+        return o.isPlayer || o.isBot || o.type === "tank" || o.type === "miniboss";
+    }
+    function colorable(o) {
+        return !o.bond && !o.isGhost && (isTankBody(o) || o.type === "food" || o.type === "crasher" || o.type === "wall");
+    }
+    function paint(o, slot) {
+        let was = o.color.base;
+        o.color.base = slot;
+        if (o.type === "wall") o.wallColor = slot;
+        if (!isTankBody(o)) return;
+        o.paintedColor = true;
+        for (let e of entities.values()) {
+            if (e === o || e.bond || e.isGhost || e.color.base !== was) continue;
+            if (wearerOf(e) === o) e.color.base = slot;
+        }
+    }
+    function wearTeam(o, color) {
+        o.paintedColor = false;
+        if (o.type === "wall") o.wallColor = color;
+        if (o.ownColor) o.teamWorn = color;
+        else o.color.base = color;
+    }
+    function designOf(name) {
+        let def = typeof name === "string" ? Class[name] : name;
+        if (!def) return -1;
+        let match = typeof name === "string" && name.match(/^laby_(\d)_(\d)_(\d)_(\d)$/);
+        if (match) {
+            let [t, s, k, crasher] = match.slice(1).map(Number);
+            if (crasher) return s === 0 ? t + 5 * (shapeSizes - 1) + 5 * shapeSizes * k : -1;
+            return s < shapeSizes - 1 ? t + 5 * s + 5 * shapeSizes * k : -1;
+        }
+        let polys = ["egg", "square", "triangle", "pentagon", "hexagon"], shinies = ["", "shiny", "legendary", "shadow", "rainbow", "trans"];
+        for (let k = 0; k < shinies.length; k++) {
+            let t = polys.findIndex(p => (k ? shinies[k] + p[0].toUpperCase() + p.slice(1) : p) === name);
+            if (t >= 0) return t + 5 * shapeSizes * k;
+        }
+        let parents = Array.isArray(def.PARENT) ? def.PARENT : def.PARENT != null ? [def.PARENT] : [];
+        for (let parent of parents) {
+            let d = designOf(parent);
+            if (d >= 0) return d;
+        }
+        return -1;
+    }
+    function designOfEntity(o) {
+        for (let def of o.defs ?? []) {
+            let d = designOf(def);
+            if (d >= 0) return d;
+        }
+        return -1;
+    }
+    function classOfDesign(d) {
+        let t = d % 5, s = Math.floor(d / 5) % shapeSizes, k = Math.floor(d / (5 * shapeSizes));
+        let name = s === shapeSizes - 1 ? `laby_${t}_0_${k}_1` : `laby_${t}_${s}_${k}_0`;
+        return Class[name] ? name : null;
+    }
+    function designAt(hold, at) {
+        let dx = at.x - hold.x, dy = hold.y - at.y, r = Math.sqrt(dx * dx + dy * dy);
+        if (r < menuDead) return hold.base;
+        let ang = ((Math.atan2(dy, dx) * 180 / Math.PI) % 360 + 360) % 360;
+        if (Math.abs(ang - Math.round(ang / 60) * 60) > menuArm) return hold.base;
+        let arm = Math.round(ang / 60) % 6, k = Math.ceil(r / menuStep);
+        let t = hold.base % 5, s = Math.floor(hold.base / 5) % shapeSizes, kind = Math.floor(hold.base / (5 * shapeSizes));
+        let mod = (a, n) => ((a % n) + n) % n;
+        if (arm === 0) s = mod(s + k, shapeSizes);
+        else if (arm === 1) t = mod(t + k, 5);
+        else if (arm === 2) kind = mod(kind - k, 6);
+        else if (arm === 3) s = mod(s - k, shapeSizes);
+        else if (arm === 4) t = mod(t - k, 5);
+        else kind = mod(kind + k, 6);
+        return t + 5 * s + 5 * shapeSizes * kind;
+    }
+    function reshape(o, d) {
+        let name = classOfDesign(d);
+        if (!name) return false;
+        let was = (o.coreSize || o.SIZE) * o.sizeMultiplier, team = o.team, facing = o.facing, kept = o.controllers;
+        o.controllers = [];
+        o.aiSettings = {};
+        o.glow = { radius: null, color: new Color(-1).compiled, alpha: 1, recursion: 1 };
+        o.define("genericEntity", false);
+        o.define(name);
+        o.controllers = o.controllers.map(io => kept.find(old => old.constructor === io.constructor) ?? io);
+        o.team = team;
+        o.facing = facing;
+        o.health.amount = o.health.max;
+        o.shield.amount = o.shield.max;
+        o.sizeMultiplier = 1;
+        o.coreSize = was;
+        o.sizeGlides = true;
+        return true;
+    }
+    function wallSize(half) {
+        return (half - 1.5) * Math.SQRT2 / lazyRealSizes[4];
+    }
+    function makeWall(at, half, type) {
+        let o = new Entity(at);
+        o.define((global.wallTypes[type] ?? global.wallTypes[0]).class);
+        o.SIZE = wallSize(half);
+        o.coreSize = o.SIZE;
+        o.team = TEAM_ENEMIES;
+        o.isWallSpawn = true;
+        o.protect();
+        o.life();
+        makeHitbox(o);
+        walls.push(o);
+        o.on("dead", () => util.remove(walls, walls.indexOf(o)));
+        return o;
+    }
+    function wallHalf(o) {
+        return o.SIZE * lazyRealSizes[4] / Math.SQRT2 + 1.5;
+    }
+    function isRock(o) {
+        return o.type === "wall" && o.shape !== 4;
+    }
+    function makeRock(at, radius) {
+        let o = new Entity(at);
+        o.team = TEAM_ENEMIES;
+        o.facing = ran.randomAngle();
+        o.define("rock");
+        o.SIZE = radius;
+        o.coreSize = radius;
+        o.isWallSpawn = true;
+        o.protect();
+        o.life();
+        return o;
+    }
+    function wallAt(at) {
+        let found = null;
+        for (let o of entities.values()) {
+            if (o.type !== "wall" || o.isGhost || o.hiddenByMenu) continue;
+            let half = o.size * lazyRealSizes[4] / Math.SQRT2;
+            if (isRock(o) ? (at.x - o.x) ** 2 + (at.y - o.y) ** 2 <= o.size ** 2 : Math.abs(at.x - o.x) <= half && Math.abs(at.y - o.y) <= half) found = o;
+        }
+        return found;
+    }
+    function retypeWall(o, type) {
+        let settings = global.wallTypes[type];
+        if (!settings) return;
+        for (let tur of o.turrets.values()) tur.destroy();
+        o.turrets.clear();
+        let size = o.SIZE, team = o.team;
+        o.define(settings.class);
+        o.SIZE = size;
+        o.coreSize = size;
+        o.team = team;
+        if (o.wallColor != null) o.color.base = o.wallColor;
+        makeHitbox(o);
+    }
+    function hideByMenu(o, hide) {
+        o.hiddenByMenu = hide;
+        o.intangibility = hide;
+        o.alpha = hide ? 0 : 1;
+    }
+    function menuWallType(hold, type, room) {
+        if (type === rockSlice) {
+            if (!hold.rock) hold.rock = makeRock({ x: hold.wall.x, y: hold.wall.y }, Math.max(rockMin, wallHalf(hold.wall)));
+            else hideByMenu(hold.rock, false);
+            hideByMenu(hold.wall, true);
+            return;
+        }
+        if (!hold.wall) {
+            let r = hold.rock, n = Math.max(1, Math.round(r.size * 2 / wallCell)), left = -room.width / 2, top = -room.height / 2,
+                cx = Math.round((r.x - left) / wallCell - n / 2), cy = Math.round((r.y - top) / wallCell - n / 2);
+            hold.wall = makeWall({ x: left + (cx + n / 2) * wallCell, y: top + (cy + n / 2) * wallCell }, n * wallCell / 2, type);
+        } else {
+            hideByMenu(hold.wall, false);
+            retypeWall(hold.wall, type);
+        }
+        if (hold.rock) hideByMenu(hold.rock, true);
+    }
     function makeHelpList(command, showPrefix = true) {
         let name = command.name;
         let keyStr, defaultChar;
@@ -260,121 +490,124 @@ function init() {
             keys: [[["KEY_SPECIAL_COLOR", "C"]]],
             permissionLevel: 1,
             run: ({ player }) => {
-                const colors = [
-                    "teal", "shiny", "triangle",
-                    "yellow", "lavender", "aqua",
-                    "crasher", "egg", "wall", 
-                    "pureWhite", "black", "blue",
-                    "green", "red", "square",
-                    "pentagon", "magenta", "grey",
-                    "rogue", "white", "pureBlack",
-                    "animatedBlueRed", "animatedBlueGrey", "animatedGreyBlue",
-                    "animatedRedGrey", "animatedGreyRed", "mustard",
-                    "tangerine", "brown", "cyan", 
-                    "lesbian", "rainbow", "trans",
-                    "trueTrans", "bi", "animatedMagenta"
-                ];
-                let target = targetEntities(player);
-                if (target.length) {
-                    let o = target[0];
-                    const color = typeof o.color.base === "number" ? colors[o.color.base + 1] : colors[colors.indexOf(o.color.base) + 1];
-                    if (!color) return o.color.base = colors[0];
-                    o.color.base = color;
+                if (player.body.store.colorCMD) return;
+                player.body.store.colorCMD = {};
+                let at = target(player);
+                let o = nearest(entities, at, colorable);
+                if (!o) return;
+                let hold = { o, x: at.x, y: at.y, now: -1, dot: makeDot(at) };
+                if (lastColor >= 0) {
+                    hold.now = lastColor;
+                    paint(o, lastColor);
                 }
+                everyTick(player.body, "colorCMD", hold, () => {
+                    if (hold.o.isGhost) return false;
+                    let t = target(player), dx = t.x - hold.x, dy = t.y - hold.y;
+                    if (dx * dx + dy * dy < menuDead * menuDead) return;
+                    let slot = colorWheel[Math.min(19, Math.floor(clockwise(dx, dy) / 18))];
+                    if (slot === hold.now) return;
+                    hold.now = lastColor = slot;
+                    paint(hold.o, slot);
+                });
             }
+        },
+        {
+            name: "Color",
+            keys: [[["-KEY_SPECIAL_COLOR", "C"]]],
+            permissionLevel: 1,
+            hidden: true,
+            run: ({ player }) => endHold(player.body, "colorCMD")
         },
         {
             name: "Wall",
             //description: "Spawns wall at your cursor",
             keys: [[["KEY_SPECIAL_WALL", "X"]]],
             permissionLevel: 1,
-            run: ({ socket, player, gameManager }) => {
-                let pos = {};
-                let dwall = player.body.store.wallCMD;
-                if (!dwall) {
-                    const targetPos = {
-                        x: player.body.x + player.target.x,
-                        y: player.body.y + player.target.y
-                    };
-                    const gridCell = gameManager.room.wallGrid.getGrid(targetPos);
-                    if (!gridCell) {
-                        return socket.talk("m", 3_000, "No valid grid.");
-                    }
-                    pos = { x: gridCell.x, y: gridCell.y };
-                    let checkWall = targetEntities(player, o => o.type === "wall");
-                    if (!checkWall.length) {
-                        let o = new Entity(pos);
-                        o.define("wall");
-                        o.SIZE = gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2 / lazyRealSizes[4] * Math.SQRT2 - 2;
-                        o.team = -101;
-                        o.isWallSpawn = true;
-                        let pt = target(player);
-                        player.body.store.wallCMD = {
-                            wall: o,
-                            target: pt,
-                            position: pos,
-                            size: gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2
-                        };
-                    } else {
-                        for (let wall of checkWall) {
-                            wall.destroy();
-                        }
-                    }
-                } else {
-                    const targetPos = {
-                        x: player.body.x + player.target.x,
-                        y: player.body.y + player.target.y
-                    };
-                    const gridCell = gameManager.room.wallGrid.getGrid(targetPos);
-                    if (!gridCell) {
-                        return socket.talk("m", 3_000, "No valid grid.");
-                    }
-                    const pos = { x: gridCell.x, y: gridCell.y };
-                    const gridSize = gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2;
-                    const xDiff = Math.abs(player.body.store.wallCMD.position.x - pos.x) / gridSize;
-                    const yDiff = Math.abs(player.body.store.wallCMD.position.y - pos.y) / gridSize;
-                    const isValidPlacement = Math.abs(xDiff - yDiff) <= 0.5;
-                    if (isValidPlacement) {
-                        const scaleFactor = Math.floor((Math.abs(player.body.store.wallCMD.position.x - pos.x) / gridSize / 2) + 1.5);
-                        const newWallSize = Math.max(
-                            player.body.store.wallCMD.size * scaleFactor,
-                            player.body.store.wallCMD.size
-                        );
-                        player.body.store.wallCMD.wall.SIZE = (newWallSize / lazyRealSizes[4]) * Math.SQRT2 - 2;
-                        const xOffset = newWallSize - player.body.store.wallCMD.size;
-                        player.body.store.wallCMD.wall.x = player.body.store.wallCMD.position.x + 
-                            (player.body.store.wallCMD.position.x > pos.x ? -xOffset : xOffset);
-                        const yOffset = newWallSize - player.body.store.wallCMD.size;
-                        player.body.store.wallCMD.wall.y = player.body.store.wallCMD.position.y +
-                            (player.body.store.wallCMD.position.y > pos.y ? -yOffset : yOffset);
-                    }
+            run: ({ player, gameManager }) => {
+                if (player.body.store.wallCMD) return;
+                player.body.store.wallCMD = {};
+                let at = target(player);
+                let old = wallAt(at);
+                if (old) return old.kill();
+                if (lastWallType === rockSlice) {
+                    let hold = { rock: makeRock(at, rockMin) };
+                    everyTick(player.body, "wallCMD", hold, () => {
+                        if (hold.rock.isGhost || hold.rock.isDead()) return false;
+                        let t = target(player), s = Math.max(rockMin, Math.min(rockMax, Math.hypot(t.x - hold.rock.x, t.y - hold.rock.y)));
+                        if (s !== hold.rock.SIZE) hold.rock.SIZE = hold.rock.coreSize = s;
+                    });
+                    return;
                 }
+                let left = -gameManager.room.width / 2, top = -gameManager.room.height / 2;
+                let cx = Math.floor((at.x - left) / wallCell), cy = Math.floor((at.y - top) / wallCell);
+                let hold = { n: 1, wall: makeWall({ x: left + (cx + 0.5) * wallCell, y: top + (cy + 0.5) * wallCell }, wallCell / 2, lastWallType) };
+                everyTick(player.body, "wallCMD", hold, () => {
+                    if (hold.wall.isGhost || hold.wall.isDead()) return false;
+                    let t = target(player);
+                    let dx = Math.floor((t.x - left) / wallCell) - cx, dy = Math.floor((t.y - top) / wallCell) - cy;
+                    if (Math.abs(dx) !== Math.abs(dy)) return;
+                    let n = Math.abs(dx) + 1;
+                    if (n === hold.n) return;
+                    hold.n = n;
+                    hold.wall.x = left + (cx + dx / 2 + 0.5) * wallCell;
+                    hold.wall.y = top + (cy + dy / 2 + 0.5) * wallCell;
+                    hold.wall.SIZE = hold.wall.coreSize = wallSize(n * wallCell / 2);
+                    makeHitbox(hold.wall);
+                });
             }
         },
         {
-            name: "Wall Type", 
+            name: "Type",
             keys: [[["KEY_SPECIAL_WALL_TYPE", "Z"]]],
             permissionLevel: 1,
-            run: ({ player }) => {
-                let walling = targetEntities(player, o => o.type === "wall");
-                if (walling.length) {
-                    let o = walling[0];
-                    for (let tur of o.turrets.values()) tur.destroy();
-                    o.turrets.clear();
-                    if (o.walltype === global.wallTypes.length) o.walltype = 0;
-                    o.walltype = o.walltype + 1;
-                    let wallsettings = global.wallTypes[o.walltype - 1];
-                    let newWalltype = o.walltype;
-                    let wallSize = o.SIZE;
-                    o.define(Class[wallsettings.class]);
-                    o.walltype = newWalltype;
-                    o.SIZE = wallSize;
-                    o.coreSize = o.SIZE;
-                    o.color.base = wallsettings.color; 
-                    o.label = wallsettings.label;
-                    o.alpha = wallsettings.alpha;
+            run: ({ socket, player, gameManager }) => {
+                if (player.body.store.typeCMD) return;
+                player.body.store.typeCMD = {};
+                let at = target(player);
+                let o = nearest(entities, at, e => !e.bond && !e.isGhost && !e.hiddenByMenu && (e.type === "food" || e.type === "crasher" || e.type === "wall"));
+                if (!o) return;
+                let hold = { o, x: at.x, y: at.y };
+                if (o.type === "wall") {
+                    hold.walls = true;
+                    if (isRock(o)) {
+                        hold.rock = o;
+                        hold.base = hold.now = rockSlice;
+                    } else {
+                        hold.wall = o;
+                        hold.base = hold.now = Math.max(0, (o.walltype ?? 1) - 1);
+                    }
+                } else {
+                    hold.base = hold.now = designOfEntity(o);
+                    if (hold.base < 0) {
+                        socket.talk("m", 3_000, "Entity cannot be changed!");
+                        return;
+                    }
                 }
+                hold.dot = makeDot(at);
+                everyTick(player.body, "typeCMD", hold, () => {
+                    let shown = hold.walls ? (hold.now === rockSlice ? hold.rock : hold.wall) : hold.o;
+                    if (!shown || shown.isGhost || shown.isDead()) return false;
+                    let t = target(player);
+                    if (hold.walls) {
+                        let dx = t.x - hold.x, dy = t.y - hold.y, slices = rockSlice + 1;
+                        let type = dx * dx + dy * dy < menuDead * menuDead ? hold.base : Math.min(slices - 1, Math.floor(clockwise(dx, dy) / (360 / slices)));
+                        if (type === hold.now) return;
+                        hold.now = lastWallType = type;
+                        menuWallType(hold, type, gameManager.room);
+                        return;
+                    }
+                    let d = designAt(hold, t);
+                    if (d === hold.now) return;
+                    if (reshape(hold.o, d)) hold.now = lastDesign = d;
+                });
             }
+        },
+        {
+            name: "Type",
+            keys: [[["-KEY_SPECIAL_WALL_TYPE", "Z"]]],
+            permissionLevel: 1,
+            hidden: true,
+            run: ({ player }) => endHold(player.body, "typeCMD")
         },
         {
             name: "Wall",
@@ -382,18 +615,37 @@ function init() {
             permissionLevel: 1,
             hidden: true,
             run({ player }) {
-                delete player.body.store.wallCMD;
+                endHold(player.body, "wallCMD");
             }
         },
         // WIP
         {
-            name: "Polygon (WIP)",
+            name: "Polygon",
             keys: [[["KEY_SPECIAL_POLYGON", "F"]]],
             permissionLevel: 1,
             run: ({ player }) => {
-                let o = new Entity(target(player));
-                o.define("egg");
+                let count = 0;
+                for (let e of entities.values()) if (e.isFood) count++;
+                if (count >= shapeLimit) return;
+                let name = classOfDesign(lastDesign) ?? "egg";
+                let at = target(player);
+                let o = new Entity({ x: at.x + ran.randomRange(-0.5, 0.5), y: at.y + ran.randomRange(-0.5, 0.5) });
+                o.define(name);
+                o.facing = ran.randomAngle();
                 o.team = TEAM_ENEMIES;
+                o.isFood = true;
+            }
+        },
+        {
+            name: "All keys",
+            keys: [[["-KEY_SPECIAL", "`"]]],
+            permissionLevel: 1,
+            hidden: true,
+            run: ({ player }) => {
+                for (let key of ["colorCMD", "typeCMD", "wallCMD"]) endHold(player.body, key);
+                clearInterval(player.body.store.dragInterval);
+                delete player.body.store.dragInterval;
+                delete player.body.store.selectedWhirlpool;
             }
         },
         {
@@ -451,28 +703,28 @@ function init() {
                 if (!changedTeamToEntity) {
                     if (player.body.team == TEAM_BLUE) {
                         player.body.team = TEAM_GREEN;
-                        player.body.color.base = getTeamColor(TEAM_GREEN);
+                        wearTeam(player.body, getTeamColor(TEAM_GREEN));
                     } else if (player.body.team == TEAM_GREEN) {
                         player.body.team = TEAM_RED;
-                        player.body.color.base = getTeamColor(TEAM_RED);
+                        wearTeam(player.body, getTeamColor(TEAM_RED));
                     } else if (player.body.team == TEAM_RED) {
                         player.body.team = TEAM_PURPLE;
-                        player.body.color.base = getTeamColor(TEAM_PURPLE);
+                        wearTeam(player.body, getTeamColor(TEAM_PURPLE));
                     } else if (player.body.team == TEAM_PURPLE) {
                         player.body.team = TEAM_YELLOW;
-                        player.body.color.base = getTeamColor(TEAM_YELLOW);
+                        wearTeam(player.body, getTeamColor(TEAM_YELLOW));
                     } else if (player.body.team == TEAM_YELLOW) {
                         player.body.team = TEAM_ORANGE;
-                        player.body.color.base = getTeamColor(TEAM_ORANGE);
+                        wearTeam(player.body, getTeamColor(TEAM_ORANGE));
                     } else if (player.body.team == TEAM_ORANGE) {
                         player.body.team = TEAM_BROWN;
-                        player.body.color.base = getTeamColor(TEAM_BROWN);
+                        wearTeam(player.body, getTeamColor(TEAM_BROWN));
                     } else if (player.body.team == TEAM_BROWN) {
                         player.body.team = TEAM_CYAN;
-                        player.body.color.base = getTeamColor(TEAM_CYAN);
+                        wearTeam(player.body, getTeamColor(TEAM_CYAN));
                     } else {
                         player.body.team = TEAM_BLUE;
-                        player.body.color.base = getTeamColor(TEAM_BLUE);
+                        wearTeam(player.body, getTeamColor(TEAM_BLUE));
                     }
                 }
                 socket.talk("m", 5_000, `Changed to team ${changedTeamToEntity ? changedTeamToEntity.team : player.body.team}`);
@@ -485,8 +737,7 @@ function init() {
             run: ({ player, socket }) => {
                 selectedEntities(player, (o) => {
                     o.team = player.body.team;
-                    let color = getTeamColor(o.team);
-                    o.color.base = color;
+                    wearTeam(o, getTeamColor(o.team));
                     socket.talk("m", 5_000, "Changed entity to team " + player.body.team);
                 });
             }

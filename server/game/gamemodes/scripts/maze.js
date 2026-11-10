@@ -7,7 +7,7 @@ class Maze {
         for (let o of entities.values()) {
             if (o.type === "wall") o.destroy();
         }
-        let mazeGenerator = new global.mazeGenerator.MazeGenerator(this.type);
+        let mazeGenerator = new global.mazeGenerator.MazeGenerator(Array.isArray(Config.maze_pool) ? ran.choose(Config.maze_pool) : this.type);
         let { squares, width, height } = mazeGenerator.placeMinimal();
         for (let instance of entities) {
             if (instance.type == "wall") instance.kill();

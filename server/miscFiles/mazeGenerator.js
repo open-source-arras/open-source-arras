@@ -1220,7 +1220,173 @@ const MazeGenerator = class {
         ----------------------------------
       `);
         for (let i = 0; i < 5; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
+        }
+    }
+    runPlain() {
+        this.clear(`
+        --------------------------------
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@-----------------@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@--------@@@@@@-@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@-@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@-@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@-----------------@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        -@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@-
+        --------------------------------
+      `);
+        for (let i = 0; i < 25; i++) this.erode(0, 2);
+        for (let i = 0; i < 10; i++) {
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+        }
+        for (let i = 0; i < 20; i++) {
+            this.erode(1, 2);
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+        }
+        for (let i = 0; i < 150; i++) this.erode(1, 2);
+        for (let i = 0; i < 10; i++) {
+            this.erode(0, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+            this.erode(2, 2);
+        }
+        for (let i = 0; i < 50; i++) this.erode(0, 0);
+    }
+    runLoose() {
+        let w = 32, h = 32;
+        this.maze = Array(w).fill().map((_, x) => Array(h).fill().map((_, y) => x > 0 && y > 0 && x < w - 1 && y < h - 1));
+        this.width = w;
+        this.height = h;
+        let m = this.maze, cells = 900;
+        let lo = 427, hi = 349;
+        let target = Math.min(lo, hi) + Math.floor(((Math.random() + Math.random() * Math.random()) / 2) * (Math.abs(hi - lo) + 1));
+        for (let a = 0; a < 7; a++) {
+            for (let b = 0; b < 7; b++) {
+                let x = 1 + Math.floor(((a + Math.random()) * 30) / 7), y = 1 + Math.floor(((b + Math.random()) * 30) / 7);
+                if (m[x][y]) {
+                    m[x][y] = false;
+                    cells--;
+                }
+            }
+        }
+        let dx = [1, 0, -1, 0], dy = [0, 1, 0, -1];
+        for (let guard = 0; cells > target && guard < 2000000; guard++) {
+            let x = 1 + Math.floor(Math.random() * 30), y = 1 + Math.floor(Math.random() * 30);
+            if (m[x][y]) continue;
+            let d = Math.floor(Math.random() * 4);
+            let tx = x + dx[d], ty = y + dy[d];
+            if (tx < 1 || ty < 1 || tx >= w - 1 || ty >= h - 1 || !m[tx][ty]) continue;
+            m[tx][ty] = false;
+            cells--;
+            for (let k = 0; k < 6 && cells > target; k++) {
+                if (Math.random() < 0.3) d = Math.floor(Math.random() * 4);
+                let ux = tx + dx[d], uy = ty + dy[d];
+                if (ux < 1 || uy < 1 || ux >= w - 1 || uy >= h - 1) break;
+                if (m[ux][uy]) {
+                    m[ux][uy] = false;
+                    cells--;
+                }
+                tx = ux;
+                ty = uy;
+            }
+        }
+        for (let x = 1; x < w - 1; x++) {
+            for (let y = 1; y < h - 1; y++) {
+                if (m[x][y] && !m[x - 1][y] && !m[x + 1][y] && !m[x][y - 1] && !m[x][y + 1] && Math.random() < 0.8) m[x][y] = false;
+            }
+        }
+    }
+    joinPockets() {
+        let w = this.width, h = this.height, total = w * h;
+        let comp = new Int32Array(total), queue = new Int32Array(total);
+        let dx = [1, -1, 0, 0], dy = [0, 0, 1, -1];
+        for (let guard = 0; guard < total; guard++) {
+            comp.fill(0);
+            let count = 0, largest = 0, largestId = 0;
+            for (let sx = 0; sx < w; sx++) {
+                for (let sy = 0; sy < h; sy++) {
+                    if (this.maze[sx][sy] || comp[sx * h + sy]) continue;
+                    count++;
+                    let head = 0, tail = 0, size = 0;
+                    queue[tail++] = sx * h + sy;
+                    comp[sx * h + sy] = count;
+                    while (head < tail) {
+                        let cur = queue[head++], cx = (cur / h) | 0, cy = cur - cx * h;
+                        size++;
+                        for (let d = 0; d < 4; d++) {
+                            let nx = cx + dx[d], ny = cy + dy[d];
+                            if (nx < 0 || nx >= w || ny < 0 || ny >= h || this.maze[nx][ny] || comp[nx * h + ny]) continue;
+                            comp[nx * h + ny] = count;
+                            queue[tail++] = nx * h + ny;
+                        }
+                    }
+                    if (size > largest) {
+                        largest = size;
+                        largestId = count;
+                    }
+                }
+            }
+            if (count <= 1) return;
+            let seed = -1;
+            for (let i = 0; i < total && seed < 0; i++) if (comp[i] && comp[i] !== largestId) seed = i;
+            if (seed < 0) return;
+            let prev = new Int32Array(total).fill(-1), seen = new Uint8Array(total), stranded = comp[seed], head = 0, tail = 0, hit = -1;
+            for (let i = 0; i < total; i++) {
+                if (comp[i] === stranded) {
+                    queue[tail++] = i;
+                    seen[i] = 1;
+                }
+            }
+            while (head < tail && hit < 0) {
+                let cur = queue[head++], cx = (cur / h) | 0, cy = cur - cx * h;
+                for (let d = 0; d < 4; d++) {
+                    let nx = cx + dx[d], ny = cy + dy[d];
+                    if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+                    let ni = nx * h + ny;
+                    if (seen[ni]) continue;
+                    seen[ni] = 1;
+                    prev[ni] = cur;
+                    if (comp[ni] === largestId) {
+                        hit = ni;
+                        break;
+                    }
+                    queue[tail++] = ni;
+                }
+            }
+            if (hit < 0) return;
+            for (let step = hit; step >= 0; step = prev[step]) {
+                let sx = (step / h) | 0;
+                this.maze[sx][step - sx * h] = false;
+            }
         }
     }
     runTrial() {
@@ -1282,6 +1448,13 @@ const MazeGenerator = class {
                     this.run8TeamsLabyrinth();
                     this.hasToBeClosed = true;
                     break;
+                case 21:
+                    this.runPlain();
+                    break;
+                case 24:
+                    this.runLoose();
+                    this.hasToBeClosed = true;
+                    break;
                 default:
                     console.log("Invalid maze type! Generating aborted.");
                     return null;
@@ -1296,12 +1469,14 @@ const MazeGenerator = class {
                 return null;
             }
         }
+        if (this.type === 21 || this.type === 24) this.joinPockets();
         return new MazeZone(this.maze);
     }
     placeMinimal() {
         let bestSquares = null;
   
-        for (let i = 0; i < 10; i++) {
+        let trials = this.type === 21 || this.type === 24 ? 1 : 10;
+        for (let i = 0; i < trials; i++) {
             let trial = this.runTrial();
             if (!trial) continue;
             let squares = trial.intoSquares();

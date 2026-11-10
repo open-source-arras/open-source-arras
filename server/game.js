@@ -82,6 +82,9 @@ const getName = (name, data) => {
         //manhunt: "Manhunt",
         march_madness: "March Madness",
         maze: "Maze",
+        maze_plain: "Maze",
+        maze_mixed: "Maze",
+        rock_field: "Rock",
         //labyrinth: "Labyrinth",
             //old_labyrinth: "Old Labyrinth",
         //magic_maze: "Magic Maze",
@@ -230,6 +233,12 @@ class gameServer {
                 case "/isOnline": {
                     res.writeHead(200);
                     res.end("True");
+                } break;
+                case "/mockupPack": {
+                    if (req.method === "OPTIONS") {
+                        res.writeHead(204);
+                        res.end();
+                    } else socketManager.servePack(req, res);
                 } break;
                 default: {
                     // Return the file

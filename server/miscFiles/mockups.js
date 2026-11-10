@@ -13,6 +13,7 @@ function getMockup(e, positionInfo) {
         color: e.color,
         strokeWidth: e.strokeWidth,
         upgradeColor: e.upgradeColor,
+        passUpgradeColor: e.passUpgradeColor,
         glow: e.glow,
         borderless: e.borderless,
         drawFill: e.drawFill,
@@ -51,7 +52,7 @@ function getMockup(e, positionInfo) {
         }),
         turrets: turretsAndProps.map(function(t) {
             // Merge turrets and props for the entity images.
-            let out = getMockup(t, {});
+            let out = getMountMockup(t);
             out.sizeFactor = util.rounder(t.bound.size);
             out.offset = util.rounder(t.bound.offset);
             out.direction = util.rounder(t.bound.direction);
@@ -61,7 +62,7 @@ function getMockup(e, positionInfo) {
             return out;
         }),
         props: e.props.map(function(p) {
-            let out = getMockup(p, {});
+            let out = getMountMockup(p);
             out.sizeFactor = util.rounder(p.bound.size);
             out.offset = util.rounder(p.bound.offset);
             out.direction = util.rounder(p.bound.direction);
@@ -71,6 +72,19 @@ function getMockup(e, positionInfo) {
             out.isProp = true;
             return out;
         })
+    };
+}
+
+function getMountMockup(e) {
+    return {
+        index: e.index,
+        color: e.color,
+        strokeWidth: e.strokeWidth,
+        borderless: e.borderless,
+        drawFill: e.drawFill,
+        size: util.rounder(e.size),
+        realSize: util.rounder(e.realSize),
+        mirrorMasterAngle: e.settings.mirrorMasterAngle
     };
 }
 

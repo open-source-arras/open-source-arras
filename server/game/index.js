@@ -81,7 +81,8 @@ class gameHandler {
                     case 4:
                         switch (wall.walltype) {
                             case 1:
-                                mazewallcollide(wall, entity);
+                                if (wall.isWallSpawn) mazewallcustomcollide(wall, entity);
+                                else mazewallcollide(wall, entity);
                                 break;
                             default:
                                 mazewallcustomcollide(wall, entity);
@@ -111,10 +112,7 @@ class gameHandler {
             case instance.team === other.team &&
                 (instance.settings.hitsOwnType === "droneCollision" &&
                     other.settings.hitsOwnType === "droneCollision"):
-                {
-                    let a = 1 + 10 / (Math.max(instance.velocity.length, other.velocity.length));
-                    firmcollide(instance, other, a);
-                }
+                dronecollide(instance, other);
                 break;
             case (instance.type === "crasher" && other.type === "food" && instance.team === other.team) ||
                 (other.type === "crasher" && instance.type === "food" && other.team === instance.team):
@@ -170,13 +168,15 @@ class gameHandler {
                         }
                     } // don't break
                     case "push":
-                        advancedcollide(instance, other, false, false);
+                        if (instance.type === "trap" && other.type === "trap" && instance.motionType === "motor" && other.motionType === "motor") blockcollide(instance, other);
+                        else advancedcollide(instance, other, false, false);
                         break;
                     case "hard":
                         firmcollide(instance, other);
                         break;
                     case "hardWithBuffer":
-                        firmcollide(instance, other, 30);
+                        if (instance.type === "drone" && other.type === "drone") dronecollide(instance, other);
+                        else firmcollide(instance, other, instance.type === "minion" && other.type === "minion" ? 2 : 30);
                         break;
                     case "hardOnlyTanks":
                         if (
@@ -190,7 +190,8 @@ class gameHandler {
                                     firmcollidehard(instance, other, 20);
                                     break;
                                 default: 
-                                    firmcollide(instance, other);
+                                    if (isTankBody(instance) && isTankBody(other)) teamcollide(instance, other);
+                                    else firmcollide(instance, other);
                                     break;
                             }
                             
@@ -236,6 +237,7 @@ class gameHandler {
 
             // Reset collision array once at the beginning
             instance.collisionArray = [];
+            wallTouchTick(instance);
 
             // Handle physics only if not bonded
             if (instance.bond == null) {
@@ -391,6 +393,10 @@ class gameHandler {
 
     regenHealthAndShield() {
         for (let instance of entities.values()) {
+            if (isTankBody(instance)) {
+                instance.refillDefense(Config.regenerate_tick / 1000);
+                continue;
+            }
             if (instance.shield.max) {
                 instance.shield.regenerate();
             }
@@ -553,6 +559,7 @@ class gameHandler {
                     this.stop();
                 };
             }
+            global.gameManager.socketManager.buildPacks(this.checkUsers());
         }, global.gameManager.room.cycleSpeed);
         let maintainloop = setInterval(() => {
             if (!this.active) return clearInterval(maintainloop);

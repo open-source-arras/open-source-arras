@@ -32,6 +32,15 @@ exports.listify = list => {
 
 exports.angleDifference = (a1, a2) => ((a2 - a1) % (2 * Math.PI) + Math.PI * 3) % (2 * Math.PI) - Math.PI;
 
+exports.shownTo = (viewer, other) => {
+    let own = other.alphaRange && other.alphaRange[1] < 1 ? 0 : other.alpha,
+        edge = Math.max(0, Math.sqrt((other.x - viewer.x) ** 2 + (other.y - viewer.y) ** 2) - viewer.size - other.size),
+        near = edge <= 50 ? 1 : edge >= 250 ? 0 : 1 - (edge * edge - 2500) / 60000;
+    return Math.max(own, near * 0.2);
+};
+
+exports.ownShowing = other => 0.2 + 0.8 * (other.alphaRange && other.alphaRange[1] < 1 ? 0 : other.alpha);
+
 exports.interpolateAngle = (angle, desired, step) => angle + exports.angleDifference(angle, desired) * step;
 
 exports.averageArray = arr => {

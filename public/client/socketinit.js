@@ -2,6 +2,7 @@ import { global } from "./global.js";
 import { util } from "./util.js";
 import { config } from "./config.js";
 import { protocol } from "./protocol.js";
+import { applyPack, packsFor, readPackMessage, setPackDecoder } from "./mockupPack.js";
 // Common "u" colors sent as palette ids instead of full strings. Must match the server table.
 const U_COLOR_TABLE = [
     "grey 0 1 0 false", "16 0 1 0 false", "black 0 1 0 false", "blue 0 1 0 false",
@@ -42,6 +43,7 @@ const decodeMockupVal = v => {
     }
     return v.slice(1).map(decodeMockupVal);
 };
+setPackDecoder(decodeMockupVal);
 // Room grids arrive as [cols, forms, runs].
 const expandRoom = ([cols, forms, runs], blackout) => {
     const grid = [];
@@ -267,72 +269,18 @@ const Minimap = class {
     }
 }
 // Build the leaderboard object
-const Entry = class {
-    constructor(to) {
-        this.score = util.Smoothbar(0, 10, 3, .03);
-        this.isNew = true;
-        this.update(to);
-    }
-    update(to) {
-        this.name = to.name;
-        this.bar = to.bar;
-        if (typeof to.bar === "string" && to.bar.includes(", ")) this.bar = +to.bar.split(", ")[0];
-        this.color = to.color;
-        this.index = to.index;
-        if (this.isNew) {
-            this.isNew = false;
-            this.score.force(to.score);
-        } else this.score.set(to.score);
-        this.old = false;
-        this.nameColor = to.nameColor;
-        this.id = to.id;
-        this.label = to.label;
-        this.renderEntity = to.renderEntity;
-    }
-    publish() {
-        let indexes = this.index.split("-"),
-            ref = global.mockups[parseInt(indexes[0])];
-            if (!ref) ref = global.missingno[0];
-
-        return {
-            id: this.id,
-            color: this.color,
-            image: util.requestEntityImage(this.index, this.color),
-            position: ref.position,
-            barColor: this.bar,
-            label: this.name ? this.name + " - " + this.label : this.label,
-            score: this.score.get(),
-            nameColor: this.nameColor,
-            renderEntity: this.renderEntity,
-        };
-    }
-};
 const Leaderboard = class {
     constructor() {
-        this.entries = {};
-    }
-    get() {
-        let out = [];
-        let max = 1;
-        for (let value of Object.values(this.entries)) {
-            let data = value.publish();
-            out.push(data);
-            if (data.score > max) max = data.score;
-        }
-        out.sort((a, b) => b.score - a.score);
-        return {
-            data: out,
-            max
-        };
+        this.latest = [];
+        this.version = 0;
     }
     update(elements) {
+        for (let element of elements) {
+            if (typeof element.bar === "string" && element.bar.includes(", ")) element.bar = +element.bar.split(", ")[0];
+        }
         elements.sort((a, b) => b.score - a.score);
-        for (let value of Object.values(this.entries)) value.old = true;
-        for (let element of elements)
-            if (this.entries[element.id]) this.entries[element.id].update(element);
-            else this.entries[element.id] = new Entry(element);
-        for (let [id, value] of Object.entries(this.entries))
-            if (value.old) delete this.entries[id];
+        this.latest = elements;
+        this.version++;
     }
 };
 let minimapAllInt = new Integrate(5),
@@ -419,7 +367,11 @@ const GunContainer = n => {
     }
     return {
         getPositions: () => a.map(g => {
-            return g.position;
+            if (!g.kick) return 0;
+            let u = (performance.now() - g.kickAt) / 150;
+            if (u >= 1 || u < 0) return 0;
+            let w = 0.7 - 1.7 * u;
+            return g.kick * (1 - w * w);
         }),
         getConfig: () => a.map(g => {
             return {
@@ -465,7 +417,11 @@ const GunContainer = n => {
             }
         },
         fire: (i, power) => {
-            if (a[i].isUpdated) a[i].motion += Math.sqrt(power) / 20;
+            if (a[i].isUpdated) {
+                a[i].motion += Math.sqrt(power) / 20;
+                a[i].kick = Math.sqrt(power) / 20;
+                a[i].kickAt = performance.now();
+            }
             a[i].isUpdated = false;
         },
         length: a.length,
@@ -1039,6 +995,10 @@ let incoming = async function(message, socket) {
     // Make sure it looks legit.
     global.bandwidth.currentFa += message.data.byteLength;
     global.bandwidth.totalFa += message.data.byteLength;
+    if (message.data.byteLength && new Uint8Array(message.data, 0, 1)[0] === 0x1f) {
+        global.mockupPacks = Promise.all([global.mockupPacks, readPackMessage(message.data).catch(error => console.error(error))]);
+        return;
+    }
     let m = protocol.decode(message.data);
     if (m === -1) {
         throw new Error("Malformed packet.");
@@ -1048,7 +1008,9 @@ let incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey, config.game.deltaEntities ? 1 : 0);
+                let packs = await packsFor(global.serverAdd, global.playerKey, 4000);
+                for (let pack of packs) applyPack(pack);
+                socket.talk("k", global.playerKey, config.game.deltaEntities ? 1 : 0, packs.map(pack => pack.v).join(","));
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);
@@ -1063,6 +1025,7 @@ let incoming = async function(message, socket) {
             case "w": { // welcome to the game
                 global.deltaEntities = m[1] === 1; // server tells us if it will send delta entity packets
                 if (m[0]) { // Ask to get the room data first
+                await global.mockupPacks;
                     socket.talk("s", "", 1, 0, false, 0);
                 }
             }; break;
@@ -1468,22 +1431,40 @@ let incoming = async function(message, socket) {
         } break;
         case "T": {
             global.generateTankTree = true;
-            global.renderTankTree = true;
         } break;
 
         case "K": { // kicked
             // Put your code while being kicked from the server.
+            global.kicked = true;
         } break;
         case "z": { // name color
             global.nameColor = decodeColor(m[0]);
         } break;
         case "Op": { // operator status change telling
             global.hasOperator = m[0];
+            global.permissionLevel = m[1] ?? (m[0] ? 1 : 0);
+            if (global.permissionLevel < 2) global.playerList = [];
             // If lost op remove the key buttons
             if (!global.hasOperator) {
                 global.operatorKeyboard.open = false;
                 global.operatorKeyboard.prefix = null;
             }
+        } break;
+        case "PL": {
+            let list = [];
+            for (let i = 1; i + 5 < m.length; i += 6) {
+                list.push({
+                    id: m[i],
+                    name: m[i + 1],
+                    rank: m[i + 2],
+                    index: m[i + 3],
+                    color: decodeColor(m[i + 4]),
+                    promote: (m[i + 5] & 1) !== 0,
+                    demote: (m[i + 5] & 2) !== 0,
+                    kick: (m[i + 5] & 4) !== 0
+                });
+            }
+            global.playerList = list;
         } break;
         case "RM": { // Reset minimap teams if needed
             minimapTeamInt.reset();

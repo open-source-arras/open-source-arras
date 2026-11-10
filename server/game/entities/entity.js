@@ -22,6 +22,12 @@ function shapeMockupIndex(base, shape, shapeNum) {
     shapeMockupBase.set(index, base);
     return index;
 }
+function classHasColor(set) {
+    if (!set) return false;
+    if (set.COLOR != null) return true;
+    let parents = Array.isArray(set.PARENT) ? set.PARENT : set.PARENT != null ? [set.PARENT] : [];
+    return parents.some(parent => classHasColor(typeof parent === "string" ? Class[parent] : parent));
+}
 
 function turretIsInert(turret) {
     if (turret.guns.size > 0 || turret.controllers.length > 0) return false;
@@ -107,6 +113,20 @@ class Entity extends EventEmitter {
         this.vfacing = 0;
         this.range = 0;
         this.damageReceived = 0;
+        this.thrustX = 0;
+        this.thrustY = 0;
+        this.spinPush = 0;
+        this.roundResist = 0;
+        this.roundKind = "";
+        this.speedStat = 0;
+        this.holdId = -1;
+        this.holdClose = 1;
+        this.holdSpeed = 0;
+        this.fightDamage = 1;
+        this.fightTaken = 1;
+        this.fightResist = 0;
+        this.minionBite = 1;
+        this.minionTake = 1;
         this.stepRemaining = 1;
         this.reverseTank = 1;
         this.x = position.x;
@@ -220,6 +240,12 @@ class Entity extends EventEmitter {
 
         // Define all primary stats
         let set = ensureIsClass(defs[0]);
+        if (emitEvent && (this.isPlayer || this.isBot)) {
+            let own = defs.some(def => classHasColor(ensureIsClass(def)));
+            if (own && !this.ownColor) this.teamWorn = this.color.base;
+            else if (!own && this.ownColor && this.teamWorn != null) this.color.base = this.teamWorn;
+            this.ownColor = own;
+        }
         this.props.clear();
         this.store = {};
         for (let gun of this.guns.values()) gun.store = {};
@@ -324,6 +350,7 @@ class Entity extends EventEmitter {
         if (set.CAN_BE_ON_LEADERBOARD != null) this.settings.leaderboardable = set.CAN_BE_ON_LEADERBOARD;
         if (set.RENDER_ON_LEADERBOARD != null) this.settings.renderOnLeaderboard = set.RENDER_ON_LEADERBOARD;
         if (set.INTANGIBLE != null) this.intangibility = set.INTANGIBLE;
+        if (set.NEAR_FADE != null) this.nearFade = set.NEAR_FADE;
         if (set.IS_SMASHER != null) this.settings.reloadToAcceleration = set.IS_SMASHER;
         if (set.STAT_NAMES != null) {
             this.settings.skillNames = {
@@ -399,7 +426,7 @@ class Entity extends EventEmitter {
                 let i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
-                    level: Config.tier_multiplier * i,
+                    level: set.UPGRADE_LEVEL ?? Config.tier_multiplier * i,
                     index: index.substring(0, index.length - 1),
                     tier: i,
                     branch: 0,
@@ -592,6 +619,11 @@ class Entity extends EventEmitter {
 
                 let savedFacing = host.facing;
                 let savedSize = host.SIZE;
+                let savedLook = host.index;
+                let nested = (host.defs ?? []).some(def => {
+                    for (let c = ensureIsClass(def); c; c = typeof c.PARENT === "string" ? Class[c.PARENT] : Array.isArray(c.PARENT) ? null : c.PARENT) if (c.PROPS?.length) return true;
+                    return false;
+                });
 
                 host.controllers = [];
                 host.define("genericEntity");
@@ -602,6 +634,7 @@ class Entity extends EventEmitter {
                 host.facing = savedFacing;
                 host.SIZE = savedSize;
                 host.health.amount = host.health.max;
+                if (nested) host.index = savedLook;
                 return true;
             };
         }
@@ -643,8 +676,27 @@ class Entity extends EventEmitter {
         } else targetableEntities.delete(this.id);
     }
 
+    refillDefense(seconds) {
+        let shield = this.shield,
+            health = this.health;
+        if (shield.max) {
+            let r = shield.amount / shield.max;
+            if (r >= 1) {
+                shield.amount = shield.max;
+            } else if (r <= 0) {
+                shield.amount = 0.00006078 * shield.max;
+            } else {
+                let q = Math.sqrt(r / 2) - 0.3929;
+                shield.amount = Math.min(shield.max, shield.amount + (0.1793 * r * shield.max + 0.4478 * this.skill.shieldHump * Math.exp(-55.37 * q * q)) * seconds);
+            }
+        }
+        if (health.amount > 0 && health.amount < health.max) {
+            let full = shield.max && shield.amount >= shield.max;
+            health.amount = Math.min(health.max, health.amount + (0.0168 * health.max + (full ? 32 : 0)) * seconds);
+        }
+    }
     refreshBodyAttributes() {
-        const level = Math.min(Config.growth ? 120 : 45, this.level);
+        const level = Math.min(45, this.level);
         let speedReduce = Math.min(
             Config.growth ? 4 : 2,
             this.size / (this.coreSize || this.SIZE)
@@ -652,16 +704,16 @@ class Entity extends EventEmitter {
         this.acceleration = (1 * global.gameManager.runSpeed * this.ACCELERATION) / speedReduce;
         if (this.settings.reloadToAcceleration) this.acceleration *= this.skill.acl;
         this.topSpeed = (1 * global.gameManager.runSpeed * this.SPEED * this.skill.mob) / speedReduce;
-        if (this.settings.reloadToAcceleration) this.topSpeed /= Math.sqrt(this.skill.acl);
         this.health.set(
             ((this.settings.healthWithLevel ? 2 * level : 0) + this.HEALTH) *
                 this.skill.hlt *
-                1
+                (this.isPlayer || this.isBot ? Config.defineLevelHealth(this.level) : 1)
         );
         this.health.resist = 1 - 1 / Math.max(1, this.RESIST + this.skill.brst);
+        this.roundResist = 1 - 1 / Math.max(1, this.RESIST + this.skill.brstRound);
         this.shield.set(
             ((this.settings.healthWithLevel ? 0.6 * level : 0) + this.SHIELD) *
-                this.skill.shi,
+                (isTankBody(this) ? this.skill.shiBody : this.skill.shi),
             Math.max(
                 0,
                 ((this.settings.healthWithLevel ? 0.006 * level : 0) + 1) *
@@ -671,9 +723,9 @@ class Entity extends EventEmitter {
             )
         );
         this.damage = 1 * this.DAMAGE * this.skill.atk;
-        this.penetration = 1 * (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
+        this.penetration = 1 * (this.PENETRATION + 1.5 * ((isTankBody(this) ? this.skill.brstRound : this.skill.brst) + 0.8 * (this.skill.atk - 1)));
         if (this.settings.diesAtRange || !this.range) this.range = 1 * this.RANGE;
-        this.density = 1 * (1 + 0.08 * this.level) * this.DENSITY;
+        this.density = 1 * (1 + 0.08 * Math.min(45, this.level)) * this.DENSITY;
         this.stealth = 1 * this.STEALTH;
         this.pushability = 1 * this.PUSHABILITY;
         this.knockback = this.KNOCKBACK ?? false;
@@ -682,7 +734,9 @@ class Entity extends EventEmitter {
     }
 
     updateBodyInfo() {
-        this.fov = 1 * this.FOV * 275 * Math.sqrt(this.size); 
+        this.fov = this.type === "tank" || this.type === "miniboss"
+            ? 1 * this.FOV * 171.57 * Math.pow(this.size, 0.65) * (this.wallView || 1)
+            : 1 * this.FOV * 275 * Math.sqrt(this.size) * (this.wallView || 1);
     }
 
     bindToMaster(position, bond, isInvulnerable) {
@@ -744,22 +798,20 @@ class Entity extends EventEmitter {
     get level() {
         return Math.min(this.levelCap ?? Config.level_cap, this.skill.level);
     }
-    // How this works: in 2025 growth a 3.00m player has the same size as a wall (tile)
     get size() { // todo: make this dynamic compared to the level cap and not fixed at 45
         let level = this.level;
         if (!Config.growth) level = Math.min(45, level);
         let levelMultiplier = 1;
         if (this.settings.healthWithLevel) {
-            levelMultiplier += Math.min(45, level) / 45;
+            levelMultiplier += (Math.min(45, level) / 45) * (97 / 96);
         }
-        if (level > 45 && (this.isPlayer || this.isBot)) {
-            const scoreSince45 = this.skill.score - 26263;
-            // wall size is not accurate for some reason lol
-            const multiplier = 1.065;
-            const wallSize = (global.gameManager.room.width / 32 / 2) * Math.SQRT2 * multiplier;
-            levelMultiplier += ((scoreSince45 / 3e6) * wallSize) / Class.genericTank.SIZE / 2;
+        if (this.isPlayer || this.isBot) {
+            let grow = Config.defineLevelSize(level);
+            if (Config.growth_size_cap) grow = Math.min(grow, Math.max(1, Config.growth_size_cap / ((this.coreSize || this.SIZE) * this.sizeMultiplier * levelMultiplier)));
+            levelMultiplier *= grow;
         }
-        return (this.coreSize || this.SIZE) * this.sizeMultiplier * levelMultiplier;
+        let size = (this.coreSize || this.SIZE) * this.sizeMultiplier * levelMultiplier;
+        return this.wallGrow ? Math.max(size * 0.05, size + this.wallGrow) : size;
     }
     get mass() {
         return this.density * (this.size ** 2 + 1);
@@ -1065,6 +1117,12 @@ class Entity extends EventEmitter {
             this.accel.null();
             this.velocity.null();
         }
+        if (this.thrustX || this.thrustY) {
+            this.accel.x += this.thrustX * 0.1;
+            this.accel.y += this.thrustY * 0.1;
+            this.thrustX *= 0.9;
+            this.thrustY *= 0.9;
+        }
         // Apply acceleration
         this.velocity.x += this.accel.x;
         this.velocity.y += this.accel.y;
@@ -1192,6 +1250,15 @@ class Entity extends EventEmitter {
             if (this.range < 0) this.kill();
         }
         if (this.settings.diesAtLowSpeed && !this.collisionArray.length && this.velocity.length < this.topSpeed / 2) this.health.amount -= this.health.getDamage(1 / global.gameManager.roomSpeed);
+        if (this.damageReceived < 0) {
+            let heal = Math.min(-this.damageReceived, Math.max(0, this.health.max - this.health.amount));
+            this.health.amount += heal;
+            this.damageReceived += heal;
+            if (this.damageReceived < 0 && this.shield.max) {
+                this.shield.amount = Math.min(this.shield.max, this.shield.amount - this.damageReceived);
+                this.damageReceived = 0;
+            }
+        }
         // Shield regen and damage
         if (this.shield.max) {
             if (this.damageReceived) {
@@ -1235,7 +1302,7 @@ class Entity extends EventEmitter {
                             ? this.label : util.addArticle(this.label)
                 : this.master.name + "'s " + this.label;
             // Calculate the jackpot
-            let jackpot = util.getJackpot(this.skill.score) / this.collisionArray.length;
+            let jackpot = (Config.manhunt && (this.isPlayer || this.isBot) ? this.skill.score : util.getJackpot(this.skill.score)) / this.collisionArray.length;
             // Now for each of the things that kill me...
             for (let i = 0; i < this.collisionArray.length; i++) {
                 let instance = this.collisionArray[i];

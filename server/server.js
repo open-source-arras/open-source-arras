@@ -321,6 +321,12 @@ global.onServerLoaded = () => {
         let serverStartEndTime = performance.now();
         console.log(`Server loaded in ${util.rounder(serverStartEndTime, 4)} milliseconds.`);
         console.log(`[WEB SERVER]: Server listening on port ${Config.port}`);
+        if (process.argv.includes("--open") && loadedServers === global.servers.length) {
+            let url = `http://localhost:${server.address().port}`;
+            console.log(`[WEB SERVER]: Opening ${url} in your browser.`);
+            let [command, args] = process.platform === "win32" ? ["cmd", ["/c", "start", "", url]] : [process.platform === "darwin" ? "open" : "xdg-open", [url]];
+            require("child_process").spawn(command, args, { stdio: "ignore", windowsHide: true }).on("error", () => {}).unref();
+        }
     }
 };
 

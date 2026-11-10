@@ -27,9 +27,6 @@ Class.sentry = {
     VALUE: 1500,
     VARIES_IN_SIZE: true,
     CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal"],
-    AI: {
-        NO_LEAD: true
-    },
     BODY: {
         FOV: 0.5,
         ACCELERATION: 0.75,

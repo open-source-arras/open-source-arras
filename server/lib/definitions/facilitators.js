@@ -1311,6 +1311,7 @@ exports.makeMenu = (name = -1, options = {}) => {
         LABEL: name == -1 ? undefined : name,
         COLOR: options.color == "mirror" ? null : options.color,
         REROOT_UPGRADE_TREE: options.rerootTree,
+        IS_MENU: true,
         UPGRADE_COLOR: options.boxColor,
         UPGRADE_LABEL: options.boxLabel,
         UPGRADE_TOOLTIP: options.tooltip,

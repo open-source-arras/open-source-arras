@@ -2,6 +2,43 @@
 let EventEmitter = require("events"),
     events,
     init = g => events = g.events;
+const roundTypes = ["bullet", "drone", "swarm", "trap", "minion", "satellite"];
+const roundKindStrength = {
+    bullet: [2.1, 0.27, 1],
+    missile: [1.33, 0.264, 1],
+    trap: [1.36, 0.1375, 0.77],
+    block: [1.13, 0.53, 1.73],
+    boomerang: [1.74, 0.96, 1],
+    drone: [1.74, 0.364, 0.62],
+    swarm: [3.7, 0.163, 1],
+    minion: [1, 1, 0.45]
+};
+const roundKindBody = {
+    bullet: [0.46, 0.08],
+    missile: [2.6, 0.01],
+    trap: [1.8, 0.3],
+    block: [3.76, 0.5],
+    boomerang: [1.1, 0.3],
+    drone: [4.6, 0.09],
+    swarm: [6, 0.11],
+    minion: [2, 0.2]
+};
+function hasController(type, name) {
+    return (type.CONTROLLERS ?? []).some(c => (Array.isArray(c) ? c[0] : c) === name);
+}
+function roundKindOf(type) {
+    switch (type.TYPE) {
+        case "trap":
+            return hasController(type, "boomerang") ? "boomerang" : hasController(type, "goToMasterTarget") ? "block" : "trap";
+        case "drone":
+        case "swarm":
+        case "minion":
+            return type.TYPE;
+        case "bullet":
+            return type.INDEPENDENT ? "missile" : "bullet";
+    }
+    return "";
+}
 class Gun extends EventEmitter {
     constructor(body, info) {
         super();
@@ -57,6 +94,8 @@ class Gun extends EventEmitter {
             this.negRecoil = info.PROPERTIES.NEGATIVE_RECOIL == null ? false : info.PROPERTIES.NEGATIVE_RECOIL;
             this.independentChildren = info.PROPERTIES.INDEPENDENT_CHILDREN == null ? false : info.PROPERTIES.INDEPENDENT_CHILDREN;
             this.independentMaster = info.PROPERTIES.INDEPENDENT_MASTER == null ? false : info.PROPERTIES.INDEPENDENT_MASTER;
+            this.pushOnly = info.PROPERTIES.PUSH_ONLY == null ? false : info.PROPERTIES.PUSH_ONLY;
+            this.fightResistBase = info.PROPERTIES.FIGHT_RESIST;
             this.borderless = info.PROPERTIES.BORDERLESS == null ? false : info.PROPERTIES.BORDERLESS;
             this.drawFill = info.PROPERTIES.DRAW_FILL == null ? true : info.PROPERTIES.drawFill;
             this.spawnOffset = info.PROPERTIES.SPAWN_OFFSET == null ? Config.bullet_spawn_offset : info.PROPERTIES.SPAWN_OFFSET;
@@ -116,9 +155,14 @@ class Gun extends EventEmitter {
         this.position = 0;
         this.motion = 0;
         if (this.canShoot) {
-            this.cycleTimer = this.maxCycleTimer;
+            let onRound = roundTypes.includes(body.type) || (body.bond != null && roundTypes.includes(body.bond.type));
+            this.cycleTimer = onRound ? 1 - position.DELAY : this.waitToCycle || position.DELAY || body.type !== "tank" || body.bond != null ? this.maxCycleTimer : 0;
+            this.holdTicks = onRound && !this.thrustsRound() ? 6 : 0;
             this.trueRecoil = this.settings.recoil;
             this.recoilDir = 0;
+            this.recoilRing = [0, 0, 0, 0, 0, 0];
+            this.recoilTick = 0;
+            this.recoilShots = 0;
         }
     }
     
@@ -136,14 +180,26 @@ class Gun extends EventEmitter {
                 this.motion *= 0.75;
             }
         }
-        if (this.canShoot && !this.body.settings.hasNoRecoil) {
+        if (this.canShoot && !this.body.settings.hasNoRecoil && !this.thrustsRound()) {
             // Apply recoil to motion
-            if (this.motion > 0 || this.body.settings.hasNoReloadDelay) {
-                let recoilForce = (-this.position * this.trueRecoil * this.body.recoilMultiplier * 1.08 / this.body.size) / global.gameManager.roomSpeed;
+            let slot = this.recoilTick++ % 6;
+            if (this.recoilShots) {
+                this.recoilRing[slot] += this.recoilShots;
+                this.recoilRing[(slot + 1) % 6] += 1.5 * this.recoilShots;
+                this.recoilShots = 0;
+            }
+            let push = this.recoilRing[slot];
+            this.recoilRing[slot] = push * 297 / 512 < 1e-6 ? 0 : push * 297 / 512;
+            if (push) {
+                let recoilForce = (-push * this.trueRecoil * this.body.recoilMultiplier * 1.08 / this.body.size) / global.gameManager.roomSpeed;
                 this.body.accel.x += recoilForce * Math.cos(this.recoilDir);
                 this.body.accel.y += recoilForce * Math.sin(this.recoilDir);
             }
         }
+    }
+
+    thrustsRound() {
+        return this.body.type === "bullet" && this.body.motionType === "glide";
     }
 
     setBulletType(type, clearChildren = false) {
@@ -160,6 +216,7 @@ class Gun extends EventEmitter {
             if (Tonk.TURRETS || Tonk.ON) this.noentitylimit = true;
         }
         this.bulletType = flattenedType;
+        this.roundKind = roundKindOf(flattenedType);
         // Set final label to bullet
         if (!this.independentChildren) {
             this.bulletType.LABEL = this.master.label + (this.label ? " " + this.label : "") + " " + this.bulletType.LABEL;
@@ -214,7 +271,11 @@ class Gun extends EventEmitter {
     live() {
         this.recoil();
 
-        if (!this.canShoot) return;
+        if (!this.canShoot || this.shootOnDeath) return;
+        if (this.holdTicks > 0) {
+            this.holdTicks--;
+            return;
+        }
 
         // Find the proper skillset for shooting
         let sk = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
@@ -234,7 +295,7 @@ class Gun extends EventEmitter {
         if (shootPermission || !this.waitToCycle) {
             let speed = this.fixedReload ? global.gameManager.roomSpeed : global.gameManager.runSpeed;
             if (this.cycleTimer < 1) {
-                this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixed reload" ? 1 : sk.rld));
+                this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixedReload" ? 1 : sk.rld));
             }
         }
         let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
@@ -312,6 +373,16 @@ class Gun extends EventEmitter {
         this.lastShot.time = util.time();
         this.lastShot.power = 3 * Math.log(Math.sqrt(sk.spd) + this.trueRecoil + 1) + 1;
         this.motion += this.lastShot.power;
+        this.recoilShots += this.lastShot.power;
+        if (this.thrustsRound()) {
+            let back = this.body.facing + this.angle;
+            this.body.thrustX -= Math.cos(back) * this.settings.recoil * 20 / 21;
+            this.body.thrustY -= Math.sin(back) * this.settings.recoil * 20 / 21;
+        }
+        if (this.pushOnly) {
+            this.recoilDir = this.body.facing + this.angle;
+            return;
+        }
         // Find inaccuracy
         let shudder = 0,
             spread = 0;
@@ -334,8 +405,9 @@ class Gun extends EventEmitter {
                 vecLength * Math.sin(vecAngle)
             );
         // Boost it if we should
-        if (this.body.velocity.length) {
+        if (this.body.velocity.length && !(this.body.bond && roundTypes.includes(this.body.bond.type))) {
             let extraBoost = Math.max(0, s.x * this.body.velocity.x + s.y * this.body.velocity.y) /  this.body.velocity.length / s.length;
+            if (this.body.type === "minion") extraBoost *= 0.9;
             if (extraBoost) {
                 let len = s.length;
                 s.x += (this.body.velocity.length * extraBoost * s.x) / len;
@@ -435,6 +507,11 @@ class Gun extends EventEmitter {
             BODY: this.interpret(),
             SKILL: this.getSkillRaw()
         }, false);
+        if (o.settings.diesAtRange && this.bulletType.TYPE === "tank") {
+            let sk = (this.bulletStats == "master") ? this.body.skill : this.bulletStats;
+            o.RANGE /= Math.sqrt(sk.spd);
+            o.range = o.RANGE;
+        }
 
         // Keep track of it for child counting
         if (this.countsOwnKids) {
@@ -461,6 +538,15 @@ class Gun extends EventEmitter {
             BODY: this.interpret(),
             SKILL: this.getSkillRaw()
         }, false);
+        o.roundKind = this.roundKind;
+        let strength = roundKindStrength[this.roundKind] ?? [1, 1, 1];
+        o.fightDamage = 1 / strength[0];
+        o.fightTaken = strength[1] / strength[2];
+        o.fightResist = 1 - 1 / Math.max(1, this.fightResist ?? 0);
+        let bulletSkill = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
+        o.speedStat = this.settings.speed * global.gameManager.runSpeed * bulletSkill.spd;
+        o.minionBite = 1 + 0.28 * bulletSkill.ghost + 0.17 * bulletSkill.strCurve;
+        o.minionTake = 1 / (1 + 1.7 * bulletSkill.ghost + 0.83 * bulletSkill.strCurve);
         o.color.base = o.color.base ?? this.body.master.color.base;
         o.color.hueShift = o.color.hueShift ?? this.body.master.color.hueShift;
         o.color.saturationShift = o.color.saturationShift ?? this.body.master.color.saturationShift;
@@ -620,13 +706,15 @@ class Gun extends EventEmitter {
         }
     }
     getTracking() {
+        let spd = (this.bulletStats == "master") ? this.body.skill.spd : this.bulletStats.spd,
+            speed = global.gameManager.runSpeed * spd * this.settings.maxSpeed * this.bulletBodyStats.SPEED,
+            launch = global.gameManager.runSpeed * spd * this.settings.speed,
+            keepsRange = this.calculator == "sustained" || this.calculator == "sustained+lowspeed",
+            life = this.settings.range * this.bulletBodyStats.RANGE / (keepsRange ? 1 : Math.sqrt(spd)),
+            glide = launch > speed ? (launch - speed) * 21 * (1 - Math.pow(1 / 1.05, life)) : 0;
         return {
-            speed: global.gameManager.runSpeed * ((this.bulletStats == "master") ? this.body.skill.spd : this.bulletStats.spd) * 
-                this.settings.maxSpeed * 
-                this.bulletBodyStats.SPEED,
-            range:  Math.sqrt((this.bulletStats == "master") ? this.body.skill.spd : this.bulletStats.spd) * 
-                this.settings.range * 
-                this.bulletBodyStats.RANGE
+            speed,
+            range: speed ? life + glide / speed : life
         };
     }
 
@@ -666,7 +754,7 @@ class Gun extends EventEmitter {
         let out = {
             SPEED: shoot.maxSpeed * sk.spd,
             HEALTH: shoot.health * sk.str,
-            RESIST: shoot.resist + sk.rst,
+            RESIST: shoot.resist + (this.bulletType.TYPE === "aura" ? sk.rstRing : sk.rst),
             DAMAGE: shoot.damage * sk.dam,
             PENETRATION: Math.max(1, shoot.pen * sk.pen),
             RANGE: shoot.range / Math.sqrt(sk.spd),
@@ -675,6 +763,7 @@ class Gun extends EventEmitter {
             HETERO: 3 - 2.8 * sk.ghost
         };
         this.reloadRateFactor = sk.rld;
+        this.fightResist = ((this.fightResistBase ?? shoot.resist) + sk.rstFight) * (this.bulletBodyStats.RESIST ?? 1);
         // Special cases
         switch (this.calculator) {
             case "thruster":
@@ -689,12 +778,12 @@ class Gun extends EventEmitter {
                 break;
             case "swarm":
                 out.PENETRATION = Math.max(1, shoot.pen * (0.5 * (sk.pen - 1) + 1));
-                out.HEALTH /= shoot.pen * sk.pen;
+                out.HEALTH /= shoot.pen;
                 break;
             case "trap":
             case "block":
                 out.PUSHABILITY = 1 / Math.pow(sk.pen, 0.5);
-                out.RANGE = shoot.range;
+                out.RANGE = shoot.range * Math.sqrt(1.5 / sk.spd);
                 break;
             case "fixedReload":
                 this.reloadRateFactor = 1;
@@ -706,9 +795,14 @@ class Gun extends EventEmitter {
             case "drone":
                 out.PUSHABILITY = 1;
                 out.PENETRATION = Math.max(1, shoot.pen * (0.5 * (sk.pen - 1) + 1));
-                out.HEALTH = (shoot.health * sk.str + sizeFactor) / Math.pow(sk.pen, 0.8);
-                out.DAMAGE = shoot.damage * sk.dam * Math.sqrt(sizeFactor) * Math.sqrt(shoot.pen * sk.pen);
+                out.HEALTH = shoot.health * sk.str;
+                out.DAMAGE = shoot.damage * sk.dam * Math.sqrt(sizeFactor) * Math.pow(shoot.pen * sk.pen, 0.19);
                 break;
+        }
+        let strength = roundKindStrength[this.roundKind];
+        if (strength) {
+            out.DAMAGE *= strength[0];
+            out.HEALTH *= strength[1];
         }
         if (this.independentChildren) return;
         // Go through and make sure we respect its natural properties
@@ -717,6 +811,11 @@ class Gun extends EventEmitter {
                 continue; 
             }
             out[property] *= this.bulletBodyStats[property];
+        }
+        let body = roundKindBody[this.roundKind];
+        if (body) {
+            out.DENSITY = out.DENSITY / (this.bulletBodyStats.DENSITY ?? 1) * body[0];
+            out.PUSHABILITY = out.PUSHABILITY / (this.bulletBodyStats.PUSHABILITY ?? 1) * body[1];
         }
         return out;
     }

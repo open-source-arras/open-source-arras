@@ -35,6 +35,7 @@ class turretEntity extends EventEmitter {
         this.skill = new Skill();
         this.define("genericEntity");
         this.facing = 0;
+        this.spinPush = 0;
         this.x = 0;
         this.y = 0;
         this.firingArc = [0, 360];
@@ -179,6 +180,7 @@ class turretEntity extends EventEmitter {
         if (set.EXTRA_SKILL != null) this.skill.points += set.EXTRA_SKILL;
         if (set.MAX_CHILDREN != null) this.maxChildren = set.MAX_CHILDREN;
         if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
+        if (set.FIRE_WITH_MASTER != null) this.settings.fireWithMaster = set.FIRE_WITH_MASTER;
         if (set.AI != null) this.aiSettings = set.AI;
         if (set.GUNS != null) {
             this.guns.clear();
@@ -257,8 +259,8 @@ class turretEntity extends EventEmitter {
             ref = this.bond;
         this.x = ref.x + ref.size * bound.offset * Math.cos(bound.direction + bound.angle + ref.facing);
         this.y = ref.y + ref.size * bound.offset * Math.sin(bound.direction + bound.angle + ref.facing);
-        ref.velocity.x += bound.size * this.accel.x;
-        ref.velocity.y += bound.size * this.accel.y;
+        ref.velocity.x += bound.size * bound.size * this.accel.x;
+        ref.velocity.y += bound.size * bound.size * this.accel.y;
         this.velocity = ref.velocity;
         this.firingArc = [ref.facing + bound.angle, bound.arc / 2];
         this.accel.null();

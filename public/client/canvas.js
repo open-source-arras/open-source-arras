@@ -34,13 +34,7 @@ class Canvas {
         this.inverseMouse = false;
         this.spinLock = false;
         this.mouseMoved = false;
-        this.treeScrollSpeed = 0.5;
-        this.treeScrollSpeedMultiplier = 1;
         this.initalized = false;
-        this.tankTreeProps = {
-            searchQuery: "",
-            enabled: false,
-        }
         global.canvas = this;
     }
     init() {
@@ -63,24 +57,6 @@ class Canvas {
         );
         this.cv.addEventListener("keydown", (event) => {if (global.gameStart) this.keyDown(event)});
         this.cv.addEventListener("keyup", (event) => {if (global.gameStart) this.keyUp(event)});
-        window.addEventListener("keydown", (event) => {
-            const el = global.ingameRebind;
-            if (!el) return;
-            event.preventDefault();
-            event.stopPropagation();
-            if (event.code !== "Escape") {
-                const name = event.key.length === 1 ? event.key.toUpperCase() : event.key;
-                el.textContent = name;
-                global[el.dataset.key] = event.code;
-                let kb = {};
-                try { kb = JSON.parse(localStorage.getItem("keybinds") || "{}"); } catch (e) { kb = {}; }
-                kb[el.dataset.key] = [name, event.code];
-                localStorage.setItem("keybinds", JSON.stringify(kb));
-            }
-            const td = el.closest("td");
-            if (td) td.classList.remove("editing");
-            global.ingameRebind = null;
-        }, true);
         window.addEventListener("gamepadconnected", (e) => {
             global.createMessage("Controller detected! Initalizing Gamepad mode...");
             this.runGamepad();
@@ -102,21 +78,17 @@ class Canvas {
     }
 
     wheel(event) {
-        if (global.showTree) {
-            if (event.deltaY > 1) {
-                global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
-            } else {
-                global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
-            }
-        }
+        if (global.showTree) global.classTree.wheel(event.deltaY, event.deltaMode);
     }
     keyPress(event) {
         switch (event.code) {
             case "Minus":
-                if (!global.died && global.showTree) global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
+            case "NumpadSubtract":
+                if (!global.died && global.showTree) global.classTree.zoomBy(-1);
                 break;
             case "Equal":
-                if (!global.died && global.showTree) global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
+            case "NumpadAdd":
+                if (!global.died && global.showTree) global.classTree.zoomBy(1);
                 break;
         }
     }
@@ -197,35 +169,10 @@ class Canvas {
             return;
         }
 
-        // Handle search input when tree is open and search bar is active
-        if (global.showTree && global.searchBarActive) {
-            if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
-                event.preventDefault();
-                this.tankTreeProps.searchQuery += event.key;
-                global.searchTankByName(this.tankTreeProps.searchQuery);
-                return;
-            } else if (event.code === "Backspace") {
-                event.preventDefault();
-                this.tankTreeProps.searchQuery = this.tankTreeProps.searchQuery.slice(0, -1);
-                global.searchTankByName(this.tankTreeProps.searchQuery);
-                return;
-            } else if (event.code === "Escape") {
-                event.preventDefault();
-                this.tankTreeProps.searchQuery = "";
-                global.searchTankByName("");
-                global.searchBarActive = false;
-                return;
-            } else if (event.code === "Enter") {
-                event.preventDefault();
-                global.searchBarActive = false;
-                return;
-            }
-        }
-
         switch (event.code) {
             case "ShiftLeft":
             case "ShiftRight":
-                if (global.showTree) this.treeScrollSpeedMultiplier = 5;
+                if (global.showTree) global.classTree.setFast(true);
                 else this.socket.cmd.set(6, true);
                 break;
 
@@ -246,22 +193,22 @@ class Canvas {
                 break;
 
             case "ArrowUp":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) return global.classTree.setPan("y", -1, event.shiftKey);
             case global.KEY_UP:
                 this.socket.cmd.set(0, true);
                 break;
             case "ArrowDown":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) return global.classTree.setPan("y", 1, event.shiftKey);
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, true);
                 break;
             case "ArrowLeft":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) return global.classTree.setPan("x", -1, event.shiftKey);
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, true);
                 break;
             case "ArrowRight":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) return global.classTree.setPan("x", 1, event.shiftKey);
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
                 break;
@@ -322,8 +269,7 @@ class Canvas {
                     global.showDebug = !global.showDebug;
                     break;
                 case global.KEY_CLASS_TREE:
-                    this.tankTreeProps.enabled = !this.tankTreeProps.enabled;
-                    global.tankTree(this.tankTreeProps.enabled ? "open" : "exit");
+                    global.tankTree(global.showTree ? "exit" : "open");
                     break;
                 case global.KEY_RECORD:
                     this.record();
@@ -371,35 +317,32 @@ class Canvas {
         if (global.dailyTankAd.renderUI) return;
         switch (event.code) {
             case global.KEY_SPECIAL:
+                if (global.specialPressed) this.socket.talk("#", "-KEY_SPECIAL");
                 global.specialPressed = false;
                 global.specialKeysPressed = [];
                 break;
             case "ShiftLeft":
             case "ShiftRight":
-                if (global.showTree) this.treeScrollSpeedMultiplier = 1;
+                if (global.showTree) global.classTree.setFast(false);
                 else this.socket.cmd.set(6, false);
                 break;
             case "ArrowUp":
-                global.classTreeDrag.momentum.y = 0;
-                global.classTreeDrag.isDragging = false;
+                global.classTree.stopPan("y", -1);
             case global.KEY_UP:
                 this.socket.cmd.set(0, false);
                 break;
             case "ArrowDown":
-                global.classTreeDrag.momentum.y = 0;
-                global.classTreeDrag.isDragging = false;
+                global.classTree.stopPan("y", 1);
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, false);
                 break;
             case "ArrowLeft":
-                global.classTreeDrag.momentum.x = 0;
-                global.classTreeDrag.isDragging = false;
+                global.classTree.stopPan("x", -1);
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, false);
                 break;
             case "ArrowRight":
-                global.classTreeDrag.momentum.x = 0;
-                global.classTreeDrag.isDragging = false;
+                global.classTree.stopPan("x", 1);
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, false);
                 break;
@@ -469,67 +412,19 @@ class Canvas {
                     y: mouse.clientY * global.ratio,
                 };
                 if (global.showTree) {
-                    // Start dragging if not clicking UI elements
-                    global.classTreeDrag.isDragging = true;
-                    global.classTreeDrag.startX = global.classTreeDrag.lastX = mouse.clientX;
-                    global.classTreeDrag.startY = global.classTreeDrag.lastY = mouse.clientY;
-                    global.classTreeDrag.momentum = { x: 0, y: 0 };
+                    global.classTree.press(mouse.clientX, mouse.clientY);
                     break;
-                }
-                if (global.ingameThemeSlider && global.ingameThemeSetBlend) {
-                    const s = global.ingameThemeSlider;
-                    if (mpos.x >= s.x && mpos.x <= s.x + s.w && mpos.y >= s.y - 8 && mpos.y <= s.y + s.h + 8) {
-                        global.ingameThemeSliderDrag = true;
-                        global.ingameThemeSetBlend(mpos.x <= s.x ? 0 : (mpos.x - s.x) / s.w);
-                        return;
-                    }
-                }
-                if (global.ingameThemeNeon && global.ingameThemeToggleNeon) {
-                    const c = global.ingameThemeNeon;
-                    if (mpos.x >= c.x && mpos.x <= c.x + c.w && mpos.y >= c.y && mpos.y <= c.y + c.h) {
-                        global.ingameThemeToggleNeon();
-                        return;
-                    }
                 }
                 let statIndex = global.clickables.stat.check(mpos);
                 let upgradeCheck = global.clickables.upgrade.check(mpos);
-                let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
-                    if (box.type === "slidingBar") {
-                        box.trigger?.(mpos, box);
-                        global.optionsMenu_Anim.sliderMoving = box;
-                    } else if (box.type === "option") {
-                        if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu !== box) {
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
-                            global.optionsMenu_Anim.currentOptionMenu = false;
-                        }
-                        box.optionService.opened = !box.optionService.opened;
-                        if (box.optionService.opened) global.optionsMenu_Anim.currentOptionMenu = box, box.optionService.canClick = false;
-                    }
-                    break;
-                }
-                if (global.optionsCheckboxes) {
-                    for (let box of global.optionsCheckboxes) {
-                        if (box.type === "option" && box.optionService.opened && global.optionsCheckboxes[optionsMenu_toggleBox] !== box && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
-                            box.optionService.opened = false;
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
-                            global.optionsMenu_Anim.currentOptionMenu = false;
-                        }
-                    }
-                }
                 if (statIndex !== -1) {
-                    this.socket.talk("x", statIndex, 0);
+                    let levels = Math.max(1, (global.statBuy && global.statBuy[statIndex]) || 0);
+                    for (let i = 0; i < levels; i++) this.socket.talk("x", statIndex, 0);
                 } else if (
                     !global.dailyTankAd.renderUI &&
-                    global.clickables.optionsMenu.toggleBoxes.check(mpos) == -1 && 
-                    global.clickables.optionsMenu.switchButton.check(mpos) == -1 &&
-                    global.optionsMenu_Anim.tabClickables.check(mpos) == -1 &&
                     global.clickables.skipUpgrades.check(mpos) == -1 && 
                     global.clickables.dailyTankUpgrade.check(mpos) == false &&
                     global.clickables.dailyTankAd.check(mpos) === false &&
-                    global.clickables.optionsMenu.mainMenuIdle.check(mpos) === false &&
                     upgradeCheck == -1 && 
                     !global.died
                 ) this.socket.cmd.set(primaryFire, true);
@@ -549,14 +444,6 @@ class Canvas {
         global.clickables.clicked = false;
         switch (mouse.button) {
             case 0:
-                global.optionsMenu_Anim.sliderMoving = false;
-                if (global.ingameThemeSliderDrag) {
-                    global.ingameThemeSliderDrag = false;
-                    return;
-                }
-                if (global.optionsMenu_Anim.currentOptionMenu) {
-                    global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch = true;
-                };
                 let mpos = {
                     x: mouse.clientX * global.ratio,
                     y: mouse.clientY * global.ratio,
@@ -568,105 +455,9 @@ class Canvas {
                 let respawnCheck = global.clickables.deathRespawn.check(mpos);
                 let exitGame = global.clickables.exitGame.check(mpos);
                 let reconnectCheck = global.clickables.reconnect.check(mpos);
-                let optionsMenu_Switch = global.clickables.optionsMenu.switchButton.check(mpos);
-                let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                let optionsMenu_clickOption = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                let optionsMenu_tabClick = global.optionsMenu_Anim.tabClickables ? global.optionsMenu_Anim.tabClickables.check(mpos) : -1;
-                // Options menu clickables
-                if (optionsMenu_Switch === 0) {
-                    global.optionsMenu_Anim.switchMenu_button.set(-40);
-                    global.optionsMenu_Anim.mainMenu.set(25);
-                    global.optionsMenu_Anim.isOpened = true;
+                if (global.showTree) {
+                    global.classTree.release();
                     break;
-                }
-                if (optionsMenu_Switch === 1) {
-                    document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
-                    global.ingameRebind = null;
-                    global.optionsMenu_Anim.switchMenu_button.set(0);
-                    global.optionsMenu_Anim.mainMenu.set(-500);
-                    global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
-                    if (global.optionsMenu_Anim._wheelHandler) {
-                        window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
-                        global.optionsMenu_Anim._wheelHandler = undefined;
-                    }
-                    break;
-                }
-                if (global.ingameKeybindRects) {
-                    for (const r of global.ingameKeybindRects) {
-                        if (mpos.x >= r.x && mpos.x <= r.x + r.w && mpos.y >= r.y && mpos.y <= r.y + r.h) {
-                            document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
-                            const td = r.el.closest("td");
-                            if (td) td.classList.add("editing");
-                            global.ingameRebind = r.el;
-                            return;
-                        }
-                    }
-                }
-                if (optionsMenu_tabClick !== -1) {
-                    global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
-                    global.optionsMenu_Anim.tabOffset.set(optionsMenu_tabClick);
-                    global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[optionsMenu_tabClick][1]);
-                    if (optionsMenu_tabClick !== 2) global.ingameKeybindRects = null;
-                    if (global.optionsMenu_Anim.currentOptionMenu) {
-                        global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
-                        global.optionsMenu_Anim.currentOptionMenu = false;
-                    }
-                    global.clickables.optionsMenu.toggleBoxes.hide();
-                    global.clickables.optionsMenu.HoverBoxes.hide();
-                    global.clickables.optionsMenu.optionBoxes.hide();
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
-                    break;
-                }
-                if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
-                    if (box.placeholder) break;
-                    if (box.type === "checkbox") {
-                        let doc = document.getElementById(box.id);
-                        box.value = !box.value;
-                        if (doc) doc.checked = box.value;
-                        if (doc) util.submitToLocalStorage(box.id);
-                        else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
-                    }
-                    break;
-                }
-                if (optionsMenu_clickOption !== -1 && global.optionsMenu_Anim.currentOptionMenu) {
-                    global.optionsMenu_Anim.currentOptionMenu.trigger?.(global.optionsMenu_Anim.currentOptionMenu, global.optionsMenu_Anim.currentOptionMenu.optionData[optionsMenu_clickOption]);
-                    break;
-                }
-                // Stop dragging class tree
-                if (global.classTreeDrag.isDragging) {
-                    global.classTreeDrag.isDragging = false;
-                }
-                if (global.clickables.classTreeClose.check(mpos) === 0) {
-                    global.tankTree("exit");
-                    break;
-                }
-                
-                // Check zoom buttons
-                if (global.clickables.classTreeZoomIn.check(mpos) === 0) {
-                    global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
-                    break;
-                }
-                if (global.clickables.classTreeZoomOut.check(mpos) === 1) {
-                    global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
-                    break;
-                }
-                
-                // Check search bar click
-                const searchBarWidth = 300;
-                const searchBarHeight = 35;
-                const searchBarX = global.screenWidth / 2 / global.ratio - searchBarWidth / 2;
-                const searchBarY = 30;
-                
-                if (mpos.x / global.ratio >= searchBarX && 
-                    mpos.x / global.ratio <= searchBarX + searchBarWidth &&
-                    mpos.y / global.ratio >= searchBarY && 
-                    mpos.y / global.ratio <= searchBarY + searchBarHeight) {
-                    global.searchBarActive = true;
-                    break;
-                } else {
-                    global.searchBarActive = false;
                 }
                 if (respawnCheck !== -1 && !global.disconnected) {
                     this.respawn();
@@ -697,19 +488,7 @@ class Canvas {
         }
     }
     mouseMove(mouse) {
-        // Handle class tree dragging with smooth momentum
-        if (global.showTree && global.classTreeDrag.isDragging) {
-            const dx = (mouse.clientX - global.classTreeDrag.lastX) / global.treeScale;
-            const dy = (mouse.clientY - global.classTreeDrag.lastY) / global.treeScale;
-            
-            // Smooth momentum update
-            global.classTreeDrag.momentum.x = -dx * 0.01;
-            global.classTreeDrag.momentum.y = -dy * 0.01;
-
-            global.classTreeDrag.lastX = mouse.clientX;
-            global.classTreeDrag.lastY = mouse.clientY;
-            return;
-        }
+        if (global.showTree && global.classTree.move(mouse.clientX, mouse.clientY)) return;
         global.statHover =
             global.clickables.hover.check({
                 x: mouse.clientX * global.ratio,
@@ -718,16 +497,6 @@ class Canvas {
         if (this.spinLock) return;
         global.mouse.x = mouse.clientX * global.ratio;
         global.mouse.y = mouse.clientY * global.ratio;
-        if (global.ingameThemeSliderDrag && global.ingameThemeSlider && global.ingameThemeSetBlend) {
-            const s = global.ingameThemeSlider;
-            global.ingameThemeSetBlend(global.mouse.x <= s.x ? 0 : (global.mouse.x - s.x) / s.w);
-        } else if (global.optionsMenu_Anim.sliderMoving) {
-            global.optionsMenu_Anim.sliderMoving.trigger({}, global.optionsMenu_Anim.sliderMoving);
-        }
-        if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch) {
-            global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = true;
-            global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch = false;
-        };
         if (global.gameStart) {
             this.mouseMoved = true;
             global.socket.cmd.reactNow();

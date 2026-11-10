@@ -63,7 +63,7 @@ var color = {
         "black": "#131313", // Borders
         "guiblack": "#FFFFFF", // Grid
         "paletteSize": 20,
-        "border": 0.15,
+        "border": 0.7490196078431373,
         "neon": true
     },
     "darkOld": {
@@ -122,7 +122,7 @@ var color = {
         "black": "#444444", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.5,
+        "border": 0.25098039215686274,
         "neon": false
     },
     "natural": {
@@ -155,7 +155,7 @@ var color = {
         "black": "#373834", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0.2
+        "border": 0.2980392156862745
     },
     "discord": {
         "blue": "#7289da", // Blue Team
@@ -239,13 +239,13 @@ var color = {
         "gold": "#b58900", // Squares
         "orange": "#cb4b16", // Triangles
         "purple": "#678cb1", // Pentagons
-        "aqua": "#b58900", // Hexagons
+        "aqua": "#2aa198", // Hexagons
         "pink": "#d33682", // Crashers
         "lavender": "#eee8d5", // Nest
         "lgrey": "#839496", // Maze Walls
 
-        "lgreen": "#b58900", // Health Bars, Shiny Polygons
-        "teal": "#2b9098", // Shield Bars, Legendary Polygons
+        "lgreen": "#2aa198", // Health Bars, Shiny Polygons
+        "teal": "#b58900", // Shield Bars, Legendary Polygons
 
         "guiwhite": "#FFFFFF", // Text
         "white": "#002b36", // Arena Background
@@ -407,7 +407,7 @@ var color = {
         "aqua": "#525c73", // Hexagons
         "pink": "#d3869b", // Crashers
         "lavender": "#d3869b", // Nest
-        "lgrey": "#656884", // Maze Walls
+        "lgrey": "#928374", // Maze Walls
 
         "lgreen": "#8ec07c", // Health Bars, Shiny Polygons
         "teal": "#83a598", // Shield Bars, Legendary Polygons
@@ -517,7 +517,7 @@ var color = {
         "black": "#000000", // Borders
         "guiblack": "#000000", // Grid
         "paletteSize": 20,
-        "border": 0,
+        "border": 1,
         "neon": false
     },
 

@@ -69,43 +69,53 @@
                         </a>
                     </div>
                     <div class="bottomHolder">
-                        <a style="width: 40px; background: #7289da;" href="https://discord.gg/arras" title="Join the official Open Source Arras community Discord server!">
+                        <a class="menuButton" style="background: #7289da;" href="https://discord.gg/arras" title="Join the official Open Source Arras community Discord server!">
                             <img src="img/discord.svg" alt="Discord" width="24" height="24">
                         </a>
-                        <a style="width: 40px; background: #282038;" href="https://stt.gg/S4tqfeAK" title="Join the official Open Source Arras community Stoat server!">
+                        <a class="menuButton" style="background: #282038;" href="https://stt.gg/S4tqfeAK" title="Join the official Open Source Arras community Stoat server!">
                             <img src="img/stoat.svg" alt="Stoat" width="24" height="24">
                         </a>
-                        <a style="width: 40px; background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
+                        <a class="menuButton" style="background: #f71701;" href="https://www.youtube.com/@OpenSourceArras">
                             <img src="img/youtube.svg" alt="YouTube" width="24" height="24">
                         </a>
-                        <a style="width: 204px; background: #00b0e0;" href="https://github.com/open-source-arras/open-source-arras">
+                        <a class="menuButton wide" style="background: #00b0e0;" href="https://github.com/open-source-arras/open-source-arras">
                             <img src="img/source.svg" alt="Source Code" width="24" height="24">
                             <span class="text">Source Code</span>
                         </a>
                     </div>
                 </div>
                 <div class="startMenuHolder mainHolder">
-                    <div class="sliderHolder">
-                        <div class="slider startMenuSlidingContent">
-                            <div class="header">
-                                <a href="/" class="icon" tabindex="-1"><img src="/favicon/base.svg" alt="arras.io icon"></a>
-                                <h1>arras.io</h1>
-                            </div>
-                            <div>
-                                <div class="horizontalSelector" id="serverFilterRegion"></div>
-                                <div class="horizontalSelector" id="serverFilterMode"></div>
-                            </div>
-                            <div class="serverSelector shadowScroll">
-                                <table>
-                                    <noscript><div class="serverSelectorError">Failed to fetch the server list!<br/>This is likely happening either because your game is very outdated, or because something is blocking the connection. Please try clearing your cache and disabling any extensions that may be interfering with the game.</div></noscript>
-                                    <tbody id="serverSelector"/>
-                                </table>
-                            </div>
-                            <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
-                        </div>
-                        <div class="slider" id="startMenuSlidingTrigger">
-                            <h3><span id="viewOptionText">view options</span>&nbsp;&nbsp;<i class="arrow" id="optionArrow" style="transform: rotate(-45deg);"></i></h3>
-                        </div>
+                    <div class="header">
+                        <a href="/" class="icon" tabindex="-1"><img src="/favicon/base.svg" alt="arras.io icon"></a>
+                        <h1>arras.io</h1>
+                    </div>
+                    <div class="horizontalSelector" id="serverFilterRegion"></div>
+                    <div class="horizontalSelector" id="serverFilterMode"></div>
+                    <div class="serverSelector">
+                        <table>
+                            <noscript><div class="serverSelectorError">Failed to fetch the server list!<br/>This is likely happening either because your game is very outdated, or because something is blocking the connection. Please try clearing your cache and disabling any extensions that may be interfering with the game.</div></noscript>
+                            <tbody id="serverSelector"/>
+                        </table>
+                    </div>
+                    <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
+                    <div class="startButtonHolder">
+                        <button id="startButton" tabindex="2"><b><span class="playText">Play</span></b></button>
+                    </div>
+                    <h3 id="moreOptions"><span>more options</span>&nbsp;&nbsp;<i class="arrow"></i></h3>
+                </div>
+                <div class="startMenuHolder changelogHolder">
+                    <div class="horizontalSelector" id="changelogTabs">
+                        <span class="active" title="Updates, events, polls, and announcements" data-type="default">Bulletin&nbsp;Board</span>
+                        <span title="All major updates" data-type="updates">Updates</span>
+                        <span title="Every balance update, major or minor" data-type="balance">Balance</span>
+                        <span title="Every single update" data-type="changelog">Changelog</span>
+                    </div>
+                    <div id="patchNotes" class="default" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="optionsStore">
                         <div class="slider startMenuSlidingContent">
                             <div class="horizontalSelector" id="optionMenuTabs">
                                 <span class="active">Appearance</span>
@@ -267,14 +277,6 @@
                                     <tr>
                                         <td>
                                             <div><label class="container"><input id="optOldUiStyle" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Classic UI Style</label></div>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <div class="optionsHeader">Main Menu</div>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="unlimitedMenuHeight" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Uncapped Height</label></div>
                                         </td>
                                     </tr>
                                 </table>
@@ -789,6 +791,7 @@
                                     <a tabindex="-1" href="https://codepen.io/road-to-100k/full/GRpvMzb">Road's Custom Theme Maker</a>
                                     <a tabindex="-1" href="https://github.com/TheGreenSquare/arras-archive/tree/main/arras/arras-template">Old Official Private Server Template</a>
                                     <a tabindex="-1" href="/ext/custom-shape">Custom Shape Builder</a>
+                                    <a tabindex="-1" href="https://istrong.pages.dev">iStrong Tank &amp; Game Mode Maker</a>
                                 </div>
                                 <div class="optionsHeader">Open Source Arras is not affiliated with any of the linked external websites.</div>
                             </div>
@@ -796,22 +799,6 @@
                                 <div class="optionsHeader">There are no loaded addons.</div>
                             </div>
                         </div>
-                    </div>
-                    <div class="startButtonHolder">
-                        <button id="startButton" tabindex="2"><b><span class="playText">Play</span></b></button>
-                    </div>
-                </div>
-                <div class="startMenuHolder changelogHolder">
-                    <div class="horizontalSelector" id="changelogTabs">
-                        <span class="active" title="Updates, events, polls, and announcements" data-type="default">Bulletin&nbsp;Board</span>
-                        <span title="All major updates" data-type="updates">Updates</span>
-                        <span title="Every balance update, major or minor" data-type="balance">Balance</span>
-                        <span title="Every single update" data-type="changelog">Changelog</span>
-                    </div>
-                    <div id="patchNotes" class="shadowScroll default" />
-                </div>
-            </div>
-        </div>
     </div>
     <script type="module" src="./client/app.js"></script>
     <script type="module" src="./client/config.js"></script>

@@ -244,6 +244,7 @@ class MockupEntity {
             this.color = this.colorUnboxed.base + " " + this.colorUnboxed.hueShift + " " + this.colorUnboxed.saturationShift + " " + this.colorUnboxed.brightnessShift + " " + this.colorUnboxed.allowBrightnessInvert;
         }
         if (set.UPGRADE_COLOR) this.upgradeColor = set.UPGRADE_COLOR + " 0 1 0 false";
+        if (set.PASS_UPGRADE_COLOR != null) this.passUpgradeColor = set.PASS_UPGRADE_COLOR;
         if (set.GLOW != null) {
             this.glow = {
                 radius: set.GLOW.RADIUS ?? 0,
@@ -300,6 +301,7 @@ class MockupEntity {
         this.size = (set.SIZE ?? 1) * (set.VARIES_IN_SIZE ? ran.randomRange(0.8, 1.2) : 1) * (1 + Math.min(set.LEVEL_CAP ?? Config.level_cap, level) / 45);
         this.realSize = util.rounder(this.size * lazyRealSizes[Math.floor(Math.abs(this.shape))]);
         this.size = util.rounder(this.size);
+        if (set.RESET_UPGRADE_MENU) this.upgrades = [];
         if (set.BRANCH_LABEL != null) this.branchLabel = set.BRANCH_LABEL;
         if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
         for (const prop in set) {
@@ -319,7 +321,7 @@ class MockupEntity {
                 let i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
-                    level: Config.tier_multiplier * i,
+                    level: set.UPGRADE_LEVEL ?? Config.tier_multiplier * i,
                     index: index.substring(0, index.length - 1),
                     tier: i,
                     branch: 0,

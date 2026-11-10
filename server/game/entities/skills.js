@@ -53,8 +53,10 @@ class Skill {
         this.rgn = 0;
         this.shi = 0;
         this.rst = 0;
+        this.rstFight = 0;
         this.brst = 0;
         this.ghost = 0;
+        this.strCurve = 0;
         this.acl = 0;
         let skill = [...initial];
         this.reset();
@@ -82,19 +84,29 @@ class Skill {
             attrib[i] = curve(this.raw[i] / Config.skill_cap);
         }
         this.rld = Math.pow(0.5, attrib[skcnv.rld]);
-        this.pen = apply(2.5, attrib[skcnv.pen]);
-        this.str = apply(2, attrib[skcnv.str]);
-        this.dam = apply(3, attrib[skcnv.dam]);
+        this.pen = apply(5, attrib[skcnv.pen]);
+        this.str = apply(2.4, attrib[skcnv.str]);
+        this.dam = apply(3.17, attrib[skcnv.dam]);
         this.spd = 0.5 + apply(1.5, attrib[skcnv.spd]);
-        this.acl = apply(0.5, attrib[skcnv.rld]);
-        this.rst = 0.5 * attrib[skcnv.str] + 2.5 * attrib[skcnv.pen];
+        this.acl = apply(0.8, attrib[skcnv.rld]);
+        this.rst = 0.5 * attrib[skcnv.str] + 5 * attrib[skcnv.pen];
+        this.rstFight = 0.5 * attrib[skcnv.str] + 2.5 * attrib[skcnv.pen];
+        this.rstRing = 0.5 * attrib[skcnv.str] + 1.6 * attrib[skcnv.pen];
         this.ghost = attrib[skcnv.pen];
+        this.strCurve = attrib[skcnv.str];
         this.shi = Config.glass_health_factor * apply(3 / Config.glass_health_factor - 1, attrib[skcnv.shi]);
         this.atk = apply(0.021, attrib[skcnv.atk]);
-        this.hlt = Config.glass_health_factor * apply(2 / Config.glass_health_factor - 1, attrib[skcnv.hlt]);
+        this.hlt = Config.glass_health_factor * apply(0.3, attrib[skcnv.hlt]);
         this.mob = apply(0.8, attrib[skcnv.mob]);
         this.rgn = apply(25, attrib[skcnv.rgn]);
         this.brst = 0.3 * (0.5 * attrib[skcnv.atk] + 0.5 * attrib[skcnv.hlt] + attrib[skcnv.rgn]);
+        let fullCurve = Math.log(5) / 1.6;
+        this.shiBody = Config.glass_health_factor * 0.1545 * (1 + 6.8 * attrib[skcnv.shi] / fullCurve);
+        this.shieldHump = 1 + 36.54 * attrib[skcnv.rgn] / fullCurve / (1 + (0.095 * attrib[skcnv.hlt] + 0.169 * attrib[skcnv.atk]) / fullCurve);
+        this.brstRound = 0.105 * attrib[skcnv.hlt];
+        this.atkRounds = 1 + 1.3 * attrib[skcnv.atk] / fullCurve;
+        this.bodyCurve = attrib[skcnv.atk];
+        this.healthCurve = attrib[skcnv.hlt];
     }
     set(thing) {
         this.raw[0] = thing[0];
