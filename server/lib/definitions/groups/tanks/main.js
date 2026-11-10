@@ -1,4 +1,4 @@
-const { combineStats, removeUpgrades, makeAuto, makeBird, makeDrive, makeFlank, makeGuard, makeOver, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, attachTank, makeAuto, makeBird, makeDrive, makeFlank, makeGuard, makeOver, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
 const { base, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -1421,47 +1421,8 @@ Class.commander = {
         }, 3, {delayIncrement: 1 / 3})
     ]
 };
-Class.conqueror = {
-    PARENT: "genericTank",
-    LABEL: "Conqueror",
-    DANGER: 7,
-    STAT_NAMES: statnames.mixed,
-    BODY: {
-        SPEED: 0.8 * base.SPEED
-    },
-    GUNS: [
-        {
-            POSITION: {
-                LENGTH: 20.5,
-                WIDTH: 14,
-                ANGLE: 180
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 18,
-                WIDTH: 12
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 2,
-                WIDTH: 12,
-                ASPECT: 1.1,
-                X: 18
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap]),
-                TYPE: "setTrap",
-                STAT_CALCULATOR: "block"
-            }
-        }
-    ]
-};
+Class.conqueror = attachTank("destroyer", "builder", "Conqueror", { angle: 180 });
+Class.conqueror.STAT_NAMES = statnames.mixed;
 Class.construct = { // it's "construct" and not "constructor" because "constructor" breaks things
     PARENT: "genericTank",
     LABEL: "Constructor",
