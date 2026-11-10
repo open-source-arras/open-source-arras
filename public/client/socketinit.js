@@ -288,23 +288,27 @@ const Entry = class {
         this.id = to.id;
         this.label = to.label;
         this.renderEntity = to.renderEntity;
+        this.published = null;
     }
     publish() {
-        let indexes = this.index.split("-"),
-            ref = global.mockups[parseInt(indexes[0])];
+        if (!this.published) {
+            let indexes = this.index.split("-"),
+                ref = global.mockups[parseInt(indexes[0])];
             if (!ref) ref = global.missingno[0];
 
-        return {
-            id: this.id,
-            color: this.color,
-            image: util.requestEntityImage(this.index, this.color),
-            position: ref.position,
-            barColor: this.bar,
-            label: this.name ? this.name + " - " + this.label : this.label,
-            score: this.score.get(),
-            nameColor: this.nameColor,
-            renderEntity: this.renderEntity,
-        };
+            this.published = {
+                id: this.id,
+                color: this.color,
+                image: util.requestEntityImage(this.index, this.color),
+                position: ref.position,
+                barColor: this.bar,
+                label: this.name ? this.name + " - " + this.label : this.label,
+                nameColor: this.nameColor,
+                renderEntity: this.renderEntity,
+            };
+        }
+        this.published.score = this.score.get();
+        return this.published;
     }
 };
 const Leaderboard = class {
