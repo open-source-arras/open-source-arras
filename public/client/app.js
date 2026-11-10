@@ -5323,6 +5323,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (select.value === "brainrot") select.value = "none";
             option.remove();
         }
+        const cb = (global.optionsCheckboxes || []).find(cb => cb.id === "optNames");
+        if (!cb) return;
+        cb.optionData = Array.from(select.options).map(option => ({ value: option.value, label: option.textContent }));
+        if (cb.optionService) cb.optionService.selected = select.selectedOptions[0]?.textContent || "";
     };
     global.refreshBrainrotOption();
     global.refreshSecretThemes = () => {
