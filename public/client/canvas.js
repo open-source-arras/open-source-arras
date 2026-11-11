@@ -390,7 +390,7 @@ class Canvas {
                 [global.KEY_UPGRADE_8]: 7,
                 [global.KEY_UPGRADE_9]: 8
             }
-            if (global.canUpgrade) {
+            if (global.canUpgrade && !global.died) {
                 const i = upgradeMap[event.code];
                 if (i !== undefined) this.socket.talk("U", i, parseInt(gui.upgrades[i][0]));
             }
@@ -710,8 +710,8 @@ class Canvas {
                 if (exitGame !== -1) {
                     if (global.disconnected || (global.died && !global.cannotRespawn)) global.exit();
                 } else 
-                if (upgradeIndex !== -1 && upgradeIndex < gui.upgrades.length && !global.dailyTankAd.renderUI) this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
-                else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI) {
+                if (upgradeIndex !== -1 && upgradeIndex < gui.upgrades.length && !global.dailyTankAd.renderUI && !global.died) this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
+                else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI && !global.died) {
                     this.socket.talk("U", 0, -1);
                 } else if (dailyTankAd == true) {
                     this.socket.talk("DTA"); // Request to get an ad
@@ -997,7 +997,7 @@ class Canvas {
                         global.clearUpgrades();
                     else {
                         let upgradeIndex = global.clickables.upgrade.check(mpos);
-                        if (upgradeIndex !== -1)
+                        if (upgradeIndex !== -1 && !global.died)
                             this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
                         else {
                             let onLeft = mpos.x < this.cv.width / 2;

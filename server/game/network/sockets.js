@@ -596,13 +596,14 @@ class socketManager {
                 // Get data
                 let upgrade = m[0];
                 let branchId = m[1];
+                if (player.body == null) return;
                 if (upgrade === 0 && branchId === -1) { // If client sends an daily tank request then we execute that
                     if (!Config.daily_tank) return socket.kick("Bad daily tank upgrade request (there is no daily tanks set up)");
                     player.body.upgrade(upgrade, branchId, false, true); // Ask to upgrade (daily tank request)
                     return;
                 }
                 // Verify the request
-                if (typeof upgrade != "number" || upgrade < 0 || upgrade >= player.body.upgrades.length || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
+                if (typeof upgrade != "number" || !isFinite(upgrade) || upgrade < 0 || upgrade >= player.body.upgrades.length || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
                     socket.kick("Bad upgrade request.");
                     return 1;
                 }
