@@ -178,6 +178,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             document.getElementById("optDeltaEntities").checked = true;
             util.submitToLocalStorage("optDeltaEntities");
         }
+        if (localStorage.getItem("optAutoReconnectChecked") === null) localStorage.setItem("optAutoReconnectChecked", "false");
         if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
         // Set default theme
         if (document.getElementById("optColors").value === "") {
@@ -5801,7 +5802,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     },
                     { type: "checkbox",  id: "smoothCamera",           label: "Smooth Camera",         column: 0, row: 1, section: "extra", tooltip: "Make the camera follow your tank instead of being fixed at it." },
                     { type: "checkbox",  id: "autoLevelUp",            label: "Auto-Level Up",         column: 0, row: 2, section: "extra", tooltip: "Automatically level you up to level 45 upon joining the game." },
-                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", placeholder: true, tooltip: "[WIP] Automatically reconnect after a disconnection." },
+                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", tooltip: "Automatically reconnect after a disconnection." },
 
                     { type: "checkbox",  id: "optFancy",               label: "Fading Animation",      column: 1, row: 1, section: "extra", tooltip: "Make dying entities fade out instead of shrinking until disappearing.\nMay slightly lower the frame rate." },
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
@@ -6217,7 +6218,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
             index: 0
         });
-        drawButton(global.screenWidth / 2 + 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Reconnect", 14, false, false, false, true, "reconnect", global.canvas.height / global.screenHeight / global.ratio, {
+        let reconnectLabel = "Reconnect";
+        if (global.socket.welcomeReceived && !global.died && localStorage.getItem("optAutoReconnectChecked") === "true") {
+            const seconds = Math.max(0, Math.ceil((global.disconnectTimestamp + config.game.autoReconnectDelay - Date.now()) / 1000));
+            reconnectLabel = `Reconnect (${seconds})`;
+        }
+        drawButton(global.screenWidth / 2 + 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", reconnectLabel, 14, false, false, false, true, "reconnect", global.canvas.height / global.screenHeight / global.ratio, {
             index: 0
         });
     };

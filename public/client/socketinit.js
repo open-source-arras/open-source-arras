@@ -1065,6 +1065,7 @@ let incoming = async function(message, socket) {
 
 
             case "w": { // welcome to the game
+                socket.welcomeReceived = true;
                 global.deltaEntities = m[1] === 1; // server tells us if it will send delta entity packets
                 if (m[0]) { // Ask to get the room data first
                     socket.talk("s", "", 1, 0, false, 0);
@@ -1606,6 +1607,11 @@ const socketInit = () => {
         socket.open = false;
         global.disconnected = true;
         global.disconnectTimestamp = Date.now();
+        if (socket.welcomeReceived && !global.died && localStorage.getItem("optAutoReconnectChecked") === "true") {
+            setTimeout(() => {
+                if (global.disconnected && !global.died) global.reconnect();
+            }, config.game.autoReconnectDelay);
+        }
     };
 
     socket.onerror = error => {
