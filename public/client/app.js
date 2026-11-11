@@ -4834,10 +4834,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     let _keybindEntries = null;
+    function updateSecretKeybindRows() {
+        const enabled = localStorage.getItem("optSaveSkillUpgradesChecked") === "true";
+        document.querySelectorAll("#controlSettings tr[data-secret]").forEach(row => row.classList.toggle("hidden", !enabled));
+        _keybindEntries = null;
+    }
+    updateSecretKeybindRows();
     function getKeybindEntries() {
         if (_keybindEntries) return _keybindEntries;
         const out = [];
-        document.querySelectorAll("#controlSettings tr").forEach((tr) => {
+        document.querySelectorAll("#controlSettings tr:not(.hidden)").forEach((tr) => {
             tr.querySelectorAll("td").forEach((td) => {
                 const b = td.querySelector("b");
                 if (!b) return;
@@ -5390,6 +5396,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
+                if (cb.id === "optSaveSkillUpgrades") updateSecretKeybindRows();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -5835,7 +5842,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 1, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                     // Beta
-                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Add the ability save and load up to 10 sets of skill upgrades" }, // [sic], misspelling exists in arras.io too
+                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List (Preview)",   column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy

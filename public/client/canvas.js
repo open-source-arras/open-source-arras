@@ -5,6 +5,12 @@ import * as socketStuff from "./socketinit.js";
 import { AdvancedRecorder } from "./recorder.js";
 let { gui } = socketStuff;
 
+const skillSavesKey = "skill_upgrade_saves";
+function getSkillSaves() {
+    try { return JSON.parse(localStorage.getItem(skillSavesKey)) || []; }
+    catch { return []; }
+}
+
 class Canvas {
     constructor() {
         this.directionLock = false;
@@ -283,6 +289,12 @@ class Canvas {
             case global.KEY_SKILL_MAX:
                 global.statMaxing = true;
                 break;
+            case global.KEY_UPGRADE_SKILL_SAVE:
+                global.skillSavePressed = true;
+                break;
+            case global.KEY_UPGRADE_SKILL_LOAD:
+                global.skillLoadPressed = true;
+                break;
             case global.KEY_SUICIDE:
                 this.socket.talk("1");
                 break;
@@ -335,20 +347,37 @@ class Canvas {
                     this.socket.talk("G");
                     break;
             }
-            if (global.canSkill) {
-                let skill = [
-                    global.KEY_SKILL_1,
-                    global.KEY_SKILL_2,
-                    global.KEY_SKILL_3,
-                    global.KEY_SKILL_4,
-                    global.KEY_SKILL_5,
-                    global.KEY_SKILL_6,
-                    global.KEY_SKILL_7,
-                    global.KEY_SKILL_8,
-                    global.KEY_SKILL_9,
-                    global.KEY_SKILL_10
-                ].indexOf(event.code);
-                if (skill >= 0) this.socket.talk("x", skill, 1 * global.statMaxing);
+            const skill = [
+                global.KEY_SKILL_1,
+                global.KEY_SKILL_2,
+                global.KEY_SKILL_3,
+                global.KEY_SKILL_4,
+                global.KEY_SKILL_5,
+                global.KEY_SKILL_6,
+                global.KEY_SKILL_7,
+                global.KEY_SKILL_8,
+                global.KEY_SKILL_9,
+                global.KEY_SKILL_10
+            ].indexOf(event.code);
+            if (skill >= 0 && localStorage.getItem("optSaveSkillUpgradesChecked") === "true" && (global.skillSavePressed || global.skillLoadPressed)) {
+                if (!event.repeat) {
+                    const saves = getSkillSaves();
+                    if (global.skillSavePressed) {
+                        saves[skill] = gui.skills.map(s => s.amount);
+                        localStorage.setItem(skillSavesKey, JSON.stringify(saves));
+                    } else if (saves[skill]) {
+                        let points = gui.points;
+                        for (let i = 9; i >= 0 && points > 0; i--) {
+                            const stat = gui.skills[i];
+                            const target = Math.min(saves[skill][i] || 0, stat.cap);
+                            const missing = Math.min(Math.max(0, target - stat.amount), points);
+                            for (let j = 0; j < missing; j++) this.socket.talk("x", 9 - i, 0);
+                            points -= missing;
+                        }
+                    }
+                }
+            } else if (global.canSkill && skill >= 0) {
+                this.socket.talk("x", skill, 1 * global.statMaxing);
             }
             const upgradeMap = {
                 [global.KEY_UPGRADE_1]: 0,
@@ -414,6 +443,10 @@ class Canvas {
                 break;
             case global.KEY_SKILL_MAX:
                 global.statMaxing = false;
+                break;
+            case global.KEY_UPGRADE_SKILL_SAVE:
+            case global.KEY_UPGRADE_SKILL_LOAD:
+                global.skillSavePressed = global.skillLoadPressed = false;
                 break;
         }
         if (global.specialPressed) {

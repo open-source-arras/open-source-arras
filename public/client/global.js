@@ -112,6 +112,8 @@ const global = {
     KEY_REVERSE_MOUSE: "KeyB",
     KEY_SCREENSHOT: "KeyQ",
     KEY_SKILL_MAX: "KeyM",
+    KEY_UPGRADE_SKILL_SAVE: -1,
+    KEY_UPGRADE_SKILL_LOAD: -1,
     KEY_CLASS_TREE: "KeyT",
     KEY_RECORD: "KeyZ",
     KEY_PING: "KeyL",
@@ -393,6 +395,8 @@ handleOperatorKeyDown: function (key) {
     statHover: false,
     upgradeHover: false,
     statMaxing: false,
+    skillSavePressed: false,
+    skillLoadPressed: false,
     metrics: {
         latency: [],
         lag: 0,
