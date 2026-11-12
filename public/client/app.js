@@ -172,6 +172,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("optRenderKillbar");
         }
         config.game.rainbowTeamColors = localStorage.getItem("optRainbowTeamColorsChecked") === "true";
+        const savedBorderChunk = parseFloat(localStorage.getItem("strokeThicknessValue"));
+        if (!isNaN(savedBorderChunk)) config.graphical.borderChunk = savedBorderChunk;
         // Default to true
         if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
             document.getElementById("optDeltaEntities").checked = true;
@@ -5761,6 +5763,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                             const range = data.maxValue - data.maxLowestValue;
                             let value = (ratio * range) + data.maxLowestValue;
                             listFolder[data.target] = value;
+                            localStorage.setItem(data.id + "Value", value);
                         }
                       }
                     },
