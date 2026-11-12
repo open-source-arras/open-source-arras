@@ -178,6 +178,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("optDeltaEntities");
         }
         if (localStorage.getItem("optAutoReconnectChecked") === null) localStorage.setItem("optAutoReconnectChecked", "false");
+        if (localStorage.getItem("optChatMessagesChecked") === null) localStorage.setItem("optChatMessagesChecked", "true");
         if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
         // Set default theme
         if (document.getElementById("optColors").value === "") {
@@ -1201,6 +1202,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.GUIStatus.renderMinimap = document.getElementById("optRenderMinimap").checked;
         global.GUIStatus.renderPlayerNames = document.getElementById("optRenderNames").checked;
         global.GUIStatus.renderPlayerScores = document.getElementById("optRenderScores").checked;
+        global.GUIStatus.renderChatMessages = localStorage.getItem("optChatMessagesChecked") !== "false";
         global.GUIStatus.renderPlayerBars = document.getElementById("optRenderPlayerBars").checked;
         global.GUIStatus.renderPlayerKillbar = document.getElementById("optRenderKillbar").checked;
         global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
@@ -3357,6 +3359,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
+        if (!global.GUIStatus.renderChatMessages) return;
         if (!(instance.id === gui.playerid) && instance.alpha < 0.25) return;
         let size = isize * ratio,
             g = Math.max(20, size);

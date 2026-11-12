@@ -447,6 +447,7 @@ handleOperatorKeyDown: function (key) {
         renderhealth: false,
         renderPlayerNames: false,
         renderPlayerScores: false,
+        renderChatMessages: true,
         renderPlayerBars: false,
         renderPlayerKillbar: true,
         renderIngameOptions: false,
