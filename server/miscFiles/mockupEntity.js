@@ -16,7 +16,7 @@ class MockupEntityGun {
         if (info.PROPERTIES != null) {
             if (info.PROPERTIES.COLOR != null) {
                 if (typeof info.PROPERTIES.COLOR === "number" || typeof info.PROPERTIES.COLOR === "string") {
-                    if (!isNaN(info.PROPERTIES.COLOR) && !isNaN(parseFloat(info.PROPERTIES.COLOR)) || /^[a-zA-Z]*$/.test(info.PROPERTIES.COLOR)) {
+                    if (!isNaN(info.PROPERTIES.COLOR) && !isNaN(parseFloat(info.PROPERTIES.COLOR)) || /^[a-zA-Z0-9#]*$/.test(info.PROPERTIES.COLOR)) {
                         this.colorUnboxed.base = info.PROPERTIES.COLOR; 
                     } 
                 } else if (typeof info.PROPERTIES.COLOR === "object") {
@@ -149,7 +149,7 @@ class MockupEntityProp {
         this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear";
         if (set.COLOR != null) {
             if (typeof set.COLOR === "number" || typeof set.COLOR === "string") {
-                if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z]*$/.test(set.COLOR)) {
+                if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z0-9#]*$/.test(set.COLOR)) {
                     this.colorUnboxed.base = set.COLOR; 
                 } 
             } else if (typeof set.COLOR === "object") {
