@@ -4770,13 +4770,26 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     const THEME_SWATCHES = [
-        ["blue",     "Blue"],    ["vlgrey", "Eggs"],      ["lgrey",    "Walls"],
-        ["green",    "Green"],   ["gold",   "Squares"],   ["lgreen",   "Health Bars"],
-        ["red",      "Red"],     ["orange", "Triangles"], ["teal",     "Shield Bars"],
-        ["magenta",  "Purple"],  ["purple", "Pentagons"], ["grey",     "Barrels"],
-        ["yellow",   "Neutral"], ["aqua",   "Hexagons"],  ["white",    "Background"],
-        ["dgrey",    "Rogues"],  ["pink",   "Crashers"],  ["guiblack", "Grid"],
-        ["guiwhite", "Text"],    ["black",  "Borders"],
+        ["blue", "Blue", "Blue team (ID 10)"],
+        ["vlgrey", "Eggs", "Eggs (ID 6)"],
+        ["lgrey", "Walls", "Maze walls, as well as rocks (ID 7)"],
+        ["green", "Green", "Green team (ID 11)"],
+        ["gold", "Squares", "Squares (ID 13)"],
+        ["lgreen", "Health Bars", "Health bars, as well as shiny polygons (ID 1)"],
+        ["red", "Red", "Red team (ID 12)"],
+        ["orange", "Triangles", "Triangles (ID 2)"],
+        ["teal", "Shield Bars", "Shield bars, as well as legendary polygons (ID 0)"],
+        ["magenta", "Purple", "Purple team (ID 15)"],
+        ["purple", "Pentagons", "Pentagons (ID 14)"],
+        ["grey", "Barrels", "Barrels, as well as bar backgrounds (ID 16)"],
+        ["yellow", "Neutral", "Neutral team (ID 3)"],
+        ["aqua", "Hexagons", "Hexagons (ID 4)"],
+        ["white", "Background", "Arena background (ID 18)"],
+        ["dgrey", "Rogues", "Rogue team (ID 17)"],
+        ["pink", "Crashers", "Crashers (ID 5)"],
+        ["guiblack", "Grid", "The map's grid and edges, as well as the color of your minimap dot (ID 19)\nNote: It's highly recommended for this color to contrast the background color.\nTip: If you want to remove the background grid, you can do that in the options tab."],
+        ["guiwhite", "Text", "Text color, as well as the flash blend color (ID 8)\nNote: It's highly recommended for this color to be a light color and contrast the border color."],
+        ["black", "Borders", "The borders of all text, bars, and other UI elements, as well as the color of shells (ID 9)\nNote: It's highly recommended for this color to be a dark color and contrast the text color."],
     ];
 
     const OV_ROW1 = 41, OV_ROW2 = 81, OV_ROW3 = 121;
@@ -4954,8 +4967,28 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             inp.dataset.key = key;
             return inp;
         });
+        const hits = THEME_SWATCHES.map(() => mk("div", "position:absolute;pointer-events:auto", null));
+        const borderHit = mk("div", "position:absolute;pointer-events:auto", null);
+        // Invisible inputs keep the native picker on the swatch; these cover the labels for tooltips.
+        wrap._colorHover = -1;
+        wrap.tooltipService = {
+            text: "",
+            targetAlpha: 0,
+            alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
+            x: 0,
+            y: 0
+        };
+        const bindHover = (el, i) => {
+            el.addEventListener("mouseenter", () => { wrap._colorHover = i; });
+            el.addEventListener("mouseleave", () => { if (wrap._colorHover === i) wrap._colorHover = -1; });
+        };
+        [...swatches, borderColor].forEach((inp, i) => {
+            inp.style.opacity = "0";
+            bindHover(inp, i);
+        });
+        [...hits, borderHit].forEach(bindHover);
 
-        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches };
+        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches, hits, borderHit };
         document.body.appendChild(wrap);
         global.themeOverlay = wrap;
 
@@ -5219,20 +5252,30 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
         put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
         put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
-        put(o.borderColor, L + 2 * OV_COL_PITCH, T + OV_SLIDER_TOP - 2, OV_SWATCH, OV_SWATCH);
+        const bcx = L + 2 * OV_COL_PITCH, bcy = T + OV_SLIDER_TOP - 2;
+        put(o.borderColor, bcx, bcy, OV_SWATCH, OV_SWATCH);
+        put(o.borderHit, bcx + OV_SWATCH, bcy, 9 + measureText("Borders", 13.5), OV_SWATCH);
         o.swatches.forEach((inp, i) => {
             const col = i % 3, row = (i / 3) | 0;
-            put(inp, L + col * OV_COL_PITCH, T + OV_GRID_TOP + row * OV_GRID_PITCH, OV_SWATCH, OV_SWATCH);
+            const x = L + col * OV_COL_PITCH, y = T + OV_GRID_TOP + row * OV_GRID_PITCH;
+            put(inp, x, y, OV_SWATCH, OV_SWATCH);
+            put(o.hits[i], x + OV_SWATCH, y, 9 + measureText(THEME_SWATCHES[i][1], 13.5), OV_SWATCH);
+            ctx[2].fillStyle = inp.value;
+            drawGuiRect(x, y, OV_SWATCH, OV_SWATCH);
+            ctx[2].strokeStyle = color.black;
+            ctx[2].lineWidth = 3;
+            drawGuiRect(x, y, OV_SWATCH, OV_SWATCH, true);
+            drawText(THEME_SWATCHES[i][1], x + OV_SWATCH + 9, y + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
         });
+        ctx[2].fillStyle = o.borderColor.value;
+        drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH);
+        ctx[2].strokeStyle = color.black;
+        ctx[2].lineWidth = 3;
+        drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH, true);
 
         const cx = PANEL_X + PANEL_WIDTH / 2;
         drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, color.guiwhite, "center", true);
         drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, color.guiwhite, "center", true);
-        o.swatches.forEach((inp, i) => {
-            const col = i % 3, row = (i / 3) | 0;
-            drawText(THEME_SWATCHES[i][1], L + col * OV_COL_PITCH + OV_SWATCH + 9,
-                T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
-        });
 
         const sx = L, sy = T + OV_SLIDER_TOP, SW = OV_SLIDER_W, SH = 20;
         const sv = themeBlend();
@@ -5271,6 +5314,20 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         gameDraw.setColor(ctx[2], color.black);
         drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH, true);
         drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
+
+        const ts = wrap.tooltipService;
+        const hover = wrap._colorHover;
+        ts.targetAlpha = hover >= 0 ? 1 : 0;
+        if (hover === o.swatches.length) {
+            ts.text = "The border blend color of all entities";
+            ts.x = bcx * r;
+            ts.y = (bcy + OV_SWATCH + 10) * r;
+        } else if (hover >= 0) {
+            const col = hover % 3, row = (hover / 3) | 0;
+            ts.text = THEME_SWATCHES[hover][2];
+            ts.x = (L + col * OV_COL_PITCH) * r;
+            ts.y = (T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH + 10) * r;
+        }
 
         global.ingameKeybindRects = null;
         const cr = r * global.ratio;
@@ -6136,8 +6193,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
         } else if (global.themeOverlay) {
             global.themeOverlay.style.display = "none";
+            global.themeOverlay._colorHover = -1;
         }
         ctx[2].restore();
+
+        if (fadeTheme > 0.01 && activeTab === 1 && global.themeOverlay) drawToolip(global.themeOverlay);
 
         ctx[2].save();
         ctx[2].globalAlpha *= fadeKeybinds;
