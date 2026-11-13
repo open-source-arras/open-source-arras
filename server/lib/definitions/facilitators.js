@@ -513,59 +513,59 @@ exports.makeBird = (type, name = -1, options = {}) => {
     // Thrusters
     let backRecoil = 0.5 * backRecoilFactor;
     let shootyBois = [
-		...exports.weaponMirror({
-			POSITION: {
-				LENGTH: 16,
-				WIDTH: 8,
-				ANGLE: 153,
-				DELAY: 0.1
-			},
-			PROPERTIES: {
-				SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster,{ recoil: backRecoil }]),
-				TYPE: "bullet",
-				LABEL: "thruster"
-			}
-		}),
-
-
-		...(options.bomber ? [
-			{
-				POSITION: {
-					LENGTH: 14,
-					WIDTH: 8,
-					ANGLE: 180
-				}
-			},
-			{
-				POSITION: {
-					LENGTH: 4,
-					WIDTH: 8,
-					ASPECT: 1.7,
-					X: 14,
-					ANGLE: 180
-				},
-				PROPERTIES: {
-					SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, g.trap, { recoil: backRecoil }]),
-					TYPE: "trap",
-					LABEL: "thruster"
-				}
-			}
-		] : [
-        {
+        ...exports.weaponMirror({
             POSITION: {
-                LENGTH: 18,
+                LENGTH: 16,
                 WIDTH: 8,
-                ANGLE: 180,
-                DELAY: 0.6
+                ANGLE: 153,
+                DELAY: 0.1
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster,{ recoil: backRecoil }]),
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
                 TYPE: "bullet",
                 LABEL: "thruster"
             }
-        }
-    ])
-];
+        }),
+
+
+        ...(options.bomber ? [
+            {
+                POSITION: {
+                    LENGTH: 14,
+                    WIDTH: 8,
+                    ANGLE: 180
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 8,
+                    ASPECT: 1.7,
+                    X: 14,
+                    ANGLE: 180
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, g.trap, { recoil: backRecoil }]),
+                    TYPE: "trap",
+                    LABEL: "thruster"
+                }
+            }
+        ] : [
+            {
+                POSITION: {
+                    LENGTH: 18,
+                    WIDTH: 8,
+                    ANGLE: 180,
+                    DELAY: 0.6
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
+                    TYPE: "bullet",
+                    LABEL: "thruster"
+                }
+            }
+        ])
+    ];
     if (options.super) {
         shootyBois.splice(0, 0, ...exports.weaponMirror({
             POSITION: {
@@ -581,38 +581,38 @@ exports.makeBird = (type, name = -1, options = {}) => {
             }
         }));
     }
-	if (options.surfer) {
-		shootyBois.push(...exports.weaponMirror({
-			POSITION: {
-				LENGTH: 7,
-				WIDTH: 7.5,
-				ASPECT: 0.6,
-				X: 7,
-				Y: 1,
-				ANGLE: -90
-			},
-			PROPERTIES: {
-				SHOOT_SETTINGS: exports.combineStats([g.swarm]),
-				TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
-				STAT_CALCULATOR: "swarm"
-			}
-		}));
-	}
-	if (options.fighter) {
-		shootyBois.push(...exports.weaponMirror({
-			POSITION: {
-				LENGTH: 16,
-				WIDTH: 8,
-				Y: -1, 
-				ANGLE: 90		
-			},
-			PROPERTIES: {
-				SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.triAngleFront]),
-				TYPE: "bullet",
-				LABEL: "Side"
-			}
-		}));
-	}
+    if (options.surfer) {
+        shootyBois.push(...exports.weaponMirror({
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 7.5,
+                ASPECT: 0.6,
+                X: 7,
+                Y: 1,
+                ANGLE: -90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.swarm]),
+                TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
+                STAT_CALCULATOR: "swarm"
+            }
+        }));
+    }
+    if (options.fighter) {
+        shootyBois.push(...exports.weaponMirror({
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 8,
+                Y: -1, 
+                ANGLE: 90		
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.triAngleFront]),
+                TYPE: "bullet",
+                LABEL: "Side"
+            }
+        }));
+    }
     // Assign thruster color
     if (color) {
         for (let gun of shootyBois) {
