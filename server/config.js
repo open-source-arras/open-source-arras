@@ -64,8 +64,8 @@ module.exports = {
             private: false,
 
             properties: {
-                //"food_cap": 70,
-                //"bot_cap": 24
+                food_cap: 70,
+                bot_cap: 24
             }
         },
     ],
