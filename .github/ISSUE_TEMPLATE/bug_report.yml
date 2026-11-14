@@ -17,7 +17,7 @@ body:
       options:
         - label: I have made sure my server is running the LATEST version of Open Source Arras - check [here](https://github.com/open-source-arras/open-source-arras/releases)
           required: true
-        - label: I have made sure that this issue sill occurs on an unmodified instance (i.e. new install) of Open Source Arras
+        - label: I have made sure that this issue still occurs on an unmodified instance (i.e. new install) of Open Source Arras
           required: true
         - label: I have made sure that this issue is NOT a duplicate of existing or pinned issues
           required: true
