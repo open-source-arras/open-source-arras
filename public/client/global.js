@@ -101,7 +101,7 @@ let gameDraw;
 const global = {
     // Keys and other mathematical constants.
     KEY_AUTO_FIRE: "KeyE",
-    KEY_AUTO_ALT: "KeyX",
+    KEY_AUTO_ALT: -1,
     KEY_AUTO_SPIN: "KeyC",
     KEY_SPIN_LOCK: "KeyP",
     KEY_OVERRIDE: "KeyR",
@@ -140,6 +140,7 @@ const global = {
     KEY_SKILL_10: "Digit0",
 
     KEY_MOUSE_0: "Space",
+    KEY_MOUSE_1: "KeyX",
     KEY_MOUSE_2: "ShiftLeft",
 
     KEY_SUICIDE: "KeyO",
