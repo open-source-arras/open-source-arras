@@ -1,0 +1,100 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[Bug] "
+labels: ["bug"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report! Please make sure to fill out all required fields.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have made sure my server is running the LATEST version of Open Source Arras - check [here](https://github.com/open-source-arras/open-source-arras/releases)
+          required: true
+        - label: I have made sure that this issue sill occurs on an unmodified instance (i.e. new install) of Open Source Arras
+          required: true
+        - label: I have made sure that this issue is NOT a duplicate of existing or pinned issues
+          required: true
+        - label: I understand that issues with limited impact, such as those occurring on specific devices or under specific network conditions, will not be fixed
+          required: true
+        - label: I have attached an error report or console log in the issue
+          required: false
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is
+      placeholder: Tell us what happened
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The OSA version your server is running on
+      placeholder: e.g. v2.1.2
+    validations:
+      required: true
+
+  - type: input
+    id: nodeVersion
+    attributes:
+      label: Node.js version
+      description: The Node.js version you have installed (use `node -v` to check)
+      placeholder: e.g. v26.13.0
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Frequency
+      description: How often does this bug occur?
+      options:
+        - Always (100% of the time)
+        - Often (80-90% of the time)
+        - Sometimes (40-60% of the time)
+        - Rarely (10-30% of the time)
+        - Only once (single occurrence)
+      default: 4
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      description: What device and operating system are you using?
+      placeholder: e.g. Framework Laptop 12, Linux 7.3.1-1-cachyos
+    validations:
+      required: false
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: Steps to reproduce the bug
+      description: Please provide detailed steps to reproduce the issue
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here
+      placeholder: Any additional information that might help us understand the issue
+    validations:
+      required: false
