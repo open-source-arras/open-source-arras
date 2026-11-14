@@ -1264,10 +1264,10 @@ export function createMenu(hooks) {
         if (!onMenu() && cardShift.target) cardShift.target = 0;
         if (onMenu() && card) {
             cardShift.step(dt);
-            let base = (viewWidth() - 1120) / 2;
+            let base = (viewWidth() - 1130) / 2;
             root.style.setProperty("--s", scale);
             root.style.setProperty("--card-x", `${(base + cardShift.value) * scale}px`);
-            root.style.setProperty("--card-y", `${80 * scale}px`);
+            root.style.setProperty("--card-y", `${75 * scale}px`);
         }
         if (!onMenu() && !inGame() && windowName) close();
         if (windowName === "players" && (global.permissionLevel || 0) < 2) close();

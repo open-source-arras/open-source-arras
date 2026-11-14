@@ -1076,8 +1076,8 @@ body.mobile .startMenu {
 	position: absolute;
 	left: var(--card-x, 0px);
 	top: var(--card-y, 0px);
-	width: calc(1120 * var(--u));
-	height: calc(380 * var(--u));
+	width: calc(1130 * var(--u));
+	height: calc(390 * var(--u));
 	max-height: none;
 	padding: 0;
 	display: block;
@@ -1184,7 +1184,7 @@ body.mobile .startMenu h1 {
 .startMenu .horizontalSelector {
 	position: absolute;
 	left: 0;
-	width: calc(1120 * var(--u));
+	width: calc(1130 * var(--u));
 	min-height: 0;
 	margin: 0;
 	padding: 0;
