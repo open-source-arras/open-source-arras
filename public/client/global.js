@@ -103,7 +103,7 @@ const global = {
     KEY_AUTO_FIRE: "KeyE",
     KEY_AUTO_ALT: "KeyQ",
     KEY_AUTO_SPIN: "KeyC",
-    KEY_SPIN_LOCK: "KeyP",
+    KEY_SPIN_LOCK: "KeyG",
     KEY_OVERRIDE: "KeyR",
     KEY_LEVEL_UP: "KeyN",
     KEY_ABILITY: "KeyF",
