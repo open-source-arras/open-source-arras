@@ -67,7 +67,7 @@ module.exports = {
                 food_cap: 70,
                 bot_cap: 24
             }
-        },
+        }
     ],
 
     /* Proof of concept, not functional (+ assuming all Sandbox servers in a region can run from the same thread)

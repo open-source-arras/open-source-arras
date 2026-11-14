@@ -276,7 +276,7 @@ Class.twoThirdsNThird = {
                 WIDTH: 9.5,
                 ASPECT: 1.25,
                 X: 8,
-                ANGLE: 120,
+                ANGLE: 120
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
