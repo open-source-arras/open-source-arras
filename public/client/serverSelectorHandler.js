@@ -116,8 +116,8 @@ let initializeFilter = () => {
         gamemodes: {
             all: [],
             normal: [],
-            growth: [],
             armsRace: [],
+            growth: [],
             other: [],
             sandbox: []
         }
@@ -229,8 +229,8 @@ let initializeFilter = () => {
     createFilter(svFilterModeDoc, [
         { name: "All", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.all) },
         { name: "Normal", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.normal) },
-        { name: "Growth", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.growth) },
         { name: "Arms Race", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.armsRace) },
+        { name: "Growth", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.growth) },
         { name: "Other", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.other) },
         { name: "Sandbox", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.sandbox) }
     ], "serverFilterMode");
