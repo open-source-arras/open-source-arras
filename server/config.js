@@ -158,44 +158,6 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3100",
-            port: 3100,
-            id: "lz",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["sandbox_nexus"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                server_travel_properties: {
-                    loop_interval: 60_000,
-                    portals: 1
-                },
-                server_travel: [
-                    {
-                        ip: "localhost:3101",
-                        portal_properties: {
-                            spawn_chance: 2,
-                            color: "blue"
-                        }
-                    },
-                    {
-                        ip: "localhost:3102",
-                        portal_properties: {
-                            spawn_chance: 2,
-                            color: "blue"
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            share_client_server: false,
             host: "localhost:3101",
             port: 3101,
             id: "lpa",
@@ -212,52 +174,8 @@ module.exports = {
             properties: {
                 allow_server_travel: true
             }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3102",
-            port: 3102,
-            id: "lpb",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["arms_race", "retrograde", "sandbox"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                allow_server_travel: true
-            }
         }
     ],
-
-    /* Proof of concept, not functional (+ assuming all Sandbox servers in a region can run from the same thread)
-
-    sandbox_servers: [
-        {
-            host: "localhost:3100", // all servers run on the same thread
-            port: 3100,
-            count: 32, // number of sandbox servers to run from this thread
-            starting_id: "lpa", // increments alphabetically per total count (lpa => lpb => ... => lpz => lqa => lqb => ...)
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["arms_race"], // modifiers to put on the sandboxes
-            player_cap: 80, // player cap for all sandboxes on this thread
-
-            // featured/hidden/private aren't available for sandbox servers (the non-nexus servers are hidden by default)
-
-            nexus: true, // enable sandbox nexus in server + related commands
-            nexus_id: "lz", // nexus shares properties with all other sandbox servers
-
-            properties: {} // just in case you want to do wacky shit
-        }
-    ]
-    
-    */
 
     // Web Server
     allow_ACAO: false, // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
