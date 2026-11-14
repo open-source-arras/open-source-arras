@@ -5633,8 +5633,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         const PANEL_VISIBLE_X = mainMenuAnim;
         const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
         const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optFullSecretOptions");
-        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optFullSecretOptionsChecked") === "true";
+        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
+        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
         const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
         const TAB_CONTENT_HEIGHTS = [
             (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
@@ -5831,7 +5831,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optCurvyTraps",          label: "Curvy Traps",           column: 1, row: 3, section: "appearance", tooltip: "Add curvature to the sides of traps.\n" + "May slightly lower the frame rate." },
                     { type: "checkbox", id: "optTankSkins",           label: "Tank Skins",            column: 1, row: 4, section: "appearance", tooltip: "Show tank skins.\n" + "Note: Skins will be in grayscale if the low WebGl driver is selected." },
                     //{ type: "checkbox", id: "optHexaGrid",            label: "Hexagon Grid",          column: 1, row: 5, section: "appearance", tooltip: "Make the background grid hexagonal.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optFullSecretOptions",   label: "Full Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock more of the secret options tab.\n" + "Note: This is not supposed to be public..." },
+                    { type: "checkbox", id: "optSuperSecretOptions",  label: "Super Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock the super secret options section.\n" + "Note: This is not supposed to be public..." },
 
                     // UI Elements
                     { type: "checkbox", id: "optRenderUpgrades",      label: "Upgrades",              column: 0, row: 0, section: "ui", tooltip: "Toggle the visibility of the class and skill upgrade menus." },
