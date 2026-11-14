@@ -3031,10 +3031,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             score = Math.round(gui.__s.getScore()),
             kills = gui.__s.getKills(),
             name = global.player.name.substring(7, global.player.name.length + 1);
-        drawPlayerBar(left + 740, left + 1180, bottom + 1045, 22, gui.__s.getProgress(), color.purple, "Level " + gui.__s.getLevel() + " " + gui.class);
+        drawPlayerBar(left + 740, left + 1180, bottom + 1045, 22, gui.__s.getProgress(), color.gold, "Level " + gui.__s.getLevel() + " " + gui.class);
         if (global.GUIStatus.renderPlayerKillbar) {
             drawPlayerBar(left + 788, left + 988, bottom + 1019, 14, score / max, color.green, "Score: " + commas(score));
-            drawPlayerBar(left + 1012, left + 1132, bottom + 1019, 14, killFill(kills[0], kills[2], score), color.teal, killText(kills[0], kills[1], kills[2]));
+            drawPlayerBar(left + 1012, left + 1132, bottom + 1019, 14, killFill(kills[0], kills[2], score), color.purple, killText(kills[0], kills[1], kills[2]));
         } else {
             drawPlayerBar(left + 810, left + 1110, bottom + 1019, 14, score / max, color.green, "Score: " + commas(score));
         }
