@@ -5895,13 +5895,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     // Secrets
                     { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor." },
                     { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow." },
-                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 1, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
-                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 0, row: 2, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
-                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 1, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
-                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 0, row: 3, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 0, row: 4, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 1, row: 3, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 1, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 0, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
+                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
+                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
+                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
+                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 3, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
+                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 3, section: "secret", fullSecret: true, tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                     // Beta
                     { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
