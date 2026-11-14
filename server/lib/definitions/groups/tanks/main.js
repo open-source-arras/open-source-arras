@@ -2574,6 +2574,7 @@ Class.overtrapper = makeOver({
         }
     ]
 });
+Class.overtrapper.UPGRADES_TIER_4 = ["battletrapper", "captrapper", "foretrapper"];
 Class.paramedic = {
     PARENT: "genericHealer",
     LABEL: "Paramedic",
