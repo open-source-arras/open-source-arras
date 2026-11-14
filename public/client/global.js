@@ -107,7 +107,7 @@ const global = {
     KEY_OVERRIDE: "KeyR",
     KEY_LEVEL_UP: "KeyN",
     KEY_ABILITY: "KeyF",
-    KEY_PAUSE: "KeyG",
+    KEY_PAUSE: "KeyP",
     KEY_REVERSE_TANK: "KeyV",
     KEY_REVERSE_MOUSE: "KeyB",
     KEY_SCREENSHOT: "F2",
