@@ -7,6 +7,7 @@ import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import { skinShape } from "./skins.js";
 import { censorChat } from "./chatFilter.js";
+import { censorText } from "./dmca.js";
 import * as socketStuff from "./socketinit.js";
 
 const THEME_PALETTE_KEYS = [
@@ -63,6 +64,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }, 10)
         }
     }
+
+    global.setDmcaMode = enabled => {
+        config.game.dmcaMode = enabled;
+        global.cached = {};
+        global.generateTankTree = true;
+        for (const upgrade of gui.upgrades) upgrade[2] = util.requestEntityImage(upgrade[2], gui.color);
+    };
 
     // Build the leaderboard object
     let leaderboardEntries = {};
@@ -1185,6 +1193,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.graphical.curvyTraps = document.getElementById("optCurvyTraps").checked;
         config.game.autoLevelUp = document.getElementById("autoLevelUp").checked;
         config.game.centeredMinimap = localStorage.getItem("optSelfCenteredMinimapChecked") === "true";
+        config.game.dmcaMode = localStorage.getItem("optDmcaModeChecked") === "true";
         config.lag.unresponsive = document.getElementById("optPredictive").checked;
         config.graphical.sharpEdges = document.getElementById("optSharpEdges").checked;
         config.graphical.renderSkins = document.getElementById("optTankSkins").checked;
@@ -2298,6 +2307,18 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.lineWidth /= fill ? 1 : 0.5; // Maintain constant border width
             if (fill) context.fill();
             context.globalAlpha = 1;
+        },
+        drawGunBox = (context, x, y, length, height, aspect, angle, position, pad) => {
+            const h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect],
+                cos = Math.cos(angle),
+                sin = Math.sin(angle),
+                points = [[-position, h[1]], [length * 2 - position, h[0]], [length * 2 - position, -h[0]], [-position, -h[1]]]
+                    .map(([a, b]) => [x + a * cos - b * sin, y + a * sin + b * cos]),
+                xs = points.map(p => p[0]),
+                ys = points.map(p => p[1]),
+                left = Math.min(...xs) - pad,
+                top = Math.min(...ys) - pad;
+            context.fillRect(left, top, Math.max(...xs) - left + pad, Math.max(...ys) - top + pad);
         };
         // The actual drawEntity function
         return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false) => {
@@ -2314,6 +2335,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             const indexes = indexStr.split("-");
             const mockupIndex = +indexes[0];
             const m = global.mockups[mockupIndex] || global.missingno[0];
+            const dmcaDesign = config.game.dmcaMode && (m.censor & 2);
             const source = turretInfo === false ? instance : turretInfo;
             const hasHighLayer = (m.turrets || []).some(t => t.layer > 0) || (m.props || []).some(p => p.layer > 0);
             const skin = instance.nameplate && !hasHighLayer && skinShape(instance.name);
@@ -2334,7 +2356,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (drawSize < 0.1) return;
 
             // --- Find upper turrets and props with optimized loop ---
-            const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
+            const turrets = dmcaDesign ? [] : (instance.isImage ? source.turrets : [...source.turrets, ...m.props]);
             if (m.props) turrets.sort((a, b) => a.layer - b.layer);
 
             // --- Gun positions with single update ---
@@ -2342,7 +2364,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Fancy canvas with reduced state setup ---
             let xx = x, yy = y;
-            const useFancyCanvas = DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
+            const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
 
             if (useFancyCanvas) {
                 context = ctx2;
@@ -2366,6 +2388,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Size ratio cached for body drawing ---
             const sizeRatio = (drawSize / m.size) * m.realSize;
+
+            const dmcaZoom = drawSize / (instance.isImage ? 12 : instSize);
+            if (dmcaDesign) {
+                context.fillStyle = "#000000";
+                context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
+            }
 
             // --- Draw turrets beneath with cached values ---
             for (let i = 0; i < turrets.length; i++) {
@@ -2435,6 +2463,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     const gx = g.offset * cosGunAngle;
                     const gy = g.offset * sinGunAngle;
 
+                    if (dmcaDesign) {
+                        drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
+                        continue;
+                    }
+
                     // Minimize color calculations
                     let gunColor = g.color == null ? color.grey : gameDraw.modifyColor(g.color, baseColor);
                     const gunAlpha = g.alpha === undefined ? 1 : g.alpha;
@@ -2460,7 +2493,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 }
 
                 // Draw body between gun layers
-                if (drawAbove === 0) {
+                if (drawAbove === 0 && dmcaDesign) {
+                    const half = sizeRatio + 11 * dmcaZoom;
+                    context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
+                } else if (drawAbove === 0) {
                     context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
                     context.lineWidth = initStrokeWidth * m.strokeWidth;
 
@@ -2515,6 +2551,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
                     if (skin) drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
+            }
+
+            if (dmcaDesign) {
+                const fontSize = 0.65 * sizeRatio, offset = 0.35 * sizeRatio, baseline = 0.38 * fontSize;
+                drawText("DMCA'd", xx, yy - offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                drawText("by Diep", xx, yy + offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                context.globalAlpha = 1;
             }
 
             // --- Draw turrets above with cached trig values ---
@@ -3599,7 +3642,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawBar(x, x + width, y + height / 2, height - 3 + config.graphical.barChunk, color.black);
         drawBar(x, x + width, y + height / 2, height - 3, color.grey);
         drawBar(x, x + width * gui.__s.getProgress(), y + height / 2, height - 3.5, color.gold);
-        drawText("Level " + gui.__s.getLevel() + " " + gui.class, x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
+        const censorClass = config.game.dmcaMode && typeof gui.type === "string" && (global.mockups[parseInt(gui.type)]?.censor & 1);
+        drawText("Level " + gui.__s.getLevel() + " " + (censorClass ? censorText(gui.class) : gui.class), x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
         height = 17;
         y -= height + 5;
         if (config.graphical.oldUIStyle) {
@@ -5455,6 +5499,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optBrainrotFilter") global.refreshBrainrotOption();
                 if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
+                if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();

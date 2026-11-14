@@ -57,6 +57,7 @@ const config = {
         incognitoMode: false,
         deltaEntities: true,
         rainbowTeamColors: false,
+        dmcaMode: false,
     }
 };
 export { config }

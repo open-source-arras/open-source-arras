@@ -39,7 +39,7 @@ const qpct = v => qnum(v, 100);
 const qangle = v => qnum(v, 2048 / Math.PI);
 const qfrac = v => qnum(v || 0, 255);
 // Key table; must match the client.
-const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout"];
+const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout", "censor"];
 const MOCKUP_KEY_ID = new Map(MOCKUP_KEYS.map((k, i) => [k, i]));
 const encodeMockupVal = (v, colorOk) => {
     if (Array.isArray(v)) return ["l", ...v.map(x => encodeMockupVal(x, false))];

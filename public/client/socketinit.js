@@ -1,6 +1,7 @@
 import { global } from "./global.js";
 import { util } from "./util.js";
 import { config } from "./config.js";
+import { censorText } from "./dmca.js";
 import { protocol } from "./protocol.js";
 // Common "u" colors sent as palette ids instead of full strings. Must match the server table.
 const U_COLOR_TABLE = [
@@ -27,7 +28,7 @@ const U_COLOR_TABLE = [
 const FALLBACK_COLOR = U_COLOR_TABLE[1];
 const decodeColor = value => typeof value === "number" ? (U_COLOR_TABLE[value] ?? FALLBACK_COLOR) : value;
 // Key table; must match the server.
-const MOCKUP_KEYS = ["index","name","x","y","color","strokeWidth","glow","radius","alpha","recursion","borderless","drawFill","shape","imageInterpolation","size","realSize","mirrorMasterAngle","sendAllMockups","position","axis","middle","rerootUpgradeTree","className","upgrades","tier","guns","offset","direction","length","width","aspect","angle","drawAbove","layer","turrets","props","statnames","body_damage","max_health","bullet_speed","bullet_health","bullet_pen","bullet_damage","reload","move_speed","shield_regen","shield_cap","sizeFactor","isProp","forceAngle","visibleOnBlackout"];
+const MOCKUP_KEYS = ["index","name","x","y","color","strokeWidth","glow","radius","alpha","recursion","borderless","drawFill","shape","imageInterpolation","size","realSize","mirrorMasterAngle","sendAllMockups","position","axis","middle","rerootUpgradeTree","className","upgrades","tier","guns","offset","direction","length","width","aspect","angle","drawAbove","layer","turrets","props","statnames","body_damage","max_health","bullet_speed","bullet_health","bullet_pen","bullet_damage","reload","move_speed","shield_regen","shield_cap","sizeFactor","isProp","forceAngle","visibleOnBlackout","censor"];
 const decodeMockupVal = v => {
     if (!Array.isArray(v)) return v;
     if (v[0] === "o") {
@@ -296,13 +297,14 @@ const Entry = class {
                 ref = global.mockups[parseInt(indexes[0])];
             if (!ref) ref = global.missingno[0];
 
+            const label = config.game.dmcaMode && (ref.censor & 1) ? censorText(this.label) : this.label;
             this.published = {
                 id: this.id,
                 color: this.color,
                 image: util.requestEntityImage(this.index, this.color),
                 position: ref.position,
                 barColor: this.bar,
-                label: this.name ? this.name + " - " + this.label : this.label,
+                label: this.name ? this.name + " - " + label : label,
                 nameColor: this.nameColor,
                 renderEntity: this.renderEntity,
             };

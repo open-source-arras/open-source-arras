@@ -17,6 +17,7 @@ function getMockup(e, positionInfo) {
         borderless: e.borderless,
         drawFill: e.drawFill,
         visibleOnBlackout: e.visibleOnBlackout,
+        censor: e.censor,
         shape: e.shapeData,
         imageInterpolation: e.imageInterpolation,
         size: util.rounder(e.size),

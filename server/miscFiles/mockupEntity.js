@@ -197,6 +197,7 @@ class MockupEntity {
         this.props = [];
         this.x = 0;
         this.y = 0;
+        this.censor = 0;
 
         // Call the set function to make everything set up.
         this.set(Class.genericEntity);
@@ -260,6 +261,8 @@ class MockupEntity {
         this.settings.motionEffects = set.MOTION_EFFECTS ?? true;
         this.sendAllMockups = set.SEND_ALL_MOCKUPS ?? false;
         if (set.VISIBLE_ON_BLACKOUT) this.visibleOnBlackout = set.VISIBLE_ON_BLACKOUT;
+        if (set.DMCA_CENSOR_NAME) this.censor |= 1;
+        if (set.DMCA_CENSOR_DESIGN) this.censor |= 2;
         if (set.REROOT_UPGRADE_TREE) this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
         if (Array.isArray(this.rerootUpgradeTree)) {
             let finalRoot = "";
