@@ -246,58 +246,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         keybinderHandler.initalize("sandboxSkillControlSettings", "resetSandboxSkillControls", "sandboxskillkeybinds"); // Sandbox command keys (Skill)
         keybinderHandler.initalize("sandboxAttributeControlSettings", "resetSandboxAttributeControls", "sandboxattributekeybinds"); // Sandbox command keys (Attribute)
 
-        // Tab menu creater
-        global.createTabMenu = (text, type, addDismissButton = false) => {
-            let allowedType = [
-                "warning",
-                "critical",
-                "discord",
-                "stat",
-                "achieve"
-            ];
-            if (allowedType.includes(type)) {
-                let b = document.getElementById("menuTabs");
-                b.style.textAlign = "center";
-                let d = document.createElement("span");
-                d.classList.add("menuTab");
-                d.classList.add(type);
-                d.appendChild(document.createTextNode(`${text}${addDismissButton ? "\xa0\xa0\xa0" : ""}`));
-                if (addDismissButton) {
-                    text = document.createElement("text");
-                    text.style.textDecoration = "underline";
-                    text.href = "javascript:;";
-                    text.appendChild(document.createTextNode("Dismiss"));
-                    text.addEventListener("click", () => d.remove());
-                    d.appendChild(text);
-                }
-                b.appendChild(d);
-                return d;
-            } else throw new Error("Invalid menu tab type.");
-        };
-        try {
-            fetch("/version").then(json => json.json()).then(ve => {
-                global.version = ve.ver;
-                if (ve.dev_build) {
-                    global.dev_build = true;
-                    global.createTabMenu(`Open Source Arras ${global.version} (dev build)`, "warning", true);
-                }
-                // Addon info handler
-                let keyValue = localStorage.getItem("playerKeyInputValue");
-                (async function() {
-                    let A_response = await fetch(`/api/getAddonAuthors?token=${keyValue}`);
-                    let A_data = await A_response.json().catch(() => false);
-                    if (A_data && Array.isArray(A_data)) initalizeAddonAuthors(A_data);
-                })();
-            });
-        } catch { };
-        // Warn the users to turn their phones into landscape.
-        if (global.mobile && window.innerHeight > 1.1 * window.innerWidth) {
-            let tabMenu = global.createTabMenu("Please turn your device to landscape mode.", "warning", true);
-            window.addEventListener("orientationchange", () => {
-                window.innerHeight > 1.1 * window.innerWidth || tabMenu.remove();
-            });
-        };
-
         // Game start stuff
         document.getElementById("startButton").onclick = () => startGame();
         document.onkeydown = (e) => {

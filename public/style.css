@@ -332,7 +332,7 @@ input.error {
 body.mobile #startMenuWrapper { max-width: 780px; }
 
 .mainWrapper {
-	padding: 47px 20px 0; /* Should be 75px, reduced to match base arras' measurements while keeping support for menu tabs */
+	padding: 75px 20px 0;
 }
 body.mobile .mainWrapper {
 	padding: 10px 10px 0;
@@ -392,57 +392,6 @@ body.mobile .startMenuHolder.changelogHolder {
 	margin-left: auto;
 	margin-right: auto;
 	text-align: center;
-}
-
-.menuTabs {
-	height: 28px;
-	margin: 0 8px;
-}
-.menuTab {
-	font: 13px/28px Ubuntu;
-	padding: 6px 12px;
-	border-radius: 5px 5px 0 0;
-	color: #fff !important;
-	margin: 0 6px;
-}
-.menuTab.warning {
-	background: #e90;
-}
-.menuTab.critical {
-	background: #f00;
-}
-.menuTab.colonCancer {
-  background: #2b3278;
-}
-.menuTab.discord {
-	padding: 6px 12px 6px 36px;
-	background: #7289da url(/img/discord-old.svg) 8px 4px/23px no-repeat;
-}
-.menuTab.stat {
-	background: #f00 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAKUlEQVQoU2NkQAP/////DxJiZGRkRJZC4YAkcCpEl6C9QrgNhKweSgoBUcBf8wTAguMAAAAASUVORK5CYII=) 11px 9px no-repeat;
-	/*
-	let canvas = document.body.appendChild(document.createElement('canvas'))
-	canvas.width = 10
-	canvas.height = 10
-	canvas.style.background = '#f00'
-	let ctx = canvas.getContext('2d')
-	ctx.fillStyle = '#fff'
-	ctx.fillRect(0, 2, 2, 8)
-	ctx.fillRect(4, 0, 2, 10)
-	ctx.fillRect(8, 4, 2, 6)
-	copy(canvas.toDataURL())
-	*/
-	padding: 6px 12px 6px 30px;
-}
-.menuTab.achieve {
-	background: #8abc3f;
-}
-.menuTab > a {
-	color: #fff !important;
-	text-decoration: none;
-}
-.menuTab > a:link:hover, .menuTab > a:visited:hover, .menuTab > a:not(:only-child) {
-	text-decoration: underline;
 }
 
 .sliderHolder {
@@ -1118,13 +1067,6 @@ i.flag.down::before {
 }
 body.mobile #startMenuWrapper {
 	max-width: none;
-}
-#menuTabs {
-	position: absolute;
-	left: var(--card-x, 0px);
-	width: calc(1120 * var(--u));
-	top: calc(var(--card-y, 80px) - 34px);
-	margin: 0;
 }
 #optionsStore {
 	display: none;
