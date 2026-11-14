@@ -542,7 +542,7 @@ Class.menu_addons = makeMenu("Addons Menu", {
         "bob"
     ]
 });
-Class.menu_armsRace = makeMenu("Unused Arms Race", { boxLabel: "Unused AR", upgrades: ["aeronaut", "autoProdigy", "band", "duster", "oldHewnTriple", "virago"] });
+Class.menu_armsRace = makeMenu("Unused Arms Race", { boxLabel: "Unused AR", upgrades: ["aeronaut", "autoProdigy", "band", "duster", "oldHewnTriple", "shikra", "virago"] });
 
 if (better_menus) {
     removeUpgrades("menu_nostalgia", 0, ["quintuplet", "vulcan", "sniper3", "oldArmsman"]);
