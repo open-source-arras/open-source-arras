@@ -1112,11 +1112,11 @@ body.mobile .startMenuHolder.linkHolder {
 }
 .bottomHolder > a.menuButton {
 	position: absolute;
-	top: calc(320 * var(--u));
+	top: calc(325 * var(--u));
 	width: calc(40 * var(--u));
 	height: calc(40 * var(--u));
 	margin: 0;
-	padding: 0 0 calc(4 * var(--u));
+	padding: 0 0 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1125,16 +1125,16 @@ body.mobile .startMenuHolder.linkHolder {
 	text-shadow: 0 calc(2.25 * var(--u)) 0 rgba(0, 0, 0, 0.2);
 }
 .bottomHolder > a.menuButton:nth-child(1) {
-	left: calc(17 * var(--u));
+	left: calc(22 * var(--u));
 }
 .bottomHolder > a.menuButton:nth-child(2) {
-	left: calc(64 * var(--u));
+	left: calc(69 * var(--u));
 }
 .bottomHolder > a.menuButton:nth-child(3) {
-	left: calc(111 * var(--u));
+	left: calc(116 * var(--u));
 }
 .bottomHolder > a.menuButton.wide {
-	left: calc(158 * var(--u));
+	left: calc(163 * var(--u));
 	width: calc(205 * var(--u));
 	justify-content: flex-start;
 	padding-left: calc(7.25 * var(--u));
@@ -1149,13 +1149,13 @@ body.mobile .startMenuHolder.linkHolder {
 	font: bold calc(13.05 * var(--u)) Ubuntu;
 }
 .bottomHolder > a.menuButton:hover {
-	top: calc(322 * var(--u));
+	top: calc(327 * var(--u));
 	height: calc(38 * var(--u));
-	padding-bottom: calc(2 * var(--u));
+	padding-bottom: 0;
 	box-shadow: inset 0 calc(-2 * var(--u)) rgba(0, 0, 0, 0.2);
 }
 .bottomHolder > a.menuButton:active {
-	top: calc(324 * var(--u));
+	top: calc(329 * var(--u));
 	height: calc(36 * var(--u));
 	padding-bottom: 0;
 	box-shadow: inset 0 calc(-36 * var(--u)) rgba(0, 0, 0, 0.2);
@@ -1163,8 +1163,8 @@ body.mobile .startMenuHolder.linkHolder {
 }
 .startMenu .header {
 	position: absolute;
-	left: calc(447 * var(--u));
-	top: calc(19 * var(--u));
+	left: calc(452 * var(--u));
+	top: calc(24 * var(--u));
 	padding: 0;
 	align-items: center;
 }
@@ -1192,14 +1192,14 @@ body.mobile .startMenu h1 {
 	white-space: nowrap;
 }
 #serverFilterRegion {
-	top: calc(87.25 * var(--u));
+	top: calc(92.25 * var(--u));
 }
 #serverFilterMode {
-	top: calc(112 * var(--u));
+	top: calc(117 * var(--u));
 }
 #changelogTabs {
-	top: calc(15.25 * var(--u));
-	left: calc(760 * var(--u));
+	top: calc(20.25 * var(--u));
+	left: calc(765 * var(--u));
 	width: calc(340 * var(--u));
 }
 .startMenu .horizontalSelector span {
@@ -1218,7 +1218,7 @@ body.mobile .startMenu h1 {
 body.mobile .startMenu .serverSelector {
 	position: absolute;
 	left: calc(387 * var(--u));
-	top: calc(139 * var(--u));
+	top: calc(144 * var(--u));
 	width: calc(346 * var(--u));
 	height: auto;
 	max-height: calc(127 * var(--u));
@@ -1264,8 +1264,8 @@ body.mobile .startMenu .serverSelector {
 }
 .startMenu #optName {
 	position: absolute;
-	left: calc(387 * var(--u));
-	top: calc(272 * var(--u));
+	left: calc(392 * var(--u));
+	top: calc(277 * var(--u));
 	width: calc(346 * var(--u));
 	height: calc(40 * var(--u));
 	margin: 0;
@@ -1277,8 +1277,8 @@ body.mobile .startMenu .serverSelector {
 }
 .startMenu .startButtonHolder {
 	position: absolute;
-	left: calc(387 * var(--u));
-	top: calc(320 * var(--u));
+	left: calc(392 * var(--u));
+	top: calc(325 * var(--u));
 	width: calc(346 * var(--u));
 	height: calc(40 * var(--u));
 	margin: 0;
@@ -1317,8 +1317,8 @@ body.mobile .startMenu .serverSelector {
 }
 #moreOptions {
 	position: absolute;
-	left: calc(387 * var(--u));
-	top: calc(362 * var(--u));
+	left: calc(392 * var(--u));
+	top: calc(368 * var(--u));
 	width: calc(346 * var(--u));
 	margin: 0;
 	font: bold calc(11 * var(--u)) / calc(16 * var(--u)) Ubuntu;
@@ -1338,10 +1338,10 @@ body.mobile .startMenu .serverSelector {
 }
 .startMenu #patchNotes {
 	position: absolute;
-	left: calc(763.25 * var(--u));
-	top: calc(46 * var(--u));
-	width: calc(341.25 * var(--u));
-	height: calc(318.75 * var(--u));
+	left: calc(768.25 * var(--u));
+	top: calc(51 * var(--u));
+	width: calc(346.25 * var(--u));
+	height: calc(323.75 * var(--u));
 	max-width: none;
 	padding: 0;
 	overflow: hidden auto;
