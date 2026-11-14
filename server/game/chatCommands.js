@@ -368,6 +368,14 @@ const commands = [
         }
     },
     {
+        command: ["define"],
+        description: "Placeholder define stub",
+        permissionLevel: 8,
+        run: ({ socket }) => {
+            socket.talk("m", 15_000, "This command is deprecated, please use $dev define <entity> instead!");
+        }
+    },
+    {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
         permissionLevel: 8,
