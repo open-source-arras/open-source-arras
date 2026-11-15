@@ -1,5 +1,11 @@
 const prefix = "$";
 
+function formatCommandArguments(argumentSpec) {
+    if (!argumentSpec?.length) return "";
+    const alternatives = argumentSpec.map(argument => Array.isArray(argument) ? argument.map(parameter => `<${parameter}>`).join(" ") : argument);
+    return alternatives.length === 1 ? alternatives[0] : `<${alternatives.join("|")}>`;
+}
+
 const commands = [
     {
         command: ["help"],
@@ -8,7 +14,8 @@ const commands = [
             let lines = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
-                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}${c.usage ? ` ${c.usage}` : ""}`;
+                    let usage = c.arguments ? ` ${formatCommandArguments(c.arguments)}` : c.usage ? ` ${c.usage}` : "";
+                    let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}${usage}`;
                     if (c.description) text += ` - ${c.description}`;
                     return text;
                 })
@@ -208,16 +215,40 @@ const commands = [
         description: "Manage the arena",
         hidden: true,
         permissionLevel: 3,
-        run: ({ socket, args, gameManager }) => {
+        subcommands: [
+            {
+                command: "size",
+                arguments: ["dynamic", ["width", "height"]],
+                description: "Set the size of the arena, or scale it with the number of players"
+            },
+            {
+                command: "team",
+                arguments: [["team"]],
+                description: "Set the number of teams, from 0 (FFA) to 4 (4TDM)"
+            },
+            {
+                command: "spawnpoint",
+                arguments: ["clear", "set", ["x", "y"]],
+                description: "Set a location where all players spawn by default"
+            },
+            {
+                command: "close",
+                description: "Close the arena"
+            },
+            {
+                command: "discoverable",
+                arguments: ["true", "false"],
+                description: "Choose whether this server can be displayed in the Sandbox Nexus"
+            }
+        ],
+        run: ({ socket, args, gameManager, command }) => {
             let sendAvailableArenaMessage = () => {
                 let lines = [
                     "Help menu:",
-                    `- ${prefix} arena size dynamic - Make the size of the arena dynamic, depending on the number of players`,
-                    `- ${prefix} arena size <width> <height> - Set the size of the arena`,
-                    `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
-                    `- ${prefix} arena spawnpoint <clear|set|<x> <y>> - Set a location where all players spawn by default (or ${prefix} arena spawnpoint set to use your position)`,
-                    `- ${prefix} arena close - Close the arena`,
-                    `- ${prefix} arena discoverable <true|false> - (WIP) Choose whether this server can be displayed in the Sandbox Nexus`
+                    ...command.subcommands.map(subcommand => {
+                        let argumentsText = subcommand.arguments ? ` ${formatCommandArguments(subcommand.arguments)}` : "";
+                        return `- ${prefix} arena ${subcommand.command}${argumentsText} - ${subcommand.description}`;
+                    })
                 ];
                 if (!Config.sandbox) lines.splice(1, 1);
                 socket.talk("Em", 10_000, JSON.stringify(lines));
@@ -538,7 +569,7 @@ function runCommand(socket, message) {
         return;
     }
     try {
-        command.run({ socket, message, args, gameManager: global.gameManager });
+        command.run({ socket, message, args, gameManager: global.gameManager, command });
     } catch(e) {
         console.error("Error while running " + name);
         console.error(e);
