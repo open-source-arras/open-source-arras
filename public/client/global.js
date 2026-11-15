@@ -557,7 +557,6 @@ handleOperatorKeyDown: function (key) {
     },
     tankTree: (type) => {
         if (type === "open") {
-            if (global.died) return;
             global.showTree = true;
             global.pullUpgradeMenu = true;
             global.pullSkillBar = true;
