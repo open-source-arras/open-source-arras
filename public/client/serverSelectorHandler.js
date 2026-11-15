@@ -212,7 +212,7 @@ let initializeFilter = () => {
             });
         }
         let saved = storageKey ? data.findIndex(option => option.name === localStorage.getItem(storageKey)) : -1;
-        if (saved >= 0) restoreFilters.push(() => spans[saved].click());
+        restoreFilters.push(() => spans[saved >= 0 ? saved : 0].click());
     };
     let checkRegionFilter = (server, array) => {
         return array.some(data => data.region === server.region);
