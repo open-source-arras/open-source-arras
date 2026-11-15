@@ -14,7 +14,7 @@
 }
 @font-face {
     font-family: 'Ubuntu Mono';
-    src: url('../../fonts/Ubuntu-Mono.ttf') format('truetype');
+    src: url('./fonts/Ubuntu-Mono.ttf') format('truetype');
     font-style: normal;
     font-weight: normal;
 }
