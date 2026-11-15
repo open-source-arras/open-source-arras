@@ -215,7 +215,7 @@ const commands = [
                     `- ${prefix} arena size dynamic - Make the size of the arena dynamic, depending on the number of players`,
                     `- ${prefix} arena size <width> <height> - Set the size of the arena`,
                     `- ${prefix} arena team <team> - Set the number of teams, from 0 (FFA) to 4 (4TDM)`,
-                    `- ${prefix} arena spawnpoint [x] [y] - Set a location where all players spawn by default (or ${prefix} arena spawnpoint set to use your position)`,
+                    `- ${prefix} arena spawnpoint <clear|set|<x> <y>> - Set a location where all players spawn by default (or ${prefix} arena spawnpoint set to use your position)`,
                     `- ${prefix} arena close - Close the arena`,
                     `- ${prefix} arena discoverable <true|false> - (WIP) Choose whether this server can be displayed in the Sandbox Nexus`
                 ];
