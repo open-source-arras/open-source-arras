@@ -144,17 +144,17 @@ let initializeFilter = () => {
 
         // Gamemodes
         let normalModes = [
-            ["FFA", "loose"],
-            ["Duos", "loose"],
-            ["Trios", "loose"],
-            ["Squads", "loose"],
-            ["Wars", "loose"],
-            ["TDM", "loose"],
-            ["Maze", "exact"],
-            ["Forge", "exact"],
-            ["Nexus", "exact"],
+            ["FFA",       "loose"],
+            ["Duos",      "loose"],
+            ["Trios",     "loose"],
+            ["Squads",    "loose"],
+            ["Wars",      "loose"],
+            ["TDM",       "loose"],
+            ["Maze",      "exact"],
+            ["Forge",     "exact"],
+            ["Nexus",     "exact"],
             ["Labyrinth", "exact"]
-        ]
+        ];
 
         if (s.gameMode.includes("Sandbox")) {
             global.filters.gamemodes.sandbox.push(s);
