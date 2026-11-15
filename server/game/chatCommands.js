@@ -78,7 +78,7 @@ const commands = [
     },
     {
         command: ["afk", "a"],
-        description: "Prevent you from being pushed while AFK in you base",
+        description: "Prevent you from being pushed while AFK in your base",
         permissionLevel: 0,
         run: ({ socket }) => {
             if (socket.status.isAFK) {
