@@ -197,7 +197,7 @@ const global = {
     KEY_SPECIAL_ATTRIBUTE_RECOIL: "KeyR",
     KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE: "KeyO",
     KEY_SPECIAL_ATTRIBUTE_WALL: "KeyW",
-    KEY_SPECIAL_ATTRIBUTE_SCORE: "KeyK",
+    KEY_SPECIAL_ATTRIBUTE_SCORE: "KeyS",
 
     KEY_SPECIAL_BAN: "KeyO",
 
@@ -217,12 +217,14 @@ const global = {
     // lines up with the "`" + key" operator commands from server/keyCommands.js
     // "attribute" and "skill" are the code sent alongside KEY_SPECIAL_ATTRIBUTE or
     // KEY_SPECIAL_SKILL once that prefix key has been armed idk also see the handleOperatorKey below
+
+    // note from tgs - why isnt this just defined automatically
     operatorKeyboardRows: [
         [
             { label: "1", code: "KEY_SPECIAL_PRESET_1" },
             { label: "2", code: "KEY_SPECIAL_PRESET_2" },
             { label: "3", code: "KEY_SPECIAL_PRESET_3" },
-            { label: "4" },
+            { label: "4", code: "KEY_SPECIAL_PRESET_4" },
             { label: "5" },
             { label: "6" },
             { label: "7" },
@@ -242,17 +244,17 @@ const global = {
             { label: "U" },
             { label: "I", code: "KEY_SPECIAL_INVINCIBLE" },
             { label: "O", code: "KEY_SPECIAL_BAN", attribute: "KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE" },
-            { label: "P", code: "KEY_SPECIAL_POLICE" },
+            { label: "P" },
         ],
         [
             { label: "A", code: "KEY_SPECIAL_ATTRIBUTE", prefix: "attribute" },
-            { label: "S", code: "KEY_SPECIAL_SKILL", prefix: "skill" },
+            { label: "S", code: "KEY_SPECIAL_SKILL", prefix: "skill", attribute: "KEY_SPECIAL_ATTRIBUTE_SCORE" },
             { label: "D", code: "KEY_SPECIAL_DRAG", skill: "KEY_SPECIAL_SKILL_REMOVE" },
             { label: "F", skill: "KEY_SPECIAL_SKILL_ADD" },
             { label: "G", code: "KEY_SPECIAL_DATA", skill: "KEY_SPECIAL_SKILL_CAP_REMOVE" },
             { label: "H", code: "KEY_SPECIAL_HEAL", skill: "KEY_SPECIAL_SKILL_CAP_ADD" },
             { label: "J" },
-            { label: "K", code: "KEY_SPECIAL_KILL", attribute: "KEY_SPECIAL_ATTRIBUTE_SCORE" },
+            { label: "K", code: "KEY_SPECIAL_KILL" },
             { label: "L", attribute: "KEY_SPECIAL_ATTRIBUTE_LEADERBOARD" },
             { label: ";", code: "KEY_SPECIAL_PROMOTE" },
             { label: "'", code: "KEY_SPECIAL_DEMOTE" },
