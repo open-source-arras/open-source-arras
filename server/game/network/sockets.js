@@ -2648,7 +2648,7 @@ class socketManager {
                 permBans = JSON.parse(fs.readFileSync(PERMABAN_FILE));
                 if (permBans.some(b => b.ip === socket.ip)) {
                     socket.talk("permanentBan");
-                    socket.kick("Permanent Banned player found!");
+                    socket.kick("Permanently banned player tried to connect.");
                     return;
                 }
             }
