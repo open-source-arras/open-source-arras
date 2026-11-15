@@ -251,23 +251,25 @@ const commands = [
                         }
                         break;
                     case "spawnpoint":
-                        if (args[1] === "set") {
-                            global.spawnPoint = {
-                                x: socket.player.body.x,
-                                y: socket.player.body.y
-                            };
-                            socket.talk("m", 4_000, "Spawnpoint set.");
-                        } else if (args[1] === "clear") {
-                            global.spawnPoint = undefined;
-                            socket.talk("m", 4_000, "Spawnpoint removed.");
-                        } else if (!args[2]) {
-                            return socket.talk("m", 3_000, "Invalid arguments.");
-                        } else {
-                            global.spawnPoint = {
-                                x: parseInt(args[1] * 30),
-                                y: parseInt(args[2] * 30)
-                            };
-                            socket.talk("m", 4_000, "Spawnpoint set.");
+                        switch (args[1]) {
+                            case "set":
+                                global.spawnPoint = {
+                                    x: socket.player.body.x,
+                                    y: socket.player.body.y
+                                };
+                                socket.talk("m", 4_000, "Spawnpoint set.");
+                                break;
+                            case "clear":
+                                global.spawnPoint = undefined;
+                                socket.talk("m", 4_000, "Spawnpoint removed.");
+                                break;
+                            default:
+                                if (!args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
+                                global.spawnPoint = {
+                                    x: parseInt(args[1] * 30),
+                                    y: parseInt(args[2] * 30)
+                                };
+                                socket.talk("m", 4_000, "Spawnpoint set.");
                         }
                         break;
                     case "discoverable": // WIP
