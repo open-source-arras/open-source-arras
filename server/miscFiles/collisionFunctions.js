@@ -361,6 +361,7 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
 }
 
 function mooncollide(moon, bounce) {
+    if (bounce.ac) return;
     let collisionRadius = util.getDistance(moon, bounce);
     let properCollisionRadius = moon.size + bounce.size;
     // Exit if too far
@@ -402,7 +403,7 @@ function mazewallcollidekill(bounce, wall) {
 }
 
 function mazewallcollide(wall, bounce) {
-    if (bounce.god === true || bounce.passive === true || bounce.isArenaCloser || (bounce.isArenaCloser !== false && bounce.master.isArenaCloser)) return;
+    if (bounce.ac || bounce.god === true || bounce.passive === true || bounce.isArenaCloser || (bounce.isArenaCloser !== false && bounce.master.isArenaCloser)) return;
     if (bounce.store.noWallCollision) return;
     if (bounce.team === wall.team && bounce.type === "tank") return;
     const trueWallSize = wall.size * lazyRealSizes[4] / Math.SQRT2 + 2;

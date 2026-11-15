@@ -47,7 +47,7 @@ ares.addLayer({turret: {
     TYPE: ["protoSwarmerTurret", { INDEPENDENT: true }]
 }}, true, 6.5);
 
-let gersemi = new LayeredBoss(null, "Gersemi", "terrestrial", 7, "lime", "terrestrialTrapTurret", 7, 5.5);
+let gersemi = new LayeredBoss(null, "Gersemi", "terrestrial", 7, "aqua", "terrestrialTrapTurret", 7, 5.5);
 gersemi.addLayer({turret: {
     POSITION: [9, 8, 0, null, 160, 0],
     TYPE: ["swarmTurret", { INDEPENDENT: true, GUN_STAT_SCALE: {health: 1.7, damage: 1.2} }]

@@ -480,6 +480,18 @@ Class.rocketeerMissile = {
         }
     ]
 };
+Class.aeronautMissile = {
+    PARENT: "missile",
+    GUNS: Class.rocketeerMissile.GUNS,
+    TURRETS: [
+        {
+            TYPE: "aeronautMissileTurret",
+            POSITION: {
+                SIZE: 20
+            }
+        }
+    ]
+};
 Class.sentinelMissile = {
     PARENT: "bullet",
     LABEL: "Missile",

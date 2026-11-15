@@ -59,7 +59,7 @@ Events.on("chatMessage", ({ message, socket, preventDefault, setMessage }) => {
 
     // If they're talking too much, they can take a break.
     // Fortunately, this returns false if recent[id] is undefined.
-    if (recent[id] >= ratelimit) {
+    if (recent[id] >= ratelimit + (socket.status.permissionLevel ?? 0)) {
         preventDefault(); // Prevents the message from being sent.
         socket.talk("m", Config.popup_message_duration, "Please slow down!");
         return;

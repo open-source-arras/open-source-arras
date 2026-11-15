@@ -12,7 +12,7 @@ Class.triangleHat = makeHat(3);
 Class.triangleHat_spin = makeHat(3, preset.makeHat.spin);
 Class.triangleHat_spinSlow = makeHat(3, preset.makeHat.spinSlow);
 Class.triangleHat_spinFast = makeHat(3, preset.makeHat.spinFast);
-Class.triangleHat_weirdSpike = makeHat(3, {color: "black", rotationSpeed: -0.17});
+Class.triangleHat_weirdSpike = makeHat(3, { color: "black", rotationSpeed: -0.17 });
 
 // Square Hats
 Class.squareHat = makeHat(4);

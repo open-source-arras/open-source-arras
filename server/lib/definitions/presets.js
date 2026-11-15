@@ -1,5 +1,9 @@
 module.exports = {
     // Tanks
+    placeholder: {
+        UPGRADE_COLOR: "black",
+        UPGRADE_TOOLTIP: "[DEV NOTE] This tank is a placeholder!"
+    },
     shape: {
         flatCube: [[0.1, 0], [0.6, -0.8660254037844386], [1.1, 0], [0.6, 0.8660254037844386], [0.1, 0], [-0.05, 0.08660254037844387], [0.45, 0.9526279441628825], [-0.55, 0.9526279441628825], [-1.05, 0.08660254037844387], [-0.05, 0.08660254037844387], [0.1, 0], [-0.05, -0.08660254037844387], [-1.05, -0.08660254037844387], [-0.55, -0.9526279441628825], [0.45, -0.9526279441628825], [-0.05, -0.08660254037844387]],
         flatTetrahedron: "M -0.065 0.037 L -0.934 -0.477 L -0.054 1.047 Z M 0.065 0.037 L 0.054 1.047 L 0.934 -0.477 Z M 0 -0.075 L 0.88 -0.57 L -0.88 -0.57 Z",
@@ -15,6 +19,34 @@ module.exports = {
     gun: {},
     prop: {},
     turret: {
+        assemblerHat: [
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 2,
+                    X: 14,
+                    LAYER: 1
+                }
+            }
+        ],
+        doubleAssemblerHat: [
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 4,
+                    X: 14,
+                    LAYER: 1
+                }
+            },
+            {
+                TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
+                POSITION: {
+                    SIZE: 2,
+                    X: 14,
+                    LAYER: 1
+                }
+            }
+        ],
         driveHat: [
             {
                 TYPE: ["squareHat", {COLOR: "grey"}],

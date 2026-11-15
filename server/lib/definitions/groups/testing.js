@@ -1,4 +1,4 @@
-const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack, getStatFrom } = require("../facilitators.js");
+const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack, getStatFrom, skillSet } = require("../facilitators.js");
 const { base, statnames } = require("../constants.js");
 const g = require("../gunvals.js");
 
@@ -37,7 +37,8 @@ Class.menu_testing = makeMenu("Testing", {upgrades: [
     "airblast",
     "anglemancer",
     "backwardsExports",
-    "overrideTest"
+    "overrideTest",
+    "bulletStatsTest"
 ], tooltip: "A large selection of tanks that use many of the features of Open Source Arras.\n" + "WARNING: There are a lot of entities in here and having this menu open may cause noticeable frame drops!"});
 
 const tessFaceColors = Array.from({ length: 20 }, (_, i) =>
@@ -875,7 +876,7 @@ Class.radialAutoTest = makeRadialAuto("gunner", {
 Class.imageShapeTest = {
     PARENT: "genericTank",
     LABEL: "Image Shape Test",
-    SHAPE: "image=/round.png",
+    SHAPE: "image=/example-image.png",
     GUNS: Class.basic.GUNS
 };
 Class.screenShakeTest = {
@@ -1345,7 +1346,42 @@ Class.overrideTest = {
         }
     ]
 };
-
+Class.bulletStatsTestBullet = {
+    PARENT: "bullet",
+    GUNS: [{
+        POSITION: {LENGTH: 15},
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, {recoil: 0}]),
+            TYPE: "bullet",
+            AUTOFIRE: true
+        }
+    }]
+};
+Class.bulletStatsTest = {
+    PARENT: "genericTank",
+    LABEL: "Bullet Stats Test",
+    GUNS: [
+        {
+            POSITION: {WIDTH: 12},
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic]),
+                TYPE: "bulletStatsTestBullet",
+                BULLET_STATS: skillSet({
+                    rld: 0,
+                    pen: 0.5,
+                    str: 0.5,
+                    dam: 0.5,
+                    spd: 1,
+                    shi: 0,
+                    atk: 0,
+                    hlt: 1,
+                    rgn: 0,
+                    mob: 0
+                })
+            }
+        }
+    ]
+};
 // DigDig (WIP)
 Class.genericDigDig = {
     PARENT: "genericSmasher",

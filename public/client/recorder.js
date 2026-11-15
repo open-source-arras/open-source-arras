@@ -1,5 +1,5 @@
 class AdvancedRecorder extends MediaRecorder {
-    constructor(canvas, framePerSecond = 60, fileName = "osa-video.mp4") {
+    constructor(canvas, framePerSecond = 60, fileName = "video.mp4") {
         super(canvas.captureStream(framePerSecond), {
             mimeType: MediaRecorder.isTypeSupported("video/mp4") ? "video/mp4" : "video/webm",
         });

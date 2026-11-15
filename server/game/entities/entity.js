@@ -23,6 +23,12 @@ function shapeMockupIndex(base, shape, shapeNum) {
     return index;
 }
 
+function turretIsInert(turret) {
+    if (turret.guns.size > 0 || turret.controllers.length > 0) return false;
+    for (const child of turret.turrets.values()) if (!turretIsInert(child)) return false;
+    return true;
+}
+
 class Entity extends EventEmitter {
     constructor(position, master) {
         super();
@@ -45,6 +51,7 @@ class Entity extends EventEmitter {
             power: 0
         };
         this.isInGrid = false;
+        this.sleeping = false;
         this.removeFromGrid = () => {
             if (this.isInGrid) {
                 this.isInGrid = false;
@@ -145,6 +152,18 @@ class Entity extends EventEmitter {
 
     life() {
         bringToLife(this); 
+    }
+
+    canSleep() {
+        if (this.bond != null || this.guns.size > 0 || this.controllers.length > 0) return false;
+        if (this.settings.diesAtRange || this.settings.diesAtLowSpeed) return false;
+        if (this.alpha !== this.alphaRange[1] || this.damageReceived > 0 || this.isDead()) return false;
+        for (const turret of this.turrets.values()) if (!turretIsInert(turret)) return false;
+        return this.collisionArray.length === 0 && this.velocity.length < 0.01 && this.accel.length < 0.01;
+    }
+
+    wake() {
+        this.sleeping = false;
     }
 
     reset(keepPlayerController = true) {
@@ -290,6 +309,8 @@ class Entity extends EventEmitter {
         if (set.HEALTH_WITH_LEVEL != null) this.settings.healthWithLevel = set.HEALTH_WITH_LEVEL;
         if (set.OBSTACLE != null) this.settings.obstacle = set.OBSTACLE;
         if (set.FULL_INVISIBLE != null) this.settings.fullyInvisible = set.FULL_INVISIBLE;
+        if (set.MIDDLE_FIRE != null) this.settings.middleFire = set.MIDDLE_FIRE;
+        if (set.CAN_SELECT_SELF != null) this.settings.canSelectSelf = set.CAN_SELECT_SELF;
         if (set.CAN_SEE_INVISIBLE_ENTITIES != null) this.settings.canSeeInvisible = set.CAN_SEE_INVISIBLE_ENTITIES;
         if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
         if (set.CRAVES_ATTENTION != null) this.settings.attentionCraver = set.CRAVES_ATTENTION;
@@ -345,10 +366,11 @@ class Entity extends EventEmitter {
             this.settings.variesInSize = set.VARIES_IN_SIZE;
             this.squiggle = this.settings.variesInSize ? ran.randomRange(0.8, 1.2) : 1;
         }
-        if (set.RESET_UPGRADES || set.RESET_STATS) {
-            let caps = this.skill.caps.map(x => x);
-            this.skill.setCaps(Array(10).fill(0));
-            this.skill.setCaps(caps);
+        if (set.RESET_UPGRADES) {
+            for (let instance of entities.values()) {
+                if (instance.settings.clearOnMasterUpgrade && instance.master.id === this.id) instance.kill();
+            };
+            this.skill.setCaps(this.skill.caps.map(x => x));
             this.upgrades = [];
             this.isArenaCloser = false;
             this.ac = false;
@@ -356,6 +378,7 @@ class Entity extends EventEmitter {
             this.reset();
         }
         if (set.RESET_UPGRADE_MENU) this.upgrades = [];
+        if (set.RESET_STATS) this.skill.setCaps(Array(10).fill(0));
         if (set.ARENA_CLOSER != null) this.isArenaCloser = set.ARENA_CLOSER, this.ac = set.ARENA_CLOSER;
         if (set.BRANCH_LABEL != null) this.branchLabel = set.BRANCH_LABEL;
         if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
@@ -988,7 +1011,7 @@ class Entity extends EventEmitter {
             if (info.definition.length === 1) this.define(info.definition[0]);
             else {
                 for (let e of info.definition) {
-                    if (e.includes("_dreadsV2")) {
+                    if (e.includes("_dreadsV2")) { // Should just check if the upgrade is batched, why is this hardcoded?
                         this.batchUpgrades = true;
                     }
                 }
@@ -1359,6 +1382,7 @@ class Entity extends EventEmitter {
     setKillers(killers) { } // Dummy
 
     kill() {
+        if (this.sleeping) this.wake();
         this.invuln = false;
         this.godmode = false;
         this.health.amount = -100;

@@ -1,4 +1,4 @@
-const { combineStats, removeUpgrades, makeAuto, makeBird, makeDrive, makeFlank, makeGuard, makeOver, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, attachTank, makeAuto, makeBird, makeDrive, makeFlank, makeGuard, makeOver, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
 const { base, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -21,7 +21,7 @@ Class.basic = {
         }
     ],
     UPGRADES_TIER_1: ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "whirlwind"],
-    UPGRADES_TIER_2: ["smasher"]
+    UPGRADES_TIER_2: ["healer", "smasher"]
 };
 
 // Tier 1 (Level 15)
@@ -163,6 +163,7 @@ Class.twin = {
 };
 Class.whirlwind = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.2
     }
@@ -185,7 +186,7 @@ Class.artillery = {
                 DELAY: 0.25
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, { size: 0.5 }]),
                 TYPE: "bullet",
                 LABEL: "Secondary"
             }
@@ -371,7 +372,6 @@ Class.helix = {
     PARENT: "genericTank",
     LABEL: "Helix",
     DANGER: 6,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -455,6 +455,7 @@ Class.hunter = {
 };
 Class.hurricane = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.2
     }
@@ -676,6 +677,7 @@ Class.sprayer = {
 };
 Class.tornado = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.1
     }
@@ -868,6 +870,7 @@ Class.assembler = {
     DANGER: 7,
     STAT_NAMES: statnames.trap,
     BODY: Class.builder.BODY,
+    TURRETS: preset.turret.assemblerHat,
     GUNS: [
         {
             POSITION: {
@@ -888,16 +891,6 @@ Class.assembler = {
                 NO_LIMITATIONS: true,
                 MAX_CHILDREN: 8,
                 STAT_CALCULATOR: "block"
-            }
-        }
-    ],
-    TURRETS: [
-        {
-            TYPE: ["squareHatCurved", { COLOR: "darkGrey" }],
-            POSITION: {
-                SIZE: 2,
-                X: 14,
-                LAYER: 1
             }
         }
     ]
@@ -1101,6 +1094,7 @@ Class.bigCheese = {
 };
 Class.blizzard = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.2
     }
@@ -1222,7 +1216,7 @@ Class.booster = {
                 POSITION: {
                     LENGTH: 14,
                     WIDTH: 8,
-                    ANGLE: 135,
+                    ANGLE: 136,
                     DELAY: 0.6
                 },
                 PROPERTIES: {
@@ -1333,7 +1327,6 @@ Class.coil = {
     PARENT: "genericTank",
     LABEL: "Coil",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -1428,48 +1421,8 @@ Class.commander = {
         }, 3, {delayIncrement: 1 / 3})
     ]
 };
-Class.conqueror = {
-    PARENT: "genericTank",
-    LABEL: "Conqueror",
-    DANGER: 7,
-    STAT_NAMES: statnames.mixed,
-    BODY: {
-        SPEED: 0.8 * base.SPEED
-    },
-    REVERSE_TARGET_WITH_TANK: true,
-    GUNS: [
-        {
-            POSITION: {
-                LENGTH: 20.5,
-                WIDTH: 14,
-                ANGLE: 180
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 18,
-                WIDTH: 12
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 2,
-                WIDTH: 12,
-                ASPECT: 1.1,
-                X: 18
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap]),
-                TYPE: "setTrap",
-                STAT_CALCULATOR: "block"
-            }
-        }
-    ]
-};
+Class.conqueror = attachTank("destroyer", "builder", "Conqueror", { angle: 180 });
+Class.conqueror.STAT_NAMES = statnames.mixed;
 Class.construct = { // it's "construct" and not "constructor" because "constructor" breaks things
     PARENT: "genericTank",
     LABEL: "Constructor",
@@ -1680,7 +1633,6 @@ Class.duplicator = {
     PARENT: "genericTank",
     LABEL: "Duplicator",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: [20, 8, -4 / 3, 0, 0, 20, 0],
@@ -2269,6 +2221,7 @@ Class.megaSmasher = {
 };
 Class.megaTornado = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.1
     }
@@ -2762,7 +2715,6 @@ Class.quadruplex = {
     PARENT: "genericTank",
     LABEL: "Quadruplex",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -3139,6 +3091,7 @@ Class.sidewinder = {
         SPEED: 0.8 * base.SPEED,
         FOV: 1.3 * base.FOV
     },
+    TOOLTIP: "Hold right click to make your bullet sidewind.",
     GUNS: [
         {
             POSITION: {
@@ -3219,8 +3172,7 @@ Class.spike = {
     LABEL: "Spike",
     DANGER: 7,
     BODY: {
-        DAMAGE: base.DAMAGE * 1.1,
-        SPEED: base.SPEED
+        DAMAGE: base.DAMAGE * 1.1
     },
     TURRETS: weaponArray([{
         TYPE: ["triangleHat_spin", {COLOR: "black"}],
@@ -3476,12 +3428,14 @@ Class.swarmer = {
 };
 Class.tempest = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.1
     }
 }, { dualLayer: true, hat: "triangleHat_spin", hat2: "triangleHat_spinSlow", hat2Size: 3.25, satellites: 3, satelliteSize: 12, extraStats: [g.pounder], label: "Tempest", danger: 7 });
 Class.thunderbolt = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.1
     }
@@ -3520,7 +3474,6 @@ Class.triplex = {
     PARENT: "genericTank",
     LABEL: "Triplex",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -3610,6 +3563,7 @@ Class.twister = {
 };
 Class.typhoon = makeWhirlwind({
     PARENT: "genericTank",
+    STAT_NAMES: statnames.satellite,
     BODY: {
         FOV: base.FOV * 1.2
     }
@@ -3698,9 +3652,155 @@ Class.xHunter = {
 };
 
 // Class Tree Modification
-if (Config.siege) {
-    removeUpgrades("basic", 2, ["smasher"]);
-    removeUpgrades("director", 2, ["underseer"]);
+if (!Config.siege) {
+    removeUpgrades("basic", 2, ["healer"]);
+};
 
-    Class.basic.UPGRADES_TIER_2.push("healer");
+// Load other mode branches
+require("../tanks/special.js");
+require("../tanks/retrograde.js");
+require("../tanks/armsRace.js");
+require("../tanks/nostalgia.js");
+require("../tanks/scrapped.js");
+require("../tanks/menus.js");
+
+// Space (add RCS to all tanks)
+if (Config.space) {
+    const playableTanks = [];
+
+    const findUpgrades = (type) => {
+        try {
+            if (!playableTanks.includes(type) && !Array.isArray(type) && Class[type]) playableTanks.push(type);
+            else return;
+            for (let i = 0; i <= (Config.level_cap / Config.tier_multiplier); i++) {
+                if (Class[type][`UPGRADES_TIER_${i}`]) {
+                    Class[type][`UPGRADES_TIER_${i}`].forEach(type => {
+                        findUpgrades(type);
+                    });
+                }
+            }
+        } catch(e) {
+            throw new Error(e); 
+        }
+    };
+
+    findUpgrades(Config.spawn_class);
+
+    playableTanks.forEach(type => {
+        const findTurrets = (type) =>  {
+            let def = typeof type === "string" ? Class[type] : type;
+            if (def.TURRETS !== undefined) return [...def.TURRETS];
+            if (def.PARENT !== undefined) return findTurrets(def.PARENT);
+            return [];
+        };
+        Class[type].TURRETS = findTurrets(type);
+        Class[type].TURRETS.push({
+            TYPE: "rcs",
+            POSITION: {
+                SIZE: 6,
+                ANGLE: 180,
+                LAYER: 1
+            }
+        });
+    });
+};
+
+// DMCA mode (+ better handling for it)
+const dmca_censor_name = [
+    "annihilator",
+    "assassin",
+    "auto3",
+    "auto5",
+    "autoGunner",
+    "autoSmasher",
+    "autoTrapper",
+    "battleship",
+    "booster",
+    "destroyer",
+    "factory",
+    "fighter",
+    "flankGuard",
+    "gunner",
+    "gunnerTrapper",
+    "hunter",
+    "hybrid",
+    "landmine",
+    "machineGun",
+    "manager",
+    "megaTrapper",
+    "necromancer",
+    "octoTank",
+    "overlord",
+    "overseer",
+    "overtrapper",
+    "pentaShot",
+    "predator",
+    "ranger",
+    "rocketeer",
+    "skimmer",
+    "smasher",
+    "sniper",
+    "spike",
+    "sprayer",
+    "spreadshot",
+    "stalker",
+    "streamliner",
+    "trapper",
+    "triAngle",
+    "triTrapper",
+    "tripleShot",
+    "tripleTwin",
+    "triplet",
+    "twin"
+];
+for (let type of dmca_censor_name) {
+    Class[type].DMCA_CENSOR_NAME = true;
+};
+const dmca_censor_design = [
+    "annihilator",
+    "auto3",
+    "auto5",
+    "autoGunner",
+    "autoTrapper",
+    "basic",
+    "battleship",
+    "booster",
+    "destroyer",
+    "director",
+    "doubleTwin",
+    "fighter",
+    "gunner",
+    "gunnerTrapper",
+    "hunter",
+    "hybrid",
+    "landmine",
+    "machineGun",
+    "manager",
+    "megaTrapper",
+    "octoTank",
+    "overlord",
+    "overseer",
+    "overtrapper",
+    "pentaShot",
+    "predator",
+    "ranger",
+    "rocketeer",
+    "skimmer",
+    "smasher",
+    "sniper",
+    "spike",
+    "sprayer",
+    "spreadshot",
+    "stalker",
+    "streamliner",
+    "trapper",
+    "triAngle",
+    "triTrapper",
+    "tripleTwin",
+    "triplet",
+    "twin",
+    "underseer"
+];
+for (let type of dmca_censor_design) {
+    Class[type].DMCA_CENSOR_DESIGN = true;
 };

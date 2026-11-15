@@ -48,7 +48,7 @@ function init() {
         }
         return closest;
     }
-    function makeHelpList(command) {
+    function makeHelpList(command, showPrefix = true) {
         let name = command.name;
         let keyStr, defaultChar;
         if (command.displayKey) {
@@ -56,13 +56,14 @@ function init() {
             defaultChar = command.displayKey;
         } else {
             keyStr = command.keys.map(keys => {
+                if (!showPrefix) keys = keys.slice(-1);
                 return keys.map(k => {
                     if (typeof k[0] === "number") return k[1];
                     let prefix = k[0].startsWith("-") ? "-" : "";
                     return prefix + key(prefix ? k[0].slice(1) : k[0]);
                 }).join("+");
             }).join(" / ");
-            defaultChar = command.keys[0][0][1];
+            defaultChar = showPrefix ? command.keys[0][0][1] : "";
         }
         let description = command.description ?? false;
         let asterisk = permissionLevelValue(command.permissionLevel) > 1 ? "*" : "";
@@ -110,8 +111,7 @@ function init() {
             }
         },
         {
-            name: "Special Tank",
-            description: "Defines you to your token's tank.",
+            name: "Preset tank #2",
             keys: [[["KEY_SPECIAL_PRESET_2", "2"]]],
             permissionLevel: 1,
             tokenClass: "banHammer",
@@ -122,7 +122,7 @@ function init() {
                     player.body.define(socket.permissions?.class || Config.spawn_class);
                     if (!socket.status.specialTankWarned) {
                         socket.status.specialTankWarned = true;
-                        player.body.sendMessage(Config.token_message);
+                        player.body.sendMessage("Friendly reminder: Please do not repeatedly kill others with an overpowered tank.");
                     }
                 } else {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
@@ -131,30 +131,37 @@ function init() {
             }
         },
         {
-            name: "Preset Tank #3",
+            name: "Preset tank #3",
             keys: [[["KEY_SPECIAL_PRESET_3", "3"]]],
             permissionLevel: 1,
             hidden: true,
             run: ({ socket, player }) => {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                    if (Config.siege) {
-                        player.body.define("smasher");
-                    } else {
-                        player.body.define("healer");
-                    }
+                    player.body.define("healer");
+                } else {
+                    player.body.define({
+                        RESET_UPGRADES: true,
+                        BATCH_UPGRADES: false,
+                        SKILL: Array(10).fill(12)
+                    });
+                    player.body.define("undercoverCop");
                 }
             }
         },
         {
-            name: "Preset Tank #4",
+            name: "Preset tank #4",
             keys: [[["KEY_SPECIAL_PRESET_4", "4"]]],
             permissionLevel: 1,
             hidden: true,
             run: ({ socket, player }) => {
-                if (Config.siege && socket.permissions?.class) {
-                    player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                    player.body.define("underseer");
+                if (socket.permissions?.class) {
+                    player.body.define({
+                        RESET_UPGRADES: true,
+                        BATCH_UPGRADES: false,
+                        SKILL: Array(10).fill(12)
+                    });
+                    player.body.define("undercoverCop");
                 }
             }
         },
@@ -528,21 +535,6 @@ function init() {
                 }
             }
         },
-        /*{
-            name: "Stronger",
-            keys: [[[83, "S"]]],
-            permissionLevel: 1,
-            run: ({ player, socket }) => {
-                let skills = Array(10).fill(15);
-                player.body.skill.setCaps(skills);
-                player.body.skill.set(skills);
-                player.body.FOV = 2;
-                player.body.settings.canGoOutsideRoom = true;
-                player.body.syncTurrets();
-                player.body.refreshBodyAttributes();
-                socket.talk("m", 4_000, "Maxed all stats!");
-            }
-        },*/
         {
             name: "Skill",
             keys: [[["KEY_SPECIAL_SKILL", "S"], ["KEY_SPECIAL_HELP", "/"]], [["KEY_SPECIAL_SKILL", "S"], ["KEY_SPECIAL_HELP_ALT", "F1"]]],
@@ -681,21 +673,6 @@ function init() {
                 player.body.skill.score += player.body.skill.levelScore;
                 player.body.skill.maintain();
                 player.body.refreshBodyAttributes();
-            }
-        },
-        {
-            name: "Police",
-            keys: [[["KEY_SPECIAL_POLICE", "P"]]],
-            permissionLevel: 1,
-            run: ({ player, gameManager }) => {
-                player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                player.body.define("arrasPolice");
-                player.body.name = "ARRAS POLICE";
-                player.body.skill.set(player.body.skill.caps);
-                player.body.syncTurrets();
-                player.body.refreshBodyAttributes();
-                player.body.FOV = 5;
-                gameManager.socketManager.broadcast("WOOP WOOP! That's the sound of da police!");
             }
         },
         {

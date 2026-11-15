@@ -42,6 +42,12 @@ class gameHandler {
             }
         }
 
+        if (
+            (instance.socket?.status?.isAFK || other.socket?.status?.isAFK) &&
+            (instance.isPlayer || instance.isBot) &&
+            (other.isPlayer || other.isBot)
+        ) return 0;
+
         // Fast exit for inactive or invisible entities
         if (
             (instance.isArenaCloser && !instance.alpha) ||
@@ -210,7 +216,13 @@ class gameHandler {
         // Do entities life
         logs.entities.set();
         grid.clear();
+        // Sleepers
+        for (const instance of entities.values()) {
+            if (instance.sleeping) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+        }
         for (const instance of [...entities.values()]) {
+            // Sleeping bodies skip their turn.
+            if (instance.sleeping) continue;
             if (instance.contemplationOfMortality() === 1) {
                 if (Config.outbreak && !instance.zombified && (instance.isPlayer || instance.isBot)) {
                     instance.zombified = true;
@@ -244,7 +256,7 @@ class gameHandler {
                 instance.takeSelfie();
                 logs.selfie.mark();
                 // Apply friction.
-                instance.friction();
+                if (!Config.space || instance.type !== "tank") instance.friction();
                 instance.confinementToTheseEarthlyShackles();
             }
 
@@ -253,6 +265,8 @@ class gameHandler {
             // Check collisions.
             logs.collide.set();
             for (const other of grid.query(instance.minX, instance.minY, instance.maxX, instance.maxY).values()) {
+                // Touching a sleeping body wakes it.
+                if (other.sleeping) other.wake();
                 this.collide(instance, other);
             }
             if (instance.isInGrid) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
@@ -271,6 +285,9 @@ class gameHandler {
             logs.activation.mark();
 
             instance.emit("tick", { body: instance });
+
+            // Only walls and food can sleep.
+            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) instance.sleeping = true;
         }
         logs.entities.mark();
         logs.master.mark();
@@ -483,14 +500,14 @@ class gameHandler {
             o.define({
                 CONTROLLERS: CC.CONTROLLERS ? [...Class.bot.CONTROLLERS, ...CC.CONTROLLERS] : Class.bot.CONTROLLERS,
                 FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                AI: Class.bot.AI
+                AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
             }, false, true, false);
             if (CC && CC.HEALING_TANK) {
                 o.controllers = [];
                 o.define({
                     CONTROLLERS: ["healTeamMasters", "minion", ["wanderAroundMap", { replicatePlayerMovement: true, lookAtGoal: true }]],
                     FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                    AI: Class.bot.AI
+                    AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
                 }, false, true, false);
             }
             o.name = botName;
@@ -503,10 +520,10 @@ class gameHandler {
                     o.define({ 
                         CONTROLLERS: ["healTeamMasters", "minion", ["wanderAroundMap", { replicatePlayerMovement: true, lookAtGoal: true }]],
                         FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                        AI: Class.bot.AI
+                        AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
                     }, false, true, false);
                 }
-                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: Class.bot.AI }, false, true, false); // Just reoverride the facing type.
+                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: { ...(CC.AI ?? {}), ...Class.bot.AI } }, false, true, false); // Just reoverride the facing type.
             });
         }, 3000 + Math.floor(Math.random() * 7000));
         o.on("dead", () => {

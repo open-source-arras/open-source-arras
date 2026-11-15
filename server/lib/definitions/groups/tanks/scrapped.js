@@ -277,7 +277,6 @@ Class.volute = {
     PARENT: "genericTank",
     LABEL: "Volute",
     DANGER: 6,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {
@@ -305,51 +304,9 @@ Class.volute = {
 };
 
 // Tier 3 (Level 45)
-Class.bender = {
+Class.badDreadnought = {
     PARENT: "genericTank",
-    LABEL: "Bender",
-    DANGER: 7,
-    STAT_NAMES: statnames.drone,
-    BODY: Class.spawner.BODY,
-    GUNS: [
-        {
-            POSITION: [4.5, 10, 1, 10.5, 0, 0, 0]
-        },
-        {
-            POSITION: [1, 12, 1, 15, 0, 0, 0],
-            PROPERTIES: {
-                MAX_CHILDREN: 4, // todo: check if this is still 3
-                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
-                TYPE: "desmosMinion",
-                STAT_CALCULATOR: "drone",
-                AUTOFIRE: true,
-                SYNCS_SKILLS: true
-            }
-        },
-        {
-            POSITION: [11.5, 12, 1, 0, 0, 0, 0]
-        },
-        ...weaponMirror({
-            POSITION: [5, 7.5, 2.5, 1, -4.5, 95, 0]
-        })
-    ]
-};
-Class.bigMama = {
-    PARENT: "genericFlail",
-    LABEL: "BIG MAMA",
-    DANGER: 7,
-    TURRETS: [{
-        POSITION: [6, 10, 0, 0, 190, 0],
-        TYPE: ["mamaBolt3", {
-            INDEPENDENT: true
-        }]
-    }]
-};
-Class.cocci = makeSnake("smasher", 5, "Cocci");
-Class.dreadnought_old = {
-    PARENT: "genericTank",
-    LABEL: "Dreadnought",
-    UPGRADE_LABEL: "Bad Dreadnought",
+    LABEL: "Bad Dreadnought",
     DANGER: 7,
     FACING_TYPE: "locksFacing",
     STAT_NAMES: statnames.swarm,
@@ -500,6 +457,47 @@ Class.dreadnought_old = {
         }
     ]
 };
+Class.bender = {
+    PARENT: "genericTank",
+    LABEL: "Bender",
+    DANGER: 7,
+    STAT_NAMES: statnames.drone,
+    BODY: Class.spawner.BODY,
+    GUNS: [
+        {
+            POSITION: [4.5, 10, 1, 10.5, 0, 0, 0]
+        },
+        {
+            POSITION: [1, 12, 1, 15, 0, 0, 0],
+            PROPERTIES: {
+                MAX_CHILDREN: 4, // todo: check if this is still 3
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner]),
+                TYPE: "desmosMinion",
+                STAT_CALCULATOR: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true
+            }
+        },
+        {
+            POSITION: [11.5, 12, 1, 0, 0, 0, 0]
+        },
+        ...weaponMirror({
+            POSITION: [5, 7.5, 2.5, 1, -4.5, 95, 0]
+        })
+    ]
+};
+Class.bigMama = {
+    PARENT: "genericFlail",
+    LABEL: "BIG MAMA",
+    DANGER: 7,
+    TURRETS: [{
+        POSITION: [6, 10, 0, 0, 190, 0],
+        TYPE: ["mamaBolt3", {
+            INDEPENDENT: true
+        }]
+    }]
+};
+Class.cocci = makeSnake("smasher", 5, "Cocci");
 Class.flace = {
     PARENT: "genericFlail",
     LABEL: "Flace",
@@ -567,6 +565,30 @@ Class.itHurtsDontTouchIt = {
             INDEPENDENT: true
         }]
     }]
+};
+Class.iterator = {
+    PARENT: "genericTank",
+    LABEL: "Iterator",
+    DANGER: 7,
+    UPGRADE_TOOLTIP: "[DEV NOTE] This tank does not function as intended yet!",
+    GUNS: [
+        {
+            POSITION: [22, 8, -4 / 3, 0, 0, 0, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                TYPE: ["superSplitterBullet", {CONTROLLERS: ["snake"]}] // nerf supersplitter when
+            }
+        },
+        ...weaponMirror([{
+            POSITION: [4.625, 10.5, 2.75, 0.375, 7, -91.5, 0]
+        },
+        {
+            POSITION: [4, 9, 3, 1.5, 5, -95, 0]
+        },
+        {
+            POSITION: [3.75, 10, 2.125, -1.5, 5.25, -50, 0]
+        }])
+    ]
 };
 Class.jumpSmasher = {
     PARENT: "genericSmasher",
@@ -667,7 +689,6 @@ Class.oroboros = {
     PARENT: "genericTank",
     LABEL: "Oroboros",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     BODY: Class.builder.BODY,
     GUNS: [
         {
@@ -707,7 +728,6 @@ Class.python = {
     PARENT: "genericTank",
     LABEL: "Python", //"Super Spiral",
     DANGER: 7,
-    STAT_NAMES: statnames.desmos,
     GUNS: [
         {
             POSITION: {

@@ -39,7 +39,7 @@ const qpct = v => qnum(v, 100);
 const qangle = v => qnum(v, 2048 / Math.PI);
 const qfrac = v => qnum(v || 0, 255);
 // Key table; must match the client.
-const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout"];
+const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout", "censor"];
 const MOCKUP_KEY_ID = new Map(MOCKUP_KEYS.map((k, i) => [k, i]));
 const encodeMockupVal = (v, colorOk) => {
     if (Array.isArray(v)) return ["l", ...v.map(x => encodeMockupVal(x, false))];
@@ -267,7 +267,8 @@ class socketManager {
     }
 
     close(socket) {
-    // Figure out who the player was
+        socket.closed = true;
+        // Figure out who the player was
         let player = socket.player,
             index = this.players.indexOf(player);
         // Remove it from any group if there was one...
@@ -335,7 +336,8 @@ class socketManager {
         util.log("[INFO]: The connection has closed. Views: " + global.gameManager.views.length + ". Clients: " + this.clients.length + ".");
     }
     incoming(message, socket) {
-    // Decode it
+        socket.status.requests++;
+        // Decode it
         let m = protocol.decode(message);
         // Remember who we are
         let player = socket.player;
@@ -388,9 +390,10 @@ class socketManager {
                 }
             } break;
             case "s": { // spawn request
-                if (!socket.status.deceased) {
+                if (socket.status.spawning || !socket.status.deceased) {
                     socket.kick("Trying to spawn while already alive."); return 1; 
                 }
+                socket.status.spawning = true;
                 if (global.gameManager.private && !socket.permissions) {
                     return (
                         socket.talk("message", "This server seems to be private."),
@@ -471,6 +474,7 @@ class socketManager {
 
                 // Give it the room state and move the camera.
                 if (needsRoom) {
+                    socket.status.spawning = false;
                     if (Config.hidden) return socket.close(); // If the server is hidden then just kick the client.
                     this.newPlayer(socket);
                     socket.talk(
@@ -491,7 +495,7 @@ class socketManager {
                 }
                 let loop = setInterval(() => {
                     // You can put your code here to prevent players from spawning.
-                    if (!global.cannotRespawn && !global.gameManager.arenaClosed && socket.status.readyToSpawn) {
+                    if (!global.cannotRespawn && !global.gameManager.arenaClosed && socket.status.readyToSpawn && !socket.closed) {
                         clearInterval(loop);
                         let epackage = {};
                         epackage.name = name;
@@ -503,6 +507,7 @@ class socketManager {
                             epackage.braindamagemode = true;
                         }
                         this.initalizePlayer(epackage, socket);
+                        socket.status.spawning = false;
                     }
                 }, 20);
             } break;
@@ -608,6 +613,11 @@ class socketManager {
                 }
             } break;
             case "#": {
+                // AFK players cannot use operator actions
+                if (!Config.afk_key_commands && socket.status.isAFK && player.body != null) {
+                    player.body.sendMessage("Exit AFK mode before using operator actions.");
+                    return;
+                }
                 try {
                     runKeyCommand(socket, m);
                 } catch(e) { 
@@ -659,13 +669,14 @@ class socketManager {
                 // Get data
                 let upgrade = m[0];
                 let branchId = m[1];
+                if (player.body == null) return;
                 if (upgrade === 0 && branchId === -1) { // If client sends an daily tank request then we execute that
                     if (!Config.daily_tank) return socket.kick("Bad daily tank upgrade request (there is no daily tanks set up)");
                     player.body.upgrade(upgrade, branchId, false, true); // Ask to upgrade (daily tank request)
                     return;
                 }
                 // Verify the request
-                if (typeof upgrade != "number" || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
+                if (typeof upgrade != "number" || !isFinite(upgrade) || upgrade < 0 || upgrade >= player.body.upgrades.length || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
                     socket.kick("Bad upgrade request.");
                     return 1;
                 }
@@ -869,7 +880,7 @@ class socketManager {
                 if (abort) break;
     
                 if (message !== original) {
-                    util.log("changed to: " + message);
+                    util.log(`Filtered message "${original}" changed to "${message}"`);
                 }
     
                 let id = player.body.id;
@@ -939,9 +950,12 @@ class socketManager {
             case "NWB": {
                 socket.status.forceNewBroadcast = true;
             } break;
+            case "G": {
+                // TODO: Actually make this do something
+                socket.talk("m", Config.popup_message_duration, "Score saving is WIP.");
+            } break;
             default: {
-                console.log(m);
-                console.log("Invalid registered packet." + m);
+                console.log("Unknown packet type: " + packetType);
             } break;
         }
     };
@@ -1520,9 +1534,7 @@ class socketManager {
                 if (msg[i] === "") continue;
                 body.sendMessage(msg[i]);
             }
-            if (Config.dev_build) {
-                socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
-            }
+            if (Config.dev_build) socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
         }
         // Move the client camera
         socket.talk("c", socket.camera.x, socket.camera.y, socket.camera.fov);
@@ -1848,6 +1860,14 @@ class socketManager {
                 let alpha = this.getInvisEntityAlpha(player, e, player.body.settings.canSeeInvisible);
                 if (e.limited) data[14] = qfrac(alpha);
                 else data[18] = qfrac(alpha);
+            }
+            if (e.master?.socket?.status?.isAFK && player.body.id !== e.master.id) {
+                data = data.slice();
+                const dist = Math.sqrt((player.body.x - e.x) ** 2 + (player.body.y - e.y) ** 2),
+                    fade = Math.max(0, (200 - dist) / 160),
+                    alpha = Math.max(0.5, 1 - 0.625 * fade ** 2.25),
+                    i = e.limited ? 14 : 18;
+                data[i] = qfrac(Math.min(data[i] / 255, alpha));
             }
             if (
                 player.body.team === e.source.team &&
@@ -2323,7 +2343,7 @@ class socketManager {
         let minimapAllTeams = new Delta(3, args => {
             let all = [];
             for (const my of entities.values()) {
-                if (my.type === "tank" && my.master === my && !my.lifetime && !my.settings.fullyInvisible) {
+                if (my.type === "tank" && my.master === my && my.allowedOnMinimap && !my.lifetime && !my.settings.fullyInvisible) {
                     all.push({
                         id: my.id,
                         data: [
@@ -2454,7 +2474,12 @@ class socketManager {
                     socket.id,
                     (Config.groups || (Config.mode == "ffa" && !Config.tag)) && socket.player.body ? socket.player.body.id : null
                 );
-                let team = socket.status.seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
+                let seesAllTeams = socket.status.seesAllTeams || !!socket.player.body?.settings.canSeeInvisible;
+                if (seesAllTeams !== socket.status.seesAllTeamsOnMinimap) {
+                    socket.status.seesAllTeamsOnMinimap = seesAllTeams;
+                    socket.status.needsNewBroadcast = true;
+                }
+                let team = seesAllTeams ? minimapAllTeamsUpdate : minimapTeamUpdates;
                 
                 // Send the leaderboard tanks' mockups
                 if (global.gameManager.gameHandler.active) {
@@ -2465,6 +2490,7 @@ class socketManager {
 
                 if (socket.status.needsNewBroadcast) {
                     socket.talk("RM");
+                    socket.talk("RL");
                     socket.talk(
                         "b",
                         ...minimapUpdate.reset,
@@ -2610,29 +2636,12 @@ class socketManager {
                 timer = 0;
             }
         };
-        socket.awaiting = {};
-        socket.awaitResponse = function(options, callback) {
-            socket.awaiting[options.packet] = {
-                callback: callback,
-                timeout: setTimeout(() => {
-                    console.log("Socket did not respond to the eval packet, kicking...");
-                    socket.kick("Did not comply with the server's protocol.");
-                }, options.timeout)
-            };
-        };
-        socket.resolveResponse = function(id, packet) {
-            if (socket.awaiting[id]) {
-                clearTimeout(socket.awaiting[id].timeout);
-                socket.awaiting[id].callback(packet);
-                return true;
-            }
-            return false;
-        };
         // Set up the status container
         socket.status = {
             verified: false,
             deltaEntities: false,
             receiving: 0,
+            spawning: false,
             deceased: true,
             requests: 0,
             hasSpawned: false,
@@ -2642,6 +2651,7 @@ class socketManager {
             selectedLeaderboard: false,
             selectedChannel: "global",
             seesAllTeams: false,
+            seesAllTeamsOnMinimap: false,
             daily_tank_watched_ad: false,
             readyToSpawn: true,
             hasOperator: false,

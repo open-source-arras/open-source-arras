@@ -1,4 +1,4 @@
-const { combineStats, addUpgrades, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeDrive, makeFlank, makeFore, makeGuard, makeGunner, makeOver, makeRadialAuto, makeStorm, makeVortex, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, makeAuto, makeBattle, makeBird, makeCap, makeDrive, makeFlank, makeFore, makeGuard, makeGunner, makeMenu, makeOver, makeRadialAuto, makeStorm, makeVortex, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
 const { base, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -9,6 +9,12 @@ const free_tier_4 = true;
 // Set the below variable to true to enable tanks that would otherwise be inaccessible in Arms Race.
 // This will also enable the Better Arms Race addon if it is present.
 const enable_missing_tanks = false;
+
+// Placeholder Marker
+const placeholder = {
+    UPGRADE_COLOR: "black",
+    UPGRADE_TOOLTIP: "PLACEHOLDER MOCKUP"
+};
 
 // Tier 2 (Level 30)
 Class.diesel = {
@@ -126,7 +132,7 @@ Class.machineTrapper = {
             }
         }
     ],
-    UPGRADES_TIER_3: [/*"dieselTrapper", */"barricade", "equalizer"/*, "machineGuard", "encircler", "machineMech", "triMachine"*/, "expeller"/*, "autoMachineTrapper", "deviation"*/, "frother"],
+    UPGRADES_TIER_3: [/*"dieselTrapper", */"barricade", "equalizer"/*, "machineGuard", "encircler", "machineMech"*/, "triMachine", "expeller"/*, "autoMachineTrapper", "deviation"*/, "frother"],
     UPGRADES_TIER_4: [/*"machineMegaTrapper"*/]
 };
 Class.mech = {
@@ -602,14 +608,14 @@ Class.corvette = {
                 X: 12,
                 Y: -4.5,
                 ANGLE: 45,
-                DELAY: 0.25
+                DELAY: 0.5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm]),
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
-        }, {delayIncrement: 0.5}),
+        }),
         ...weaponMirror([
             {
                 POSITION: {
@@ -1199,31 +1205,6 @@ Class.issuer = {
     ],
     UPGRADES_TIER_4: ["circulator", "autoIssuer", "issuerdrive"]
 };
-Class.iterator = {
-    PARENT: "genericTank",
-    LABEL: "Iterator",
-    DANGER: 7,
-    STAT_NAMES: statnames.desmos,
-    UPGRADE_TOOLTIP: "[DEV NOTE] This tank does not function as intended yet!",
-    GUNS: [
-        {
-            POSITION: [22, 8, -4 / 3, 0, 0, 0, 0],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
-                TYPE: ["superSplitterBullet", {CONTROLLERS: ["snake"]}] // nerf supersplitter when
-            }
-        },
-        ...weaponMirror([{
-            POSITION: [4.625, 10.5, 2.75, 0.375, 7, -91.5, 0]
-        },
-        {
-            POSITION: [4, 9, 3, 1.5, 5, -95, 0]
-        },
-        {
-            POSITION: [3.75, 10, 2.125, -1.5, 5.25, -50, 0]
-        }])
-    ]
-};
 Class.jalopy = {
     PARENT: "genericTank",
     LABEL: "Jalopy",
@@ -1237,7 +1218,7 @@ Class.jalopy = {
                 X: 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel, { reload: 1 / 3, recoil: 0.5, spray: 5 / 3 }]),
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.diesel, g.jalopy]),
                 TYPE: "bullet"
             }
         }
@@ -1348,7 +1329,7 @@ Class.megaSpawner = {
             },
             PROPERTIES: {
                 MAX_CHILDREN: 4,
-                SHOOT_SETTINGS: combineStats([g.minion, g.spawner, {size: 0.8 }]),
+                SHOOT_SETTINGS: combineStats([g.minion, g.spawner, { size: 0.8 }]),
                 TYPE: "megaMinion",
                 STAT_CALCULATOR: "drone",
                 AUTOFIRE: true,
@@ -1718,6 +1699,38 @@ Class.quadAngle = {
     }),
     UPGRADES_TIER_4: ["scrimmer", /*"aspirer", "fleeter", */"autoQuadAngle"/*, "glider", "conformer", "spoiler", "mandible", "waster"*/]
 };
+Class.queller = {
+    PARENT: "genericTank",
+    LABEL: "Queller",
+    DANGER: 7,
+    GUNS: [
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 5,
+                Y: -6,
+                ANGLE: -7,
+                DELAY: 0.25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery]),
+                TYPE: "bullet",
+                LABEL: "Secondary"
+            }
+        }, {delayIncrement: 0.5}),
+        {
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.artillery]),
+                TYPE: "bullet",
+                LABEL: "Heavy"
+            }
+        }
+    ]
+};
 Class.railgun = {
     PARENT: "genericTank",
     LABEL: "Railgun",
@@ -1871,6 +1884,7 @@ Class.splitShot = {
 };
 Class.triHealer = makeFlank("healer", 3, "Tri-Healer", { extraStats: [g.flankGuard] });
 Class.triHealer.UPGRADES_TIER_4 = ["hexaHealer"];
+Class.triMachine = makeFlank("machineTrapper", 3, "Tri-Machine", { extraStats: [g.flankGuard] });
 Class.underdrive.UPGRADES_TIER_4 = ["necrodrive", "hexer", "autoUnderdrive", "infestordrive", "pentadrive"];
 Class.volley = {
     PARENT: "genericTank",
@@ -2040,6 +2054,7 @@ const autoTanksT4 = [
     "mingler",
     "mosey",
     "musket",
+    "nailgun",
     "necromancer",
     "octoTank",
     "overdose",
@@ -2350,41 +2365,6 @@ Class.autoSpawnerdrive = makeAuto("spawnerdrive", "Auto-Spawnerdrive", preset.ma
 Class.autoTriple = makeAuto("tripleTwin", "Auto-Triple");
 Class.autoUnderdrive = makeAuto("underdrive", "Auto-Underdrive", preset.makeAuto.drive);
 Class.avian = makeBird("single", "Avian");
-Class.band = makeAuto({
-    PARENT: "genericTank",
-    DANGER: 7,
-    STAT_NAMES: statnames.mixed,
-    GUNS: weaponArray([
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 7
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 3,
-                WIDTH: 7,
-                ASPECT: 1.7,
-                X: 15
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
-                TYPE: "trap",
-                STAT_CALCULATOR: "trap"
-            }
-        }
-    ], 3),
-    TURRETS: weaponArray({
-        TYPE: ["autoTankGun", { INDEPENDENT: true }],
-        POSITION: {
-            SIZE: 11,
-            X: 8,
-            ANGLE: 180,
-            ARC: 190
-        }
-    }, 3)
-}, "Band");
 Class.battletrapper = makeBattle({
     PARENT: "genericTank",
     LABEL: "Trapper",
@@ -2626,6 +2606,45 @@ Class.captrapper = makeCap({
         }
     ]
 });
+Class.central = {
+    PARENT: "genericTank",
+    LABEL: "Central",
+    DANGER: 8,
+    BODY: {
+        FOV: base.FOV * 1.2
+    },
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 25,
+                WIDTH: 7
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.lowPower, g.machineGun, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 9.5,
+                ASPECT: 1.25,
+                X: 8
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.central]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 12,
+                WIDTH: 10.25,
+                ASPECT: -1.8
+            }
+        }
+    ]
+};
 Class.circulator = {
     PARENT: "genericTank",
     LABEL: "Circulator",
@@ -2818,6 +2837,37 @@ Class.conductor = {
             DELAY_SPAWN: false
         }
     }, 2)
+};
+Class.conjurer = {
+    PARENT: "genericTank",
+    LABEL: "Conjurer",
+    DANGER: 8,
+    NECRO: [4],
+    SIZE: 11.5,
+    STAT_NAMES: statnames.necro,
+    SHAPE: 6,
+    MAX_CHILDREN: 15,
+    BODY: Class.underseer.BODY,
+    ...preset.placeholder,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 9,
+                WIDTH: 8.2,
+                ASPECT: 0.6,
+                X: 4.4,
+                ANGLE: 60
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 6,
+                WIDTH: 8,
+                ASPECT: 1.5,
+                X: 7.4
+            }
+        }
+    ], 3)
 };
 Class.consolidation = {
     PARENT: "genericTank",
@@ -3141,7 +3191,7 @@ Class.doctor = {
     PARENT: "genericHealer",
     LABEL: "Doctor",
     STAT_NAMES: statnames.drone,
-    UPGRADE_TOOLTIP: "[DEV NOTE] This tank is a placeholder!",
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -3154,7 +3204,54 @@ Class.doctor = {
     ]
 };
 Class.doperstorm = makeStorm("doper");
-Class.doubleCorvette = makeFlank("corvette", 2, "Double Corvette", { extraStats: [g.doubleTwin] });
+Class.doubleCorvette = makeFlank({
+    PARENT: "genericTank",
+    LABEL: "Corvette",
+    DANGER: 7,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 9,
+                WIDTH: 8.2,
+                ASPECT: 0.6,
+                X: 5,
+                ANGLE: 90,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm]),
+                TYPE: "swarm",
+                STAT_CALCULATOR: "swarm"
+            }
+        },
+        ...weaponMirror([
+            {
+                POSITION: {
+                    LENGTH: 12,
+                    WIDTH: 3.5,
+                    Y: 7.25,
+                    DELAY: 0.5
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
+                    TYPE: "bullet"
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 16,
+                    WIDTH: 3.5,
+                    Y: 3.75
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
+                    TYPE: "bullet"
+                }
+            }
+        ], {delayIncrement: 0.25})
+    ],
+    UPGRADES_TIER_4: ["autoCorvette", "bracer", "doubleCorvette"]
+}, 2, "Double Corvette", { extraStats: [g.doubleTwin] });
 Class.doubleFlankGunner = {
     PARENT: "genericTank",
     LABEL: "Double Flank Gunner",
@@ -3571,6 +3668,7 @@ Class.ethereal = {
         }
     ]
 };
+Class.fenghuang = makeBird("focal", "Fenghuang");
 Class.flexedDouble = makeFlank("pentaShot", 2, "Flexed Double", { extraStats: [g.doubleTwin] });
 Class.foretrapper = makeFore({
     PARENT: "genericTank",
@@ -3877,8 +3975,20 @@ Class.hewnTriple = {
             POSITION: {
                 LENGTH: 19,
                 WIDTH: 8,
+                Y: -0.2,
+                ANGLE: -160
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                TYPE: "bullet"
+            }
+        }, {delayIncrement: 0.5}),
+        ...weaponMirror({
+            POSITION: {
+                LENGTH: 19,
+                WIDTH: 8,
                 Y: -5.5,
-                ANGLE: -25
+                ANGLE: -265
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble, { recoil: 1.15 }]),
@@ -3895,7 +4005,24 @@ Class.hewnTriple = {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble]),
                 TYPE: "bullet"
             }
-        }, {delayIncrement: 0.5}), 3)
+        }, {delayIncrement: 0.5}), 3),
+        // TODO: Figure out what these two are supposed to be.
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 1,
+                X: 8,
+                ANGLE: 150
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 1,
+                WIDTH: 1,
+                X: 8,
+                ANGLE: -15
+            }
+        }
     ]
 };
 Class.hexaHealer = makeFlank("healer", 6, "Hexa-Healer", { extraStats: [g.flankGuard] });
@@ -4409,6 +4536,7 @@ Class.overdoubleGunner = makeOver({
     ], 2)
 }, "Overdouble Gunner", { angle: 90, renderBehind: true });
 Class.overdoubleTwin = makeOver("doubleTwin", "Overdouble Twin", { angle: 90, renderBehind: true });
+Class.overnailer = makeOver("nailgun", "Overnailer");
 Class.overstorm = makeStorm("overseer", "Overstorm");
 Class.parasite = {
     PARENT: "genericTank",
@@ -5248,7 +5376,7 @@ Class.vulcan = {
     BODY: {
         FOV: base.FOV * 1.1
     },
-    UPGRADE_TOOLTIP: "[DEV NOTE] This tank is a placeholder!",
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -5538,7 +5666,6 @@ Class.wrench = {
 
 // Existing Upgrade Management
 if (!Config.arms_race) return;
-
 removeUpgrades("twin", 3, ["bulwark"]);
 
 Class.director.UPGRADES_TIER_2.push("directordrive", "honcho", "doper");
@@ -5546,12 +5673,12 @@ Class.machineGun.UPGRADES_TIER_2.push("diesel", "machineTrapper");
 Class.trapper.UPGRADES_TIER_2.push("pen", "mech", "machineTrapper", "wark");
 Class.twin.UPGRADES_TIER_2.push("wark");
 
-Class.artillery.UPGRADES_TIER_3.push(/*"queller", "forger", */"force", "autoArtillery"/*, "foctillery", "discharger"*/);
+Class.artillery.UPGRADES_TIER_3.push("queller"/*, "forger"*/, "force", "autoArtillery"/*, "foctillery", "discharger"*/);
 Class.assassin.UPGRADES_TIER_3.push("hitman", "sniper3", "enforcer", "courser");
 Class.auto3.UPGRADES_TIER_3.push("sniper3", "crowbar", "autoAuto3", "combo");
 Class.builder.UPGRADES_TIER_3.push(/*"forger", "stall", */"fashioner"/*, "charger"*/);
 Class.cruiser.UPGRADES_TIER_3.push("productionist", "cruiserdrive", "hangar", "zipper", "baltimore", "mosey");
-Class.destroyer.UPGRADES_TIER_3.push("megaTrapper"/*, "queller"*/, "autoDestroyer"/*, "hurler", "slinker"*/);
+Class.destroyer.UPGRADES_TIER_3.push("megaTrapper", "queller", "autoDestroyer"/*, "hurler", "slinker"*/);
 removeUpgrades("director", 3, ["bigCheese"]);
 Class.doubleTwin.UPGRADES_TIER_3.push("doubleFlankTwin", "doubleGunner", "warkwark");
 Class.gunner.UPGRADES_TIER_3.push("buttbuttin", "blower", "rimfire", "volley", "doubleGunner", "bentGunner", "equalizer", "corvette");
@@ -5562,7 +5689,7 @@ Class.hunter.UPGRADES_TIER_3.push("autoHunter"/*, "megaHunter"*/, "prober", "cou
 Class.launcher.UPGRADES_TIER_3.push("rocketeer"/*, "pitcher", "cluster", "projector"*/, "heaver", "autoLauncher"/*, "hurler", "inception"*/);
 Class.minigun.UPGRADES_TIER_3.push(/*"taser", "zipper", */"bentMinigun", "autoMinigun"/*, "widget"*/);
 Class.overseer.UPGRADES_TIER_3.push("captain", "foreman", "dopeseer");
-Class.pounder.UPGRADES_TIER_3.push("subverter");
+Class.pounder.UPGRADES_TIER_3.push("subverter", "deathStar");
 Class.rifle.UPGRADES_TIER_3.push("autoRifle", "enforcer", "prober");
 Class.smasher.UPGRADES_TIER_3.push(/*"banger", "drifter"*/);
 Class.sniper.UPGRADES_TIER_3.push("railgun");
@@ -5602,13 +5729,14 @@ Class.factory.UPGRADES_TIER_4 = ["autoFactory"];
 Class.falcon.UPGRADES_TIER_4 = ["autoFalcon"];
 Class.fighter.UPGRADES_TIER_4 = [/*"boxer", "brawler", "sparrow", "blitz", */"autoFighter", /*"strider", "griffin", "shocker", "cockatoo", "pug", "mangle", */"scrimmer"];
 Class.flankGuard.UPGRADES_TIER_4 = ["ternion"];
+Class.focal.UPGRADES_TIER_4 = ["central", "mizzler", "fenghuang", "autoFocal"];
 Class.fortress.UPGRADES_TIER_4 = ["autoFortress"];
 Class.fork.UPGRADES_TIER_4 = [];
 Class.gunner.UPGRADES_TIER_4 = ["dam"];
 Class.healer.UPGRADES_TIER_4 = [/*"renovater", */"physician"];
 Class.hewnDouble.UPGRADES_TIER_4 = ["hewnTriple", "autoHewnDouble", "cleft", "skewnDouble", "hewnFlankDouble", "hewnGunner", "warkwawarkrk"];
 Class.hexaTank.UPGRADES_TIER_4 = ["tripleFlankTwin"];
-Class.hexaTrapper.UPGRADES_TIER_4 = [...["mega", "auto"].map(x => `${x}HexaTrapper`), "hexaMachine", "octoTrapper", "designer", "cozen", "refuge", "coop", "hexaMech", "hexaTrapGuard", "band"];
+Class.hexaTrapper.UPGRADES_TIER_4 = [...["mega", "auto"].map(x => `${x}HexaTrapper`), "hexaMachine", "octoTrapper", "designer", "cozen", "refuge", "coop", "hexaMech", "hexaTrapGuard"];
 Class.hunter.UPGRADES_TIER_4 = [/*"butcher", "reverberator"*/];
 Class.infestor.UPGRADES_TIER_4 = ["autoInfestor"];
 Class.launcher.UPGRADES_TIER_4 = [/*"seriemas", "supplant", "pumper"*/];
@@ -5619,6 +5747,7 @@ Class.medic.UPGRADES_TIER_4 = ["intern", "ointment", "injection", "actuary"];
 Class.mega3.UPGRADES_TIER_4 = [/*"ultra3", "queller3", "hurler3", "slinker3", "mega5", "volley4", "spirit", "crank", */"autoMega3", "sequence"];
 Class.minigun.UPGRADES_TIER_4 = [/*"tommy", "machgun"*/];
 Class.musket.UPGRADES_TIER_4 = ["doubleMusket"/*, "flintlock", "arbalest"*/, "matchlock", "autoMusket"/*, "duelist", "bifold"*/];
+Class.nailgun.UPGRADES_TIER_4 = ["overnailer", "autoNailgun"];
 Class.necromancer.UPGRADES_TIER_4 = ["autoNecromancer"];
 Class.nimrod.UPGRADES_TIER_4 = [];
 Class.octoTank.UPGRADES_TIER_4 = ["decaTank", "tempest_AR", "gale", "octoTrapper", "demise", "autoOctoTank", "consolidation"];
@@ -5641,14 +5770,27 @@ Class.triAngle.UPGRADES_TIER_4 = ["avian"/*, "raven"*/, "phoenix"/*, "shoebill"*
 Class.triTrapper.UPGRADES_TIER_4 = [/*"triBarricade", "triMegaTrapper", "warkwarkwark"*/];
 Class.tripleTwin.UPGRADES_TIER_4 = ["quadTwin", "autoTriple", "bentTriple", "hewnTriple", "tripleFlankTwin", "tripleGunner", "warkwarkwark"];
 Class.twin.UPGRADES_TIER_4 = ["duo"];
-Class.underseer.UPGRADES_TIER_4 = ["conductor"];
+Class.underseer.UPGRADES_TIER_4 = ["conductor", "conjurer"];
+
+const better_retrograde = require("../../groups/tanks/retrograde.js");
+if (better_retrograde && Config.retrograde) {
+    try {
+        require("../../entityAddons/armsRaceRetrograde/tanks.js");
+    } catch(error) {
+        if (error.code !== "MODULE_NOT_FOUND") {
+            throw error;
+        }
+    } 
+};
 
 module.exports = enable_missing_tanks;
 if (!enable_missing_tanks) {
+    removeUpgrades("basic", 1, ["whirlwind"]);
+
     //removeUpgrades("sniper", 2, ["marksman"]);
 
     removeUpgrades("assassin", 3, ["single"/*, "deadeye"*/]);
-    addUpgrades("basic", 3, ["single"]);
+    Class.basic.UPGRADES_TIER_3 = ["single"];
     //removeUpgrades("builder", 3, ["assembler"]);
     //removeUpgrades("hunter", 3, ["xHunter", "nimrod"]);
     //removeUpgrades("minigun", 3, ["vulture"]);
@@ -5668,13 +5810,6 @@ if (!enable_missing_tanks) {
             throw error;
         }
     }
-};
-
-if (Config.siege) {
-    removeUpgrades("directordrive", 3, ["underdrive"]);
-    removeUpgrades("doper", 3, ["overdose"]);
-
-    removeUpgrades("autoDirectordrive", 3, ["autoUnderdrive"]);
 };
 
 if (!free_tier_4) return;
