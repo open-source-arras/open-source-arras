@@ -203,39 +203,34 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
         // If we are loaded for the first time then load the default options settings.
         if (!localStorage.getItem("loadedForFirstTime")) {
-            document.getElementById("optRenderGui").checked = true;
-            document.getElementById("optRenderLeaderboard").checked = true;
-            document.getElementById("optRenderUpgrades").checked = true;
-            document.getElementById("optRenderMinimap").checked = true;
-            document.getElementById("optRenderNames").checked = true;
-            document.getElementById("optRenderHealth").checked = true;
-            document.getElementById("optRenderScores").checked = true;
-            document.getElementById("optRenderPlayerBars").checked = true;
-            document.getElementById("optFancy").checked = true;
-            document.getElementById("optInterpolation").checked = true;
-            document.getElementById("optLerpAnim").checked = true;
-            document.getElementById("smoothCamera").checked = true;
-            document.getElementById("optFancy").checked = true;
-            document.getElementById("autoLevelUp").checked = true;
-            document.getElementById("optDeltaEntities").checked = true;
-            if (global.mobile) document.getElementById("showCrosshair").checked = true, document.getElementById("showJoystick").checked = true;
+            [
+                "optRenderGui",
+                "optRenderLeaderboard",
+                "optRenderUpgrades",
+                "optRenderMinimap",
+                "optRenderNames",
+                "optRenderHealth",
+                "optRenderScores",
+                "optRenderPlayerBars",
+                "optFancy",
+                "optInterpolation",
+                "optLerpAnim",
+                "optFancy",
+                "autoLevelUp",
+                "optDeltaEntities",
+                "optAllowIngameOptions",
+                "optAutoReconnect"
+            ].forEach(i => {
+                document.getElementById(i).checked = true;
+                util.submitToLocalStorage(i);
+            });
+            if (global.mobile) {
+                ["showCrosshair", "showJoystick"].forEach(i => {
+                    document.getElementById(i).checked = true;
+                    util.submitToLocalStorage(i);
+                });
+            }
             // Dont forget to save it.
-            util.submitToLocalStorage("optRenderGui");
-            util.submitToLocalStorage("optRenderLeaderboard");
-            util.submitToLocalStorage("optRenderUpgrades");
-            util.submitToLocalStorage("optRenderMinimap");
-            util.submitToLocalStorage("optRenderNames");
-            util.submitToLocalStorage("optRenderHealth");
-            util.submitToLocalStorage("optRenderScores");
-            util.submitToLocalStorage("optRenderPlayerBars");
-            util.submitToLocalStorage("showCrosshair");
-            util.submitToLocalStorage("showJoystick");
-            util.submitToLocalStorage("optInterpolation");
-            util.submitToLocalStorage("optLerpAnim");
-            util.submitToLocalStorage("smoothCamera");
-            util.submitToLocalStorage("optFancy");
-            util.submitToLocalStorage("autoLevelUp");
-            util.submitToLocalStorage("optDeltaEntities");
             localStorage.setItem("loadedForFirstTime", "true");
             localStorage.setItem("uiScaleSettings", null);
         }
@@ -5842,6 +5837,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, color.guiwhite, "center");
 
             if (!global.optionsCheckboxes) {
+                let legacyOptionNotice = "\nNote: This is a legacy option and will be removed in a future update.";
                 global.optionsCheckboxes = [
                     // Game Appearance
                     { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
@@ -5935,7 +5931,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         data.optionService.selected = data.label;
                       }
                     },
-                    { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",        column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
+                    { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",         column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
 
                     // Secrets
                     { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor." },
@@ -5950,17 +5946,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                     // Beta
                     { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List (Preview)",   column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy
-                    {
-                        type: "checkbox", id: "opt3DMode",          label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 0, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
-                    {
-                        type: "checkbox", id: "optUncappedFrameRate", label: "Uncapped Frame Rate", column: 1, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
+                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
+                    { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
