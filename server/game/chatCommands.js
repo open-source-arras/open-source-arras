@@ -370,9 +370,20 @@ const commands = [
     {
         command: ["define"],
         description: "Placeholder define stub",
+        hidden: true,
         permissionLevel: 8,
-        run: ({ socket }) => {
-            socket.talk("m", 15_000, "This command is deprecated, please use $dev define <entity> instead!");
+        run: ({ socket, args }) => {
+            if (!args[0]) {
+                socket.talk("m", 5_000, "No entity specified.");
+            } else {
+                socket.player.body.define({RESET_UPGRADES: true, BATCH_UPGRADES: false});
+                socket.player.body.define(args[0]);
+                socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
+            }
+            if (!socket.status.defineDeprecationWarned) {
+                socket.status.defineDeprecationWarned = true;
+                socket.talk("m", 15_000, "Warning: The $define command is deprecated and will be removed in the next update. Please use $dev define <entity> instead!");
+            }
         }
     },
     {
