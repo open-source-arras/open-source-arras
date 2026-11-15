@@ -82,7 +82,7 @@ Class.crossfire = {
     LABEL: "Crossfire",
     DANGER: 6,
     BODY: Class.sniper.BODY,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -127,7 +127,7 @@ Class.fusion = {
     LABEL: "Fusion",
     DANGER: 6,
     TURRETS: preset.turret.assemblerHat,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -155,7 +155,7 @@ Class.concussor = {
     LABEL: "Concussor",
     DANGER: 7,
     TURRETS: preset.turret.assemblerHat,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         ...weaponMirror({
             POSITION: {
@@ -194,7 +194,7 @@ Class.nexus = {
     LABEL: "Nexus",
     DANGER: 7,
     TURRETS: preset.turret.doubleAssemblerHat,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -217,7 +217,7 @@ Class.payload = {
     LABEL: "Payload",
     DANGER: 7,
     TURRETS: preset.turret.assemblerHat,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
@@ -249,7 +249,7 @@ Class.slugger = {
     LABEL: "Slugger",
     DANGER: 7,
     TURRETS: preset.turret.assemblerHat,
-    ...preset.meth,
+    ...preset.placeholder,
     GUNS: [
         {
             POSITION: {
