@@ -500,14 +500,14 @@ class gameHandler {
             o.define({
                 CONTROLLERS: CC.CONTROLLERS ? [...Class.bot.CONTROLLERS, ...CC.CONTROLLERS] : Class.bot.CONTROLLERS,
                 FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                AI: Class.bot.AI
+                AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
             }, false, true, false);
             if (CC && CC.HEALING_TANK) {
                 o.controllers = [];
                 o.define({
                     CONTROLLERS: ["healTeamMasters", "minion", ["wanderAroundMap", { replicatePlayerMovement: true, lookAtGoal: true }]],
                     FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                    AI: Class.bot.AI
+                    AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
                 }, false, true, false);
             }
             o.name = botName;
@@ -520,10 +520,10 @@ class gameHandler {
                     o.define({ 
                         CONTROLLERS: ["healTeamMasters", "minion", ["wanderAroundMap", { replicatePlayerMovement: true, lookAtGoal: true }]],
                         FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
-                        AI: Class.bot.AI
+                        AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
                     }, false, true, false);
                 }
-                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: Class.bot.AI }, false, true, false); // Just reoverride the facing type.
+                o.define({ FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE, AI: { ...(CC.AI ?? {}), ...Class.bot.AI } }, false, true, false); // Just reoverride the facing type.
             });
         }, 3000 + Math.floor(Math.random() * 7000));
         o.on("dead", () => {

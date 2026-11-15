@@ -6,6 +6,8 @@ import { color as colors } from "./color.js";
 import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import { skinShape } from "./skins.js";
+import { censorChat } from "./chatFilter.js";
+import { censorText } from "./dmca.js";
 import * as socketStuff from "./socketinit.js";
 
 const THEME_PALETTE_KEYS = [
@@ -62,6 +64,13 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }, 10)
         }
     }
+
+    global.setDmcaMode = enabled => {
+        config.game.dmcaMode = enabled;
+        global.cached = {};
+        global.generateTankTree = true;
+        for (const upgrade of gui.upgrades) upgrade[2] = util.requestEntityImage(upgrade[2], gui.color);
+    };
 
     // Build the leaderboard object
     let leaderboardEntries = {};
@@ -136,7 +145,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("optInterpolation");
         util.retrieveFromLocalStorage("optLerpAnim");
         util.retrieveFromLocalStorage("optOptimizeMode");
-        util.retrieveFromLocalStorage("optCenterMinimap");
         util.retrieveFromLocalStorage("optBorders");
         util.retrieveFromLocalStorage("optNoGrid");
         util.retrieveFromLocalStorage("optHexaGrid");
@@ -172,11 +180,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("optRenderKillbar");
         }
         config.game.rainbowTeamColors = localStorage.getItem("optRainbowTeamColorsChecked") === "true";
+        const savedBorderChunk = parseFloat(localStorage.getItem("strokeThicknessValue"));
+        if (!isNaN(savedBorderChunk)) config.graphical.borderChunk = savedBorderChunk;
         // Default to true
         if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
             document.getElementById("optDeltaEntities").checked = true;
             util.submitToLocalStorage("optDeltaEntities");
         }
+        if (localStorage.getItem("optAutoReconnectChecked") === null) localStorage.setItem("optAutoReconnectChecked", "false");
+        if (localStorage.getItem("optChatMessagesChecked") === null) localStorage.setItem("optChatMessagesChecked", "true");
         if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
         // Set default theme
         if (document.getElementById("optColors").value === "") {
@@ -191,39 +203,34 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
         // If we are loaded for the first time then load the default options settings.
         if (!localStorage.getItem("loadedForFirstTime")) {
-            document.getElementById("optRenderGui").checked = true;
-            document.getElementById("optRenderLeaderboard").checked = true;
-            document.getElementById("optRenderUpgrades").checked = true;
-            document.getElementById("optRenderMinimap").checked = true;
-            document.getElementById("optRenderNames").checked = true;
-            document.getElementById("optRenderHealth").checked = true;
-            document.getElementById("optRenderScores").checked = true;
-            document.getElementById("optRenderPlayerBars").checked = true;
-            document.getElementById("optFancy").checked = true;
-            document.getElementById("optInterpolation").checked = true;
-            document.getElementById("optLerpAnim").checked = true;
-            document.getElementById("smoothCamera").checked = true;
-            document.getElementById("optFancy").checked = true;
-            document.getElementById("autoLevelUp").checked = true;
-            document.getElementById("optDeltaEntities").checked = true;
-            if (global.mobile) document.getElementById("showCrosshair").checked = true, document.getElementById("showJoystick").checked = true;
+            [
+                "optRenderGui",
+                "optRenderLeaderboard",
+                "optRenderUpgrades",
+                "optRenderMinimap",
+                "optRenderNames",
+                "optRenderHealth",
+                "optRenderScores",
+                "optRenderPlayerBars",
+                "optFancy",
+                "optInterpolation",
+                "optLerpAnim",
+                "optFancy",
+                "autoLevelUp",
+                "optDeltaEntities",
+                "optAllowIngameOptions",
+                "optAutoReconnect"
+            ].forEach(i => {
+                document.getElementById(i).checked = true;
+                util.submitToLocalStorage(i);
+            });
+            if (global.mobile) {
+                ["showCrosshair", "showJoystick"].forEach(i => {
+                    document.getElementById(i).checked = true;
+                    util.submitToLocalStorage(i);
+                });
+            }
             // Dont forget to save it.
-            util.submitToLocalStorage("optRenderGui");
-            util.submitToLocalStorage("optRenderLeaderboard");
-            util.submitToLocalStorage("optRenderUpgrades");
-            util.submitToLocalStorage("optRenderMinimap");
-            util.submitToLocalStorage("optRenderNames");
-            util.submitToLocalStorage("optRenderHealth");
-            util.submitToLocalStorage("optRenderScores");
-            util.submitToLocalStorage("optRenderPlayerBars");
-            util.submitToLocalStorage("showCrosshair");
-            util.submitToLocalStorage("showJoystick");
-            util.submitToLocalStorage("optInterpolation");
-            util.submitToLocalStorage("optLerpAnim");
-            util.submitToLocalStorage("smoothCamera");
-            util.submitToLocalStorage("optFancy");
-            util.submitToLocalStorage("autoLevelUp");
-            util.submitToLocalStorage("optDeltaEntities");
             localStorage.setItem("loadedForFirstTime", "true");
             localStorage.setItem("uiScaleSettings", null);
         }
@@ -1180,7 +1187,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.graphical.pointy = document.getElementById("optPointy").checked;
         config.graphical.curvyTraps = document.getElementById("optCurvyTraps").checked;
         config.game.autoLevelUp = document.getElementById("autoLevelUp").checked;
-        config.game.centeredMinimap = document.getElementById("optCenterMinimap").checked;
+        config.game.centeredMinimap = localStorage.getItem("optSelfCenteredMinimapChecked") === "true";
+        config.game.dmcaMode = localStorage.getItem("optDmcaModeChecked") === "true";
         config.lag.unresponsive = document.getElementById("optPredictive").checked;
         config.graphical.sharpEdges = document.getElementById("optSharpEdges").checked;
         config.graphical.renderSkins = document.getElementById("optTankSkins").checked;
@@ -1200,6 +1208,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.GUIStatus.renderMinimap = document.getElementById("optRenderMinimap").checked;
         global.GUIStatus.renderPlayerNames = document.getElementById("optRenderNames").checked;
         global.GUIStatus.renderPlayerScores = document.getElementById("optRenderScores").checked;
+        global.GUIStatus.renderChatMessages = localStorage.getItem("optChatMessagesChecked") !== "false";
         global.GUIStatus.renderPlayerBars = document.getElementById("optRenderPlayerBars").checked;
         global.GUIStatus.renderPlayerKillbar = document.getElementById("optRenderKillbar").checked;
         global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
@@ -1295,7 +1304,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.submitToLocalStorage("optInterpolation");
         util.submitToLocalStorage("optLerpAnim");
         util.submitToLocalStorage("optOptimizeMode");
-        util.submitToLocalStorage("optCenterMinimap");
         util.submitToLocalStorage("autoLevelUp");
         util.submitToLocalStorage("optMobile");
         util.submitToLocalStorage("optPredictive");
@@ -2294,6 +2302,18 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.lineWidth /= fill ? 1 : 0.5; // Maintain constant border width
             if (fill) context.fill();
             context.globalAlpha = 1;
+        },
+        drawGunBox = (context, x, y, length, height, aspect, angle, position, pad) => {
+            const h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect],
+                cos = Math.cos(angle),
+                sin = Math.sin(angle),
+                points = [[-position, h[1]], [length * 2 - position, h[0]], [length * 2 - position, -h[0]], [-position, -h[1]]]
+                    .map(([a, b]) => [x + a * cos - b * sin, y + a * sin + b * cos]),
+                xs = points.map(p => p[0]),
+                ys = points.map(p => p[1]),
+                left = Math.min(...xs) - pad,
+                top = Math.min(...ys) - pad;
+            context.fillRect(left, top, Math.max(...xs) - left + pad, Math.max(...ys) - top + pad);
         };
         // The actual drawEntity function
         return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false) => {
@@ -2310,8 +2330,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             const indexes = indexStr.split("-");
             const mockupIndex = +indexes[0];
             const m = global.mockups[mockupIndex] || global.missingno[0];
+            const dmcaDesign = config.game.dmcaMode && (m.censor & 2);
             const source = turretInfo === false ? instance : turretInfo;
-            const skin = instance.nameplate && skinShape(instance.name);
+            const hasHighLayer = (m.turrets || []).some(t => t.layer > 0) || (m.props || []).some(p => p.layer > 0);
+            const skin = instance.nameplate && !hasHighLayer && skinShape(instance.name);
 
             // --- Size calculations with cached values ---
             const instSize = instance.size;
@@ -2329,7 +2351,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (drawSize < 0.1) return;
 
             // --- Find upper turrets and props with optimized loop ---
-            const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
+            const turrets = dmcaDesign ? [] : (instance.isImage ? source.turrets : [...source.turrets, ...m.props]);
             if (m.props) turrets.sort((a, b) => a.layer - b.layer);
 
             // --- Gun positions with single update ---
@@ -2337,7 +2359,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Fancy canvas with reduced state setup ---
             let xx = x, yy = y;
-            const useFancyCanvas = DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
+            const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
 
             if (useFancyCanvas) {
                 context = ctx2;
@@ -2361,6 +2383,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Size ratio cached for body drawing ---
             const sizeRatio = (drawSize / m.size) * m.realSize;
+
+            const dmcaZoom = drawSize / (instance.isImage ? 12 : instSize);
+            if (dmcaDesign) {
+                context.fillStyle = "#000000";
+                context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
+            }
 
             // --- Draw turrets beneath with cached values ---
             for (let i = 0; i < turrets.length; i++) {
@@ -2430,6 +2458,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     const gx = g.offset * cosGunAngle;
                     const gy = g.offset * sinGunAngle;
 
+                    if (dmcaDesign) {
+                        drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
+                        continue;
+                    }
+
                     // Minimize color calculations
                     let gunColor = g.color == null ? color.grey : gameDraw.modifyColor(g.color, baseColor);
                     const gunAlpha = g.alpha === undefined ? 1 : g.alpha;
@@ -2455,7 +2488,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 }
 
                 // Draw body between gun layers
-                if (drawAbove === 0) {
+                if (drawAbove === 0 && dmcaDesign) {
+                    const half = sizeRatio + 11 * dmcaZoom;
+                    context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
+                } else if (drawAbove === 0) {
                     context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
                     context.lineWidth = initStrokeWidth * m.strokeWidth;
 
@@ -2508,8 +2544,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                     // Draw the body, then overlay the skin.
                     drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
-                    if (skin) drawBody(context, xx, yy, 0.9 * (sizeRatio - 3), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
+                    if (skin) drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
+            }
+
+            if (dmcaDesign) {
+                const fontSize = 0.65 * sizeRatio, offset = 0.35 * sizeRatio, baseline = 0.38 * fontSize;
+                drawText("DMCA'd", xx, yy - offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                drawText("by Diep", xx, yy + offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                context.globalAlpha = 1;
             }
 
             // --- Draw turrets above with cached trig values ---
@@ -3356,6 +3399,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
+        if (!global.GUIStatus.renderChatMessages) return;
         if (!(instance.id === gui.playerid) && instance.alpha < 0.25) return;
         let size = isize * ratio,
             g = Math.max(20, size);
@@ -3380,7 +3424,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         for (let i = 0; i < messages.length; i++) {
             let chatIndex = messages.length - 1 - i;
             let chat = messages[chatIndex],
-                text = chat.text,
+                text = censorChat(chat.text, document.getElementById("optNames").value),
                 msgLengthHalf = measureText(text, 0.5 * g) / 2,
                 barScale = global.GUIStatus.renderPlayerScores ? 2.66 : 2.26,
                 textScale = global.GUIStatus.renderPlayerScores ? 2.45 : 2.05,
@@ -3593,7 +3637,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawBar(x, x + width, y + height / 2, height - 3 + config.graphical.barChunk, color.black);
         drawBar(x, x + width, y + height / 2, height - 3, color.grey);
         drawBar(x, x + width * gui.__s.getProgress(), y + height / 2, height - 3.5, color.gold);
-        drawText("Level " + gui.__s.getLevel() + " " + gui.class, x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
+        const censorClass = config.game.dmcaMode && typeof gui.type === "string" && (global.mockups[parseInt(gui.type)]?.censor & 1);
+        drawText("Level " + gui.__s.getLevel() + " " + (censorClass ? censorText(gui.class) : gui.class), x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
         height = 17;
         y -= height + 5;
         if (config.graphical.oldUIStyle) {
@@ -3609,7 +3654,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }
             drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, color.black);
             drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, color.grey);
-            drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (1 ? Math.min(1, gui.__s.getKills()[0] / 1) : 1)), y + height / 2, height - extraHeight - 0.5, color.purple);
+            drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (1 ? Math.min(1, gui.__s.getKills()[0] / 1) : 1)), y + height / 2, height - extraHeight - 0.5, (gui.__s.getScore() / gui.__s.getKills()[0] <= 40000) ? color.teal : color.purple);
             extraHeight = config.graphical.oldUIStyle ? 5 : 6;
             drawText("Kills: " + util.formatKills(...gui.__s.getKills()), x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12 : 13, color.guiwhite, "center");
             extraHeight = config.graphical.oldUIStyle ? 5 : 3;
@@ -4764,13 +4809,26 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     const THEME_SWATCHES = [
-        ["blue",     "Blue"],    ["vlgrey", "Eggs"],      ["lgrey",    "Walls"],
-        ["green",    "Green"],   ["gold",   "Squares"],   ["lgreen",   "Health Bars"],
-        ["red",      "Red"],     ["orange", "Triangles"], ["teal",     "Shield Bars"],
-        ["magenta",  "Purple"],  ["purple", "Pentagons"], ["grey",     "Barrels"],
-        ["yellow",   "Neutral"], ["aqua",   "Hexagons"],  ["white",    "Background"],
-        ["dgrey",    "Rogues"],  ["pink",   "Crashers"],  ["guiblack", "Grid"],
-        ["guiwhite", "Text"],    ["black",  "Borders"],
+        ["blue", "Blue", "Blue team (ID 10)"],
+        ["vlgrey", "Eggs", "Eggs (ID 6)"],
+        ["lgrey", "Walls", "Maze walls, as well as rocks (ID 7)"],
+        ["green", "Green", "Green team (ID 11)"],
+        ["gold", "Squares", "Squares (ID 13)"],
+        ["lgreen", "Health Bars", "Health bars, as well as shiny polygons (ID 1)"],
+        ["red", "Red", "Red team (ID 12)"],
+        ["orange", "Triangles", "Triangles (ID 2)"],
+        ["teal", "Shield Bars", "Shield bars, as well as legendary polygons (ID 0)"],
+        ["magenta", "Purple", "Purple team (ID 15)"],
+        ["purple", "Pentagons", "Pentagons (ID 14)"],
+        ["grey", "Barrels", "Barrels, as well as bar backgrounds (ID 16)"],
+        ["yellow", "Neutral", "Neutral team (ID 3)"],
+        ["aqua", "Hexagons", "Hexagons (ID 4)"],
+        ["white", "Background", "Arena background (ID 18)"],
+        ["dgrey", "Rogues", "Rogue team (ID 17)"],
+        ["pink", "Crashers", "Crashers (ID 5)"],
+        ["guiblack", "Grid", "The map's grid and edges, as well as the color of your minimap dot (ID 19)\nNote: It's highly recommended for this color to contrast the background color.\nTip: If you want to remove the background grid, you can do that in the options tab."],
+        ["guiwhite", "Text", "Text color, as well as the flash blend color (ID 8)\nNote: It's highly recommended for this color to be a light color and contrast the border color."],
+        ["black", "Borders", "The borders of all text, bars, and other UI elements, as well as the color of shells (ID 9)\nNote: It's highly recommended for this color to be a dark color and contrast the text color."],
     ];
 
     const OV_ROW1 = 41, OV_ROW2 = 81, OV_ROW3 = 121;
@@ -4833,10 +4891,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     let _keybindEntries = null;
+    function updateSecretKeybindRows() {
+        const enabled = localStorage.getItem("optSaveSkillUpgradesChecked") === "true";
+        document.querySelectorAll("#controlSettings tr[data-secret]").forEach(row => row.classList.toggle("hidden", !enabled));
+        _keybindEntries = null;
+    }
+    updateSecretKeybindRows();
     function getKeybindEntries() {
         if (_keybindEntries) return _keybindEntries;
         const out = [];
-        document.querySelectorAll("#controlSettings tr").forEach((tr) => {
+        document.querySelectorAll("#controlSettings tr:not(.hidden)").forEach((tr) => {
             tr.querySelectorAll("td").forEach((td) => {
                 const b = td.querySelector("b");
                 if (!b) return;
@@ -4942,8 +5006,28 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             inp.dataset.key = key;
             return inp;
         });
+        const hits = THEME_SWATCHES.map(() => mk("div", "position:absolute;pointer-events:auto", null));
+        const borderHit = mk("div", "position:absolute;pointer-events:auto", null);
+        // Invisible inputs keep the native picker on the swatch; these cover the labels for tooltips.
+        wrap._colorHover = -1;
+        wrap.tooltipService = {
+            text: "",
+            targetAlpha: 0,
+            alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
+            x: 0,
+            y: 0
+        };
+        const bindHover = (el, i) => {
+            el.addEventListener("mouseenter", () => { wrap._colorHover = i; });
+            el.addEventListener("mouseleave", () => { if (wrap._colorHover === i) wrap._colorHover = -1; });
+        };
+        [...swatches, borderColor].forEach((inp, i) => {
+            inp.style.opacity = "0";
+            bindHover(inp, i);
+        });
+        [...hits, borderHit].forEach(bindHover);
 
-        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches };
+        wrap._ov = { name, author, code, remove, colorsSel, bordersSel, borderColor, swatches, hits, borderHit };
         document.body.appendChild(wrap);
         global.themeOverlay = wrap;
 
@@ -5207,20 +5291,30 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
         put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
         put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
-        put(o.borderColor, L + 2 * OV_COL_PITCH, T + OV_SLIDER_TOP - 2, OV_SWATCH, OV_SWATCH);
+        const bcx = L + 2 * OV_COL_PITCH, bcy = T + OV_SLIDER_TOP - 2;
+        put(o.borderColor, bcx, bcy, OV_SWATCH, OV_SWATCH);
+        put(o.borderHit, bcx + OV_SWATCH, bcy, 9 + measureText("Borders", 13.5), OV_SWATCH);
         o.swatches.forEach((inp, i) => {
             const col = i % 3, row = (i / 3) | 0;
-            put(inp, L + col * OV_COL_PITCH, T + OV_GRID_TOP + row * OV_GRID_PITCH, OV_SWATCH, OV_SWATCH);
+            const x = L + col * OV_COL_PITCH, y = T + OV_GRID_TOP + row * OV_GRID_PITCH;
+            put(inp, x, y, OV_SWATCH, OV_SWATCH);
+            put(o.hits[i], x + OV_SWATCH, y, 9 + measureText(THEME_SWATCHES[i][1], 13.5), OV_SWATCH);
+            ctx[2].fillStyle = inp.value;
+            drawGuiRect(x, y, OV_SWATCH, OV_SWATCH);
+            ctx[2].strokeStyle = color.black;
+            ctx[2].lineWidth = 3;
+            drawGuiRect(x, y, OV_SWATCH, OV_SWATCH, true);
+            drawText(THEME_SWATCHES[i][1], x + OV_SWATCH + 9, y + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
         });
+        ctx[2].fillStyle = o.borderColor.value;
+        drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH);
+        ctx[2].strokeStyle = color.black;
+        ctx[2].lineWidth = 3;
+        drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH, true);
 
         const cx = PANEL_X + PANEL_WIDTH / 2;
         drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, color.guiwhite, "center", true);
         drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, color.guiwhite, "center", true);
-        o.swatches.forEach((inp, i) => {
-            const col = i % 3, row = (i / 3) | 0;
-            drawText(THEME_SWATCHES[i][1], L + col * OV_COL_PITCH + OV_SWATCH + 9,
-                T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
-        });
 
         const sx = L, sy = T + OV_SLIDER_TOP, SW = OV_SLIDER_W, SH = 20;
         const sv = themeBlend();
@@ -5259,6 +5353,20 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         gameDraw.setColor(ctx[2], color.black);
         drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH, true);
         drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
+
+        const ts = wrap.tooltipService;
+        const hover = wrap._colorHover;
+        ts.targetAlpha = hover >= 0 ? 1 : 0;
+        if (hover === o.swatches.length) {
+            ts.text = "The border blend color of all entities";
+            ts.x = bcx * r;
+            ts.y = (bcy + OV_SWATCH + 10) * r;
+        } else if (hover >= 0) {
+            const col = hover % 3, row = (hover / 3) | 0;
+            ts.text = THEME_SWATCHES[hover][2];
+            ts.x = (L + col * OV_COL_PITCH) * r;
+            ts.y = (T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH + 10) * r;
+        }
 
         global.ingameKeybindRects = null;
         const cr = r * global.ratio;
@@ -5322,6 +5430,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (select.value === "brainrot") select.value = "none";
             option.remove();
         }
+        const cb = (global.optionsCheckboxes || []).find(cb => cb.id === "optNames");
+        if (!cb) return;
+        cb.optionData = Array.from(select.options).map(option => ({ value: option.value, label: option.textContent }));
+        if (cb.optionService) cb.optionService.selected = select.selectedOptions[0]?.textContent || "";
     };
     global.refreshBrainrotOption();
     global.refreshSecretThemes = () => {
@@ -5382,8 +5494,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optBrainrotFilter") global.refreshBrainrotOption();
                 if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
+                if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
+                if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
+                if (cb.id === "optSaveSkillUpgrades") updateSecretKeybindRows();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -5558,8 +5673,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         const PANEL_VISIBLE_X = mainMenuAnim;
         const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
         const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optFullSecretOptions");
-        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optFullSecretOptionsChecked") === "true";
+        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
+        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
         const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
         const TAB_CONTENT_HEIGHTS = [
             (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
@@ -5722,6 +5837,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, color.guiwhite, "center");
 
             if (!global.optionsCheckboxes) {
+                let legacyOptionNotice = "\nNote: This is a legacy option and will be removed in a future update.";
                 global.optionsCheckboxes = [
                     // Game Appearance
                     { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
@@ -5731,7 +5847,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox",   id: "optSharpEdges",          label: "Sharp Polygons",        column: 0, row: 4, section: "appearance", tooltip: "Sharpen the corners of all polygons.\n" + "May slightly lower the frame rate." },
                     //{ type: "checkbox",   id: "coloredHealthbars",      label: "Colored Health Bars",   column: 0, row: 5, section: "appearance", tooltip: "Make the health and shield bar(s) of entities match their body color." },
                     { type: "checkbox",   id: "optSecretOptions",       label: "Secret Options",        column: 0, row: 5, section: "appearance", tooltip: "Unlock the secret options tab.\n" + "Note: Some of these options are hidden for a reason. They can cause glitches, and may get removed at any time." },
-                    { type: "slidingBar", id: "strokeThickness",        label: "Border Thickness",      column: 0, row: 6, section: "appearance", tooltip: "Choose the thickness of the border of entities.",
+                    { type: "slidingBar", id: "strokeThickness",        label: "Border Thickness",      column: 0, row: 6, section: "appearance", tooltip: "Choose the thickness of the borders of entities.",
                       maxValue: 6, maxLowestValue: 0.7, listTarget: "graphical", target: "borderChunk",
                       trigger: (mouse, data) => {
                         let pointer = optionsMenu_getPointer();
@@ -5745,6 +5861,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                             const range = data.maxValue - data.maxLowestValue;
                             let value = (ratio * range) + data.maxLowestValue;
                             listFolder[data.target] = value;
+                            localStorage.setItem(data.id + "Value", value);
                         }
                       }
                     },
@@ -5753,9 +5870,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optRenderHealth",        label: "Health Bars",           column: 1, row: 1, section: "appearance", tooltip: "Show health bars." },
                     { type: "checkbox", id: "separatedHealthbars",    label: "Separate Shield Bar",   column: 1, row: 2, section: "appearance", tooltip: "Separate the shield bar from the health bar." },
                     { type: "checkbox", id: "optCurvyTraps",          label: "Curvy Traps",           column: 1, row: 3, section: "appearance", tooltip: "Add curvature to the sides of traps.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optTankSkins",           label: "Tank Skins",            column: 1, row: 4, section: "appearance", tooltip: "Show tank skins.\n" + "Note: Skins will be in grayscale if the low WebGL driver is selected." },
+                    { type: "checkbox", id: "optTankSkins",           label: "Tank Skins",            column: 1, row: 4, section: "appearance", tooltip: "Show tank skins.\n" + "Note: Skins will be in grayscale if the low WebGl driver is selected." },
                     //{ type: "checkbox", id: "optHexaGrid",            label: "Hexagon Grid",          column: 1, row: 5, section: "appearance", tooltip: "Make the background grid hexagonal.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optFullSecretOptions",   label: "Full Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock more of the secret options tab.\n" + "Note: This is not supposed to be public..." },
+                    { type: "checkbox", id: "optSuperSecretOptions",  label: "Super Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock the super secret options section.\n" + "Note: This is not supposed to be public..." },
 
                     // UI Elements
                     { type: "checkbox", id: "optRenderUpgrades",      label: "Upgrades",              column: 0, row: 0, section: "ui", tooltip: "Toggle the visibility of the class and skill upgrade menus." },
@@ -5781,7 +5898,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         loadSettings();
                       }
                     },
-                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "[WIP] Select what word filter to use.\nNote: Offensive words, or slurs, are always filtered unless all filters are disabled.",
+                    { type: "option",    id: "optNames",               label: "",                      column: 1, row: 0, section: "extra", tooltip: "Select what word filter to use.\nEach tier includes the tiers above it. Inappropriate is the default.",
                       optionData: Array.from(document.getElementById("optNames").options).map((option) => ({ value: option.value, label: option.textContent })),
                       width: 202.5,
                       location: "auto",
@@ -5795,7 +5912,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     },
                     { type: "checkbox",  id: "smoothCamera",           label: "Smooth Camera",         column: 0, row: 1, section: "extra", tooltip: "Make the camera follow your tank instead of being fixed at it." },
                     { type: "checkbox",  id: "autoLevelUp",            label: "Auto-Level Up",         column: 0, row: 2, section: "extra", tooltip: "Automatically level you up to level 45 upon joining the game." },
-                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", placeholder: true, tooltip: "[WIP] Automatically reconnect after a disconnection." },
+                    { type: "checkbox",  id: "optAutoReconnect",       label: "Auto-Reconnect",        column: 0, row: 3, section: "extra", tooltip: "Automatically reconnect after a disconnection." },
 
                     { type: "checkbox",  id: "optFancy",               label: "Fading Animation",      column: 1, row: 1, section: "extra", tooltip: "Make dying entities fade out instead of shrinking until disappearing.\nMay slightly lower the frame rate." },
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
@@ -5814,31 +5931,28 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         data.optionService.selected = data.label;
                       }
                     },
-                    { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",        column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
+                    { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",         column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
 
                     // Secrets
                     { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor." },
                     { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow." },
-                    { type: "checkbox", id: "optUncappedFrameRate",   label: "Uncapped Frame Rate",     column: 0, row: 1, section: "secret", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
-                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 1, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
-                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 0, row: 2, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
-                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 1, row: 2, section: "secret", placeholder: true, tooltip: "[WIP] Make yourself always centered on the minimap." },
-                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 0, row: 3, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 0, row: 4, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 1, row: 3, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 1, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 0, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
+                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
+                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
+                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
+                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 3, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
+                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 3, section: "secret", fullSecret: true, tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                     // Beta
-                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Add the ability save and load up to 10 sets of skill upgrades" }, // [sic], misspelling exists in arras.io too
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List (Preview)",   column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
+                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy
-                    {
-                        type: "checkbox", id: "opt3DMode",          label: "3D Mode",       column: 0, row: 0, section: "legacy", placeholder: true, tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optLegacyThemes",    label: "Legacy Themes", column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.\nNote: This is a legacy option and will be removed in a future update." },
-                    {
-                        type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 0, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
+                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
+                    { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
@@ -6117,8 +6231,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
         } else if (global.themeOverlay) {
             global.themeOverlay.style.display = "none";
+            global.themeOverlay._colorHover = -1;
         }
         ctx[2].restore();
+
+        if (fadeTheme > 0.01 && activeTab === 1 && global.themeOverlay) drawToolip(global.themeOverlay);
 
         ctx[2].save();
         ctx[2].globalAlpha *= fadeKeybinds;
@@ -6211,7 +6328,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
             index: 0
         });
-        drawButton(global.screenWidth / 2 + 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Reconnect", 14, false, false, false, true, "reconnect", global.canvas.height / global.screenHeight / global.ratio, {
+        let reconnectLabel = "Reconnect";
+        if (global.socket.welcomeReceived && !global.died && localStorage.getItem("optAutoReconnectChecked") === "true") {
+            const seconds = Math.max(0, Math.ceil((global.disconnectTimestamp + config.game.autoReconnectDelay - Date.now()) / 1000));
+            reconnectLabel = `Reconnect (${seconds})`;
+        }
+        drawButton(global.screenWidth / 2 + 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", reconnectLabel, 14, false, false, false, true, "reconnect", global.canvas.height / global.screenHeight / global.ratio, {
             index: 0
         });
     };

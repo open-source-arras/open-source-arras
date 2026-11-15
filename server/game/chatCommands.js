@@ -368,6 +368,25 @@ const commands = [
         }
     },
     {
+        command: ["define"],
+        description: "Placeholder define stub",
+        hidden: true,
+        permissionLevel: 8,
+        run: ({ socket, args }) => {
+            if (!args[0]) {
+                socket.talk("m", 5_000, "No entity specified.");
+            } else {
+                socket.player.body.define({RESET_UPGRADES: true, BATCH_UPGRADES: false});
+                socket.player.body.define(args[0]);
+                socket.talk("m", 5_000, `Changed to ${socket.player.body.label}`);
+            }
+            if (!socket.status.defineDeprecationWarned) {
+                socket.status.defineDeprecationWarned = true;
+                socket.talk("m", 15_000, "Warning: The $define command is deprecated and will be removed in the next update. Please use $dev define <entity> instead!");
+            }
+        }
+    },
+    {
         command: ["developer", "dev", "d"],
         description: "Developer commands, go troll some players or just take a look for yourself.",
         permissionLevel: 8,
@@ -375,8 +394,8 @@ const commands = [
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    `- ${prefix} developer define <entity> - change your tank.`,
-                    `- ${prefix} developer reload - reloads definitions.`
+                    `- ${prefix} developer define <entity> - Change your tank.`,
+                    `- ${prefix} developer reload - Reloads definitions for this server.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };

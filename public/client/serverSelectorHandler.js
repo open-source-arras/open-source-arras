@@ -116,8 +116,8 @@ let initializeFilter = () => {
         gamemodes: {
             all: [],
             normal: [],
-            growth: [],
             armsRace: [],
+            growth: [],
             other: [],
             sandbox: []
         }
@@ -144,17 +144,17 @@ let initializeFilter = () => {
 
         // Gamemodes
         let normalModes = [
-            ["FFA", "loose"],
-            ["Duos", "loose"],
-            ["Trios", "loose"],
-            ["Squads", "loose"],
-            ["Wars", "loose"],
-            ["TDM", "loose"],
-            ["Maze", "exact"],
-            ["Forge", "exact"],
-            ["Nexus", "exact"],
+            ["FFA",       "loose"],
+            ["Duos",      "loose"],
+            ["Trios",     "loose"],
+            ["Squads",    "loose"],
+            ["Wars",      "loose"],
+            ["TDM",       "loose"],
+            ["Maze",      "exact"],
+            ["Forge",     "exact"],
+            ["Nexus",     "exact"],
             ["Labyrinth", "exact"]
-        ]
+        ];
 
         if (s.gameMode.includes("Sandbox")) {
             global.filters.gamemodes.sandbox.push(s);
@@ -212,7 +212,7 @@ let initializeFilter = () => {
             });
         }
         let saved = storageKey ? data.findIndex(option => option.name === localStorage.getItem(storageKey)) : -1;
-        if (saved >= 0) restoreFilters.push(() => spans[saved].click());
+        restoreFilters.push(() => spans[saved >= 0 ? saved : 0].click());
     };
     let checkRegionFilter = (server, array) => {
         return array.some(data => data.region === server.region);
@@ -229,8 +229,8 @@ let initializeFilter = () => {
     createFilter(svFilterModeDoc, [
         { name: "All", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.all) },
         { name: "Normal", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.normal) },
-        { name: "Growth", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.growth) },
         { name: "Arms Race", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.armsRace) },
+        { name: "Growth", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.growth) },
         { name: "Other", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.other) },
         { name: "Sandbox", filter: (h) => checkGamemodeFilter(h, global.filters.gamemodes.sandbox) }
     ], "serverFilterMode");

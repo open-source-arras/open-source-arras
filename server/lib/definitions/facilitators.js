@@ -329,6 +329,37 @@ exports.weaponStack = (weapons, count, options = {}) => {
 };
 
 // Tank Modifiers
+exports.attachTank = (baseType, attachType, name, options = {}) => {
+    const angle = options.angle ??= 0;
+
+    const baseProperties = {...Class[baseType]};
+    for (const key of Object.keys(baseProperties)) {
+        if (/^UPGRADES_TIER_\d+$/.test(key)) {
+            delete baseProperties[key];
+        }
+    };
+
+    return {
+        ...baseProperties,
+        LABEL: name,
+        GUNS: [
+            ...(Class[baseType].GUNS || []).map(gun => ({
+                ...gun,
+                POSITION: {
+                    ...gun.POSITION,
+                    ANGLE: ((gun.POSITION.ANGLE || 0) + angle) % 360
+                }
+            })),
+            ...(Class[attachType].GUNS || []).map(gun => ({
+                ...gun,
+                POSITION: {
+                    ...gun.POSITION,
+                    ANGLE: ((gun.POSITION.ANGLE || 0) + angle + 180) % 360
+                }
+            }))
+        ]
+    };
+};
 exports.makeAuto = (type, name = -1, options = {}) => {
 
     /*
@@ -490,24 +521,50 @@ exports.makeBird = (type, name = -1, options = {}) => {
                 DELAY: 0.1
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }/*, g.bitsmall*/]), // leaked jimmy (bird crowbar) code has "g.bitsmall" (whatever that does) on the side birds
-                TYPE: "bullet",
-                LABEL: "thruster"
-            }
-        }),
-        {
-            POSITION: {
-                LENGTH: 18,
-                WIDTH: 8,
-                ANGLE: 180,
-                DELAY: 0.6
-            },
-            PROPERTIES: {
                 SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
                 TYPE: "bullet",
                 LABEL: "thruster"
             }
-        }
+        }),
+
+
+        ...(options.bomber ? [
+            {
+                POSITION: {
+                    LENGTH: 14,
+                    WIDTH: 8,
+                    ANGLE: 180
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 4,
+                    WIDTH: 8,
+                    ASPECT: 1.7,
+                    X: 14,
+                    ANGLE: 180
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, g.trap, { recoil: backRecoil }]),
+                    TYPE: "trap",
+                    LABEL: "thruster"
+                }
+            }
+        ] : [
+            {
+                POSITION: {
+                    LENGTH: 18,
+                    WIDTH: 8,
+                    ANGLE: 180,
+                    DELAY: 0.6
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }]),
+                    TYPE: "bullet",
+                    LABEL: "thruster"
+                }
+            }
+        ])
     ];
     if (options.super) {
         shootyBois.splice(0, 0, ...exports.weaponMirror({
@@ -521,6 +578,38 @@ exports.makeBird = (type, name = -1, options = {}) => {
                 SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster, { recoil: backRecoil }/*, g.bitsmall*/]), // leaked jimmy (bird crowbar) code has "g.bitsmall" (whatever that does) on the side birds
                 TYPE: "bullet",
                 LABEL: "thruster"
+            }
+        }));
+    }
+    if (options.surfer) {
+        shootyBois.push(...exports.weaponMirror({
+            POSITION: {
+                LENGTH: 7,
+                WIDTH: 7.5,
+                ASPECT: 0.6,
+                X: 7,
+                Y: 1,
+                ANGLE: -90
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.swarm]),
+                TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
+                STAT_CALCULATOR: "swarm"
+            }
+        }));
+    }
+    if (options.fighter) {
+        shootyBois.push(...exports.weaponMirror({
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 8,
+                Y: -1, 
+                ANGLE: 90		
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: exports.combineStats([g.basic, g.flankGuard, g.triAngle, g.triAngleFront]),
+                TYPE: "bullet",
+                LABEL: "Side"
             }
         }));
     }

@@ -22,7 +22,7 @@ You'll first need to install Node.js from either [the Node website](http://nodej
 
 If there aren't any errors, your server will start up. Go to `localhost:3000` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
 
-After the first install, you may use either `run.bat` (if you're on Windows) or `run.sh` (if you're not) to quickly launch the server without opening the terminal.
+You may also use either `run.bat` (if you're on Windows) or `run.sh` (if you're not) to quickly launch the server without opening the terminal.
 
 > [!NOTE]
 > If you're having issues launching from `run.sh`, make sure the file is set to be able to run as an executable in its properties. This only needs to be done once.

@@ -1,4 +1,4 @@
-const { combineStats, removeUpgrades, makeAuto, makeFlank, makeGuard, makeGunner, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror } = require("../../facilitators.js");
+const { combineStats, removeUpgrades, makeAuto, makeBird, makeFlank, makeGuard, makeGunner, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror } = require("../../facilitators.js");
 const { base, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
@@ -686,4 +686,46 @@ Class.oldHewnTriple = {
         }, {delayIncrement: 0.5}), 3)
     ]
 };
+Class.shikra = makeBird({
+    PARENT: "genericTank",
+    DANGER: 7,
+    BODY: Class.minigun.BODY,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 22,
+                WIDTH: 7,
+                ASPECT: -1.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 20,
+                WIDTH: 7.5,
+                ASPECT: -1.5,
+                DELAY: 1 / 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, {size: 7 / 7.5}]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 18,
+                WIDTH: 8,
+                ASPECT: -1.5,
+                DELAY: 2 / 3
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, {size: 7 / 8}]),
+                TYPE: "bullet"
+            }
+        }
+    ]
+}, "Shikra", { surfer: true });
 Class.virago = makeGunner("eagle", "Virago", { gunLength: 20, renderBehind: true });

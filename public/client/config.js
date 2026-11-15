@@ -52,10 +52,12 @@ const config = {
     },
     game: {
         autoLevelUp: false,
+        autoReconnectDelay: 20_000,
         centeredMinimap: false,
         incognitoMode: false,
         deltaEntities: true,
         rainbowTeamColors: false,
+        dmcaMode: false,
     }
 };
 export { config }

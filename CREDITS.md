@@ -14,7 +14,6 @@
 # Notable Contributors
 - `Anguisj`: Oroboros\
 - `DenisC!!!`: Hexagonal Grid, Growth Curve, 3D and 4D shapes\
-- `Dolan the Protogen`: Arms Race content, Meme tanks, Team Walls, Labyrinth\
 - `DRGNBOY`: Segmented 3D/4D shape colours\
 - `Excel`: Clan Wars\
 - `funny0_0`: More Maze Generations, Shiny Tanks, SVG Shapes, Kill Bars\
