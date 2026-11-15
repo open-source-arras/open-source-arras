@@ -248,42 +248,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         keybinderHandler.initalize("sandboxSkillControlSettings", "resetSandboxSkillControls", "sandboxskillkeybinds"); // Sandbox command keys (Skill)
         keybinderHandler.initalize("sandboxAttributeControlSettings", "resetSandboxAttributeControls", "sandboxattributekeybinds"); // Sandbox command keys (Attribute)
 
-        // Tab menu creater
-        global.createTabMenu = (text, type, addDismissButton = false) => {
-            let allowedType = [
-                "warning",
-                "critical",
-                "discord",
-                "stat",
-                "achieve"
-            ];
-            if (allowedType.includes(type)) {
-                let b = document.getElementById("menuTabs");
-                b.style.textAlign = "center";
-                let d = document.createElement("span");
-                d.classList.add("menuTab");
-                d.classList.add(type);
-                d.appendChild(document.createTextNode(`${text}${addDismissButton ? "\xa0\xa0\xa0" : ""}`));
-                if (addDismissButton) {
-                    text = document.createElement("text");
-                    text.style.textDecoration = "underline";
-                    text.href = "javascript:;";
-                    text.appendChild(document.createTextNode("Dismiss"));
-                    text.addEventListener("click", () => d.remove());
-                    d.appendChild(text);
-                }
-                b.appendChild(d);
-                return d;
-            } else throw new Error("Invalid menu tab type.");
-        };
+        // Addon info handler
         try {
             fetch("/version").then(json => json.json()).then(ve => {
                 global.version = ve.ver;
-                if (ve.dev_build) {
-                    global.dev_build = true;
-                    global.createTabMenu(`Open Source Arras ${global.version} (dev build)`, "warning", true);
-                }
-                // Addon info handler
                 let keyValue = localStorage.getItem("playerKeyInputValue");
                 (async function() {
                     let A_response = await fetch(`/api/getAddonAuthors?token=${keyValue}`);
@@ -292,13 +260,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 })();
             });
         } catch { };
-        // Warn the users to turn their phones into landscape.
-        if (global.mobile && window.innerHeight > 1.1 * window.innerWidth) {
-            let tabMenu = global.createTabMenu("Please turn your device to landscape mode.", "warning", true);
-            window.addEventListener("orientationchange", () => {
-                window.innerHeight > 1.1 * window.innerWidth || tabMenu.remove();
-            });
-        };
 
         // Game start stuff
         document.getElementById("startButton").onclick = () => startGame();
@@ -2351,7 +2312,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (drawSize < 0.1) return;
 
             // --- Find upper turrets and props with optimized loop ---
-            const turrets = dmcaDesign ? [] : (instance.isImage ? source.turrets : [...source.turrets, ...m.props]);
+            const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
             if (m.props) turrets.sort((a, b) => a.layer - b.layer);
 
             // --- Gun positions with single update ---
@@ -2384,7 +2345,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             // --- Size ratio cached for body drawing ---
             const sizeRatio = (drawSize / m.size) * m.realSize;
 
-            const dmcaZoom = drawSize / (instance.isImage ? 12 : instSize);
+            const dmcaZoom = ratio;
             if (dmcaDesign) {
                 context.fillStyle = "#000000";
                 context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
@@ -2459,6 +2420,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     const gy = g.offset * sinGunAngle;
 
                     if (dmcaDesign) {
+                        context.fillStyle = "#000000";
                         drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
                         continue;
                     }
@@ -2490,6 +2452,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 // Draw body between gun layers
                 if (drawAbove === 0 && dmcaDesign) {
                     const half = sizeRatio + 11 * dmcaZoom;
+                    context.fillStyle = "#000000";
                     context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
                 } else if (drawAbove === 0) {
                     context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
@@ -2549,9 +2512,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }
 
             if (dmcaDesign) {
-                const fontSize = 0.65 * sizeRatio, offset = 0.35 * sizeRatio, baseline = 0.38 * fontSize;
-                drawText("DMCA'd", xx, yy - offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
-                drawText("by Diep", xx, yy + offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                const textSize = 0.65 * sizeRatio;
+                context.save();
+                context.font = "bold " + textSize + "px Ubuntu";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
+                context.fillStyle = "#FFFFFF";
+                context.fillText("DMCA'd", xx, yy - 0.35 * sizeRatio);
+                context.fillText("by Diep", xx, yy + 0.35 * sizeRatio);
+                context.restore();
                 context.globalAlpha = 1;
             }
 
@@ -2870,8 +2839,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 y = ratio * instance.render.y - py,
                 baseColor = instance.color;
             if (instance.id === gui.playerid) {
-                x = !config.graphical.smoothcamera && !global.player.isScoping && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : x;
-                y = !config.graphical.smoothcamera && !global.player.isScoping && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : y;
+                const scoped = global.player.isScoping || getNow() < global.player.scopeSettle;
+                x = !config.graphical.smoothcamera && !scoped && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : x;
+                y = !config.graphical.smoothcamera && !scoped && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : y;
                 global.player.screenx = x;
                 global.player.screeny = y;
                 global.player.name = instance.name ?? "";
@@ -3720,9 +3690,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     H = global.roomSetup.length,
                     i = 0;
 
-                // Calculate player's position in game world
-                let playerWorldX = global.player.cx.animX;
-                let playerWorldY = global.player.cy.animY;
+                // Use the rendered camera, not the unsmoothed position.
+                let playerWorldX = global.player.camX;
+                let playerWorldY = global.player.camY;
 
                 for (let ycell = 0; ycell < H; ycell++) {
                     let j = 0;
@@ -3768,8 +3738,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 ctx[2].globalAlpha = entity.alpha;
 
                 // Calculate entity position relative to player
-                let relX = entity.x - global.player.cx.animX;
-                let relY = entity.y - global.player.cy.animY;
+                let relX = entity.x - global.player.camX;
+                let relY = entity.y - global.player.camY;
 
                 // Convert to minimap coordinates
                 let minimapX = config.game.centeredMinimap ? centerX + (relX / global.gameWidth) * len : x + (entity.x / global.gameWidth + 0.5) * len;
@@ -3801,7 +3771,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[2].strokeStyle = color.guiblack;
             ctx[2].fillStyle = color.guiblack;
             // Draw yourself in the minimap
-            drawGuiCircle(config.game.centeredMinimap ? centerX : x + (global.player.cx.animX / global.gameWidth + 0.5) * len, config.game.centeredMinimap ? centerY : y + (global.player.cy.animY / global.gameHeight + 0.5) * height, !global.mobile ? 2 : 3.5, false);
+            drawGuiCircle(config.game.centeredMinimap ? centerX : x + (global.player.camX / global.gameWidth + 0.5) * len, config.game.centeredMinimap ? centerY : y + (global.player.camY / global.gameHeight + 0.5) * height, !global.mobile ? 2 : 3.5, false);
             ctx[2].restore();
             ctx[2].globalAlpha = 1;
             ctx[2].fillStyle = color.black;
@@ -4650,11 +4620,21 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         // Don't move the camera if you're dead. This helps with jitter issues
         let playerx = global.player.animX.get(tick);
         let playery = global.player.animY.get(tick);
+        // Scope changes teleport the camera; restart the prediction so the
+        // predictor doesn't extrapolate the world from the old position.
+        if (global.player.isScoping !== global.player.isAiming) {
+            global.player.lastx = global.player.cx.x;
+            global.player.lasty = global.player.cy.y;
+            global.player.lastvx = global.player.vx;
+            global.player.lastvy = global.player.vy;
+            global.player.scopeSettle = getNow() + 600;
+        }
+        global.player.isAiming = global.player.isScoping;
         if (config.graphical.lerpAnimations) {
             global.player.renderx = util.lerp(global.player.renderx, global.player.cx.x, 0.1, true);
             global.player.rendery = util.lerp(global.player.rendery, global.player.cy.y, 0.1, true);
-        } else if (config.graphical.smoothcamera && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1) {
-            let n = null == tickMotion ? 0 : 0.99 ** tickMotion;
+        } else if ((config.graphical.smoothcamera || global.player.isScoping || getNow() < global.player.scopeSettle) && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1) {
+            let n = null == tickMotion ? 0 : config.graphical.smoothcamera ? 0.99 ** tickMotion : Math.exp(-tickMotion / 55);
             global.player.renderx = global.player.renderx * n + playerx * (1 - n);
             global.player.rendery = global.player.rendery * n + playery * (1 - n);
         } else if (!config.graphical.interpolation) {
@@ -4665,8 +4645,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             global.player.rendery = playery;
         }
         if (config.graphical.shakeProperties.CameraShake.shakeStartTime !== -1) applyScreenShake();
-        global.player.cx.animX = playerx;
-        global.player.cy.animY = playery;
+        // Use the camera the world is drawn with for the minimap so the two can't desync.
+        global.player.cx.animX = global.player.camX = global.player.renderx;
+        global.player.cy.animY = global.player.camY = global.player.rendery;
         let px = ratio * global.player.renderx,
             py = ratio * global.player.rendery;
 

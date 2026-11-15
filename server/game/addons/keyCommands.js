@@ -210,8 +210,12 @@ function init() {
                 let e = player.body.store.selectedWhirlpool;
                 let t = target(player);
                 if (!e) e = player.body.store.selectedWhirlpool = nearest(entities, t);
+                if (!e) return;
                 e.x = t.x;
                 e.y = t.y;
+                e.wake();
+                e.takeSelfie();
+                e.updateAABB(true);
             }
         },
         {
@@ -259,6 +263,9 @@ function init() {
                             if (!entity.isGhost) {
                                 entity.x = dx + tx;
                                 entity.y = dy + ty;
+                                entity.wake();
+                                entity.takeSelfie();
+                                entity.updateAABB(true);
                             } else {
                                 clearInterval(body.store.dragInterval);
                                 delete body.store.dragInterval;

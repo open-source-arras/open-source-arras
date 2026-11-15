@@ -4,7 +4,6 @@ const http = require("http");
 const ws = require("ws");
 const fs = require("fs");
 const path = require("path");
-const url = require("url");
 
 let { socketManager } = require("./game/network/sockets.js");
 let { Editor } = require("./game/network/editor.js");
@@ -198,10 +197,10 @@ class gameServer {
             res.setHeader("Access-Control-Allow-Origin", "*");
             res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
             res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            const { pathname, query } = url.parse(req.url, true);
+            const { pathname, searchParams } = new URL(req.url, "http://localhost");
             switch (pathname) {
                 case "/api/sendPlayer": {
-                    if (query.api_key !== process.env.API_KEY) {
+                    if (searchParams.get("api_key") !== process.env.API_KEY) {
                         res.writeHead(403);
                         res.end("Access Denied");
                         return;
