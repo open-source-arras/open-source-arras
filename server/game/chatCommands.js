@@ -394,8 +394,8 @@ const commands = [
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    `- ${prefix} developer define <entity> - change your tank.`,
-                    `- ${prefix} developer reload - reloads definitions.`
+                    `- ${prefix} developer define <entity> - Change your tank.`,
+                    `- ${prefix} developer reload - Reloads definitions for this server.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
