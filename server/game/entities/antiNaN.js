@@ -9,7 +9,7 @@ class antiNaN {
         if (this.amNaN(this.me)) {
             this.nansInARow++;
             if (this.nansInARow > 50) {
-                console.log(`${this.me.name == "" ? "Unknown Entity" : this.me.name} (${this.me.label}) Has been killed due to NaNs.`);
+                console.log(`${this.me.name == "" ? "Unknown Entity" : this.me.name} (${this.me.label}) has been killed due to NaNs.`);
                 this.me.kill();
             }
             this.me.x = this.data.x;

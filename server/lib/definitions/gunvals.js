@@ -124,7 +124,7 @@ module.exports = {
     },
     triplet: {
         reload: 1.2,
-        recoil: 2/3,
+        recoil: 2 / 3,
         shudder: 0.9,
         health: 0.85,
         damage: 0.85,
@@ -135,7 +135,7 @@ module.exports = {
     },
     quintuplet: {
         reload: 1.5,
-        recoil: 2/3,
+        recoil: 2 / 3,
         shudder: 0.9,
         pen: 0.9,
         density: 1.1,
@@ -255,7 +255,7 @@ module.exports = {
     marksman: {
         pen: 2,
         damage: 0.12,
-        health: 25/3,
+        health: 25 / 3,
         reload: 1.75
 
     },
@@ -276,6 +276,11 @@ module.exports = {
         size: 0.8,
         range: 0.8,
         spray: 2
+    },
+    jalopy: {
+        reload: 1 / 3,
+        recoil: 0.5,
+        spray: 5 / 3
     },
     minigun: {
         reload: 1.25,
@@ -329,7 +334,7 @@ module.exports = {
         resist: 1.2
     },
     machineGunner: {
-        reload: 2/3,
+        reload: 2 / 3,
         recoil: 0.8,
         shudder: 2,
         damage: 0.75,
@@ -350,22 +355,22 @@ module.exports = {
         spray: 1.5,
         resist: 0.8
     },
-    flamethrower: {
-        reload: 1.75,
-        recoil: 4/3,
-        shudder: 2,
-        size: 0.25,
-        health: 10,
-        damage: 0.2,
-        pen: 4,
-        speed: 2,
-        maxSpeed: 0,
-        range: 3,
-        density: 0.25
-    },
     gatlingGun: {
         reload: 1.25,
-        recoil: 4/3,
+        recoil: 4 / 3,
+        shudder: 0.8,
+        health: 0.8,
+        pen: 1.1,
+        speed: 1.25,
+        maxSpeed: 1.25,
+        range: 1.1,
+        density: 1.25,
+        spray: 0.5,
+        resist: 1.1
+    },
+    central: {
+        //reload: 1.25,
+        //recoil: 4 / 3,
         shudder: 0.8,
         health: 0.8,
         pen: 1.1,
@@ -503,9 +508,9 @@ module.exports = {
         density: 0.25
     },
     dustStorm: {
-        reload: 1/3,
+        reload: 1 / 3,
         size: 1.35,
-        damage: 1/3,
+        damage: 1 / 3,
         speed: 0.75,
         maxSpeed: 0.75
     },
@@ -545,16 +550,20 @@ module.exports = {
         spray: 2
     },
     honcho: {
-        reload: 5/3,
+        reload: 5 / 3,
         size: 1.5,
         health: 1.5,
-        speed: 2/3
+        speed: 2 / 3
     },
     bigCheese: {
     //reload: 1.5,
-        size: 4/3,
+        size: 4 / 3,
         //health: 4/3,
-        speed: 2/3
+        speed: 2 / 3
+    },
+    doper: { 
+        speed: 1.125, 
+        maxSpeed: 1.125 
     },
     mothership: {
         reload: 1.25,
@@ -566,7 +575,6 @@ module.exports = {
     },
     satellite: {
         size: 0.8,
-        reload: 3,
         damage: 1.875
     },
 
@@ -576,10 +584,10 @@ module.exports = {
         maxSpeed: 1.25
     },
     productionist: {
-        reload: 7/6,
+        reload: 7 / 6,
         recoil: 0.25,
         shudder: 0.5,
-        speed: 4/3,
+        speed: 4 / 3,
         range: 1.5,
         spray: 50
     },
@@ -624,7 +632,7 @@ module.exports = {
         recoil: 0.7,
         size: 0.9,
         speed: 1.15,
-        maxSpeed: 1.1,
+        maxSpeed: 0.9,
         density: 1.5
     },
     mortar: {
@@ -755,7 +763,7 @@ module.exports = {
         reload: 2,
         damage: 2,
         recoil: 2,
-        size: 1.2
+        size: 5 / 3
     },
     setTrap: {
         reload: 1.1,
@@ -780,7 +788,7 @@ module.exports = {
         damage: 0.5,
         speed: 0.75,
         maxSpeed: 0.75,
-        range: 4/3
+        range: 4 / 3
     },
     nestKeeper: {
         reload: 3,

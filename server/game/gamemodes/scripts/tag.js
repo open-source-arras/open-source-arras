@@ -42,7 +42,7 @@ class Tag {
                     if (killer.length) global.nextTagBotTeam = killer[0].team;
                 });
             }
-        }
+        };
     }
     checkWin() {
         if (this.won || !this.canStart || !global.gameManager.clients.length) return;

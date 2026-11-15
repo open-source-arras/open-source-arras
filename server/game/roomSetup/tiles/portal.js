@@ -51,9 +51,9 @@ tileClass.portal = new Tile({
             setTimeout(() => {
                 entity.velocity.x = ax * force;
                 entity.velocity.y = ay * force;
-                setTimeout(() => entity.cannotTeleport = false, 200)
-            }, 100)
-            entity.protect()
+                setTimeout(() => entity.cannotTeleport = false, 200);
+            }, 100);
+            entity.protect();
 
             //also don't forget to bring her kids along the ride
             for (let o of entities.values()) {

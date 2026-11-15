@@ -1,7 +1,7 @@
 // IMAGE TESTING
 tileClass.imagetest3 = new Tile({
     COLOR: "white",
-    IMAGE: "/round.png",
+    IMAGE: "/example-image.png",
     NAME: "Image Tile"
 });
 tileClass.imagetesterror = new Tile({

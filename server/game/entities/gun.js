@@ -16,8 +16,8 @@ class Gun extends EventEmitter {
         this.children = [];
         this.bulletchildren = [];
         // Stored Variables
-        this.globalStore = {}
-        this.store = {}
+        this.globalStore = {};
+        this.store = {};
         // ----------------
         this.control = {
             target: new Vector(0, 0),
@@ -36,6 +36,8 @@ class Gun extends EventEmitter {
         this.alpha = 1;
         this.strokeWidth = 1;
         this.canShoot = false;
+        this.wasPressed = false;
+        this.emitFireEvent = false;
         this.borderless = false;
         this.drawFill = true;
         this.drawAbove = false;
@@ -76,6 +78,7 @@ class Gun extends EventEmitter {
                 this.label = info.PROPERTIES.LABEL ?? "";
                 this.setBulletType(info.PROPERTIES.TYPE);
             }
+            this.statOverride = info.PROPERTIES.STAT_OVERRIDE == null ? null : info.PROPERTIES.STAT_OVERRIDE;
         }
         let position = info.POSITION;
         if (Array.isArray(position)) {
@@ -88,7 +91,7 @@ class Gun extends EventEmitter {
                 ANGLE: position[5],
                 DELAY: position[6],
                 LAYER: position[7]
-            }
+            };
         } else {
             position = {
                 LENGTH: position.LENGTH ?? 18,
@@ -99,7 +102,7 @@ class Gun extends EventEmitter {
                 ANGLE: position.ANGLE ?? 0,
                 DELAY: position.DELAY ?? 0,
                 LAYER: position.LAYER ?? 0
-            }
+            };
         };
         this.length = position.LENGTH / 10;
         this.width = position.WIDTH / 10;
@@ -109,7 +112,7 @@ class Gun extends EventEmitter {
         this.direction = _off.direction;
         this.offset = _off.length / 10;
         this.maxCycleTimer = !this.delaySpawn - position.DELAY;
-        this.layer = position.LAYER ?? 0; // Prevent undefined
+        this.layer = position.LAYER ?? 0;
         this.position = 0;
         this.motion = 0;
         if (this.canShoot) {
@@ -211,7 +214,7 @@ class Gun extends EventEmitter {
     live() {
         this.recoil();
 
-        if (!this.canShoot) return
+        if (!this.canShoot) return;
 
         // Find the proper skillset for shooting
         let sk = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
@@ -220,7 +223,8 @@ class Gun extends EventEmitter {
         let shootPermission = this.checkShootPermission();
 
         // Dont shoot when invuln/not active
-        if (this.body.master.invuln || !this.body.master.activation.check()) {
+        let def = ensureIsClass(this.body.master.defs[0]);
+        if ((this.body.master.invuln && !(this.altFire && (def === Class.spectator || def.PARENT === "spectator"))) || !this.body.master.activation.check()) {
             shootPermission = false;
         }
         if (this.body.master.maxBullets !== undefined && this.body.master.maxBullets < (this.body.master.bulletchildren.length + 1)) {
@@ -233,13 +237,20 @@ class Gun extends EventEmitter {
                 this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixed reload" ? 1 : sk.rld));
             }
         }
+        let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
+        if (currentlyPressed && !this.wasPressed) {
+            this.emitFireEvent = true;
+        } else {
+            this.emitFireEvent = false;
+        }
+        this.wasPressed = currentlyPressed;
         // Firing routines
-        if (this.autofire || (this.altFire ? this.body.control.alt : this.body.control.fire)) {
+        if (this.autofire || currentlyPressed) {
             if (this.body.settings.hasNoReloadDelay && shootPermission) {
                 return (
                     this.shoot(),
                     this.cycleTimer = this.maxCycleTimer
-                ) 
+                ); 
             }
             while (shootPermission && this.cycleTimer >= 1) {
                 this.shoot();
@@ -336,7 +347,7 @@ class Gun extends EventEmitter {
         let spawnOffset = {
             x: this.body.x + this.body.size * gx - s.x,
             y: this.body.y + this.body.size * gy - s.y
-        }
+        };
         if (this.independentMaster) {
             var o = new Entity(spawnOffset);
             o.color.base = undefined;
@@ -350,12 +361,15 @@ class Gun extends EventEmitter {
             o.life();
             this.onShootFunction();
             this.recoilDir = this.body.facing + this.angle;
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o
-            });
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o
+                });
+            }
             return;
         }
         if (this.independentChildren) {
@@ -369,13 +383,16 @@ class Gun extends EventEmitter {
                     break;
             }
             this.bulletInitIndependent(o);
-            this.master.emit(this.altFire ? "altFire" : "fire", {
-                gun: this,
-                store: this.store,
-                globalStore: this.globalStore,
-                child: o,
-                body: this.master
-            });
+            if (this.emitFireEvent) {
+                this.emitFireEvent = false;
+                this.master.emit(this.altFire ? "altFire" : "fire", {
+                    gun: this,
+                    store: this.store,
+                    globalStore: this.globalStore,
+                    child: o,
+                    body: this.master
+                });
+            }
             return;
         }
     
@@ -392,21 +409,24 @@ class Gun extends EventEmitter {
         o.velocity = s;
         this.bulletInit(o);
         o.coreSize = o.SIZE;
-        this.master.emit(this.altFire ? "altFire" : "fire", {
-            body: this.master,
-            gun: this,
-            child: o,
-            masterStore: this.master.store,
-            globalMasterStore: this.master.globalStore,
-            gunStore: this.store,
-            globalGunStore: this.globalStore
-        });
+        if (this.emitFireEvent) {
+            this.emitFireEvent = false;
+            this.master.emit(this.altFire ? "altFire" : "fire", {
+                body: this.master,
+                gun: this,
+                child: o,
+                masterStore: this.master.store,
+                globalMasterStore: this.master.globalStore,
+                gunStore: this.store,
+                globalGunStore: this.globalStore
+            });
+        }
         if (this.body.master.settings.shakeProperties && this.master.socket) {
             this.body.master.settings.shakeProperties.forEach(info => {
                 if (info.applyOn.shoot) {
                     this.master.socket.talk("SH", JSON.stringify(info));
                 }
-            }) 
+            }); 
         }
     }
     bulletInitIndependent(o) {
@@ -468,6 +488,7 @@ class Gun extends EventEmitter {
         }
         o.refreshBodyAttributes();
         o.life();
+        o.takeSelfie();
         this.onShootFunction();
         this.recoilDir = this.body.facing + this.angle;
     }
@@ -610,22 +631,24 @@ class Gun extends EventEmitter {
     }
 
     getPhotoInfo() {
-        return {
-            ...this.lastShot, 
-            color: this.color.compiled,
-            alpha: this.alpha,
-            strokeWidth: this.strokeWidth,
-            borderless: this.borderless, 
-            drawFill: this.drawFill, 
-            drawAbove: this.drawAbove,
-            length: this.length,
-            width: this.width,
-            aspect: this.aspect,
-            angle: this.angle,
-            direction: this.direction,
-            offset: this.offset,
-            layer: this.layer
-        };
+        if (!this.photoInfo) this.photoInfo = {};
+        let p = this.photoInfo;
+        p.time = this.lastShot.time;
+        p.power = this.lastShot.power;
+        p.color = this.color.compiled;
+        p.alpha = this.alpha;
+        p.strokeWidth = this.strokeWidth;
+        p.borderless = this.borderless;
+        p.drawFill = this.drawFill;
+        p.drawAbove = this.drawAbove;
+        p.length = this.length;
+        p.width = this.width;
+        p.aspect = this.aspect;
+        p.angle = this.angle;
+        p.direction = this.direction;
+        p.offset = this.offset;
+        p.layer = this.layer;
+        return p;
     }
 
     interpret() {
@@ -634,6 +657,10 @@ class Gun extends EventEmitter {
 
         let sizeFactor = this.master.size / this.master.SIZE;
         let shoot = this.settings;
+        let override = this.statOverride ?? {};
+        for (let [key, value] of Object.entries(shoot)) {
+            shoot[key] = override[key] != undefined ? override[key] : shoot[key];
+        }
         let sk = (this.bulletStats == "master") ? this.body.skill : this.bulletStats;
         // Defaults
         let out = {
@@ -695,4 +722,4 @@ class Gun extends EventEmitter {
     }
 }
 
-module.exports = { Gun }
+module.exports = { Gun };

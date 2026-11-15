@@ -1,6 +1,6 @@
-const { combineStats, skillSet, makePolyhedron } = require("../facilitators.js")
-const { base, dfltskl, smshskl, statnames } = require("../constants.js")
-const g = require("../gunvals.js")
+const { combineStats, skillSet, makePolyhedron } = require("../facilitators.js");
+const { base, dfltskl, smshskl, statnames } = require("../constants.js");
+const g = require("../gunvals.js");
 
 // Set the below variable to true to enable the flat ball from arras.io.
 const classic_ball = false;
@@ -30,6 +30,7 @@ Class.genericEntity = {
     DRAW_HEALTH: false,
     DRAW_SELF: true,
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     DAMAGE_EFFECTS: true,
     RATEFFECTS: true,
     MOTION_EFFECTS: true,
@@ -111,6 +112,8 @@ Class.genericTank = {
     ALPHA: [0, 1],
     ARENA_CLOSER: false,
     FULL_INVISIBLE: false,
+    MIDDLE_FIRE: false,
+    CAN_SELECT_SELF: false,
     CAN_BE_ON_LEADERBOARD: true,
     CAN_GO_OUTSIDE_ROOM: false,
     CAN_SEE_INVISIBLE_ENTITIES: false,
@@ -122,6 +125,7 @@ Class.genericTank = {
     IGNORED_BY_AI: false,
     INVISIBLE: [0, 0],
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     MAX_CHILDREN: 0,
     NECRO: false,
     NO_SIZE_ANIMATION: false,
@@ -227,6 +231,7 @@ Class.food = {
     MOTION_TYPE: "drift",
     FACING_TYPE: "turnWithSpeed",
     IS_IMMUNE_TO_TILES: false,
+    IS_IMMUNE_TO_PORTALS: false,
     LEVEL_CAP: 1,
     BODY: {
         STEALTH: 30,
@@ -380,8 +385,8 @@ Class.ball = {
     GIVE_KILL_MESSAGE: true
 };
 if (classic_ball) {
-    Class.ball.SHAPE = 0
-    Class.ball.COLOR = "black"
+    Class.ball.SHAPE = 0;
+    Class.ball.COLOR = "black";
     Class.ball.PROPS = [
         {
             TYPE: "ballHat",
@@ -390,7 +395,7 @@ if (classic_ball) {
                 LAYER: 1
             }
         }
-    ]
+    ];
 };
 
 // Projectiles
@@ -665,10 +670,11 @@ Class.serverPortal = {
             event: "tick",
             handler: ({ body }) => {
                 for (let instance of entities.values()) {
+                    if (instance.immuneToPortals) continue;
                     let diffX = instance.x - body.x,
                         diffY = instance.y - body.y,
                         dist2 = diffX ** 2 + diffY ** 2;
-                    if (dist2 <= ((body.size / 12)*250) ** 1.9) {
+                    if (dist2 <= ((body.size / 12) * 250) ** 1.9) {
                         let forceMulti = (0.2 / instance.size);
                         if (instance.isPlayer && instance.socket) {
                             if (dist2 < body.size ** 2.5 + instance.size ** 2.5) forceMulti = (3 / instance.size);

@@ -28,7 +28,7 @@ class Activation {
         }
     }
     check() {
-        return this.active 
+        return this.active; 
     };
 }
 
@@ -37,7 +37,7 @@ const dirtyCheck = function(p, r) {
         let e = entitiesToAvoid[i];
         if (Math.abs(p.x - e.x) < r + e.size && Math.abs(p.y - e.y) < r + e.size) return true;
     }
-    return false
+    return false;
 };
 
 let remapTarget = (i, ref, self) => {
@@ -65,4 +65,4 @@ lazyRealSizes = new Proxy(lazyRealSizes, {
     }
 });
 
-module.exports = { dirtyCheck, remapTarget, lazyRealSizes, Activation }
+module.exports = { dirtyCheck, remapTarget, lazyRealSizes, Activation };

@@ -11,4 +11,4 @@ module.exports = {
     room_setup: ["room_siege_classic"],
     sanctuary_size: 15,
     bot_xp_gain: 500
-}
+};

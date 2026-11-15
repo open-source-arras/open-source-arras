@@ -62,11 +62,11 @@ class Prop {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : 0;
             this.shapeData = set.SHAPE;
         }
-        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear"
+        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear";
         if (set.COLOR != null) {
             this.color.interpret(set.COLOR);
         }
-        if (set.STROKE_WIDTH != null) this.strokeWidth = set.STROKE_WIDTH
+        if (set.STROKE_WIDTH != null) this.strokeWidth = set.STROKE_WIDTH;
         if (set.BORDERLESS != null) this.borderless = set.BORDERLESS;
         if (set.DRAW_FILL != null) this.drawFill = set.DRAW_FILL;
         if (set.GUNS != null) {
@@ -78,26 +78,28 @@ class Prop {
         }
     }
     camera() {
-        return {
-            type: 0x01,
-            id: this.id,
-            index: this.index,
-            size: this.size,
-            realSize: this.realSize,
-            facing: this.facing,
-            angle: this.bound.angle,
-            direction: this.bound.direction,
-            offset: this.bound.offset,
-            sizeFactor: this.bound.size,
-            mirrorMasterAngle: this.settings.mirrorMasterAngle,
-            layer: this.bound.layer,
-            color: this.color.compiled,
-            strokeWidth: this.strokeWidth,
-            borderless: this.borderless,
-            drawFill: this.drawFill,
-            guns: this.guns.map((gun) => gun.getPhotoInfo()),
-            turrets: this.turrets
-        };
+        if (!this.cameraInfo) this.cameraInfo = { guns: [] };
+        const info = this.cameraInfo;
+        info.type = 0x01;
+        info.id = this.id;
+        info.index = this.index;
+        info.size = this.size;
+        info.realSize = this.realSize;
+        info.facing = this.facing;
+        info.angle = this.bound.angle;
+        info.direction = this.bound.direction;
+        info.offset = this.bound.offset;
+        info.sizeFactor = this.bound.size;
+        info.mirrorMasterAngle = this.settings.mirrorMasterAngle;
+        info.layer = this.bound.layer;
+        info.color = this.color.compiled;
+        info.strokeWidth = this.strokeWidth;
+        info.borderless = this.borderless;
+        info.drawFill = this.drawFill;
+        info.guns.length = 0;
+        for (const gun of this.guns) info.guns.push(gun.getPhotoInfo());
+        info.turrets = this.turrets;
+        return info;
     }
 }
 

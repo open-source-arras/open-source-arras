@@ -64,7 +64,7 @@ const keybinderHandler = (function() {
             function getElements(kb, storeInDefault) {
                 for (let row of controls.rows) {
                     for (let cell of row.cells) {
-                        let element = cell.firstChild.firstChild;
+                        let element = cell.querySelector("b[data-key]");
                         if (!element) continue;
                         let key = element.dataset.key;
                         if (storeInDefault) defaultKeybinds[key] = [element.innerText, global[key]];

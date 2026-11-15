@@ -13,4 +13,4 @@ module.exports = {
     fortress: true,
     bot_xp_gain: 500,
     maze_type: 14
-}
+};

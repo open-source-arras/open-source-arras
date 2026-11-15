@@ -105,6 +105,12 @@ var gameDraw = {
     },
 
     colorCache: {},
+    teamColors: [10, 11, 12, 15, 25, 26, 27, 28, "blue", "green", "red", "magenta", "mustard", "tangerine", "brown", "cyan"],
+    getRainbowTeamColor: (colorNumber) => {
+        let index = gameDraw.teamColors.indexOf(util.isNumeric(colorNumber) ? parseInt(colorNumber) : colorNumber);
+        if (index < 0) return gameDraw.animatedColor.gay;
+        return gameDraw.animatedColor.rainbowTeams[index % (gameDraw.teamColors.length / 2)];
+    },
     modifyColor: (color, base = "16 0 1 0 false") => {
         // Split into array
         let colorDetails = color.split(" "),
@@ -120,6 +126,7 @@ var gameDraw = {
 
         // Exit if calculated already
         let colorId = colorDetails.join(" ");
+        if (config.game.rainbowTeamColors && gameDraw.teamColors.includes(util.isNumeric(colorDetails[0]) ? parseInt(colorDetails[0]) : colorDetails[0])) return gameDraw.getRainbowTeamColor(colorDetails[0]);
         let cachedColor = gameDraw.colorCache[colorId];
         if (cachedColor != undefined) return cachedColor;
 
@@ -168,6 +175,7 @@ var gameDraw = {
     animatedColor: {
         lesbian: "",
         gay: "",
+        rainbowTeams: [],
         bi: "",
         trans: "",
         magenta: "",
@@ -189,7 +197,7 @@ var gameDraw = {
         lesbian_white = "#FFFFFF",
         lesbian_useSecondSet = five_bars < 2,
 
-        gay_transition = (now / 2000) % 1,
+        gay_transition = (now / 6000) % 1,
 
         ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
         light_purple = { h: 258 / 360, s: 1, l: 0.84 },
@@ -201,6 +209,10 @@ var gameDraw = {
 
         gameDraw.animatedColor.lesbian = gameDraw.getRainbow(lesbian_useSecondSet ? lesbian_oredange : lesbian_white, lesbian_useSecondSet ? lesbian_white : lesbian_magenta, (lesbian_useSecondSet ? five_bars : five_bars - 3) / 2);
         gameDraw.animatedColor.gay = gameDraw.hslToRgb(gay_transition, 0.75, 0.5);
+        let teamCount = gameDraw.teamColors.length / 2;
+        gameDraw.animatedColor.rainbowTeams = Array.from({ length: teamCount }, (_, i) =>
+            gameDraw.hslToRgb((gay_transition + i / teamCount) % 1, 0.75, 0.5)
+        );
         gameDraw.animatedColor.trans = gameDraw.mixColors(trans_white, 2000 > now % 4000 ? trans_blue : trans_pink, Math.max(Math.min(5 * Math.sin(now % 2000 / 2000 * Math.PI) - 2, 1), 0));
         gameDraw.animatedColor.trueTrans = [trans_blue, trans_pink, trans_white, trans_pink, trans_blue][five_bars];
         gameDraw.animatedColor.magenta = gameDraw.hslToRgb(
@@ -258,6 +270,7 @@ var gameDraw = {
         if (colorNumber == undefined || colorNumber == null) return gameDraw.color.black;
         if (colorNumber[0] == "#") return colorNumber;
         if (util.isNumeric(colorNumber)) colorNumber = parseInt(colorNumber);
+        if (config.game.rainbowTeamColors && gameDraw.teamColors.includes(colorNumber)) return gameDraw.getRainbowTeamColor(colorNumber);
         // Gradient color
         if (colorNumber.gradient && ctx) {
             try {
@@ -452,7 +465,7 @@ var gameDraw = {
                 return gameDraw.animatedColor.magenta;
 
             case "nest":
-                return config.graphical.coloredNest ? gameDraw.color.lavender : gameDraw.color.white;
+                return config.graphical.coloredNest ? gameDraw.color.purple : gameDraw.color.white;
 
             case "border":
                 return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);

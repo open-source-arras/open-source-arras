@@ -12,7 +12,7 @@ class HealthType {
         this.regen = regen;
     }
     display() {
-        return this.amount / this.max;
+        return this.max ? this.amount / this.max : 0;
     }
     getDamage(amount, capped = true) {
         let damageToMax = this.amount - this.max;

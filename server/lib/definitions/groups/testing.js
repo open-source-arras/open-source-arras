@@ -1,4 +1,4 @@
-const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../facilitators.js");
+const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack, getStatFrom, skillSet } = require("../facilitators.js");
 const { base, statnames } = require("../constants.js");
 const g = require("../gunvals.js");
 
@@ -36,8 +36,10 @@ Class.menu_testing = makeMenu("Testing", {upgrades: [
     "syncWithTankTest",
     "airblast",
     "anglemancer",
-    "backwardsExports"
-], tooltip: "A large selection of tanks that use many of the features of Open Source Arras.\n" + "WARNING: There are a lot of entities in here and having this menu open may cause noticeable frame drops!"})
+    "backwardsExports",
+    "overrideTest",
+    "bulletStatsTest"
+], tooltip: "A large selection of tanks that use many of the features of Open Source Arras.\n" + "WARNING: There are a lot of entities in here and having this menu open may cause noticeable frame drops!"});
 
 const tessFaceColors = Array.from({ length: 20 }, (_, i) =>
     ["red", "orange", "yellow", "green", "blue", "purple"][i % 6]
@@ -63,7 +65,7 @@ Class.tagBullet = {
             }
         }
     ]
-}
+};
 Class.tagger = {
     PARENT: "genericTank",
     LABEL: "Tagger",
@@ -76,7 +78,7 @@ Class.tagger = {
             }
         }
     ]
-}
+};
 
 // Lancer
 statnames.lancer = {
@@ -85,7 +87,7 @@ statnames.lancer = {
     BULLET_PEN: "Lance Sharpness",
     BULLET_DAMAGE: "Lance Damage",
     RELOAD: "Recharge Time"
-}
+};
 
 Class.roaringParent = {
     HITS_OWN_TYPE: "never",
@@ -113,34 +115,34 @@ Class.roaringParent = {
         {
             event: "tick",
             handler: ({body}) => {
-                body.ticking ??= 0
-                body.ticking++
+                body.ticking ??= 0;
+                body.ticking++;
 
-                let k = body.master.facing
+                let k = body.master.facing;
                 Object.defineProperty(body, "facing", {
                     get:() => {
-                        return k 
+                        return k; 
                     }, set:() => {}
-                })
+                });
 
-                body.alpha -= 0.1
+                body.alpha -= 0.1;
                 if (body.alpha <= 0) {
-                    body.kill()
+                    body.kill();
                 }
             }
         }
     ]
-}
+};
 Class.roaringHat = {
     PARENT: "circleHat",
     COLOR: "#000000",
     BORDERLESS: true
-}
+};
 Class.roaringHat2 = {
     PARENT: "circleHat",
     COLOR: "#FFFFFF",
     BORDERLESS: true
-}
+};
 Class.roaringLancer = {
     PARENT: "genericTank",
     LABEL: "Roaring Lancer",
@@ -155,20 +157,20 @@ Class.roaringLancer = {
                 switch (gun.identifier) {
                     case "charge":
                         function afterImage() {
-                            o = new Entity({x: body.x, y: body.y})
-                            o.master = body
+                            o = new Entity({x: body.x, y: body.y});
+                            o.master = body;
 
-                            o.define(body.defs[0])
-                            o.define("roaringParent")
+                            o.define(body.defs[0]);
+                            o.define("roaringParent");
 
-                            o.team = body.team
-                            o.SIZE = body.size
-                            o.color.base = body.color.base
-                            o.master = body
+                            o.team = body.team;
+                            o.SIZE = body.size;
+                            o.color.base = body.color.base;
+                            o.master = body;
                         }
 
-                        let interval = setInterval(afterImage, 100)
-                        setTimeout(() => clearInterval(interval), 1_000)
+                        let interval = setInterval(afterImage, 100);
+                        setTimeout(() => clearInterval(interval), 1_000);
                         break;
                 };
             }
@@ -200,7 +202,7 @@ Class.roaringLancer = {
             },
             PROPERTIES: {
                 AUTOFIRE: true,
-                SHOOT_SETTINGS: combineStats([{reload: 6, recoil: 0, health: 0.5, damage: 2, pen: 1.6, speed: 2/3, range: 0.08, spray: 180}]),
+                SHOOT_SETTINGS: combineStats([{reload: 6, recoil: 0, health: 0.5, damage: 2, pen: 1.6, speed: 2 / 3, range: 0.08, spray: 180}]),
                 TYPE: ["bullet", {
                     ALPHA: 0,
                     LABEL: "Lance"
@@ -242,7 +244,7 @@ Class.roaringLancer = {
             }
         }
     ]
-}
+};
 
 Class.gunLayerTest = {
     PARENT: "genericTank",
@@ -283,7 +285,7 @@ Class.gunLayerTest = {
             }
         }
     ]
-}
+};
 
 // to be sorted later
 Class.bacteria = {
@@ -305,7 +307,7 @@ Class.bacteria = {
             }
         }
     ]
-}
+};
 Class.bacteriaClone = {
     PARENT: "genericTank",
     LABEL: "Bacteria",
@@ -325,10 +327,10 @@ Class.bacteriaClone = {
         }
     ]
     //GUNS: Class.bacteria.GUNS // server stress test mode
-}
+};
 class io_turretWithMotion extends IO {
     constructor(b, opts = {}) {
-        super(b)
+        super(b);
     }
     think(input) {
         return {
@@ -337,7 +339,7 @@ class io_turretWithMotion extends IO {
         };
     }
 }
-ioTypes.turretWithMotion = io_turretWithMotion
+ioTypes.turretWithMotion = io_turretWithMotion;
 Class.latDeco1 = {
     PARENT: "genericTank",
     LABEL: "Tank Deco",
@@ -345,7 +347,7 @@ Class.latDeco1 = {
     COLOR: "#5C533F",
     SHAPE: "M -1 -2 C -1 -2 -1 -3 0 -3 C 1 -3 1 -2 1 -2 V 2 C 1 2 1 3 0 3 C -1 3 -1 2 -1 2 V -2",
     MIRROR_MASTER_ANGLE: true
-}
+};
 Class.latDeco2 = {
     PARENT: "genericTank",
     LABEL: "Tank Deco",
@@ -353,7 +355,7 @@ Class.latDeco2 = {
     COLOR: "#5C533F",
     SHAPE: "M -2 0 H 2 L 0 1 L -2 0",
     MIRROR_MASTER_ANGLE: true
-}
+};
 Class.latDeco3 = {
     PARENT: "genericTank",
     LABEL: "Tank Deco",
@@ -361,7 +363,7 @@ Class.latDeco3 = {
     COLOR: "#3F3B2D",
     SHAPE: "M -10 -1 L 10 -1 L 10 1 L -10 1 L -10 -1",
     MIRROR_MASTER_ANGLE: true
-}
+};
 Class.latRight = {
     PARENT: "genericTank",
     LABEL: "Tank Side",
@@ -399,7 +401,7 @@ Class.latRight = {
             TYPE: "latDeco2"
         }
     ]
-}
+};
 Class.latLeft = {
     PARENT: "genericTank",
     LABEL: "Tank Side",
@@ -437,7 +439,7 @@ Class.latLeft = {
             TYPE: "latDeco2"
         }
     ]
-}
+};
 Class.latBase = {
     PARENT: "genericTank",
     LABEL: "Tank Base",
@@ -509,7 +511,7 @@ Class.latBase = {
             TYPE: "latDeco3"
         }
     ]
-}
+};
 Class.literallyATank = {
     PARENT: "genericTank",
     LABEL: "Literally A Tank",
@@ -550,10 +552,10 @@ Class.literallyATank = {
             TYPE: ["latBase", { COLOR: "#96794E" }]
         }
     ]
-}
+};
 
 // airblast testing
-Class.airblastBullet = {PARENT: "bullet", ALPHA: 0.5, BODY: {KNOCKBACK: 30}}
+Class.airblastBullet = {PARENT: "bullet", ALPHA: 0.5, BODY: {KNOCKBACK: 30}};
 Class.airblast = {
     PARENT: "genericTank",
     LABEL: "Airblast",
@@ -579,12 +581,12 @@ Class.airblast = {
             }
         }
     ]
-}
+};
 Class.trichip = {
     PARENT: "sunchip",
     NECRO: [3],
     SHAPE: 3
-}
+};
 Class.anglemancer = {
     PARENT: "genericTank",
     LABEL: "Anglemancer",
@@ -609,7 +611,7 @@ Class.anglemancer = {
             DELAY_SPAWN: false
         }
     }, 3)
-}
+};
 Class.cycloneM1 = {
     PARENT: "genericTank",
     LABEL: "",
@@ -630,7 +632,7 @@ Class.cycloneM1 = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 40,
-                DELAY: 1/3
+                DELAY: 1 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -642,7 +644,7 @@ Class.cycloneM1 = {
                 LENGTH: 15,
                 WIDTH: 3.5,
                 ANGLE: 80,
-                DELAY: 2/3
+                DELAY: 2 / 3
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -650,7 +652,7 @@ Class.cycloneM1 = {
             }
         }
     ], 3)
-}
+};
 Class.gunnerCruiser = {
     PARENT: "genericTank",
     LABEL: "Gunner Cruiser",
@@ -691,14 +693,14 @@ Class.gunnerCruiser = {
             }
         }
     ]
-}
+};
 
 // Testing tanks
 Class.diamondShape = {
     PARENT: "basic",
     LABEL: "Rotated Body",
     SHAPE: 4.5
-}
+};
 Class.miscTestHelper2 = {
     PARENT: "genericTank",
     LABEL: "Turret Reload 3",
@@ -714,7 +716,7 @@ Class.miscTestHelper2 = {
             }
         }
     ]
-}
+};
 Class.miscTestHelper = {
     PARENT: "genericTank",
     LABEL: "Turret Reload 2",
@@ -739,7 +741,7 @@ Class.miscTestHelper = {
             TYPE: "miscTestHelper2"
         }
     ]
-}
+};
 Class.miscTest = {
     PARENT: "genericTank",
     LABEL: "Turret Reload",
@@ -759,7 +761,7 @@ Class.miscTest = {
             TYPE: "miscTestHelper"
         }
     ]
-}
+};
 Class.mmaTest2 = {
     PARENT: "genericTank",
     MIRROR_MASTER_ANGLE: true,
@@ -767,7 +769,7 @@ Class.mmaTest2 = {
     GUNS: [{
         POSITION: [40, 4, 1, -20, 0, 0, 0]
     }]
-}
+};
 Class.mmaTest1 = {
     PARENT: "genericTank",
     COLOR: -1,
@@ -777,7 +779,7 @@ Class.mmaTest1 = {
             TYPE: "mmaTest2"
         }
     ]
-}
+};
 Class.mmaTest = {
     PARENT: "genericTank",
     LABEL: "Mirror Master Angle",
@@ -791,14 +793,14 @@ Class.mmaTest = {
             TYPE: "mmaTest1"
         }
     ]
-}
+};
 Class.vulnturrettest_turret = {
     PARENT: "genericTank",
     COLOR: "grey",
     HITS_OWN_TYPE: "hard",
     LABEL: "Shield",
     COLOR: "teal"
-}
+};
 Class.vulnturrettest = {
     PARENT: "genericTank",
     LABEL: "Vulnerable Turrets",
@@ -819,7 +821,7 @@ Class.vulnturrettest = {
         TYPE: "vulnturrettest_turret",
         VULNERABLE: true
     }, 10)
-}
+};
 Class.turretLayerTesting = {
     PARENT: "genericTank",
     LABEL: "Turret Layer Testing",
@@ -845,7 +847,7 @@ Class.turretLayerTesting = {
             TYPE: ["basic", {COLOR: "grey", MIRROR_MASTER_ANGLE: true}]
         }
     ]
-}
+};
 Class.alphaGunTest = {
     PARENT: "basic",
     LABEL: "Translucent Guns",
@@ -857,7 +859,7 @@ Class.alphaGunTest = {
             ALPHA: 0.5
         }
     }]
-}
+};
 Class.radialAutoTest = makeRadialAuto("gunner", {
     count: 5,
     isTurret: false,
@@ -870,13 +872,13 @@ Class.radialAutoTest = makeRadialAuto("gunner", {
     label: "Radial Auto Test",
     rotation: 0.04,
     danger: 10
-})
+});
 Class.imageShapeTest = {
     PARENT: "genericTank",
     LABEL: "Image Shape Test",
-    SHAPE: "image=/round.png",
+    SHAPE: "image=/example-image.png",
     GUNS: Class.basic.GUNS
-}
+};
 Class.screenShakeTest = {
     PARENT: "genericTank",
     LABEL: "Screen Shake Test",
@@ -907,7 +909,7 @@ Class.screenShakeTest = {
         }
     ],
     GUNS: Class.basic.GUNS
-}
+};
 Class.strokeWidthTest = {
     PARENT: "basic",
     LABEL: "Stroke Width Test",
@@ -920,7 +922,7 @@ Class.strokeWidthTest = {
             STROKE_WIDTH: 0.5
         }
     }]
-}
+};
 Class.onTest = {
     PARENT: "genericTank",
     LABEL: "ON property test",
@@ -930,35 +932,35 @@ Class.onTest = {
         handler: ({ body, gun }) => {
             switch (gun.identifier) {
                 case "mainGun":
-                    body.sendMessage("I fired my main gun.")
+                    body.sendMessage("I fired my main gun.");
                     break;
                 case "secondaryGun":
-                    body.sendMessage("I fired my secondary gun.")
+                    body.sendMessage("I fired my secondary gun.");
                     break;
             }
         }
     }, {
         event: "altFire",
         handler: ({ body, gun }) => {
-            body.sendMessage("I fired my alt gun.")
+            body.sendMessage("I fired my alt gun.");
         }
     }, {
-        event: "death",
+        event: "dead",
         handler: ({ body, killers, killTools }) => {
-            const killedOrDied = killers.length === 0 ? "died." : "got killed."
-            body.sendMessage(`I ${killedOrDied}`)
+            const killedOrDied = killers.length === 0 ? "died." : "got killed.";
+            body.sendMessage(`I ${killedOrDied}`);
         }
     }, {
         event: "collide",
         handler: ({ body, instance, other }) => {
-            instance.sendMessage(`I collided with ${other.label}.`)
-            body.destroy()
-            other.SIZE = other.SIZE * Math.SQRT2
+            instance.sendMessage(`I collided with ${other.label}.`);
+            body.destroy();
+            other.SIZE = other.SIZE * Math.SQRT2;
         }
     }, {
         event: "damage",
         handler: ({ body, damageInflictor, damageTool }) => { 
-            body.sendMessage("I got hurt.")
+            body.sendMessage("I got hurt.");
         }
     }],
     GUNS: [{
@@ -983,7 +985,7 @@ Class.onTest = {
             IDENTIFIER: "secondaryGun"
         }
     }]
-}
+};
 Class.turretStatScaleTest = {
     PARENT: "genericTank",
     LABEL: "Turret Stat Test",
@@ -991,7 +993,7 @@ Class.turretStatScaleTest = {
         POSITION: [15, 0, -40 + 20 * i, 0, 360, 1],
         TYPE: ["autoTankGun", {GUN_STAT_SCALE: {speed: 1 + i / 5, maxSpeed: 1 + i / 5, reload: 1 + i / 5, recoil: 0}}]
     }))
-}
+};
 Class.auraBasicGen = makeAura();
 Class.auraBasic = {
     PARENT: "genericTank",
@@ -1003,7 +1005,7 @@ Class.auraBasic = {
         }
     ],
     GUNS: Class.basic.GUNS
-}
+};
 Class.auraHealerGen = makeAura(-1);
 Class.auraHealer = {
     PARENT: "genericTank",
@@ -1015,7 +1017,7 @@ Class.auraHealer = {
         }
     ],
     GUNS: Class.healer.GUNS
-}
+};
 Class.ghoster_ghosted = {
     PARENT: "genericTank",
     TOOLTIP: "You are now invisible, roam around and find your next target. You will be visible again in 5 seconds",
@@ -1029,7 +1031,7 @@ Class.ghoster_ghosted = {
         POSITION: { WIDTH: 20, LENGTH: 20 }
     }],
     ALPHA: 0.6
-}
+};
 Class.ghoster = {
     PARENT: "genericTank",
     LABEL: "Ghoster",
@@ -1042,17 +1044,15 @@ Class.ghoster = {
         {
             event: "fire",
             handler: ({ body }) => {
-                body.define("ghoster_ghosted")
+                body.define("ghoster_ghosted");
                 setTimeout(() => {
-                    body.SPEED = 1e-99
-                    body.ACCEL = 1e-99
-                    body.FOV *= 2
-                    body.alpha = 1
-                }, 2000)
+                    body.SPEED = 1e-99;
+                    body.ACCEL = 1e-99;
+                }, 2000);
                 setTimeout(() => {
-                    body.SPEED = base.SPEED
-                    body.define("ghoster")
-                }, 2500)
+                    body.SPEED = base.SPEED;
+                    body.define("ghoster");
+                }, 2500);
             }
         }
     ],
@@ -1064,7 +1064,7 @@ Class.ghoster = {
         }
     }],
     ALPHA: 1
-}
+};
 Class.switcheroo = {
     PARENT: "basic",
     LABEL: "Switcheroo",
@@ -1074,7 +1074,7 @@ Class.switcheroo = {
         {
             event: "fire",
             handler: ({ body, globalMasterStore: store, gun }) => {
-                if (gun.identifier !== "switcherooGun") return
+                if (gun.identifier !== "switcherooGun") return;
                 store.switcheroo_i ??= 0;
                 store.switcheroo_i++;
                 store.switcheroo_i %= 6;
@@ -1091,7 +1091,7 @@ Class.switcheroo = {
             IDENTIFIER: "switcherooGun"
         }
     }]
-}
+};
 Class.vanquisher = {
     PARENT: "genericTank",
     DANGER: 8,
@@ -1161,7 +1161,7 @@ Class.vanquisher = {
     }, {
         POSITION: [8, 14, -1.3, 4, 0, 270, 0]
     }]
-}
+};
 Class.armyOfOneBullet = {
     PARENT: "bullet",
     LABEL: "Unstoppable",
@@ -1175,7 +1175,7 @@ Class.armyOfOneBullet = {
             TYPE: ["triangleHat_spin", { COLOR: "mirror" }]
         }
     ]
-}
+};
 Class.armyOfOne = {
     PARENT: "genericTank",
     LABEL: "Army Of One",
@@ -1200,12 +1200,12 @@ Class.armyOfOne = {
             }
         }
     ]
-}
+};
 Class.tooltipTank = {
     PARENT: "genericTank",
     LABEL: "Tooltips",
     UPGRADE_TOOLTIP: "Allan please add details"
-}
+};
 Class.bulletSpawnTest = {
     PARENT: "genericTank",
     LABEL: "Bullet Spawn Position",
@@ -1226,7 +1226,7 @@ Class.bulletSpawnTest = {
             }
         }
     ]
-}
+};
 Class.propTestProp = {
     PARENT: "genericTank",
     SHAPE: 6,
@@ -1240,7 +1240,7 @@ Class.propTestProp = {
             PROPERTIES: {COLOR: 13}
         }
     ]
-}
+};
 Class.propTest = {
     PARENT: "genericTank",
     LABEL: "Deco Prop Test",
@@ -1251,7 +1251,7 @@ Class.propTest = {
             TYPE: "propTestProp"
         }
     ]
-}
+};
 Class.weaponArrayTest = {
     PARENT: "genericTank",
     LABEL: "Weapon Array Test",
@@ -1276,7 +1276,7 @@ Class.weaponArrayTest = {
             TYPE: "autoTankGun"
         },
         5)
-}
+};
 Class.gunBenchmark = {
     PARENT: "genericTank",
     LABEL: "Gun Benchmark",
@@ -1287,7 +1287,7 @@ Class.gunBenchmark = {
             TYPE: ["bullet", {DRAW_SELF: false}]
         }
     }, 720)
-}
+};
 Class.syncWithTankTest = {
     PARENT: "genericTank",
     LABEL: "Sync With Tank Test",
@@ -1295,13 +1295,13 @@ Class.syncWithTankTest = {
     SYNC_WITH_TANK: true,
     FACING_TYPE: ["smoothToTarget", { smoothness: 30 }],
     GUNS: Class.basic.GUNS
-}
+};
 exports.backwardsExports = {
     PARENT: "genericTank",
     LABEL: "Basic `Exports` exported tank",
     BODY: Class.basic.BODY,
     GUNS: Class.basic.GUNS
-}
+};
 let testLayeredBoss = new LayeredBoss("testLayeredBoss", "Test Layered Boss", "terrestrial", 7, 3, "terrestrialTrapTurret", 5, 7, true, {SPEED: 10});
 testLayeredBoss.addLayer({gun: {
     POSITION: [3.6, 7, -1.4, 8, 0, null, 0],
@@ -1311,12 +1311,77 @@ testLayeredBoss.addLayer({gun: {
         AUTOFIRE: true,
         SYNCS_SKILLS: true
     }
-}}, true, null, 16)
+}}, true, null, 16);
 testLayeredBoss.addLayer({turret: {
     POSITION: [10, 7.5, 0, null, 160, 0],
     TYPE: "crowbarTurret"
-}}, true)
-
+}}, true);
+Class.overrideTest = {
+    PARENT: "genericTank",
+    LABEL: "Stat Override Test",
+    DANGER: 7,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 20.5,
+                WIDTH: 19.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator]),
+                TYPE: "bullet",
+                STAT_OVERRIDE: getStatFrom([g.basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 23,
+                WIDTH: 8,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic]),
+                TYPE: "bullet",
+                STAT_OVERRIDE: getStatFrom([g.basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
+            }
+        }
+    ]
+};
+Class.bulletStatsTestBullet = {
+    PARENT: "bullet",
+    GUNS: [{
+        POSITION: {LENGTH: 15},
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, {recoil: 0}]),
+            TYPE: "bullet",
+            AUTOFIRE: true
+        }
+    }]
+};
+Class.bulletStatsTest = {
+    PARENT: "genericTank",
+    LABEL: "Bullet Stats Test",
+    GUNS: [
+        {
+            POSITION: {WIDTH: 12},
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic]),
+                TYPE: "bulletStatsTestBullet",
+                BULLET_STATS: skillSet({
+                    rld: 0,
+                    pen: 0.5,
+                    str: 0.5,
+                    dam: 0.5,
+                    spd: 1,
+                    shi: 0,
+                    atk: 0,
+                    hlt: 1,
+                    rgn: 0,
+                    mob: 0
+                })
+            }
+        }
+    ]
+};
 // DigDig (WIP)
 Class.genericDigDig = {
     PARENT: "genericSmasher",
@@ -1329,22 +1394,22 @@ Class.genericDigDig = {
             POSITION: { SIZE: 27 }
         }
     ]
-}
+};
 Class.digDigSmile = {
     PARENT: "genericDigDig",
     PROPS: []
-}
+};
 Class.digDigSmile_kirk = {
     PARENT: "genericDigDig",
     PROPS: []
-}
+};
 Class.digDigFrown = {
     PARENT: "genericDigDig",
     PROPS: []
-}
+};
 Class.digDigFrown_kirk = {
     PARENT: "genericDigDig",
     PROPS: []
-}
+};
 
 global.convertExportsToClass(exports);

@@ -1,5 +1,6 @@
 import { global } from "./global.js";
 import { config } from "./config.js";
+import { censorText } from "./dmca.js";
 
 const util = (function() {
     return {
@@ -265,7 +266,7 @@ const util = (function() {
                 turrets.push(...mockup.turrets);
                 props.push(...mockup.props);
                 positionData.push(mockup.position);
-                name += mockup.name.length > 0 ? "-" + mockup.name : "";
+                name += mockup.name.length > 0 ? "-" + (config.game.dmcaMode && (mockup.censor & 1) ? censorText(mockup.name) : mockup.name) : "";
                 upgradeTooltip += mockup.upgradeTooltip ? "\n" + mockup.upgradeTooltip : "";
                 if (mockup.rerootUpgradeTree) allRoots.push(...mockup.rerootUpgradeTree.split("\\/"));
             }
@@ -317,7 +318,7 @@ const util = (function() {
                 shape: mainMockup.shape,
                 name: name.substring(1),
                 upgradeTooltip: upgradeTooltip.substring(1),
-                upgradeName: mainMockup.upgradeName,
+                upgradeName: config.game.dmcaMode && (mainMockup.censor & 1) ? censorText(mainMockup.upgradeName) : mainMockup.upgradeName,
                 score: 0,
                 tiggle: 0,
                 layer: mainMockup.layer,

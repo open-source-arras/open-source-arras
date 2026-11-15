@@ -1,6 +1,9 @@
+const today = new Date();
+const thanksgiving = (today.getMonth() === 10 && today.getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving;
+
 class Mothership {
     constructor() {
-        if (Config.thanksgiving) {
+        if (thanksgiving) {
             this.choices = ["turkey"];
         } else if (Config.arms_race) {
             this.choices = ["flagship"];
@@ -10,7 +13,7 @@ class Mothership {
         this.defineProperties();
         Config.mothership_data = {
             getData: () => this.globalMotherships
-        }
+        };
     };
     defineProperties() {
         this.motherships = [];
@@ -56,7 +59,7 @@ class Mothership {
             o.define({ ACCEPTS_SCORE: false, VALUE: 643890 });
             o.color.base = getTeamColor(team);
             o.team = team;
-            if (Config.thanksgiving) {
+            if (thanksgiving) {
                 o.name = "Turkey";
             } else if (Config.arms_race) {
                 o.name = "Flagship";
@@ -70,7 +73,7 @@ class Mothership {
             this.globalMotherships.push(o);
             o.on("dead", () => {
                 this.death(o, team);
-            })
+            });
         }
     };
 
@@ -94,7 +97,7 @@ class Mothership {
     winner(teamId) {
         global.gameManager.socketManager.broadcast(getTeamName(teamId) + " has won the game!");
         setTimeout(() => {
-            global.gameManager.closeArena() 
+            global.gameManager.closeArena(); 
         }, 3000);
     };
 
@@ -111,7 +114,7 @@ class Mothership {
         if (aliveNow.length === 1) {
             this.teamWon = true;
             setTimeout(() => {
-                this.winner(aliveNow[0][1]) 
+                this.winner(aliveNow[0][1]); 
             }, 2500);
         }
         this.motherships = aliveNow;

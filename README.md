@@ -1,6 +1,6 @@
 # Open Source Arras
 
-<img alt="Logo" src="public/img/round.png" width="100"/>
+<img alt="Logo" src="public/favicon/512x512.png" width="100"/>
 
 ![GitHub Release](https://img.shields.io/github/v/release/open-source-arras/open-source-arras)
 ![Discord](https://img.shields.io/discord/1004907608018264094)

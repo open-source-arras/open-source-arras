@@ -101,19 +101,21 @@ let gameDraw;
 const global = {
     // Keys and other mathematical constants.
     KEY_AUTO_FIRE: "KeyE",
-    KEY_AUTO_ALT: "KeyX",
+    KEY_AUTO_ALT: "KeyQ",
     KEY_AUTO_SPIN: "KeyC",
     KEY_SPIN_LOCK: "KeyG",
     KEY_OVERRIDE: "KeyR",
-    KEY_LEVEL_UP: "KeyN",
+    KEY_LEVEL_UP: -1,
     KEY_ABILITY: "KeyF",
-    //KEY_PAUSE: "KeyG",
-    KEY_REVERSE_TANK: "KeyV",
+    KEY_PAUSE: "KeyP",
+    KEY_REVERSE_TANK: "KeyN",
     KEY_REVERSE_MOUSE: "KeyB",
-    KEY_SCREENSHOT: "KeyQ",
+    KEY_SCREENSHOT: "F2",
     KEY_SKILL_MAX: "KeyM",
+    KEY_UPGRADE_SKILL_SAVE: -1,
+    KEY_UPGRADE_SKILL_LOAD: -1,
     KEY_CLASS_TREE: "KeyT",
-    KEY_RECORD: "KeyZ",
+    KEY_RECORD: "F3",
     KEY_PING: "KeyL",
 
     KEY_UP: "KeyW",
@@ -140,6 +142,7 @@ const global = {
     KEY_SKILL_10: "Digit0",
 
     KEY_MOUSE_0: "Space",
+    KEY_MOUSE_1: "KeyX",
     KEY_MOUSE_2: "ShiftLeft",
 
     KEY_SUICIDE: "KeyO",
@@ -151,6 +154,7 @@ const global = {
     KEY_SPECIAL_PRESET_1: "Digit1",
     KEY_SPECIAL_PRESET_2: "Digit2",
     KEY_SPECIAL_PRESET_3: "Digit3",
+    KEY_SPECIAL_PRESET_4: "Digit4",
     KEY_SPECIAL_BASIC: "KeyQ",
 
     KEY_SPECIAL_TELEPORT: "KeyE",
@@ -183,6 +187,7 @@ const global = {
     KEY_SPECIAL_LEVEL_UP: "KeyN",
     KEY_SPECIAL_POLICE: "KeyP",
     KEY_SPECIAL_BLAST: "KeyB",
+    KEY_SPECIAL_POLYGON: "KeyF",
 
     KEY_SPECIAL_ATTRIBUTE: "KeyA",
     KEY_SPECIAL_ATTRIBUTE_MINIMAP_TEAM: "KeyT",
@@ -192,7 +197,7 @@ const global = {
     KEY_SPECIAL_ATTRIBUTE_RECOIL: "KeyR",
     KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE: "KeyO",
     KEY_SPECIAL_ATTRIBUTE_WALL: "KeyW",
-    KEY_SPECIAL_ATTRIBUTE_SCORE: "KeyK",
+    KEY_SPECIAL_ATTRIBUTE_SCORE: "KeyS",
 
     KEY_SPECIAL_BAN: "KeyO",
 
@@ -207,7 +212,95 @@ const global = {
     KEY_SPECIAL_DEMOTE: "Quote",
 
     KEY_ABILITIES: ["KEY_SPECIAL_ATTRIBUTE", "KEY_SPECIAL_SKILL"],
+    
+    // THIS layout of the mobile sandbox cmd keys, i tried to out like a real keyboard so it
+    // lines up with the "`" + key" operator commands from server/keyCommands.js
+    // "attribute" and "skill" are the code sent alongside KEY_SPECIAL_ATTRIBUTE or
+    // KEY_SPECIAL_SKILL once that prefix key has been armed idk also see the handleOperatorKey below
 
+    // note from tgs - why isnt this just defined automatically
+    operatorKeyboardRows: [
+        [
+            { label: "1", code: "KEY_SPECIAL_PRESET_1" },
+            { label: "2", code: "KEY_SPECIAL_PRESET_2" },
+            { label: "3", code: "KEY_SPECIAL_PRESET_3" },
+            { label: "4", code: "KEY_SPECIAL_PRESET_4" },
+            { label: "5" },
+            { label: "6" },
+            { label: "7" },
+            { label: "8" },
+            { label: "9" },
+            { label: "0", code: "KEY_SPECIAL_ZOOM_CLEAR" },
+            { label: "-", code: "KEY_SPECIAL_ZOOM_OUT" },
+            { label: "+", code: "KEY_SPECIAL_ZOOM_IN" },
+        ],
+        [
+            { label: "Q", code: "KEY_SPECIAL_BASIC" },
+            { label: "W", code: "KEY_SPECIAL_WHIRLPOOL", attribute: "KEY_SPECIAL_ATTRIBUTE_WALL" },
+            { label: "E", code: "KEY_SPECIAL_TELEPORT" },
+            { label: "R", attribute: "KEY_SPECIAL_ATTRIBUTE_RECOIL", skill: "KEY_SPECIAL_SKILL_RESET" },
+            { label: "T", code: "KEY_SPECIAL_TEAM", attribute: "KEY_SPECIAL_ATTRIBUTE_MINIMAP_TEAM" },
+            { label: "Y", code: "KEY_SPECIAL_TEAM_INVITE" },
+            { label: "U" },
+            { label: "I", code: "KEY_SPECIAL_INVINCIBLE" },
+            { label: "O", code: "KEY_SPECIAL_BAN", attribute: "KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE" },
+            { label: "P" },
+        ],
+        [
+            { label: "A", code: "KEY_SPECIAL_ATTRIBUTE", prefix: "attribute" },
+            { label: "S", code: "KEY_SPECIAL_SKILL", prefix: "skill", attribute: "KEY_SPECIAL_ATTRIBUTE_SCORE" },
+            { label: "D", code: "KEY_SPECIAL_DRAG", skill: "KEY_SPECIAL_SKILL_REMOVE" },
+            { label: "F", skill: "KEY_SPECIAL_SKILL_ADD" },
+            { label: "G", code: "KEY_SPECIAL_DATA", skill: "KEY_SPECIAL_SKILL_CAP_REMOVE" },
+            { label: "H", code: "KEY_SPECIAL_HEAL", skill: "KEY_SPECIAL_SKILL_CAP_ADD" },
+            { label: "J" },
+            { label: "K", code: "KEY_SPECIAL_KILL" },
+            { label: "L", attribute: "KEY_SPECIAL_ATTRIBUTE_LEADERBOARD" },
+            { label: ";", code: "KEY_SPECIAL_PROMOTE" },
+            { label: "'", code: "KEY_SPECIAL_DEMOTE" },
+        ],
+        [
+            { label: "Z", code: "KEY_SPECIAL_WALL_TYPE" },
+            { label: "X", code: "KEY_SPECIAL_WALL" },
+            { label: "C", code: "KEY_SPECIAL_COLOR", attribute: "KEY_SPECIAL_ATTRIBUTE_RELOAD", skill: "KEY_SPECIAL_SKILL_CLEAR" },
+            { label: "V", code: "KEY_SPECIAL_VANISH" },
+            { label: "B", code: "KEY_SPECIAL_BLAST" },
+            { label: "N", code: "KEY_SPECIAL_LEVEL_UP" },
+            { label: "M", attribute: "KEY_SPECIAL_ATTRIBUTE_MINIMAP_HIDE", skill: "KEY_SPECIAL_SKILL_MAX" },
+            { label: ",", code: "KEY_SPECIAL_SMALLER" },
+            { label: ".", code: "KEY_SPECIAL_BIGGER" },
+            { label: "?", code: "KEY_SPECIAL_HELP", attribute: "KEY_SPECIAL_HELP", skill: "KEY_SPECIAL_HELP" },
+        ],
+    ],
+
+    // runs whatever a tapped sandbox key buttons key is supposed to do
+    // this is the touch version of what canvas.js doing for a keyboard
+    // also the need to hold anything down; a prefix key (A or S) itself
+    // then whichever key gets tapped next is sent together with it in one packet
+    // and also dont remove socket.talk op thing it breaks
+handleOperatorKeyDown: function (key) {
+    const prefix = global.operatorKeyboard.prefix;
+    if (key.prefix) {
+        // tapping the same prefix twice just cancels it otherwise arm it
+        global.operatorKeyboard.prefix = prefix === key.prefix ? null : key.prefix;
+        return false;
+    }
+    if (prefix) {
+        const prefixCode = prefix === "attribute" ? "KEY_SPECIAL_ATTRIBUTE" : "KEY_SPECIAL_SKILL";
+        const comboCode = key[prefix];
+        if (comboCode) global.canvas.socket.talk("#", prefixCode, comboCode);
+        global.operatorKeyboard.prefix = null; // one shoting it is like tapping shift once
+        return false;
+    }
+    if (key.code) {
+        global.canvas.socket.talk("#", key.code);
+        return true;
+    }
+    return false;
+    },
+    handleOperatorKeyUp: function (key) {
+    if (key.code) global.canvas.socket.talk("#", "-" + key.code);
+    },
     showTree: false,
     scrollX: 0,
     realScrollX: 0,
@@ -224,9 +317,12 @@ const global = {
     gameConnecting: false,
     gameUpdate: false,
     disconnected: false,
+    deathTimestamp: 0,
+    disconnectTimestamp: 0,
     autoSpin: false,
     syncingWithTank: false,
     respawnTimeout: false,
+    readyToRespawn: false,
     showDebug: false,
     died: false,
     kicked: false,
@@ -257,6 +353,7 @@ const global = {
         hover: Region(1),
         skipUpgrades: Region(1),
         mobileButtons: Region(20),
+        operatorKeys: Region(50), // the "`" toggle button and every key in the sandbox keyboard
         exitGame: Region(1),
         deathRespawn: Region(1),
         reconnect: Region(1),
@@ -300,6 +397,8 @@ const global = {
     statHover: false,
     upgradeHover: false,
     statMaxing: false,
+    skillSavePressed: false,
+    skillLoadPressed: false,
     metrics: {
         latency: [],
         lag: 0,
@@ -311,6 +410,7 @@ const global = {
         lastrender: 0,
         rendergap: 0,
         lastuplink: 0,
+        lastPacketTime: 0,
         mspt: 0,
     },
     advanced: {
@@ -326,12 +426,20 @@ const global = {
         currentFa: 0,
         finalHa: 0,
         finalFa: 0,
+        totalHa: 0,
+        totalFa: 0,
     },
     mobileStatus: {
         enableCrosshair: false,
         showCrosshair: false,
         useBigJoysticks: false,
         showJoysticks: false,
+    },
+    hasOperator: false, // operator telling
+    // State for the mobile sandbox buttonss
+    operatorKeyboard: {
+        open: false,
+        prefix: null,
     },
     GUIStatus: {
         renderGUI: false,
@@ -341,8 +449,9 @@ const global = {
         renderhealth: false,
         renderPlayerNames: false,
         renderPlayerScores: false,
+        renderChatMessages: true,
         renderPlayerBars: false,
-        renderPlayerKillbar: false,
+        renderPlayerKillbar: true,
         renderIngameOptions: false,
         minimapReducedInfo: false,
         fullHDMode: false,
@@ -392,7 +501,7 @@ const global = {
             tabClickables: Region(10),  // Pre-initialize for up to 10 tabs
             themeClickables: Region(100),
             activeTab: 0, // 0=Options, 1=Theme, 2=Keybinds, 3=Secret
-            tabs: [["Options", 770], ["Theme", 610], ["Keybinds", 730]],
+            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838], ["Secrets", 410]],
             tabSlideAnim: util.Smoothbar(0, 0.3, 1.5, 0.03, 0.025, true),
             sliderMoving: false,
             currentOptionMenu: false
@@ -419,6 +528,10 @@ const global = {
             lastx: global.player.x,
             lasty: global.player.y,
             isScoping: false,
+            isAiming: false,
+            scopeSettle: 0,
+            camX: 0,
+            camY: 0,
             screenx: 0,
             screeny: 0,
             renderv: 2000,
@@ -476,6 +589,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.entities = [];
         global.roomSetup = [];
         global.messages = [];
@@ -483,6 +598,7 @@ const global = {
         global.chats = {};
         global.metrics.rendertime = 0;
         global.metrics.rendertimes = 1;
+        global.metrics.lastPacketTime = 0;
         global.time = 0;
         global.metrics.lag = 0;
         global.secondaryLoop = false;
@@ -506,6 +622,8 @@ const global = {
         global.gameUpdate = false;
         global.died = false;
         global.disconnected = false;
+        global.readyToRespawn = false;
+        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
         global.gameConnecting = true;
         global.message = "";
         global.entities = [];
@@ -515,6 +633,7 @@ const global = {
         global.chats = {};
         global.metrics.rendertime = 0;
         global.metrics.rendertimes = 1;
+        global.metrics.lastPacketTime = 0;
         global.time = 0;
         global.metrics.lag = 0;
         global.secondaryLoop = false;

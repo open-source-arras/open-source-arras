@@ -18,19 +18,21 @@ let placeRoids = (defs, tile, room, gameManager) => {
     }
 };
 
+const spookyMonth = Config.force_spooky_theme ? true : Config.seasonal_events && new Date().getMonth() === 9 ? true : false;
+
 tileClass.rock = new Tile({
     COLOR: "white",
     NAME: "Rock Tile",
     INIT: (tile, room, gameManager) => {
-        placeRoids([[Config.spooky_theme ? "pumpkin" : "rock", 0], [Config.spooky_theme ? "pumpkin" : "stone", 1], [Config.spooky_theme ? "pumpkin" : "gravel", 2]], tile, room, gameManager)
-        room.spawnableDefault.push(tile)
+        placeRoids([[spookyMonth ? "pumpkin" : "rock", 0], [spookyMonth ? "pumpkin" : "stone", 1], [spookyMonth ? "pumpkin" : "gravel", 2]], tile, room, gameManager);
+        room.spawnableDefault.push(tile);
     }
-})
+});
 tileClass.roid = new Tile({
     COLOR: "white",
     NAME: "Roid Tile",
     INIT: (tile, room, gameManager) => {
-        placeRoids([[Config.spooky_theme ? "pumpkin" : "rock", 1], [Config.spooky_theme ? "pumpkin" : "stone", 1], [Config.spooky_theme ? "pumpkin" : "gravel", 1]], tile, room, gameManager), room.spawnableDefault.push(tile),
-        room.spawnableDefault.push(tile)
+        placeRoids([[spookyMonth ? "pumpkin" : "rock", 1], [spookyMonth ? "pumpkin" : "stone", 1], [spookyMonth ? "pumpkin" : "gravel", 1]], tile, room, gameManager), room.spawnableDefault.push(tile),
+        room.spawnableDefault.push(tile);
     }
-})
+});

@@ -1,7 +1,7 @@
-const { combineStats, LayeredBoss, setTurretProjectileRecoil } = require("../../facilitators.js")
-const { base } = require("../../constants.js")
-const g = require("../../gunvals.js")
-const preset = require("../../presets.js")
+const { combineStats, LayeredBoss, setTurretProjectileRecoil } = require("../../facilitators.js");
+const { base } = require("../../constants.js");
+const g = require("../../gunvals.js");
+const preset = require("../../presets.js");
 
 Class.eternal = {
     PARENT: "miniboss",
@@ -20,9 +20,9 @@ Class.eternal = {
         DAMAGE: 18
     },
     ON: [preset.on.retrograde_self_destruct]
-}
+};
 
-let odin = new LayeredBoss(null, "Odin", "eternal", 11, "teal", "baseTrapTurret", 4.5, 3.5) // formerly Ragnarok
+let odin = new LayeredBoss(null, "Odin", "eternal", 11, "teal", "baseTrapTurret", 4.5, 3.5); // formerly Ragnarok
 odin.addLayer({gun: {
     POSITION: [2.25, 3.25, -1.6, 9, 0, null, 0],
     PROPERTIES: {
@@ -31,41 +31,41 @@ odin.addLayer({gun: {
         AUTOFIRE: true,
         SYNCS_SKILLS: true
     }
-}}, true, null, 18)
+}}, true, null, 18);
 odin.addLayer({turret: {
     POSITION: [7, 8, 0, null, 160, 0],
     TYPE: "autoSmasherLauncherTurret"
-}}, true, 5.5)
+}}, true, 5.5);
 odin.addLayer({turret: {
     POSITION: [8, 9, 0, null, 160, 0],
     TYPE: "gunnerCruiserTurret"
-}}, true, 4.5)
+}}, true, 4.5);
 
-let kronos = new LayeredBoss(null, "Kronos", "eternal", 11, "veryLightGrey", "baseTrapTurret", 6, 5.5)
+let kronos = new LayeredBoss(null, "Kronos", "eternal", 11, "veryLightGrey", "baseTrapTurret", 6, 5.5);
 kronos.addLayer({turret: {
     POSITION: [6.5, 9, 0, null, 160, 0],
     TYPE: "kronosSkimmerTurret"
-}})
+}});
 kronos.addLayer({turret: {
     POSITION: [6.5, 9, 0, null, 160, 0],
     TYPE: ["carrierTurret", {GUN_STAT_SCALE: g.battleship, COLOR: "mirror"}]
-}}, true, 4)
+}}, true, 4);
 kronos.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 160, 0],
     TYPE: ["kronosTripletTurret", {GUN_STAT_SCALE: {health: 1.15, damage: 1.1, resist: 1.3, speed: 1.1, maxSpeed: 0.9}}]
-}}, true, 4)
+}}, true, 4);
 
-let amun = new LayeredBoss(null, "Amun", "eternal", 11, "darkGrey", "baseTrapTurret", 6, 5.5)
+let amun = new LayeredBoss(null, "Amun", "eternal", 11, "darkGrey", "baseTrapTurret", 6, 5.5);
 amun.addLayer({turret: {
     POSITION: [6, 9, 0, null, 160, 0],
     TYPE: "desmosTurret"
-}})
+}});
 amun.addLayer({turret: {
     POSITION: [7.5, 9, 0, null, 160, 0],
     TYPE: "undertowTurret"
-}}, true, 4)
+}}, true, 4);
 amun.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 160, 0],
     TYPE: "forkTurret"
-}}, true, 4)
-Class.amun.ALPHA = 0.3
+}}, true, 4);
+Class.amun.ALPHA = 0.3;

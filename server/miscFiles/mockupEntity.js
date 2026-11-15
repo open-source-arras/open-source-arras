@@ -16,7 +16,7 @@ class MockupEntityGun {
         if (info.PROPERTIES != null) {
             if (info.PROPERTIES.COLOR != null) {
                 if (typeof info.PROPERTIES.COLOR === "number" || typeof info.PROPERTIES.COLOR === "string") {
-                    if (!isNaN(info.PROPERTIES.COLOR) && !isNaN(parseFloat(info.PROPERTIES.COLOR)) || /^[a-zA-Z]*$/.test(info.PROPERTIES.COLOR)) {
+                    if (!isNaN(info.PROPERTIES.COLOR) && !isNaN(parseFloat(info.PROPERTIES.COLOR)) || /^[a-zA-Z0-9#]*$/.test(info.PROPERTIES.COLOR)) {
                         this.colorUnboxed.base = info.PROPERTIES.COLOR; 
                     } 
                 } else if (typeof info.PROPERTIES.COLOR === "object") {
@@ -47,7 +47,7 @@ class MockupEntityGun {
                 ANGLE: position[5],
                 DELAY: position[6],
                 DRAW_ABOVE: position[7]
-            }
+            };
         }
         position = {
             LENGTH: position.LENGTH ?? 18,
@@ -146,10 +146,10 @@ class MockupEntityProp {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : (set.SHAPE_NUM ?? 0);
             this.shapeData = set.SHAPE;
         }
-        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear"
+        this.imageInterpolation = set.IMAGE_INTERPOLATION != null ? set.IMAGE_INTERPOLATION : "bilinear";
         if (set.COLOR != null) {
             if (typeof set.COLOR === "number" || typeof set.COLOR === "string") {
-                if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z]*$/.test(set.COLOR)) {
+                if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z0-9#]*$/.test(set.COLOR)) {
                     this.colorUnboxed.base = set.COLOR; 
                 } 
             } else if (typeof set.COLOR === "object") {
@@ -197,6 +197,7 @@ class MockupEntity {
         this.props = [];
         this.x = 0;
         this.y = 0;
+        this.censor = 0;
 
         // Call the set function to make everything set up.
         this.set(Class.genericEntity);
@@ -260,6 +261,8 @@ class MockupEntity {
         this.settings.motionEffects = set.MOTION_EFFECTS ?? true;
         this.sendAllMockups = set.SEND_ALL_MOCKUPS ?? false;
         if (set.VISIBLE_ON_BLACKOUT) this.visibleOnBlackout = set.VISIBLE_ON_BLACKOUT;
+        if (set.DMCA_CENSOR_NAME) this.censor |= 1;
+        if (set.DMCA_CENSOR_DESIGN) this.censor |= 2;
         if (set.REROOT_UPGRADE_TREE) this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
         if (Array.isArray(this.rerootUpgradeTree)) {
             let finalRoot = "";
@@ -291,7 +294,7 @@ class MockupEntity {
         if (set.VALUE != null) {
             let score = 0;
             let deduction = 0;
-            let levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level
+            let levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level;
             while (score - deduction >= levelScore()) {
                 deduction += levelScore();
                 level += 1;
@@ -316,7 +319,7 @@ class MockupEntity {
                     let e = ensureIsClass(k);
                     index += e.index + "-";
                 }
-                let i = parseInt(prop.split("_")[2])
+                let i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
                     level: Config.tier_multiplier * i,
