@@ -18,7 +18,7 @@ const commands = [
     },
     {
         command: ["leaderboard", "b"],
-        description: "Select the leaderboard to display.",
+        description: "Select the leaderboard to display",
         permissionLevel: 0,
         run: ({ socket, args }) => {
             const leaderboards = [
@@ -78,7 +78,7 @@ const commands = [
     },
     {
         command: ["afk", "a"],
-        description: "Prevent you from being pushed while AFK in your base",
+        description: "Toggle AFK protection in your base",
         permissionLevel: 0,
         run: ({ socket }) => {
             if (socket.status.isAFK) {
@@ -100,7 +100,7 @@ const commands = [
     },
     {
         command: ["status", "s"],
-        description: "Check when exactly is the arena guaranteed to close",
+        description: "Check when exactly the arena will be guaranteed to close",
         permissionLevel: 0,
         run: ({ socket }) => {
             let uptime = Math.floor(util.time() / 1000);
