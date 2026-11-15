@@ -270,6 +270,7 @@ class gameHandler {
                 this.collide(instance, other);
             }
             if (instance.isInGrid) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+            if (instance.type === "satellite") instance.takeSelfie();
             logs.collide.mark();
             if ((instance.touchingSizeWall === false || instance.collisionArray.length === 0) && instance.originalSize) {
                 instance.SIZE = instance.originalSize;
