@@ -1216,7 +1216,7 @@ Class.undercoverCop = {
         FOV: base.FOV * 3
     },
     GUNS: Class.booster.GUNS,
-    PROPS: [
+    TURRETS: [
         {
             TYPE: ["hexagonHat", { COLOR: 21 }],
             POSITION: {
