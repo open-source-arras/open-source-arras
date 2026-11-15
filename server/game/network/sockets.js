@@ -1933,6 +1933,7 @@ class socketManager {
                             purge(); // Call the function so it can remove the body.
                             // Start the timeout
                             socket.timeout.start();
+                            if (Config.tartarus) socket.permaban("Player died in Tartarus.");
                         };
                         if (player.body.master.label == "Bacteria") { // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
                             let exit = () => die();
