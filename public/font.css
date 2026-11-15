@@ -19,15 +19,8 @@
     font-weight: normal;
 }
 
-/* These font files straight up don't exist because they are not used.
-
-   If you need "Italic", "BoldItalic", "Light", "LightItalic", "Medium"
-   or "MediumItalic" versions of the Ubuntu font, then you should
-   download them from Google Fonts (which we used to use) or you can
-   get them directly from https://design.ubuntu.com/font.
-
-   Keep in mind that the total download from Google Fonts used to
-   take up 2.4 megabytes.
+/* These font files don't exist because they're not used.
+   If you need any of these, download them directly from https://design.ubuntu.com/font
 
 @font-face {
     font-family: "Ubuntu";
