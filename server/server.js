@@ -5,7 +5,6 @@ console.log("Importing modules...\n");
 const path = require("path");
 const fs = require("fs");
 const http = require("http");
-const url = require("url");
 const pjson = require("../package.json");
 
 const { Worker } = require("worker_threads");
