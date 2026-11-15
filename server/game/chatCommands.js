@@ -250,7 +250,6 @@ const commands = [
                         return `- ${prefix} arena ${subcommand.command}${argumentsText} - ${subcommand.description}`;
                     })
                 ];
-                if (!Config.sandbox) lines.splice(1, 1);
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
             if (!args[0]) sendAvailableArenaMessage(); else {
