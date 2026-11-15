@@ -158,6 +158,25 @@ module.exports = {
         },
         {
             share_client_server: false,
+            host: "localhost:3020",
+            port: 3020,
+            id: "lt",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["tartarus"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+
+            }
+        },
+        {
+            share_client_server: false,
             host: "localhost:3101",
             port: 3101,
             id: "lpa",
