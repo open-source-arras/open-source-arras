@@ -2351,7 +2351,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             if (drawSize < 0.1) return;
 
             // --- Find upper turrets and props with optimized loop ---
-            const turrets = dmcaDesign ? [] : (instance.isImage ? source.turrets : [...source.turrets, ...m.props]);
+            const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
             if (m.props) turrets.sort((a, b) => a.layer - b.layer);
 
             // --- Gun positions with single update ---
@@ -2384,7 +2384,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             // --- Size ratio cached for body drawing ---
             const sizeRatio = (drawSize / m.size) * m.realSize;
 
-            const dmcaZoom = drawSize / (instance.isImage ? 12 : instSize);
+            const dmcaZoom = ratio;
             if (dmcaDesign) {
                 context.fillStyle = "#000000";
                 context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
@@ -2459,6 +2459,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     const gy = g.offset * sinGunAngle;
 
                     if (dmcaDesign) {
+                        context.fillStyle = "#000000";
                         drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
                         continue;
                     }
@@ -2490,6 +2491,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 // Draw body between gun layers
                 if (drawAbove === 0 && dmcaDesign) {
                     const half = sizeRatio + 11 * dmcaZoom;
+                    context.fillStyle = "#000000";
                     context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
                 } else if (drawAbove === 0) {
                     context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
@@ -2549,9 +2551,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             }
 
             if (dmcaDesign) {
-                const fontSize = 0.65 * sizeRatio, offset = 0.35 * sizeRatio, baseline = 0.38 * fontSize;
-                drawText("DMCA'd", xx, yy - offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
-                drawText("by Diep", xx, yy + offset + baseline, fontSize, "#FFFFFF", "center", false, 1, false, context);
+                const textSize = 0.65 * sizeRatio;
+                context.save();
+                context.font = "bold " + textSize + "px Ubuntu";
+                context.textAlign = "center";
+                context.textBaseline = "middle";
+                context.fillStyle = "#FFFFFF";
+                context.fillText("DMCA'd", xx, yy - 0.35 * sizeRatio);
+                context.fillText("by Diep", xx, yy + 0.35 * sizeRatio);
+                context.restore();
                 context.globalAlpha = 1;
             }
 
