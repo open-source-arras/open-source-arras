@@ -62,6 +62,25 @@
         #remove:active {
             background: rgba(0, 0, 0, 0.3);
         }
+
+        .menuTabs {
+            height: 28px;
+            margin: 0 8px;
+        }
+        .menuTab {
+            font: 13px/28px Ubuntu;
+            padding: 6px 12px;
+            border-radius: 5px 5px 0 0;
+            color: #fff !important;
+            margin: 0 6px;
+        }
+        .menuTab > a {
+            color: #fff !important;
+            text-decoration: none;
+        }
+        .menuTab > a:link:hover, .menuTab > a:visited:hover, .menuTab > a:not(:only-child) {
+            text-decoration: underline;
+        }
     </style>
 </head>
 
@@ -70,9 +89,9 @@
     <div class="mainWrapper">
         <div id="startMenuWrapper">
             <div id="menuTabs" class="menuTabs" style="text-align: center;">
-                <span class="menuTab achieve" style="background: #8abc3f;"><a id="add">Add Point</a></span>
-                <span class="menuTab achieve" style="background: #e03e41;"><a id="remove">Remove Point</a></span>
-                <span class="menuTab achieve" style="background: #2b3278;"><a href="../../">Return to Main Menu</a></span>
+                <span class="menuTab" style="background: #8abc3f;"><a id="add">Add Point</a></span>
+                <span class="menuTab" style="background: #e03e41;"><a id="remove">Remove Point</a></span>
+                <span class="menuTab" style="background: #2b3278;"><a href="../../">Return to Main Menu</a></span>
             </div>
             <div class="startMenu">
                 <div class="startMenuHolder mainHolder">

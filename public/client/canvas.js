@@ -71,7 +71,10 @@ class Canvas {
         this.cv.addEventListener("keyup", (event) => {if (global.gameStart) this.keyUp(event)});
         window.addEventListener("keydown", (event) => {
             const el = global.ingameRebind;
-            if (!el) return;
+            if (!el) {
+                if (global.gameStart && event.code === "F3") event.preventDefault();
+                return;
+            }
             event.preventDefault();
             event.stopPropagation();
             if (event.code !== "Escape") {
