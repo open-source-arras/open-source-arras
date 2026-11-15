@@ -3751,7 +3751,8 @@ const dmca_censor_name = [
     "tripleShot",
     "tripleTwin",
     "triplet",
-    "twin"
+    "twin",
+    "undercoverCop"
 ];
 for (let type of dmca_censor_name) {
     Class[type].DMCA_CENSOR_NAME = true;
@@ -3799,6 +3800,7 @@ const dmca_censor_design = [
     "tripleTwin",
     "triplet",
     "twin",
+    "undercoverCop",
     "underseer"
 ];
 for (let type of dmca_censor_design) {
