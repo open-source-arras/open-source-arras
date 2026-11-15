@@ -1136,6 +1136,8 @@ let incoming = async function(message, socket) {
                 global.player.renderx = global.player.cx.x = m[0];
                 global.player.rendery = global.player.cy.y = m[1];
                 global.player.renderv = global.player.view = m[2];
+                global.player.isAiming = global.player.isScoping = false;
+                global.player.scopeSettle = 0;
                 global.player.animX.add(m[0]);
                 global.player.animY.add(m[1]);
             } break;

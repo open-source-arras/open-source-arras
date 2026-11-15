@@ -2878,8 +2878,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 y = ratio * instance.render.y - py,
                 baseColor = instance.color;
             if (instance.id === gui.playerid) {
-                x = !config.graphical.smoothcamera && !global.player.isScoping && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : x;
-                y = !config.graphical.smoothcamera && !global.player.isScoping && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : y;
+                const scoped = global.player.isScoping || getNow() < global.player.scopeSettle;
+                x = !config.graphical.smoothcamera && !scoped && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : x;
+                y = !config.graphical.smoothcamera && !scoped && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : y;
                 global.player.screenx = x;
                 global.player.screeny = y;
                 global.player.name = instance.name ?? "";
@@ -3728,9 +3729,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     H = global.roomSetup.length,
                     i = 0;
 
-                // Calculate player's position in game world
-                let playerWorldX = global.player.cx.animX;
-                let playerWorldY = global.player.cy.animY;
+                // Use the rendered camera, not the unsmoothed position.
+                let playerWorldX = global.player.camX;
+                let playerWorldY = global.player.camY;
 
                 for (let ycell = 0; ycell < H; ycell++) {
                     let j = 0;
@@ -3776,8 +3777,8 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 ctx[2].globalAlpha = entity.alpha;
 
                 // Calculate entity position relative to player
-                let relX = entity.x - global.player.cx.animX;
-                let relY = entity.y - global.player.cy.animY;
+                let relX = entity.x - global.player.camX;
+                let relY = entity.y - global.player.camY;
 
                 // Convert to minimap coordinates
                 let minimapX = config.game.centeredMinimap ? centerX + (relX / global.gameWidth) * len : x + (entity.x / global.gameWidth + 0.5) * len;
@@ -3809,7 +3810,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[2].strokeStyle = color.guiblack;
             ctx[2].fillStyle = color.guiblack;
             // Draw yourself in the minimap
-            drawGuiCircle(config.game.centeredMinimap ? centerX : x + (global.player.cx.animX / global.gameWidth + 0.5) * len, config.game.centeredMinimap ? centerY : y + (global.player.cy.animY / global.gameHeight + 0.5) * height, !global.mobile ? 2 : 3.5, false);
+            drawGuiCircle(config.game.centeredMinimap ? centerX : x + (global.player.camX / global.gameWidth + 0.5) * len, config.game.centeredMinimap ? centerY : y + (global.player.camY / global.gameHeight + 0.5) * height, !global.mobile ? 2 : 3.5, false);
             ctx[2].restore();
             ctx[2].globalAlpha = 1;
             ctx[2].fillStyle = color.black;
@@ -4658,11 +4659,21 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         // Don't move the camera if you're dead. This helps with jitter issues
         let playerx = global.player.animX.get(tick);
         let playery = global.player.animY.get(tick);
+        // Scope changes teleport the camera; restart the prediction so the
+        // predictor doesn't extrapolate the world from the old position.
+        if (global.player.isScoping !== global.player.isAiming) {
+            global.player.lastx = global.player.cx.x;
+            global.player.lasty = global.player.cy.y;
+            global.player.lastvx = global.player.vx;
+            global.player.lastvy = global.player.vy;
+            global.player.scopeSettle = getNow() + 600;
+        }
+        global.player.isAiming = global.player.isScoping;
         if (config.graphical.lerpAnimations) {
             global.player.renderx = util.lerp(global.player.renderx, global.player.cx.x, 0.1, true);
             global.player.rendery = util.lerp(global.player.rendery, global.player.cy.y, 0.1, true);
-        } else if (config.graphical.smoothcamera && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1) {
-            let n = null == tickMotion ? 0 : 0.99 ** tickMotion;
+        } else if ((config.graphical.smoothcamera || global.player.isScoping || getNow() < global.player.scopeSettle) && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1) {
+            let n = null == tickMotion ? 0 : config.graphical.smoothcamera ? 0.99 ** tickMotion : Math.exp(-tickMotion / 55);
             global.player.renderx = global.player.renderx * n + playerx * (1 - n);
             global.player.rendery = global.player.rendery * n + playery * (1 - n);
         } else if (!config.graphical.interpolation) {
@@ -4673,8 +4684,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             global.player.rendery = playery;
         }
         if (config.graphical.shakeProperties.CameraShake.shakeStartTime !== -1) applyScreenShake();
-        global.player.cx.animX = playerx;
-        global.player.cy.animY = playery;
+        // Use the camera the world is drawn with for the minimap so the two can't desync.
+        global.player.cx.animX = global.player.camX = global.player.renderx;
+        global.player.cy.animY = global.player.camY = global.player.rendery;
         let px = ratio * global.player.renderx,
             py = ratio * global.player.rendery;
 
