@@ -85,7 +85,7 @@ Class.menu_specialTanks = makeMenu("Special Tanks Menu", {
         "flagship",
         "turkey",
         //"developer",
-        "arrasPolice"
+        "undercoverCop"
     ]
 });
 Class.menu_healers = makeMenu("Healer Menu", {

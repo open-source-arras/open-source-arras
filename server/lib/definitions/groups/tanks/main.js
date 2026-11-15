@@ -1216,7 +1216,7 @@ Class.booster = {
                 POSITION: {
                     LENGTH: 14,
                     WIDTH: 8,
-                    ANGLE: 135,
+                    ANGLE: 136,
                     DELAY: 0.6
                 },
                 PROPERTIES: {

@@ -111,27 +111,27 @@ function init() {
             }
         },
         {
-            name: "Special Tank",
-            description: "Defines you to your token's tank.",
+            name: "Preset tank #2",
             keys: [[["KEY_SPECIAL_PRESET_2", "2"]]],
             permissionLevel: 1,
             tokenClass: "banHammer",
             hidden: true,
             run: ({ socket, player }) => {
-                player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                 if (socket.permissions?.class) {
+                    player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define(socket.permissions?.class || Config.spawn_class);
                     if (!socket.status.specialTankWarned) {
                         socket.status.specialTankWarned = true;
                         player.body.sendMessage("Friendly reminder: Please do not repeatedly kill others with an overpowered tank.");
                     }
                 } else {
+                    player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define("healer");
                 }
             }
         },
         {
-            name: "Preset Tank #3",
+            name: "Preset tank #3",
             keys: [[["KEY_SPECIAL_PRESET_3", "3"]]],
             permissionLevel: 1,
             hidden: true,
@@ -139,6 +139,29 @@ function init() {
                 if (socket.permissions?.class) {
                     player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
                     player.body.define("healer");
+                } else {
+                    player.body.define({
+                        RESET_UPGRADES: true,
+                        BATCH_UPGRADES: false,
+                        SKILL: Array(10).fill(12)
+                    });
+                    player.body.define("undercoverCop");
+                }
+            }
+        },
+        {
+            name: "Preset tank #4",
+            keys: [[["KEY_SPECIAL_PRESET_4", "4"]]],
+            permissionLevel: 1,
+            hidden: true,
+            run: ({ socket, player }) => {
+                if (socket.permissions?.class) {
+                    player.body.define({
+                        RESET_UPGRADES: true,
+                        BATCH_UPGRADES: false,
+                        SKILL: Array(10).fill(12)
+                    });
+                    player.body.define("undercoverCop");
                 }
             }
         },
@@ -650,21 +673,6 @@ function init() {
                 player.body.skill.score += player.body.skill.levelScore;
                 player.body.skill.maintain();
                 player.body.refreshBodyAttributes();
-            }
-        },
-        {
-            name: "Police",
-            keys: [[["KEY_SPECIAL_POLICE", "P"]]],
-            permissionLevel: 1,
-            run: ({ player, gameManager }) => {
-                player.body.define({ RESET_UPGRADES: true, BATCH_UPGRADES: false });
-                player.body.define("arrasPolice");
-                player.body.name = "ARRAS POLICE";
-                player.body.skill.set(player.body.skill.caps);
-                player.body.syncTurrets();
-                player.body.refreshBodyAttributes();
-                player.body.FOV = 5;
-                gameManager.socketManager.broadcast("WOOP WOOP! That's the sound of da police!");
             }
         },
         {
