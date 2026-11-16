@@ -542,7 +542,33 @@ Class.menu_addons = makeMenu("Addons Menu", {
         "bob"
     ]
 });
-Class.menu_armsRace = makeMenu("Unused Arms Race", { boxLabel: "Unused AR", upgrades: ["aeronaut", "autoProdigy", "band", "duster", "oldHewnTriple", "shikra", "virago"] });
+Class.menu_armsRace = makeMenu("Special AR Tanks", {
+    tooltip: "Contains arms race tanks that have ben removed, edited or changed or got a redesign.",
+    boxColor: "black",
+    upgrades: [
+        "menu_editedArmsRace",
+        "menu_removedArmsRace",
+        "menu_changedArmsRace",
+    ]
+});
+Class.menu_editedArmsRace = makeMenu("Edited AR Tanks", 
+	{ boxLabel: "Edited AR", 
+	upgrades: ["oldBand", "oldHewnTriple", /*"oldScatterer", "oldClaymore", "oldPollen", "oldMolotov", "oldScorcher", "oldFinger", "oldWarlord", "oldBlizzard", "oldDustStorm"*/]
+	}
+);
+
+Class.menu_changedArmsRace = makeMenu("Old AR Tank Designs", 
+	{ boxLabel: "Old AR", 
+	upgrades: [/*"oldDustStorm", "oldGrazer",*/"oldRattler"]
+	}
+);
+
+Class.menu_removedArmsRace = makeMenu("Removed AR Tanks", 
+	{ boxLabel: "Unused AR", 
+	upgrades: ["aeronaut", "autoProdigy", "duster", "shikra", "virago"] 
+	}
+);
+
 
 if (better_menus) {
     removeUpgrades("menu_nostalgia", 0, ["quintuplet", "vulcan", "sniper3", "oldArmsman"]);
