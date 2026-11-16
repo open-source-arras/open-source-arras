@@ -351,18 +351,18 @@ class Canvas {
                     break;
             }
             const skill = [
-                global.KEY_SKILL_1,
-                global.KEY_SKILL_2,
-                global.KEY_SKILL_3,
-                global.KEY_SKILL_4,
-                global.KEY_SKILL_5,
-                global.KEY_SKILL_6,
-                global.KEY_SKILL_7,
-                global.KEY_SKILL_8,
-                global.KEY_SKILL_9,
-                global.KEY_SKILL_10
+                global.KEY_UPGRADE_1,
+                global.KEY_UPGRADE_2,
+                global.KEY_UPGRADE_3,
+                global.KEY_UPGRADE_4,
+                global.KEY_UPGRADE_5,
+                global.KEY_UPGRADE_6,
+                global.KEY_UPGRADE_7,
+                global.KEY_UPGRADE_8,
+                global.KEY_UPGRADE_9,
+                global.KEY_UPGRADE_10
             ].indexOf(event.code);
-            if (skill >= 0 && localStorage.getItem("optSaveSkillUpgradesChecked") === "true" && (global.skillSavePressed || global.skillLoadPressed)) {
+            if (skill >= 0 && (global.skillSavePressed || global.skillLoadPressed)) {
                 if (!event.repeat) {
                     const saves = getSkillSaves();
                     if (global.skillSavePressed) {
@@ -382,6 +382,7 @@ class Canvas {
             } else if (global.canSkill && skill >= 0) {
                 this.socket.talk("x", skill, 1 * global.statMaxing);
             }
+            // todo: map below to require a KEY_UPGRADE_CLASS press
             const upgradeMap = {
                 [global.KEY_UPGRADE_1]: 0,
                 [global.KEY_UPGRADE_2]: 1,

@@ -168,14 +168,14 @@ export function resolveKeyReference(name) {
         const bound = getKeyName(action);
         if (bound) return bound;
     }
-    const upgrade = normalizeAction(name).match(/^upgrade(1[0-2]|[1-9])$/);
+    const upgrade = normalizeAction(name).match(/^upgrade(10|[1-9])$/);
     if (upgrade) {
         const bound = getKeyName(`KEY_UPGRADE_${upgrade[1]}`);
         if (bound) return bound;
     }
     const skill = normalizeAction(name).match(/^skill(10|[1-9])$/);
     if (skill) {
-        const bound = getKeyName(`KEY_SKILL_${skill[1]}`);
+        const bound = getKeyName(`KEY_UPGRADE_${skill[1]}`);
         if (bound) return bound;
     }
     if (name.startsWith("KEY_")) {

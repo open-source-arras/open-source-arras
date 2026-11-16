@@ -2650,7 +2650,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2]);
 
         // Tank name
-        drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.925 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
+        drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.825 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
 
         // Upgrade key
         if (upgradeKey) {
@@ -3564,7 +3564,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
             // Skill key
-            drawText(`[${getKeybind(`KEY_SKILL_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
+            drawText(`[${getKeybind(`KEY_UPGRADE_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
             if (textcolor === color.guiwhite) {
                 // If it's active
                 global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
@@ -4014,7 +4014,11 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (y > initialY) initialY = y;
                 rowWidth = x;
                 !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
-                let upgradeKey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
+
+                let upgradeSubkey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
+
+                let upgradeKey = `${getKeybind("KEY_UPGRADE_CLASS")}+${upgradeSubkey}`;
+                if (!upgradeSubkey) upgradeKey = undefined;
 
                 drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? upgradeKey : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
 
@@ -4872,12 +4876,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     }
 
     let _keybindEntries = null;
-    function updateSecretKeybindRows() {
-        const enabled = localStorage.getItem("optSaveSkillUpgradesChecked") === "true";
-        document.querySelectorAll("#controlSettings tr[data-secret]").forEach(row => row.classList.toggle("hidden", !enabled));
-        _keybindEntries = null;
-    }
-    updateSecretKeybindRows();
     function getKeybindEntries() {
         if (_keybindEntries) return _keybindEntries;
         const out = [];
@@ -5479,7 +5477,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
-                if (cb.id === "optSaveSkillUpgrades") updateSecretKeybindRows();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -5926,8 +5923,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                     // Beta
-                    { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy
                     { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
