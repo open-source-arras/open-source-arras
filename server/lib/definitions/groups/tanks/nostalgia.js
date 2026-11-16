@@ -3,6 +3,13 @@ const { base, smshskl, statnames } = require("../../constants.js");
 const g = require("../../gunvals.js");
 const preset = require("../../presets.js");
 
+
+const placeholder = {
+    UPGRADE_COLOR: "black",
+    UPGRADE_TOOLTIP: "PLACEHOLDER MOCKUP - TANK DOES NOT DO ANYTHING"
+};
+
+
 // Tier 1 (Level 15)
 Class.desmos = {
     PARENT: "genericTank",
@@ -580,7 +587,7 @@ Class.aeronaut = {
     ]
 };
 Class.autoProdigy = makeAuto("prodigy");
-Class.band = makeAuto({
+Class.oldBand = makeAuto({
     PARENT: "genericTank",
     DANGER: 7,
     STAT_NAMES: statnames.mixed,
@@ -614,7 +621,7 @@ Class.band = makeAuto({
             ARC: 190
         }
     }, 3)
-}, "Band");
+}, "Old Band");
 Class.duster = {
     PARENT: "genericTank",
     LABEL: "Duster",
@@ -685,6 +692,56 @@ Class.oldHewnTriple = {
             }
         }, {delayIncrement: 0.5}), 3)
     ]
+};
+Class.oldRattler = {
+	LABEL: "Old Rattler",
+	SIZE: 12,
+	STAT_NAMES: 0,
+	COLOR: 16,
+	SHAPE: 0,
+	...preset.placeholder,
+	GUNS: [
+		{
+			POSITION: {
+				LENGTH: 10,
+				WIDTH: 12.999999523162842,
+				ASPECT: -0.5,
+				X: 8.999999761581421,
+				Y: -5.510910450173814e-16,
+				ANGLE: 0,
+			}
+		},
+		{
+			POSITION: {
+				LENGTH: 17.000000476837158,
+				WIDTH: 13.999999761581421,
+				ASPECT: -1.399999976158142,
+				X: 0,
+				Y: 0,
+				ANGLE: 0,
+			}
+		},
+		{
+			POSITION: {
+				LENGTH: 3.0000001192092896,
+				WIDTH: 8.00000011920929,
+				ASPECT: -1.399999976158142,
+				X: 13.999999761581421,
+				Y: -8.572527448042198e-16,
+				ANGLE: 0,
+			}
+		},
+		{
+			POSITION: {
+				LENGTH: 8.00000011920929,
+				WIDTH: 6.000000238418579,
+				ASPECT: -0.800000011920929,
+				X: 8.999999761581421,
+				Y: -5.510910450173814e-16,
+				ANGLE: 0,
+			}
+		}
+	],
 };
 Class.shikra = makeBird({
     PARENT: "genericTank",
