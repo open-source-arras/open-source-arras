@@ -143,12 +143,12 @@ const ACTION_KEYS = {
     autospin: "KEY_AUTO_SPIN",
     override: "KEY_OVERRIDE",
     reversetank: "KEY_REVERSE_TANK",
-    reversemouse: "KEY_REVERSE_MOUSE",
+    reversemouse: "KEY_ALT_CONTROLS",
     screenshot: "KEY_SCREENSHOT",
     classtree: "KEY_CLASS_TREE",
     record: "KEY_RECORD",
-    suicide: "KEY_SUICIDE",
-    selfdestruct: "KEY_SUICIDE",
+    suicide: "KEY_SELF_DESTRUCT",
+    selfdestruct: "KEY_SELF_DESTRUCT",
     ping: "KEY_PING",
     debuginfo: "KEY_PING",
     debug: "KEY_PING",
@@ -168,14 +168,14 @@ export function resolveKeyReference(name) {
         const bound = getKeyName(action);
         if (bound) return bound;
     }
-    const upgrade = normalizeAction(name).match(/^upgrade(1[0-2]|[1-9])$/);
+    const upgrade = normalizeAction(name).match(/^upgrade(10|[1-9])$/);
     if (upgrade) {
         const bound = getKeyName(`KEY_UPGRADE_${upgrade[1]}`);
         if (bound) return bound;
     }
     const skill = normalizeAction(name).match(/^skill(10|[1-9])$/);
     if (skill) {
-        const bound = getKeyName(`KEY_SKILL_${skill[1]}`);
+        const bound = getKeyName(`KEY_UPGRADE_${skill[1]}`);
         if (bound) return bound;
     }
     if (name.startsWith("KEY_")) {

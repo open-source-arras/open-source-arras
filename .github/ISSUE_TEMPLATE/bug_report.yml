@@ -40,7 +40,7 @@ body:
     attributes:
       label: OSA Version
       description: The OSA version your server is running on
-      placeholder: e.g. v2.1.2
+      placeholder: e.g. v2.2.0
     validations:
       required: true
 

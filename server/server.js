@@ -173,7 +173,7 @@ server = http.createServer((req, res) => {
             readString = JSON.stringify(countPlayers);
         } break;
         case "/version": {
-            readString = JSON.stringify({ver: "v" + pjson.version, dev_build: Config.dev_build});
+            readString = JSON.stringify({ver: `v${pjson.version}${Config.dev_build ? "-dev" : ""}`});
         } break;
         
         case "/api/getAddonAuthors": {
