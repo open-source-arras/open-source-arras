@@ -6,8 +6,7 @@ const preset = require("../../presets.js");
 
 const placeholder = {
     UPGRADE_COLOR: "black",
-    UPGRADE_TOOLTIP: "THIS IS A PLACEHOLDER MOCKUP \n
-					  IT DOES NOT ACTUALLY WORK!!!"
+    UPGRADE_TOOLTIP: "PLACEHOLDER MOCKUP - TANK DOES NOT DO ANYTHING"
 };
 
 
