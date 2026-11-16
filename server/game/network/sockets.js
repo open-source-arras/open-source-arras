@@ -1448,12 +1448,16 @@ class socketManager {
 
         //send the welcome message
         if (!doNotTakeAction.dontSendWelcomeMessage) {
-            let msg = ("" + Config.spawn_message).split(/\r\n|\r|\n/);
-            if (msg.length > 1 && msg[msg.length - 1] === "") msg.pop();
-            // reverse
-            for (let i = msg.length - 1; i >= 0; i--) {
-                if (msg[i] === "") continue;
-                body.sendMessage(msg[i]);
+            if (Config.tartarus) {
+                body.sendMessage("You have been warped to Tartarus.\nYou will receive your divine punishment soon!");
+            } else {
+                let msg = ("" + Config.spawn_message).split(/\r\n|\r|\n/);
+                if (msg.length > 1 && msg[msg.length - 1] === "") msg.pop();
+                // reverse
+                for (let i = msg.length - 1; i >= 0; i--) {
+                    if (msg[i] === "") continue;
+                    body.sendMessage(msg[i]);
+                }
             }
             if (Config.dev_build) socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
         }
@@ -1929,6 +1933,10 @@ class socketManager {
                             purge(); // Call the function so it can remove the body.
                             // Start the timeout
                             socket.timeout.start();
+                            if (Config.tartarus) {
+                                socket.talk("permanentBan");
+                                socket.permaban("Player died in Tartarus.");
+                            }
                         };
                         if (player.body.master.label == "Bacteria") { // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
                             let exit = () => die();
@@ -2643,7 +2651,7 @@ class socketManager {
                 permBans = JSON.parse(fs.readFileSync(PERMABAN_FILE));
                 if (permBans.some(b => b.ip === socket.ip)) {
                     socket.talk("permanentBan");
-                    socket.kick("Permanent Banned player found!");
+                    socket.kick("Permanently banned player tried to connect.");
                     return;
                 }
             }

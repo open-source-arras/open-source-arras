@@ -274,13 +274,13 @@ class Canvas {
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
                 break;
-            case global.KEY_MOUSE_0:
+            case global.KEY_PRIMARY:
                 this.socket.cmd.set(4, true);
                 break;
-            case global.KEY_MOUSE_1:
+            case global.KEY_TERTIARY:
                 this.socket.cmd.set(5, true);
                 break;
-            case global.KEY_MOUSE_2:
+            case global.KEY_SECONDARY:
                 this.socket.cmd.set(6, true);
                 break;
             case global.KEY_LEVEL_UP:
@@ -292,13 +292,13 @@ class Canvas {
             case global.KEY_SKILL_MAX:
                 global.statMaxing = true;
                 break;
-            case global.KEY_UPGRADE_SKILL_SAVE:
+            case global.KEY_SKILL_SAVE:
                 global.skillSavePressed = true;
                 break;
-            case global.KEY_UPGRADE_SKILL_LOAD:
+            case global.KEY_SKILL_LOAD:
                 global.skillLoadPressed = true;
                 break;
-            case global.KEY_SUICIDE:
+            case global.KEY_SELF_DESTRUCT:
                 this.socket.talk("1");
                 break;
         }
@@ -326,7 +326,7 @@ class Canvas {
                     this.spinLock = !this.spinLock;
                     global.createMessage(this.spinLock ? "Spinlock enabled." : "Spinlock disabled.");
                     break;
-                case global.KEY_REVERSE_MOUSE:
+                case global.KEY_ALT_CONTROLS:
                     this.inverseMouse = !this.inverseMouse;
                     global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
                     break;
@@ -351,18 +351,18 @@ class Canvas {
                     break;
             }
             const skill = [
-                global.KEY_SKILL_1,
-                global.KEY_SKILL_2,
-                global.KEY_SKILL_3,
-                global.KEY_SKILL_4,
-                global.KEY_SKILL_5,
-                global.KEY_SKILL_6,
-                global.KEY_SKILL_7,
-                global.KEY_SKILL_8,
-                global.KEY_SKILL_9,
-                global.KEY_SKILL_10
+                global.KEY_UPGRADE_1,
+                global.KEY_UPGRADE_2,
+                global.KEY_UPGRADE_3,
+                global.KEY_UPGRADE_4,
+                global.KEY_UPGRADE_5,
+                global.KEY_UPGRADE_6,
+                global.KEY_UPGRADE_7,
+                global.KEY_UPGRADE_8,
+                global.KEY_UPGRADE_9,
+                global.KEY_UPGRADE_10
             ].indexOf(event.code);
-            if (skill >= 0 && localStorage.getItem("optSaveSkillUpgradesChecked") === "true" && (global.skillSavePressed || global.skillLoadPressed)) {
+            if (skill >= 0 && (global.skillSavePressed || global.skillLoadPressed)) {
                 if (!event.repeat) {
                     const saves = getSkillSaves();
                     if (global.skillSavePressed) {
@@ -382,6 +382,7 @@ class Canvas {
             } else if (global.canSkill && skill >= 0) {
                 this.socket.talk("x", skill, 1 * global.statMaxing);
             }
+            // todo: map below to require a KEY_UPGRADE_CLASS press
             const upgradeMap = {
                 [global.KEY_UPGRADE_1]: 0,
                 [global.KEY_UPGRADE_2]: 1,
@@ -435,20 +436,20 @@ class Canvas {
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, false);
                 break;
-            case global.KEY_MOUSE_0:
+            case global.KEY_PRIMARY:
                 this.socket.cmd.set(4, false);
                 break;
-            case global.KEY_MOUSE_1:
+            case global.KEY_TERTIARY:
                 this.socket.cmd.set(5, false);
                 break;
-            case global.KEY_MOUSE_2:
+            case global.KEY_SECONDARY:
                 this.socket.cmd.set(6, false);
                 break;
             case global.KEY_SKILL_MAX:
                 global.statMaxing = false;
                 break;
-            case global.KEY_UPGRADE_SKILL_SAVE:
-            case global.KEY_UPGRADE_SKILL_LOAD:
+            case global.KEY_SKILL_SAVE:
+            case global.KEY_SKILL_LOAD:
                 global.skillSavePressed = global.skillLoadPressed = false;
                 break;
         }

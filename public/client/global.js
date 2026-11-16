@@ -98,56 +98,85 @@ let Region = (size) => {
 
 let gameDraw;
 
+// Keys and other mathematical constants.
 const global = {
-    // Keys and other mathematical constants.
-    KEY_AUTO_FIRE: "KeyE",
-    KEY_AUTO_ALT: "KeyQ",
-    KEY_AUTO_SPIN: "KeyC",
-    KEY_SPIN_LOCK: "KeyG",
-    KEY_OVERRIDE: "KeyR",
-    KEY_LEVEL_UP: -1,
-    KEY_ABILITY: "KeyF",
-    KEY_PAUSE: "KeyP",
-    KEY_REVERSE_TANK: "KeyN",
-    KEY_REVERSE_MOUSE: "KeyB",
-    KEY_SCREENSHOT: "F2",
-    KEY_SKILL_MAX: "KeyM",
-    KEY_UPGRADE_SKILL_SAVE: -1,
-    KEY_UPGRADE_SKILL_LOAD: -1,
-    KEY_CLASS_TREE: "KeyT",
-    KEY_RECORD: "F3",
-    KEY_PING: "KeyL",
+    // Main Controls
+    KEY_PRIMARY: "Space",
+    KEY_SECONDARY: "ShiftLeft",
+    KEY_TERTIARY: "KeyX",
+    KEY_SCOPE: "KeyV",
+
+    KEY_PRIMARY_MOUSE: -1,
+    KEY_SECONDARY_MOUSE: -1,
+    KEY_TERTIARY_MOUSE: -1,
+    KEY_SCOPE_MOUSE: -1,
 
     KEY_UP: "KeyW",
     KEY_LEFT: "KeyA",
     KEY_DOWN: "KeyS",
     KEY_RIGHT: "KeyD",
 
-    KEY_UPGRADE_1: "KeyY",
-    KEY_UPGRADE_2: "KeyU",
-    KEY_UPGRADE_3: "KeyI",
-    KEY_UPGRADE_4: "KeyH",
-    KEY_UPGRADE_5: "KeyJ",
-    KEY_UPGRADE_6: "KeyK",
+    KEY_UP_ARROW: "ArrowUp",
+    KEY_LEFT_ARROW: "ArrowLeft",
+    KEY_DOWN_ARROW: "ArrowDown",
+    KEY_RIGHT_ARROW: "ArrowRight",
 
-    KEY_SKILL_1: "Digit1",
-    KEY_SKILL_2: "Digit2",
-    KEY_SKILL_3: "Digit3",
-    KEY_SKILL_4: "Digit4",
-    KEY_SKILL_5: "Digit5",
-    KEY_SKILL_6: "Digit6",
-    KEY_SKILL_7: "Digit7",
-    KEY_SKILL_8: "Digit8",
-    KEY_SKILL_9: "Digit9",
-    KEY_SKILL_10: "Digit0",
-
-    KEY_MOUSE_0: "Space",
-    KEY_MOUSE_1: "KeyX",
-    KEY_MOUSE_2: "ShiftLeft",
-
-    KEY_SUICIDE: "KeyO",
-
+    // Additional Keybinds
+    KEY_AUTO_FIRE: "KeyE",
+    KEY_AUTO_ALT: "KeyH",
+    KEY_AUTO_SPIN: "KeyC",
+    KEY_SPIN_LOCK: "KeyG",
+    KEY_OVERRIDE: "KeyR",
+    KEY_REVERSE_TANK: "KeyN",
+    KEY_ALT_CONTROLS: "KeyB",
     KEY_SPECIAL: "Backquote",
+    KEY_ABILITY: "KeyF",
+    KEY_LEVEL_UP: -1,
+    KEY_PAUSE: "KeyP",
+    KEY_SELF_DESTRUCT: "KeyO",
+
+    KEY_UPGRADE_1: "Digit1",
+    KEY_UPGRADE_2: "Digit2",
+    KEY_UPGRADE_3: "Digit3",
+    KEY_UPGRADE_4: "Digit4",
+    KEY_UPGRADE_5: "Digit5",
+    KEY_UPGRADE_6: "Digit6",
+    KEY_UPGRADE_7: "Digit7",
+    KEY_UPGRADE_8: "Digit8",
+    KEY_UPGRADE_9: "Digit9",
+    KEY_UPGRADE_10: "Digit0",
+    KEY_UPGRADE_CLASS: "KeyY",
+    KEY_SKILL_MAX: "KeyM",
+    KEY_SKILL_LOAD: "KeyQ",
+    KEY_SKILL_SAVE: "KeyI",
+
+    KEY_PING: "KeyL",
+    KEY_CLASS_TREE: "KeyT",
+    KEY_SCREENSHOT: "F2",
+    KEY_RECORD: "F3",
+
+    // Alternate Controls
+    KEY_PRIMARY_ALT: "ShiftLeft",
+    KEY_SECONDARY_ALT: "Space",
+    KEY_TERTIARY_ALT: "KeyX",
+    KEY_SCOPE_ALT: "KeyV",
+
+    KEY_PRIMARY_MOUSE_ALT: -1,
+    KEY_SECONDARY_MOUSE_ALT: -1,
+    KEY_TERTIARY_MOUSE_ALT: -1,
+    KEY_SCOPE_MOUSE_ALT: -1,
+
+    KEY_UP_ALT: "KeyW",
+    KEY_LEFT_ALT: "KeyA",
+    KEY_DOWN_ALT: "KeyS",
+    KEY_RIGHT_ALT: "KeyD",
+
+    KEY_UP_ARROW_ALT: "ArrowUp",
+    KEY_LEFT_ARROW_ALT: "ArrowLeft",
+    KEY_DOWN_ARROW_ALT: "ArrowDown",
+    KEY_RIGHT_ARROW_ALT: "ArrowRight",
+
+    // Sandbox Keybinds
     KEY_SPECIAL_HELP: "Slash",
     KEY_SPECIAL_HELP_ALT: "F1",
 
@@ -557,7 +586,6 @@ handleOperatorKeyDown: function (key) {
     },
     tankTree: (type) => {
         if (type === "open") {
-            if (global.died) return;
             global.showTree = true;
             global.pullUpgradeMenu = true;
             global.pullSkillBar = true;
