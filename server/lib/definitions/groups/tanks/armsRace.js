@@ -10,6 +10,10 @@ const free_tier_4 = true;
 // This will also enable the Better Arms Race addon if it is present.
 const enable_missing_tanks = false;
 
+// Set the below variable to true to fix naming errors.
+const fix_names = true;
+
+
 // Placeholder Marker
 const placeholder = {
     UPGRADE_COLOR: "black",
@@ -593,7 +597,7 @@ Class.combo = {
             ARC: 190
         }
     }, 3),
-    UPGRADES_TIER_4: ["consolidation", "sequence", "trove", "alloy", "autoCombo", "band"]
+    UPGRADES_TIER_4: ["consolidation", "sequence", "trove", "alloy", "autoCombo"]
 };
 Class.corvette = {
     PARENT: "genericTank",
@@ -2358,7 +2362,6 @@ Class.autoCruiserdrive = makeAuto("cruiserdrive", "Auto-Cruiserdrive", preset.ma
 Class.autoDirectorstorm = makeAuto("directorstorm", "Auto-Directorstorm", preset.makeAuto.storm);
 Class.autoDoperdrive = makeAuto("doperdrive", "Auto-Doperdrive", preset.makeAuto.drive);
 Class.autoDoubleFlank = makeAuto("doubleFlankTwin", "Auto-Double Flank");
-Class.autoHexaTrapper = makeAuto(makeFlank("trapper", 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.autoHonchodrive = makeAuto("honchodrive", "Auto-Honchodrive", preset.makeAuto.drive);
 Class.autoOverdrive = makeAuto("overdrive", "Auto-Overdrive", preset.makeAuto.drive);
 Class.autoSpawnerdrive = makeAuto("spawnerdrive", "Auto-Spawnerdrive", preset.makeAuto.drive);
@@ -2575,6 +2578,7 @@ Class.bruiser = {
         }
     ]
 };
+Class.canvasser = makeFlank(makeFlank('hunter', 3, "Canvasser"), 2, "Canvasser", {delayIncrement: 0.5});
 Class.captrapper = makeCap({
     PARENT: "genericTank",
     LABEL: "Trapper",
@@ -3439,12 +3443,11 @@ Class.dustStorm = {
     PARENT: "genericTank",
     LABEL: "Dust Storm",
     DANGER: 8,
-    GUNS: [
+    GUNS: weaponArray([
         {
             POSITION: {
                 LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 25
+                WIDTH: 3.5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -3453,25 +3456,24 @@ Class.dustStorm = {
         },
         {
             POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 51
+                LENGTH: 9,
+                WIDTH: 8.2,
+                ASPECT: 0.6,
+                X: 5,
+				ANGLE: 30
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
+                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, g.carrier, g.dustStorm]),
+                TYPE: "swarm",
+                STAT_CALCULATOR: "swarm"
             }
         },
-        {
+		{
             POSITION: {
                 LENGTH: 15,
                 WIDTH: 3.5,
-                ANGLE: 77,
-                DELAY: 0.5
+				DELAY: 0.5,
+				ANGLE: 60
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -3480,154 +3482,20 @@ Class.dustStorm = {
         },
         {
             POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 102,
-                DELAY: 0.5
+                LENGTH: 9,
+                WIDTH: 8.2,
+                ASPECT: 0.6,
+                X: 5,
+				ANGLE: 90,
+				DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
+                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, g.carrier, g.dustStorm]),
+                TYPE: "swarm",
+                STAT_CALCULATOR: "swarm"
             }
         },
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 128
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 154
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 180,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 205,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 231
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 257
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 282,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5,
-                ANGLE: 308,
-                DELAY: 0.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 3.5,
-                ANGLE: 334
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
-                TYPE: "bullet"
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 14,
-                WIDTH: 4.5
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
-                TYPE: ["bee", { INDEPENDENT: true }],
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true,
-                LABEL: "Secondary"
-            }
-        }
-    ]
+    ], 3, {delayIncrement: 0.5})
 };
 Class.ethereal = {
     PARENT: "genericTank",
@@ -4391,7 +4259,7 @@ Class.leader = {
 Class.marine = makeGunner("ranger", "Marine");
 Class.megaAutoDirectordrive = makeAuto("directordrive", "Mega Auto-Directordrive", preset.makeAuto.driveMega);
 Class.megaAutoDouble = makeAuto("doubleTwin", "Mega Auto-Double", preset.makeAuto.mega);
-Class.megaHexaTrapper = makeAuto(makeFlank("trapper", 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Mega Hexa-Trapper", preset.makeAuto.mega);
+Class.megaHexaTrapper = makeAuto(makeFlank("trapper", 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Mega Auto-Hexa-Trapper", preset.makeAuto.mega);
 Class.minister = {
     PARENT: "genericTank",
     LABEL: "Minister",
@@ -4450,6 +4318,57 @@ Class.mono = {
         }
     ]
 };
+Class.oasis = makeAuto({
+    PARENT: "genericTank",
+    LABEL: "Prodigy",
+    DANGER: 7,
+    NECRO: [4],
+    SIZE: 10.5,
+    STAT_NAMES: statnames.mixed,
+    SHAPE: 6,
+    BODY: Class.underseer.BODY,
+    GUNS: [
+	    ...weaponArray([{
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 4,
+                WIDTH: 9,
+                ASPECT: 1.5,
+                X: 14
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, { range: 0.5, speed: 0.7, maxSpeed: 0.7 }]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }], 6, {delayIncrement: 0.5}),
+        ...weaponArray({
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 7,
+                ASPECT: 1.6,
+                ANGLE: 180
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.drone, g.sunchip, {reload: 0.5, size: 2, damage: 0.95}]),
+                TYPE: "sunchip",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "necro",
+                WAIT_TO_CYCLE: true,
+                DELAY_SPAWN: false,
+                MAX_CHILDREN: 2
+            }
+        }, 3, {delayIncrement: 1 / 3}),
+
+    ],
+	
+}, "Oasis");
 Class.octoTrapper = makeAuto(makeFlank("trapper", 8, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Octo-Trapper");
 Class.ointment = {
     PARENT: "genericHealer",
@@ -4729,6 +4648,33 @@ Class.refuge = makeAuto({
         }, 3, {delayIncrement: 1 / 3})
     ]
 }, "Refuge");
+Class.ruination = {
+    PARENT: "genericTank",
+    LABEL: "Ruination",
+    DANGER: 8,
+    GUNS: weaponArray([
+		...weaponArray([
+			{
+				POSITION: {
+					LENGTH: 19.2,
+					WIDTH: 13,
+					ASPECT: 0.7
+				}
+			},
+			{
+				POSITION: {
+					LENGTH: 17,
+					WIDTH: 13
+				},
+				PROPERTIES: {
+					SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher]),
+					TYPE: "launcherMissile",
+					STAT_CALCULATOR: "sustained"
+				}
+			} 
+		], 2, {delayIncrement: 0.5})
+    ], 3)
+};
 Class.sailor = {
     PARENT: "genericTank",
     LABEL: "Sailor",
@@ -5139,6 +5085,7 @@ Class.tripleFlankTwin = makeFlank({
     ]
 }, 3, "Triple Flank Twin", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin] });
 Class.tripleGunner = makeFlank("gunner", 3, "Triple Gunner", { extraStats: [g.spam, g.doubleTwin, g.tripleTwin], danger: 8 });
+Class.tripleHexaTrapper = makeAuto(makeFlank("trapper", 6, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Triple Auto-Hexa-Trapper", preset.makeAuto.triple);
 Class.trove = {
     PARENT: "genericTank",
     LABEL: "Trove",
@@ -5720,11 +5667,11 @@ Class.commander.UPGRADES_TIER_4 = ["autoCommander"];
 Class.cruiser.UPGRADES_TIER_4 = ["superintendent"];
 Class.cyclone.UPGRADES_TIER_4 = ["tornado_AR", "dustStorm", "autoCyclone", "tempest_AR", "gale", "whirlwind_AR", "trove"];
 Class.deadeye.UPGRADES_TIER_4 = [];
-Class.deathStar.UPGRADES_TIER_4 = ["demise", "designer", "orbitalStrike", "autoDeathStar", "unity", "sequence"];
+Class.deathStar.UPGRADES_TIER_4 = ["demise", "designer", "orbitalStrike", "autoDeathStar", "unity", "ruination", "tornado_AR", "sequence",];
 Class.destroyer.UPGRADES_TIER_4 = [/*"harrier", "toppler"*/];
 Class.director.UPGRADES_TIER_4 = ["coordinator"];
 Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwin"];
-Class.dual.UPGRADES_TIER_4 = [/*"threefold", */"doubleDual", "ravisher"/*, "vulture_AR", "nimrod_AR"*/, "autoDual"/*, "bifold", "dyadic"*/];
+Class.dual.UPGRADES_TIER_4 = [/*"threefold", */"doubleDual", /*"heat",*/ "canvasser", "ravisher"/*, "megaDual", "shark", "nimrod_AR"*/, "autoDual"/*, "bifold", "dyadic", "arrogater"*/];
 Class.factory.UPGRADES_TIER_4 = ["autoFactory"];
 Class.falcon.UPGRADES_TIER_4 = ["autoFalcon"];
 Class.fighter.UPGRADES_TIER_4 = [/*"boxer", "brawler", "sparrow", "blitz", */"autoFighter", /*"strider", "griffin", "shocker", "cockatoo", "pug", "mangle", */"scrimmer"];
@@ -5735,8 +5682,8 @@ Class.fork.UPGRADES_TIER_4 = [];
 Class.gunner.UPGRADES_TIER_4 = ["dam"];
 Class.healer.UPGRADES_TIER_4 = [/*"renovater", */"physician"];
 Class.hewnDouble.UPGRADES_TIER_4 = ["hewnTriple", "autoHewnDouble", "cleft", "skewnDouble", "hewnFlankDouble", "hewnGunner", "warkwawarkrk"];
-Class.hexaTank.UPGRADES_TIER_4 = ["tripleFlankTwin"];
-Class.hexaTrapper.UPGRADES_TIER_4 = [...["mega", "auto"].map(x => `${x}HexaTrapper`), "hexaMachine", "octoTrapper", "designer", "cozen", "refuge", "coop", "hexaMech", "hexaTrapGuard"];
+Class.hexaTank.UPGRADES_TIER_4 = ["tripleFlankTwin", "canvasser"];
+Class.hexaTrapper.UPGRADES_TIER_4 = ["megaHexaTrapper", "tripleHexaTrapper", "hexaMachine", "octoTrapper", "designer", "cozen", "refuge", "coop", "hexaMech", "hexaTrapGuard", "oasis"];
 Class.hunter.UPGRADES_TIER_4 = [/*"butcher", "reverberator"*/];
 Class.infestor.UPGRADES_TIER_4 = ["autoInfestor"];
 Class.launcher.UPGRADES_TIER_4 = [/*"seriemas", "supplant", "pumper"*/];
@@ -5810,6 +5757,12 @@ if (!enable_missing_tanks) {
             throw error;
         }
     }
+};
+
+if(!fix_names) {
+	Class.tripleHexaTrapper.LABEL = "Triple Hexa-Trapper";
+	Class.megaHexaTrapper.LABEL = "Mega Hexa-Trapper";
+	Class.cobblerdrive.LABEL = "cobblerdrive";
 };
 
 if (!free_tier_4) return;
