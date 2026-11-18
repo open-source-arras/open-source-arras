@@ -22,6 +22,7 @@ class turretEntity extends EventEmitter {
             main: false,
             alt: false,
             fire: false,
+            middle: false,
             power: 0
         };
         // Initalize.

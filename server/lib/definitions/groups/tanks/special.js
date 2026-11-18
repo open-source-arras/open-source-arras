@@ -1755,7 +1755,7 @@ Class.turkey = {
 };
 
 // Spectators
-function spectatorSelect(body, playersOnly, canSelectSelf) {
+function spectatorSelect(body, canSelectAll, canSelectSelf) {
     const cursor = {
         x: body.control.target.x + body.x,
         y: body.control.target.y + body.y
@@ -1763,7 +1763,7 @@ function spectatorSelect(body, playersOnly, canSelectSelf) {
     let lowest = Infinity, closest;
     for (const instance of entities.values()) {
         if (instance.source === body && (instance !== body || !canSelectSelf)) continue;
-        if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
+        if (!canSelectAll && (!instance.isPlayer || instance.isBot)) continue;
         const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
         if (distance < lowest) {
             lowest = distance;
@@ -1793,7 +1793,6 @@ Class.spectator = {
     IS_IMMUNE_TO_TILES: true,
     IS_IMMUNE_TO_PORTALS: true,
     FULL_INVISIBLE: true,
-    MIDDLE_FIRE: true,
     CAN_SELECT_SELF: true,
     CAN_SEE_INVISIBLE_ENTITIES: true,
     LAYER: 13,
@@ -1829,20 +1828,43 @@ Class.spectator = {
             ALPHA: 0,
             ALT_FIRE: true
         }
-    }],
-    ON: [{
-        event: "altFire",
-        handler: ({ body }) => {
-            body.x = body.x + body.control.target.x;
-            body.y = body.y + body.control.target.y;
-        }
     }, {
-        event: "fire",
-        handler: ({ body, gun }) => {
-            if (!body.socket || gun.identifier !== "spectatorSelect") return;
-            spectatorSelect(body, !body.socket.player.command.mmb, body.settings.canSelectSelf);
+        POSITION: {
+            LENGTH: 0,
+            WIDTH: 0
+        },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
+            TYPE: "bullet",
+            ALPHA: 0,
+            IDENTIFIER: "spectatorSelectMiddle",
+            MIDDLE_FIRE: true
         }
-    }]
+    }
+    ],
+    ON: [
+        {
+            event: "altFire",
+            handler: ({ body }) => {
+                body.x = body.x + body.control.target.x;
+                body.y = body.y + body.control.target.y;
+            }
+        },   
+        {
+            event: "fire",
+            handler: ({ body, gun }) => {
+                if (!body.socket || gun.identifier !== "spectatorSelect") return;
+                spectatorSelect(body, false, body.settings.canSelectSelf);
+            }
+        },
+        {
+            event: "middleFire",
+            handler: ({ body, gun }) => {
+                if (!body.socket || gun.identifier !== "spectatorSelectMiddle") return;
+                spectatorSelect(body, true, body.settings.canSelectSelf);
+            }
+        }
+    ]
 };
 Class.guillotine = {
     PARENT: "spectator",
@@ -2145,7 +2167,6 @@ Class.baseProtector_diep = {
 Class.manager_special = {
     PARENT: "spectator",
     LABEL: "Manager",
-    MIDDLE_FIRE: false,
     DANGER: 7,
     STAT_NAMES: statnames.drone,
     GUNS: [

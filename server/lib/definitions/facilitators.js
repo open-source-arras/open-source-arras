@@ -1224,6 +1224,7 @@ exports.makeWhirlwind = (type, options = {}) => {
     type = ensureIsClass(type);
     let output = exports.dereference(type);
     options.satellites ??= 4;
+    options.allowReverse ??= true;
     let hat = [
         {
             POSITION: {SIZE: options.hatSize ??= 7.5, LAYER: options.hatLayer ??= 1},

@@ -172,8 +172,9 @@ class io_listenToPlayer extends IO {
     }
     // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
     think() {
-        let fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb),
+        let fire = this.player.command.autofire || this.player.command.lmb,
             alt = this.player.command.autoalt || this.player.command.rmb,
+            middle = this.player.command.mmb,
             target = {
                 x: this.player.target.x,
                 y: this.player.target.y
@@ -206,6 +207,7 @@ class io_listenToPlayer extends IO {
             target,
             fire,
             alt,
+            middle,
             goal: this.static ? null : {
                 x: this.body.x + this.player.command.right - this.player.command.left,
                 y: this.body.y + this.player.command.down - this.player.command.up
@@ -1093,7 +1095,7 @@ class io_whirlwind extends IO {
     }
     
     think(input) {
-        this.body.angle += (this.body.skill.spd * 2 + this.body.aiSettings.SPEED) * Math.PI / 180;
+        this.body.angle += (this.body.skill.spd * 2 + this.body.aiSettings.SPEED) * Math.PI / 180 * (input.middle ? -1 : 1);
         let trueMaxDistance = this.maxDistance * this.body.size;
         let trueMinDistance = this.minDistance * this.body.size;
         if(input.fire) {
@@ -1124,13 +1126,13 @@ class io_orbit extends IO {
             dist = this.invert ? master.inverseDist : master.dist,
             angle = (this.body.angle * Math.PI / 180 + master.angle) * invertFactor;
         
-        if(this.realDist > dist) {
+        if (this.realDist > dist) {
             this.realDist -= Math.min(10, Math.abs(this.realDist - dist));
         } else if(this.realDist < dist) {
             this.realDist += Math.min(10, Math.abs(dist - this.realDist));
         }
-        this.body.x = master.x + Math.cos(angle) * this.realDist * Math.sqrt(2);
-        this.body.y = master.y + Math.sin(angle) * this.realDist * Math.sqrt(2);
+        this.body.x = master.x + Math.cos(angle) * this.realDist * Math.SQRT2;
+        this.body.y = master.y + Math.sin(angle) * this.realDist * Math.SQRT2;
         
         this.body.facing = angle;
     }

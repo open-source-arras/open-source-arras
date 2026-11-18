@@ -14,6 +14,7 @@ class bulletEntity { // Basically an (Entity) but with heavy limitations to impr
             main: false,
             alt: false,
             fire: false,
+            middle: false,
             power: 0
         };
         this.isInGrid = false;

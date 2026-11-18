@@ -188,6 +188,7 @@ global.bringToLife = (() => {
             fire: faucet.fire,
             main: faucet.main,
             alt: faucet.alt,
+            middle: faucet.middle,
             power: undefined
         };
 
@@ -207,6 +208,7 @@ global.bringToLife = (() => {
                 if (a.fire != null && (b.fire == null || AI.acceptsFromTop)) b.fire = a.fire;
                 if (a.main != null && (b.main == null || AI.acceptsFromTop)) b.main = a.main;
                 if (a.alt != null && (b.alt == null || AI.acceptsFromTop)) b.alt = a.alt;
+                if (a.middle != null && (b.middle == null || AI.acceptsFromTop)) b.middle = a.middle;
                 if (a.power != null && (b.power == null || AI.acceptsFromTop)) b.power = a.power;
             }
         }
@@ -217,6 +219,7 @@ global.bringToLife = (() => {
         my.control.fire = b.fire ?? false;
         my.control.main = b.main ?? false;
         my.control.alt = b.alt ?? false;
+        my.control.middle = b.middle ?? false;
         my.control.power = b.power == null ? 1 : b.power;
 
         // React

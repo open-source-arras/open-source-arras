@@ -112,7 +112,6 @@ Class.genericTank = {
     ALPHA: [0, 1],
     ARENA_CLOSER: false,
     FULL_INVISIBLE: false,
-    MIDDLE_FIRE: false,
     CAN_SELECT_SELF: false,
     CAN_BE_ON_LEADERBOARD: true,
     CAN_GO_OUTSIDE_ROOM: false,

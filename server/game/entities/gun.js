@@ -24,7 +24,7 @@ class Gun extends EventEmitter {
             goal: new Vector(0, 0),
             main: false,
             alt: false,
-            fire: false
+            fire: false,
         };
         this.color = new Color({
             BASE: "grey",

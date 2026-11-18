@@ -48,6 +48,7 @@ class Entity extends EventEmitter {
             main: false,
             alt: false,
             fire: false,
+            middle: false,
             power: 0
         };
         this.isInGrid = false;
@@ -309,7 +310,6 @@ class Entity extends EventEmitter {
         if (set.HEALTH_WITH_LEVEL != null) this.settings.healthWithLevel = set.HEALTH_WITH_LEVEL;
         if (set.OBSTACLE != null) this.settings.obstacle = set.OBSTACLE;
         if (set.FULL_INVISIBLE != null) this.settings.fullyInvisible = set.FULL_INVISIBLE;
-        if (set.MIDDLE_FIRE != null) this.settings.middleFire = set.MIDDLE_FIRE;
         if (set.CAN_SELECT_SELF != null) this.settings.canSelectSelf = set.CAN_SELECT_SELF;
         if (set.CAN_SEE_INVISIBLE_ENTITIES != null) this.settings.canSeeInvisible = set.CAN_SEE_INVISIBLE_ENTITIES;
         if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;

@@ -945,6 +945,12 @@ Class.onTest = {
             body.sendMessage("I fired my alt gun.");
         }
     }, {
+        event: "middleFire",
+        handler: ({ body, gun }) => {
+            body.sendMessage("I fired my middle gun.");
+        }
+    },
+    {
         event: "dead",
         handler: ({ body, killers, killTools }) => {
             const killedOrDied = killers.length === 0 ? "died." : "got killed.";
@@ -983,6 +989,13 @@ Class.onTest = {
             SHOOT_SETTINGS: combineStats([g.basic]),
             TYPE: "bullet",
             IDENTIFIER: "secondaryGun"
+        }
+    }, {
+        POSITION: { ANGLE: 270 },
+        PROPERTIES: {
+            SHOOT_SETTINGS: combineStats([g.basic]),
+            TYPE: "bullet",
+            MIDDLE_FIRE: true
         }
     }]
 };
