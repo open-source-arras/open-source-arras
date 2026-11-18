@@ -1,7 +1,7 @@
 const categories = {
     offensive: [
         "nigger", "nigga", "nig", "faggot", "fag", "dyke", "tranny", "trannie",
-        "nigge", "niggy", "nigglet", "negga", "negger", "kike", "kikes",
+        "nigge", "niggy", "nigglet", "negga", "negger", "kike", "kikes"
     ],
     inappropriate: [
         "gyat", "edging", "gooning", "gooner", "gooners", "dick", "dicks",
@@ -10,20 +10,20 @@ const categories = {
         "porn", "porno", "pornography", "pornographic", "pornhub", "sex",
         "sexual", "sexually", "sexy", "rape", "rapes", "raped", "raping",
         "rapist", "rapists", "wank", "wanks", "wanking", "goon", "fuck",
-        "ass", "asshole", "arse",
+        "ass", "asshole", "arse"
     ],
     profane: [
         "fuck", "shit", "piss", "ass", "asshole", "arse", "bitch", "bastard",
         "damn", "crap", "dickhead", "dickheads", "bollocks", "cunt", "cunts",
         "wanker", "wankers", "pussy", "pussies", "gooner", "gooners", "slut",
         "sluts", "slutty", "whore", "whores", "whoring", "rape", "rapes",
-        "raped", "raping", "rapist", "rapists",
+        "raped", "raping", "rapist", "rapists"
     ],
     brainrot: [
         "skibiditoilet", "skibidi", "rizzler", "rizz", "fortnite", "ohio",
         "sigma", "edge", "mewing", "mew", "yapping", "yap", "mogging", "mog",
         "goon", "maxxing", "maxing", "tiktok", "fanumtax", "grimaceshake",
-        "babygronk", "edging", "gyat",
+        "babygronk", "edging", "gyat"
     ],
 };
 
