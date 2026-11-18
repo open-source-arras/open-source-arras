@@ -46,6 +46,7 @@ class Gun extends EventEmitter {
             this.onShoot = info.PROPERTIES.ON_SHOOT == null ? null : info.PROPERTIES.ON_SHOOT;
             this.autofire = info.PROPERTIES.AUTOFIRE == null ? false : info.PROPERTIES.AUTOFIRE;
             this.altFire = info.PROPERTIES.ALT_FIRE == null ? false : info.PROPERTIES.ALT_FIRE;
+            this.middleFire = info.PROPERTIES.MIDDLE_FIRE == null ? false : info.PROPERTIES.MIDDLE_FIRE;
             this.fixedReload = info.PROPERTIES.FIXED_RELOAD == null ? false : info.PROPERTIES.FIXED_RELOAD;
             this.calculator = info.PROPERTIES.STAT_CALCULATOR == null ? "default" : info.PROPERTIES.STAT_CALCULATOR;
             this.waitToCycle = info.PROPERTIES.WAIT_TO_CYCLE == null ? false : info.PROPERTIES.WAIT_TO_CYCLE;
@@ -238,7 +239,7 @@ class Gun extends EventEmitter {
                 this.cycleTimer += 1 / (this.settings.reload * speed * (this.calculator == "necro" || this.calculator == "fixed reload" ? 1 : sk.rld));
             }
         }
-        let currentlyPressed = this.altFire ? this.body.control.alt : this.body.control.fire;
+        let currentlyPressed = this.altFire ? this.body.control.alt : this.middleFire ? this.body.control.middle : this.body.control.fire;
         if (currentlyPressed && !this.wasPressed) {
             this.emitFireEvent = true;
         } else {
@@ -364,7 +365,7 @@ class Gun extends EventEmitter {
             this.recoilDir = this.body.facing + this.angle;
             if (this.emitFireEvent) {
                 this.emitFireEvent = false;
-                this.master.emit(this.altFire ? "altFire" : "fire", {
+                this.master.emit(this.altFire ? "altFire" : this.middleFire ? "middleFire" : "fire", {
                     gun: this,
                     store: this.store,
                     globalStore: this.globalStore,
@@ -386,7 +387,7 @@ class Gun extends EventEmitter {
             this.bulletInitIndependent(o);
             if (this.emitFireEvent) {
                 this.emitFireEvent = false;
-                this.master.emit(this.altFire ? "altFire" : "fire", {
+                this.master.emit(this.altFire ? "altFire" : this.middleFire ? "middleFire" : "fire", {
                     gun: this,
                     store: this.store,
                     globalStore: this.globalStore,
@@ -412,7 +413,7 @@ class Gun extends EventEmitter {
         o.coreSize = o.SIZE;
         if (this.emitFireEvent) {
             this.emitFireEvent = false;
-            this.master.emit(this.altFire ? "altFire" : "fire", {
+            this.master.emit(this.altFire ? "altFire" : this.middleFire ? "middleFire" : "fire", {
                 body: this.master,
                 gun: this,
                 child: o,

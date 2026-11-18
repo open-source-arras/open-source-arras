@@ -1095,7 +1095,7 @@ class io_whirlwind extends IO {
     }
     
     think(input) {
-        this.body.angle += (this.body.skill.spd * 2 + this.body.aiSettings.SPEED) * Math.PI / 180 * (input.middle ? -1 : 1);
+        this.body.angle += (this.body.skill.spd * 2 + this.body.aiSettings.SPEED) * Math.PI / 180;
         let trueMaxDistance = this.maxDistance * this.body.size;
         let trueMinDistance = this.minDistance * this.body.size;
         if(input.fire) {
@@ -1126,7 +1126,7 @@ class io_orbit extends IO {
             dist = this.invert ? master.inverseDist : master.dist,
             angle = (this.body.angle * Math.PI / 180 + master.angle) * invertFactor;
         
-        if (this.realDist > dist) {
+        if(this.realDist > dist) {
             this.realDist -= Math.min(10, Math.abs(this.realDist - dist));
         } else if(this.realDist < dist) {
             this.realDist += Math.min(10, Math.abs(dist - this.realDist));
