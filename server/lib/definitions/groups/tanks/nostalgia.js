@@ -694,54 +694,43 @@ Class.oldHewnTriple = {
     ]
 };
 Class.oldRattler = {
-	LABEL: "Old Rattler",
-	SIZE: 12,
-	STAT_NAMES: 0,
-	COLOR: 16,
-	SHAPE: 0,
-	...preset.placeholder,
-	GUNS: [
-		{
-			POSITION: {
-				LENGTH: 10,
-				WIDTH: 12.999999523162842,
-				ASPECT: -0.5,
-				X: 8.999999761581421,
-				Y: -5.510910450173814e-16,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 17.000000476837158,
-				WIDTH: 13.999999761581421,
-				ASPECT: -1.399999976158142,
-				X: 0,
-				Y: 0,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 3.0000001192092896,
-				WIDTH: 8.00000011920929,
-				ASPECT: -1.399999976158142,
-				X: 13.999999761581421,
-				Y: -8.572527448042198e-16,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 8.00000011920929,
-				WIDTH: 6.000000238418579,
-				ASPECT: -0.800000011920929,
-				X: 8.999999761581421,
-				Y: -5.510910450173814e-16,
-				ANGLE: 0,
-			}
-		}
-	],
+    PARENT: "genericTank",
+    LABEL: "Old Rattler",
+    DANGER: 8,
+    ...preset.placeholder,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 10,
+                WIDTH: 13,
+                ASPECT: -0.5,
+                X: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 14,
+                ASPECT: -1.4
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 8,
+                ASPECT: -1.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 8,
+                WIDTH: 6,
+                ASPECT: -0.8,
+                X: 9
+            }
+        }
+    ]
 };
 Class.shikra = makeBird({
     PARENT: "genericTank",
