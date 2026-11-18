@@ -25,6 +25,7 @@ class Gun extends EventEmitter {
             main: false,
             alt: false,
             fire: false,
+            middle: false,
         };
         this.color = new Color({
             BASE: "grey",
