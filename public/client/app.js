@@ -239,7 +239,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("optUiScale");
             localStorage.setItem("uiScaleSettings", "true");
         }
-        if (!document.getElementById("optNames").value) document.getElementById("optNames").value = "offense";
+        if (!document.getElementById("optNames").value) document.getElementById("optNames").value = "inappropriate";
         if (!document.getElementById("optCanvas").value) document.getElementById("optCanvas").value = "auto";
         loadSettings();
         // Keybinds stuff

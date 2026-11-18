@@ -29,7 +29,7 @@ const categories = {
 
 const modes = {
     none: [],
-    offense: ["offensive"],
+    offensive: ["offensive"],
     inappropriate: ["offensive", "inappropriate"],
     swear: ["offensive", "inappropriate", "profane"],
     brainrot: ["offensive", "inappropriate", "profane", "brainrot"],
