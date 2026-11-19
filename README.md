@@ -34,15 +34,15 @@ You can set up in-game servers in `server/config.js`. An example is present in t
 Copy this code into your server's `properties`:
 ```js
 server_travel_properties: {
-    loop_interval: 10000, // how often the portal loop executes in seconds
-    portals: 1, // amount of portals to spawn
+    loop_interval: 10_000, // how often the portal loop executes in milliseconds
+    portals: 1 // amount of portals to spawn
 },
 server_travel: [
     {
-        ip: '<YourIP>', // destination server host, don't add "https://" or any slashes to it
+        ip: '<YourIP>', // destination server host
         portal_properties: {
             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-            color: "red", // portal color
+            color: "red"
         }
     }
 ]

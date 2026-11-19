@@ -121,15 +121,15 @@ module.exports = {
                 teams: 2,
                 bot_cap: 20,
                 server_travel_properties: {
-                    loop_interval: 10_000, // how often the portal loop executes in seconds
+                    loop_interval: 10_000, // how often the portal loop executes in milliseconds
                     portals: 1 // amount of portals to spawn
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3001", // destination server host, don't add "https://" or any slashes to it
+                        ip: "localhost:3001", // destination server host
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "blue" // portal color
+                            color: "blue"
                         }
                     }
                 ]
