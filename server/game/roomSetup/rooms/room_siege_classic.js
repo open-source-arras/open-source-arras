@@ -7,7 +7,7 @@ const {
     bossSpawn: boss
 } = tileClass;  
 
-let room_siege_classic = [
+module.exports = [
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, WALL, WALL, WALL, WALL, WALL, X__X, X__X, X__X, X__X, X__X, X__X, X__X],
     [X__X, atmg, X__X, X__X, X__X, X__X, X__X, WALL, X__X, X__X, X__X, WALL, X__X, X__X, X__X, X__X, X__X, atmg, X__X],
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, WALL, boss, boss, boss, WALL, X__X, X__X, X__X, X__X, X__X, X__X, X__X],
@@ -28,5 +28,3 @@ let room_siege_classic = [
     [X__X, atmg, X__X, X__X, X__X, X__X, X__X, WALL, X__X, X__X, X__X, WALL, X__X, X__X, X__X, X__X, X__X, atmg, X__X],
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, WALL, WALL, WALL, WALL, WALL, X__X, X__X, X__X, X__X, X__X, X__X, X__X]
 ];
-
-module.exports = room_siege_classic;

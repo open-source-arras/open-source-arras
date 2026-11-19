@@ -7,7 +7,7 @@ const {
     sabase2: bap2
 } = tileClass;  
 
-let room_assault_line = [
+module.exports = [
     [bas1, bas1, bap1, bas1, bap1, bas1, bas1, bap1, bas1, bap1, bas1],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],
@@ -24,5 +24,3 @@ let room_assault_line = [
     [____, ____, ____, ____, bap2, ____, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____]
 ];
-
-module.exports = room_assault_line;

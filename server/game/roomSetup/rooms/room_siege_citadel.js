@@ -7,7 +7,7 @@ const {
     bossSpawnVoid: spwn
 } = tileClass;  
 
-let room_siege_fortress = [
+module.exports = [
     [spwn, spwn, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, spwn, spwn],
     [spwn, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, spwn],
     [X__X, ____, boss, boss, ____, ____, ____, ____, ____, boss, boss, ____, X__X],
@@ -22,4 +22,3 @@ let room_siege_fortress = [
     [spwn, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, spwn],
     [spwn, spwn, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, spwn, spwn]
 ];
-module.exports = room_siege_fortress;
