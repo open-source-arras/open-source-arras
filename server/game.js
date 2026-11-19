@@ -10,7 +10,7 @@ let { Editor } = require("./game/network/editor.js");
 let { LagLogger } = require("./game/debug/lagLogger.js");
 let { speedcheckloop } = require("./game/debug/speedLoop.js");
 let { gameHandler } = require("./game/index.js");
-let { gamemodeManager } = require("./game/gamemodeManager.js");
+let { gamemodeManager } = require("./game/gamemodes/manager.js");
 
 // Gamemode names
 const getName = (name, data) => {
@@ -484,7 +484,7 @@ class gameServer {
     // Get the room setup(s)
         for (let filename of Config.room_setup) {
             // ... get the current setup
-            this.currentRoom = require(`./game/roomSetup/rooms/${filename}.js`);
+            this.currentRoom = require(`./game/gamemodes/rooms/${filename}.js`);
             Config.roomHeight = this.currentRoom.length;
             Config.roomWidth = this.currentRoom[0].length;
 
