@@ -16,6 +16,8 @@ const THEME_PALETTE_KEYS = [
     "grey", "dgrey", "white", "guiblack",
 ];
 const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
+const SHADOW_DEPTH = 0.6;
+const SIDE_BORDER = 0.5;
 
 (async function (util, global, config, Canvas, color, gameDraw, socketStuff, keybinderHandler) {
     let { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow } = socketStuff;
@@ -1179,6 +1181,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
+        config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
         config.game.deltaEntities = document.getElementById("optDeltaEntities").checked;
@@ -1825,6 +1828,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         let drawPolyImgs = [],
         drawPoly3D = new Map(),
         drawPoly4D = new Map(),
+        outlineX = new Float32Array(384),
+        outlineY = new Float32Array(384),
+        outlineVis = new Uint8Array(384),
         cameraFor3dProjection = { x: 0, y: 0, z: -1 },
         cameraFor4dProjection = { x: 0, y: 0, z: 0, w: -1 },
         projectPoint3d = p => {
@@ -2234,8 +2240,126 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 console.error(`CanvasRenderingContext2D error: ${e}`);
             }
         },
+        outline = (x, y, radius, sides, angle) => {
+            let n = 0;
+            const push = (u, v) => {
+                outlineX[n] = x + u * radius;
+                outlineY[n] = y + v * radius;
+                n++;
+            };
+            if (sides instanceof Array) {
+                const cosA = Math.cos(angle), sinA = Math.sin(angle);
+                for (const [px, py] of sides) push(px * cosA - py * sinA, py * cosA + px * sinA);
+                return n;
+            }
+            if (!sides) { // circle: fewer segments when it is small
+                const steps = radius > 30 ? 24 : radius > 14 ? 16 : 10;
+                for (let i = 0; i < steps; i++) {
+                    const t = (i / steps) * Math.PI * 2;
+                    push(Math.cos(t), Math.sin(t));
+                }
+                return n;
+            }
+            angle += sides % 2 ? 0 : Math.PI / sides; // same half-step as drawBody
+            if (sides < 0) { // star
+                sides = -sides;
+                angle += (sides % 1) * Math.PI * 2;
+                sides = Math.floor(sides);
+                const dip = 1 - 6 / (sides ** 2);
+                push(Math.cos(angle), Math.sin(angle));
+                for (let i = 0; i < sides; i++) {
+                    const htheta = ((i + 0.5) / sides) * 2 * Math.PI + angle;
+                    const theta = ((i + 1) / sides) * 2 * Math.PI + angle;
+                    push(dip * Math.cos(htheta), dip * Math.sin(htheta));
+                    push(Math.cos(theta), Math.sin(theta));
+                }
+                return n - 1; // the closing point repeats the first
+            }
+            angle += (sides % 1) * Math.PI * 2;
+            for (let i = 0, c = Math.floor(sides); i < c; i++) {
+                const theta = (i / c) * 2 * Math.PI + angle;
+                push(Math.cos(theta), Math.sin(theta));
+            }
+            return n;
+        },
+        towardsPlayer = (x, y) => {
+            const px = global.screenWidth / 2 + (global.player.screenx || 0),
+                py = global.screenHeight / 2 + (global.player.screeny || 0),
+                dx = px - x, dy = py - y, len = Math.hypot(dx, dy);
+            return len > 1 ? [dx / len, dy / len] : null;
+        },
+        sweepSide = (context, x, y, radius, sides, angle, dx, dy, fill, stroke, width, alpha, borderless = false) => {
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len < 1.5 || typeof fill !== "string") return;
+            const n = outline(x, y, radius, sides, angle);
+            if (n < 3) return;
+            const ux = dx / len, uy = dy / len;
+            let area = 0, visible = false, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+            for (let i = 0, j = n - 1; i < n; j = i++) area += outlineX[j] * outlineY[i] - outlineX[i] * outlineY[j];
+            const flip = area > 0 ? 1 : -1; // outward normal = flip·(dy, -dx)
+            for (let i = 0; i < n; i++) {
+                const j = i + 1 === n ? 0 : i + 1;
+                const ex = outlineX[j] - outlineX[i], ey = outlineY[j] - outlineY[i];
+                const facing = (flip * ey * ux - flip * ex * uy) / (Math.sqrt(ex * ex + ey * ey) || 1) > 0;
+                outlineVis[i] = facing ? 1 : 0;
+                if (facing) visible = true;
+                minX = Math.min(minX, outlineX[i]);
+                maxX = Math.max(maxX, outlineX[i]);
+                minY = Math.min(minY, outlineY[i]);
+                maxY = Math.max(maxY, outlineY[i]);
+            }
+            if (!visible) return;
+            if (maxX + dx < 0 || minX + dx > context.canvas.width) return; // off screen
+            if (maxY + dy < 0 || minY + dy > context.canvas.height) return;
+
+            context.save();
+            context.globalAlpha = alpha;
+            context.fillStyle = fill;
+            context.strokeStyle = stroke;
+            context.lineWidth = Math.max(1, width * SIDE_BORDER);
+            context.lineJoin = context.lineCap = config.graphical.sharpEdges ? "miter" : "round";
+
+            context.beginPath();
+            for (let i = 0; i < n; i++) {
+                if (!outlineVis[i]) continue;
+                const j = i + 1 === n ? 0 : i + 1;
+                context.moveTo(outlineX[i], outlineY[i]);
+                context.lineTo(outlineX[j], outlineY[j]);
+                context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
+                context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                context.closePath();
+            }
+            context.fill();
+
+            if (!borderless) {
+                for (let i = 0; i < n; i++) {
+                    if (!outlineVis[i] || outlineVis[i === 0 ? n - 1 : i - 1]) continue;
+                    context.beginPath();
+                    context.moveTo(outlineX[i], outlineY[i]);
+                    context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                    let k = 0;
+                    for (; k < n && outlineVis[(i + k) % n]; k++) {
+                        const j = (i + k + 1) % n;
+                        context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
+                    }
+                    const e = (i + k) % n;
+                    context.lineTo(outlineX[e], outlineY[e]);
+                    context.stroke();
+                }
+                if (len > 5 && (sides instanceof Array || !!sides)) { // creases
+                    context.beginPath();
+                    for (let i = 0; i < n; i++) {
+                        if (!outlineVis[i] || !outlineVis[i === 0 ? n - 1 : i - 1]) continue;
+                        context.moveTo(outlineX[i], outlineY[i]);
+                        context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                    }
+                    context.stroke();
+                }
+            }
+            context.restore();
+        },
         // Draw gun function, (AKA: drawTrapezoid)
-        drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position) => {
+        drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position, dx = 0, dy = 0, sideContext = null) => {
             let h = [];
             h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
 
@@ -2248,17 +2372,18 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             points.push([length * 2 - position, -h[0]]);
             points.push([-position, -h[1]]);
             context.globalAlpha = alpha;
-
-            // Rotate it to the new angle via vector rotation
-            context.beginPath();
-            for (let point of points) {
-                let newX = point[0] * cosT - point[1] * sinT + x,
-                    newY = point[0] * sinT + point[1] * cosT + y;
-                context.lineTo(newX, newY);
-            }
-            context.closePath();
-            context.lineWidth *= strokeWidth
+            context.lineWidth *= strokeWidth;
             context.lineWidth *= fill ? 1 : 0.5; // Maintain constant border width
+
+            const world = points.map(([px, py]) => [px * cosT - py * sinT + x, px * sinT + py * cosT + y]);
+            if ((dx !== 0 || dy !== 0) && fill) {
+                sweepSide(sideContext || context, 0, 0, 1, world, 0, dx, dy,
+                    context.fillStyle, context.strokeStyle, context.lineWidth, alpha, !!borderless);
+            }
+
+            context.beginPath();
+            for (const [px, py] of world) context.lineTo(px, py);
+            context.closePath();
             if (!borderless) context.stroke();
             context.lineWidth /= fill ? 1 : 0.5; // Maintain constant border width
             if (fill) context.fill();
@@ -2277,7 +2402,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.fillRect(left, top, Math.max(...xs) - left + pad, Math.max(...ys) - top + pad);
         };
         // The actual drawEntity function
-        return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false) => {
+        return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false, flat = false, shadow = null) => {
             // --- Fast early exit for invisible objects ---
             const fade = turretInfo ? 1 : render.status.getFade();
             if (fade === 0 || alpha === 0) return;
@@ -2320,11 +2445,20 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Fancy canvas with reduced state setup ---
             let xx = x, yy = y;
+            // --- 3D mode ---
+            const sizeRatio = (drawSize / m.size) * m.realSize;
+            const isPlayer = instance.id === gui.playerid;
+            let dir = null;
+            if (config.graphical.threeDimensional && !flat && !dmcaDesign && !isPlayer && shadow !== false &&
+                (typeof m.shape === "number" || m.shape instanceof Array)) dir = shadow || towardsPlayer(x, y);
+            const depth = shadow && shadow.length > 2 ? shadow[2] : sizeRatio * SHADOW_DEPTH;
+            const sideX = dir ? dir[0] * depth : 0;
+            const sideY = dir ? dir[1] * depth : 0;
             const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
 
             if (useFancyCanvas) {
                 context = ctx2;
-                context.canvas.width = context.canvas.height = drawSize * m.position.axis + ratio * 20 * m.position.axis;
+                context.canvas.width = context.canvas.height = drawSize * m.position.axis + (ratio * 20 + (dir ? sizeRatio * (SHADOW_DEPTH + 0.2) : 0)) * m.position.axis;
                 xx = context.canvas.width / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.cos(rot)) / 4;
                 yy = context.canvas.height / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.sin(rot)) / 4;
                 context.translate(0.5, 0.5);
@@ -2342,8 +2476,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.lineJoin = sharp ? "miter" : "round";
             context.lineWidth = initStrokeWidth;
 
-            // --- Size ratio cached for body drawing ---
-            const sizeRatio = (drawSize / m.size) * m.realSize;
+            // 3D side layer
+            const sideContext = useFancyCanvas || (global.advanced && global.advanced.blackout.active) ? context : ctx[0];
+            const sideAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
 
             const dmcaZoom = ratio;
             if (dmcaDesign) {
@@ -2384,7 +2519,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         turretsObeyRot,
                         context,
                         t,
-                        render
+                        render,
+                        false,
+                        flat,
+                        t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false // cores flat, children inherit direction only
                     );
                 }
             }
@@ -2433,6 +2571,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     gameDraw.setColor(context, mixedColor);
 
                     // Draw gun with precalculated values
+                    const gunDepth = drawSize * g.width / 2 * SHADOW_DEPTH;
                     drawGun(
                         context,
                         xx + drawSize * gx,
@@ -2445,7 +2584,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         g.drawFill,
                         gunAlpha,
                         g.strokeWidth,
-                        drawSize * positions[i]
+                        drawSize * positions[i],
+                        dir ? dir[0] * gunDepth : 0,
+                        dir ? dir[1] * gunDepth : 0,
+                        sideContext
                     );
                 }
 
@@ -2505,8 +2647,15 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         context.shadowOffsetY = 0;
                     }
 
-                    // Draw the body, then overlay the skin.
-                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
+                    const bodyBorderless = instance.isProp ? instance.borderless : m.borderless;
+                    const bodyFill = instance.isProp ? instance.drawFill : m.drawFill;
+                    if (dir && bodyFill) {
+                        // drawBody halves the width for circles and unfilled bodies
+                        const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
+                        sweepSide(sideContext, xx, yy, sizeRatio, m.shape, rot, sideX, sideY,
+                            bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
+                    }
+                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, bodyBorderless, bodyFill, m.imageInterpolation);
                     if (skin) drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
             }
@@ -2557,7 +2706,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         turretsObeyRot,
                         context,
                         t,
-                        render
+                        render,
+                        false,
+                        flat,
+                        t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false
                     );
                 }
             }
@@ -2647,7 +2799,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         ctx[2].globalAlpha = 1;
 
         // Draw Tank
-        drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2]);
+        drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2], false, picture.render, false, true);
 
         // Tank name
         drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.825 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
@@ -2786,6 +2938,50 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
     }
 
+    let wallGroups = null, wallGroupsAt = 0;
+    function updateWallShadows(ratio) {
+        if (!config.graphical.threeDimensional) return;
+        if (!wallGroups || Date.now() - wallGroupsAt > 300) {
+            wallGroupsAt = Date.now();
+            wallGroups = [];
+            const blocks = global.entities.filter(e => {
+                const m = global.mockups[+String(e.index).split("-")[0]];
+                return m && e.id !== gui.playerid && (m.shape === 4 || (m.shape instanceof Array && m.shape.length === 4));
+            });
+            for (const entity of global.entities) entity.render.shadow3d = null;
+            const taken = new Set();
+            for (const block of blocks) {
+                if (taken.has(block)) continue;
+                taken.add(block);
+                const group = [block];
+                for (let i = 0; i < group.length; i++) {
+                    const a = group[i];
+                    for (const b of blocks) {
+                        if (taken.has(b)) continue;
+                        if (Math.abs(a.x - b.x) > a.size + b.size + 2) continue;
+                        if (Math.abs(a.y - b.y) > a.size + b.size + 2) continue;
+                        taken.add(b);
+                        group.push(b);
+                    }
+                }
+                const m = global.mockups[+String(block.index).split("-")[0]];
+                wallGroups.push({
+                    blocks: group,
+                    x: group.reduce((sum, e) => sum + e.render.x, 0) / group.length,
+                    y: group.reduce((sum, e) => sum + e.render.y, 0) / group.length,
+                    depth: (block.size / m.size) * m.realSize,
+                    shadow: [0.7071, 0.7071, 0]
+                });
+            }
+        }
+        for (const wall of wallGroups) {
+            const dx = global.player.renderx - wall.x, dy = global.player.rendery - wall.y, len = Math.hypot(dx, dy);
+            if (len > 1) { wall.shadow[0] = dx / len; wall.shadow[1] = dy / len; }
+            wall.shadow[2] = ratio * SHADOW_DEPTH * wall.depth;
+            for (const entity of wall.blocks) entity.render.shadow3d = wall.shadow;
+        }
+    }
+
     function drawEntities(px, py, ratio, tick) {
         if (global.advanced.blackout.active) {
             document.getElementById("gameCanvas-background").style.display = "none";
@@ -2794,6 +2990,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[1].drawImage(ctx[0].canvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
             if (global.glCanvas) ctx[1].drawImage(global.glCanvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
         } else if (document.getElementById("gameCanvas-background").style.display === "none") document.getElementById("gameCanvas-background").style.display = "block";
+        updateWallShadows(ratio);
         // Draw things
         for (let instance of global.entities) {
             if (!instance.render.draws) {
@@ -2850,7 +3047,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             y += global.screenHeight / 2;
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
             alpha = handleScreenDistance(alpha, instance, false);
-            drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize);
+            drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize, false, instance.render.shadow3d || null);
         }
         for (let instance of global.entities) {
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
@@ -4545,7 +4742,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         clearScreen(color.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
         let ratio = util.getScreenRatio();
         scaleScreenRatio(ratio, true);
-        drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
+        drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2], false, picture.render, false, true);
         drawText("Level " + gui.__s.getLevel(), x - 270, y + 100, 12, color.guiwhite, "center");
         drawText(picture.name, x - 270, y + 125, 18, color.guiwhite, "center");
         drawText(new Date(timestamp).toISOString() + "", x, y - 164, 8.125, color.guiwhite, "center");
@@ -5475,6 +5672,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
                 if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
+                if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optShowLocalhost") {
@@ -5926,7 +6124,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy
-                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
                     { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
                     { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
                     { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
