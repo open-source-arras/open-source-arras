@@ -16,7 +16,7 @@ const missingno = {
     },
     borderless: false,
     drawFill: true,
-    shape: "image=/missingno.png",
+    shape: "image=/img/missingno.png",
     imageInterpolation: "bilinear",
     size: 12,
     realSize: 12,

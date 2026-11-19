@@ -29,5 +29,5 @@ function findSkinKeyword(rawName) {
 export function skinShape(rawName) {
     if (!config.graphical.renderSkins) return null;
     const name = findSkinKeyword(rawName);
-    return name ? `image=/skins/${encodeURIComponent(name)}.png` : null;
+    return name ? `image=/img/skins/${encodeURIComponent(name)}.png` : null;
 }

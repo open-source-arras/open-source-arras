@@ -1978,7 +1978,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                                 img = drawPolyImgs[sides] = new Image();
                                 img.src =
                                 defaultDirectory ?
-                                `img${sides.slice(6)}` :
+                                `${sides.slice(6)}` :
                                 clientRootDirectory || onlineDirectory ?
                                 `${onlineDirectory ? sides.slice(6) : sides.slice(7)}` :
                                 "img/missingno.png";
