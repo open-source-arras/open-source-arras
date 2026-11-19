@@ -3,7 +3,8 @@
   "version": "2.2.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --no-lazy index"
+    "start": "node --no-lazy index",
+    "make-skin": "node tools/make-skin.js"
   },
   "dependencies": {
     "ws": "^8.18.3"
@@ -16,6 +17,7 @@
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
     "eslint": "^10.10.0",
-    "globals": "^17.12.0"
+    "globals": "^17.12.0",
+    "sharp": "^0.35.5"
   }
 }
