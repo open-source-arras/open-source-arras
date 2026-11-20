@@ -2847,7 +2847,8 @@ const SIDE_BORDER = 0.5;
         }
         ctx[0].fillRect(roomX, roomY, roomWidth, roomHeight);
         if (config.graphical.renderOldNest) {
-            ctx[0].fillStyle = gameDraw.getColor("lavender");
+            ctx[0].fillStyle = gameDraw.getColor("purple");
+            ctx[0].globalAlpha = 0.25;
             ctx[0].fillRect(roomX + roomWidth / 3, roomY + roomHeight / 3, roomWidth / 3, roomHeight / 3);
         }
         if (global.roomSetup.length) {
