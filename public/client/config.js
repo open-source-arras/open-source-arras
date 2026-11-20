@@ -19,6 +19,7 @@ const config = {
         oldUIStyle: false,
         renderSkins: true,
         coloredNest: false,
+        renderOldNest: false,
         colors: "normal",
         pointy: true,
         showGrid: true,
