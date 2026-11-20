@@ -20,7 +20,7 @@ You'll first need to install Node.js from either [the Node website](http://nodej
 ~$ npm run start
 ```
 
-If there aren't any errors, your server will start up. Go to `localhost:3000` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
+If there aren't any errors, your server will start up. Go to `localhost:8080` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
 
 You may also use either `run.bat` (if you're on Windows) or `run.sh` (if you're not) to quickly launch the server without opening the terminal.
 

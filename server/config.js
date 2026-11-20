@@ -1,8 +1,8 @@
 module.exports = {
     // Public
     index: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:3000", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 3000, // Which port to run the web server on.
+    host: "localhost:8080", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    port: 8080, // Which port to run the web server on.
 
     // Server
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
@@ -25,7 +25,7 @@ module.exports = {
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
-        share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
+        share_client_server - Forces your server to share the same host and port as the client.
         - Only one server at a time can have this enabled.
         - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
 
@@ -49,8 +49,8 @@ module.exports = {
     servers: [
         {
             share_client_server: false,
-            host: "localhost:3001",
-            port: 3001,
+            host: "localhost:3000",
+            port: 3000,
             id: "la",
 
             region: "Local",
@@ -84,29 +84,9 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3002",
-            port: 3002,
+            host: "localhost:3001",
+            port: 3001,
             id: "lb",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["space", "open_tdm"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                round_arena: true,
-                teams: 3
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3003",
-            port: 3003,
-            id: "lc",
 
             region: "Local",
             location: "Localhost",
@@ -119,14 +99,34 @@ module.exports = {
 
             properties: {
                 teams: 2,
-                bot_cap: 20,
+                bot_cap: 20
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3002",
+            port: 3002,
+            id: "lc",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["space", "open_tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                round_arena: true,
+                teams: 3,
                 server_travel_properties: {
                     loop_interval: 10_000, // how often the portal loop executes in milliseconds
                     portals: 1 // amount of portals to spawn
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3001", // destination server host
+                        ip: "localhost:3000", // destination server host
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
                             color: "blue"
@@ -137,9 +137,29 @@ module.exports = {
         },
         {
             share_client_server: false,
+            host: "localhost:3003",
+            port: 3003,
+            id: "ld",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["maze", "tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                teams: 2,
+                bot_cap: 20
+            }
+        },
+        {
+            share_client_server: false,
             host: "localhost:3004",
             port: 3004,
-            id: "ld",
+            id: "le",
 
             region: "Local",
             location: "Localhost",

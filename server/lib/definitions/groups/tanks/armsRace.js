@@ -2578,7 +2578,7 @@ Class.bruiser = {
         }
     ]
 };
-Class.canvasser = makeFlank(makeFlank('hunter', 3, "Canvasser"), 2, "Canvasser", {delayIncrement: 0.5});
+Class.canvasser = makeFlank(makeFlank("hunter", 3, "Canvasser"), 2, "Canvasser", {delayIncrement: 0.5});
 Class.captrapper = makeCap({
     PARENT: "genericTank",
     LABEL: "Trapper",
@@ -3460,7 +3460,7 @@ Class.dustStorm = {
                 WIDTH: 8.2,
                 ASPECT: 0.6,
                 X: 5,
-				ANGLE: 30
+                ANGLE: 30
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, g.carrier, g.dustStorm]),
@@ -3468,12 +3468,12 @@ Class.dustStorm = {
                 STAT_CALCULATOR: "swarm"
             }
         },
-		{
+        {
             POSITION: {
                 LENGTH: 15,
                 WIDTH: 3.5,
-				DELAY: 0.5,
-				ANGLE: 60
+                DELAY: 0.5,
+                ANGLE: 60
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
@@ -3486,15 +3486,15 @@ Class.dustStorm = {
                 WIDTH: 8.2,
                 ASPECT: 0.6,
                 X: 5,
-				ANGLE: 90,
-				DELAY: 0.5
+                ANGLE: 90,
+                DELAY: 0.5
             },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, g.carrier, g.dustStorm]),
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
-        },
+        }
     ], 3, {delayIncrement: 0.5})
 };
 Class.ethereal = {
@@ -4328,7 +4328,7 @@ Class.oasis = makeAuto({
     SHAPE: 6,
     BODY: Class.underseer.BODY,
     GUNS: [
-	    ...weaponArray([{
+        ...weaponArray([{
             POSITION: {
                 LENGTH: 14,
                 WIDTH: 9
@@ -4364,9 +4364,9 @@ Class.oasis = makeAuto({
                 DELAY_SPAWN: false,
                 MAX_CHILDREN: 2
             }
-        }, 3, {delayIncrement: 1 / 3}),
+        }, 3, {delayIncrement: 1 / 3})
 
-    ],
+    ]
 	
 }, "Oasis");
 Class.octoTrapper = makeAuto(makeFlank("trapper", 8, "", { extraStats: [g.hexaTrapper], delayIncrement: 0.5, danger: 7 }), "Octo-Trapper");
@@ -4653,26 +4653,26 @@ Class.ruination = {
     LABEL: "Ruination",
     DANGER: 8,
     GUNS: weaponArray([
-		...weaponArray([
-			{
-				POSITION: {
-					LENGTH: 19.2,
-					WIDTH: 13,
-					ASPECT: 0.7
-				}
-			},
-			{
-				POSITION: {
-					LENGTH: 17,
-					WIDTH: 13
-				},
-				PROPERTIES: {
-					SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher]),
-					TYPE: "launcherMissile",
-					STAT_CALCULATOR: "sustained"
-				}
-			} 
-		], 2, {delayIncrement: 0.5})
+        ...weaponArray([
+            {
+                POSITION: {
+                    LENGTH: 19.2,
+                    WIDTH: 13,
+                    ASPECT: 0.7
+                }
+            },
+            {
+                POSITION: {
+                    LENGTH: 17,
+                    WIDTH: 13
+                },
+                PROPERTIES: {
+                    SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher]),
+                    TYPE: "launcherMissile",
+                    STAT_CALCULATOR: "sustained"
+                }
+            } 
+        ], 2, {delayIncrement: 0.5})
     ], 3)
 };
 Class.sailor = {
@@ -5667,7 +5667,7 @@ Class.commander.UPGRADES_TIER_4 = ["autoCommander"];
 Class.cruiser.UPGRADES_TIER_4 = ["superintendent"];
 Class.cyclone.UPGRADES_TIER_4 = ["tornado_AR", "dustStorm", "autoCyclone", "tempest_AR", "gale", "whirlwind_AR", "trove"];
 Class.deadeye.UPGRADES_TIER_4 = [];
-Class.deathStar.UPGRADES_TIER_4 = ["demise", "designer", "orbitalStrike", "autoDeathStar", "unity", "ruination", "tornado_AR", "sequence",];
+Class.deathStar.UPGRADES_TIER_4 = ["demise", "designer", "orbitalStrike", "autoDeathStar", "unity", "ruination", "tornado_AR", "sequence"];
 Class.destroyer.UPGRADES_TIER_4 = [/*"harrier", "toppler"*/];
 Class.director.UPGRADES_TIER_4 = ["coordinator"];
 Class.doubleTwin.UPGRADES_TIER_4 = ["doubleDual", "doubleMusket", "overdoubleTwin"];
@@ -5760,9 +5760,9 @@ if (!enable_missing_tanks) {
 };
 
 if(!fix_names) {
-	Class.tripleHexaTrapper.LABEL = "Triple Hexa-Trapper";
-	Class.megaHexaTrapper.LABEL = "Mega Hexa-Trapper";
-	Class.cobblerdrive.LABEL = "cobblerdrive";
+    Class.tripleHexaTrapper.LABEL = "Triple Hexa-Trapper";
+    Class.megaHexaTrapper.LABEL = "Mega Hexa-Trapper";
+    Class.cobblerdrive.LABEL = "cobblerdrive";
 };
 
 if (!free_tier_4) return;
