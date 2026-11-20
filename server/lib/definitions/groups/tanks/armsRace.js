@@ -13,7 +13,6 @@ const enable_missing_tanks = false;
 // Set the below variable to true to fix naming errors.
 const fix_names = true;
 
-
 // Placeholder Marker
 const placeholder = {
     UPGRADE_COLOR: "black",
