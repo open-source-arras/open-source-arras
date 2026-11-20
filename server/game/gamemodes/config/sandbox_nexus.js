@@ -6,5 +6,5 @@ module.exports = {
     allow_server_travel: true,
     enable_food: false,
     enable_bosses: false,
-    room_setup: ["room_sandbox_nexus"]
+    room_setup: ["sandbox_nexus"]
 };

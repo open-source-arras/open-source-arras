@@ -6,5 +6,5 @@ module.exports = {
     enable_food: false,
     enable_bosses: false,
     allow_server_travel: true,
-    room_setup: ["room_limbo"]
+    room_setup: ["limbo"]
 };

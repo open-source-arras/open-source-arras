@@ -142,7 +142,7 @@ module.exports = {
 
             region: "Local",
             location: "Localhost",
-            gamemode: ["maze", "tdm"],
+            gamemode: ["domination"],
             player_cap: 80,
 
             featured: false,
@@ -385,7 +385,7 @@ module.exports = {
     random_body_colors: false,
 
     // Room setup (don't change these unless you know what you're doing)
-    room_setup: ["room_default"],
+    room_setup: ["default"],
     round_arena: false,
     mode: "ffa",
 
