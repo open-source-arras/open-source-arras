@@ -2642,6 +2642,7 @@ const SIDE_BORDER = 0.5;
                     if (dir && bodyFill) {
                         // drawBody halves the width for circles and unfilled bodies
                         const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
+                        if (global.__probe) global.__probe[sideContext === ctx[0] ? 0 : 1]++;
                         sweepSide(sideContext, xx, yy, sizeRatio, m.shape, rot, sideX, sideY,
                             bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
                     }
@@ -5012,12 +5013,14 @@ const SIDE_BORDER = 0.5;
     const THEME_PANEL_H = 608;
     const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
     const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
+    const SUPER_SECRET_SECTION_EXTRA = 80;
     const SECRET_SECTION_LAYOUT = {
-        secret: { title: "Secret Options", titleY: 30,  rowTop: 45 },
-        beta:   { title: "Beta Options",   titleY: 230, rowTop: 245 },
-        legacy: { title: "Legacy Options", titleY: 310, rowTop: 325 },
+        secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
+        super:  { title: "Super Secret Options", titleY: 190, rowTop: 205 },
+        beta:   { title: "Beta Options",         titleY: 230, rowTop: 245 },
+        legacy: { title: "Legacy Options",       titleY: 310, rowTop: 325 },
     };
-    const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
+    const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
 
     const LEGACY_THEMES = [
         ["bleach", "Bleach", "definitelynot."],
@@ -5618,7 +5621,7 @@ const SIDE_BORDER = 0.5;
     };
     global.applyCrosshairCursor();
 
-    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked) {
+    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked) {
         if (global.themeOverlay) global.themeOverlay.style.display = "none";
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
@@ -5628,20 +5631,22 @@ const SIDE_BORDER = 0.5;
         global.clickables.optionsMenu.toggleBoxes.hide();
         global.clickables.optionsMenu.HoverBoxes.hide();
         const secretTooltips = [];
-        const fullExtra = fullUnlocked ? 40 : 0;
+        const superExtra = superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0;
+        const sectionOffset = (section) => (section === "beta" || section === "legacy") ? superExtra : 0;
         for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, color.guiwhite, "center");
+            if (section === "super" && !superUnlocked) continue;
+            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + sectionOffset(section), 15.5, color.guiwhite, "center");
         }
         for (let i = 0; i < global.optionsCheckboxes.length; i++) {
             const cb = global.optionsCheckboxes[i];
             if (!isSecretSection(cb.section)) continue;
-            if (cb.fullSecret && !fullUnlocked) {
+            if (cb.section === "super" && !superUnlocked) {
                 if (cb.tooltipService) cb.tooltipService.targetAlpha = 0;
                 continue;
             }
             const layout = SECRET_SECTION_LAYOUT[cb.section];
             const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-            const y = PANEL_Y + layout.rowTop + (cb.section === "secret" ? 0 : fullExtra) + cb.row * LINE_HEIGHT;
+            const y = PANEL_Y + layout.rowTop + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
             const hitSize = BOX_SIZE * clickableRatio;
             if (!cb.tooltipService) cb.tooltipService = {
                 text: cb.tooltip,
@@ -5839,9 +5844,9 @@ const SIDE_BORDER = 0.5;
         const PANEL_VISIBLE_X = mainMenuAnim;
         const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
         const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
-        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
-        const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
+        const superBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
+        const superUnlocked = superBox ? !!superBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
+        const secretPanelH = SECRET_PANEL_H + (superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0);
         const TAB_CONTENT_HEIGHTS = [
             (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
             THEME_PANEL_H,
@@ -6105,9 +6110,10 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
                     { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 3, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 3, section: "secret", fullSecret: true, tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    // Super Secret Options
+                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
+                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                     // Beta
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
