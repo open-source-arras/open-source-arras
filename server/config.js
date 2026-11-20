@@ -151,7 +151,7 @@ module.exports = {
             private: false,
 
             properties: {
-                teams: 2,
+                teams: 4,
                 bot_cap: 20
             }
         },

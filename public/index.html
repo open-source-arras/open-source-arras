@@ -84,18 +84,18 @@
                             <input type="text" autofocus tabindex="1" spellcheck="false" placeholder="This is the tale of" id="optName" maxlength="24">
                         </div>
                         <div class="slider" id="startMenuSlidingTrigger">
-                            <h3><span id="viewOptionText">view options</span>&nbsp;&nbsp;<i class="arrow" id="optionArrow" style="transform: rotate(-45deg);"></i></h3>
+                            <h3><span id="viewOptionText">view options (deprecated!)</span>&nbsp;&nbsp;<i class="arrow" id="optionArrow" style="transform: rotate(-45deg);"></i></h3>
                         </div>
                         <div class="slider startMenuSlidingContent">
                             <div class="horizontalSelector" id="optionMenuTabs">
-                                <span class="active">Appearance</span>
-                                <span>Options</span>
+                                <span class="active">Options</span>
                                 <span class="mobile-hide">Controls</span>
                                 <span>Links</span>
                                 <span style="display: none;">Addons</span>
                             </div>
-                            <div id="tabAppearance" class="shadowScroll" style="height: 88.5%;">
-                                <div class="optionsHeader">Themes</div>
+                            <div id="tabOptions" class="shadowScroll" style="height: 88.5%;">
+                                <input type="password" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
+                                <div class="optionsHeader">(this options menu will be removed soon, don't worry about the ugliness)</div>
                                 <select id="optColors" tabindex="-1" onchange="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'" onfocus="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'">
                                     <option value="normal">Light (by CX)</option>
                                     <option value="dark">Dark (by CX)</option>
@@ -148,7 +148,7 @@
                                     </tr>
                                     <tr>
                                         <td>
-                                            <div><label class="container"><input id="optNoGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hide Grid</label></div>
+                                            <div><label class="container"><input id="optBackgroundGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hide Grid</label></div>
                                         </td>
                                         <td>
                                             <div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Traps</label></div>
@@ -179,7 +179,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <div class="optionsHeader">UI Elements</div>
                                 <select id="optUiScale" tabindex="-1">
                                     <option value="auto">UI Scale (Auto)</option>
                                     <option value="small">UI Scale (Small)</option>
@@ -247,7 +246,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <div class="optionsHeader">Main Menu</div>
                                 <table>
                                     <tr>
                                         <td>
@@ -255,9 +253,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                            </div>
-                            <div id="tabOptions" class="shadowScroll" style="height: 88.5%;">
-                                <div class="optionsHeader">Performance</div>
                                 <select id="optCanvas" tabindex="-1">
                                     <option value="auto">Auto (Recommended)</option>
                                     <option value="high">High (WebGL + MSAA)</option>
@@ -308,7 +303,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <div class="optionsHeader">Miscellaneous</div>
                                 <select id="optNames" tabindex="-1">
                                     <option value="none">No Filter</option>
                                     <option value="offensive">Filter Offensive Words</option>
@@ -331,7 +325,6 @@
                                         </td>
                                     </tr>
                                 </table>
-                                <input type="password" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
                             </div>
                             <div id="tabControls">
                                 <div class="horizontalSelector" id="controlsMenuTabs">
@@ -727,7 +720,7 @@
                                 <div class="optionsHeader">Resources</div>
                                 <div class="moreLinks">
                                     <span data-ccpa-link="1"></span>
-                                    <a tabindex="-1" href="https://codepen.io/road-to-100k/full/GRpvMzb">Road's Custom Theme Maker</a><br/>
+                                    <a tabindex="-1" href="https://codepen.io/cx88/full/rNbVGmQ">Theme Code Converter</a><br/>
                                     <a tabindex="-1" href="/ext/custom-shape">Custom Shape Builder</a>
                                 </div>
                                 <div class="optionsHeader">Open Source Arras is not affiliated with any of the linked external websites.</div>

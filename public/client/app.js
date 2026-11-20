@@ -98,7 +98,6 @@ const SIDE_BORDER = 0.5;
     global.mobile && document.body.classList.add("mobile");
     !global.mobile && document.body.classList.add("not-mobile");
     if (global.mobile) {
-        document.getElementById("tabAppearance").style.height = "84.5%";
         document.getElementById("tabOptions").style.height = "84.5%";
         document.getElementById("tabAbout").style.height = "84.5%";
         document.getElementById("tabAddons").style.height = "84.5%";
@@ -148,7 +147,7 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("optLerpAnim");
         util.retrieveFromLocalStorage("optOptimizeMode");
         util.retrieveFromLocalStorage("optBorders");
-        util.retrieveFromLocalStorage("optNoGrid");
+        util.retrieveFromLocalStorage("optBackgroundGrid");
         util.retrieveFromLocalStorage("optHexaGrid");
         util.retrieveFromLocalStorage("optColoredNest");
         util.retrieveFromLocalStorage("optRenderKillbar");
@@ -221,7 +220,8 @@ const SIDE_BORDER = 0.5;
                 "autoLevelUp",
                 "optDeltaEntities",
                 "optAllowIngameOptions",
-                "optAutoReconnect"
+                "optAutoReconnect",
+                "optBackgroundGrid"
             ].forEach(i => {
                 document.getElementById(i).checked = true;
                 util.submitToLocalStorage(i);
@@ -291,7 +291,7 @@ const SIDE_BORDER = 0.5;
                 c.style.transform = c.style.webkitTransform = clicked // Rotate the arrow.
                     ? "translate(2px, -2px) rotate(45deg)"
                     : "rotate(-45deg)";
-                h.innerText = clicked ? "close options" : "view options"; // Change the text.
+                h.innerText = clicked ? "close options (deprecated!)" : "view options (deprecated!)"; // Change the text.
                 clicked ? u.classList.add(global.uncappedMenu ? "slided2" : "slided") : u.classList.remove(global.uncappedMenu ? "slided2" : "slided"); // Slide it up.
                 y[0].style.opacity = clicked ? 0 : 1; // Fade it away.
                 y[2].style.opacity = clicked ? 1 : 0; // same for this.
@@ -310,7 +310,6 @@ const SIDE_BORDER = 0.5;
     function tabOptionsMenuSwitcher() {
         let buttonTabs = document.getElementById("optionMenuTabs"),
             tabOptions = [
-                document.getElementById("tabAppearance"),
                 document.getElementById("tabOptions"),
                 document.getElementById("tabControls"),
                 document.getElementById("tabAbout"),
@@ -473,7 +472,7 @@ const SIDE_BORDER = 0.5;
                     if (docs.startsWith(".")) doc = document.getElementsByClassName(docs.substring(docs.length, 1))[0];
                     switch (docs) {
                         case ".mainWrapper":
-                            doc.style.padding = "0px";
+                            doc.style.padding = "28px";
                             setHeight(doc, "calc(100% - 55px)");
                             break;
                         case "#startMenuWrapper":
@@ -1159,7 +1158,7 @@ const SIDE_BORDER = 0.5;
         config.graphical.separatedHealthbars = document.getElementById("separatedHealthbars").checked;
         config.graphical.lowResolution = document.getElementById("optLowResolution").checked;
         config.graphical.force169AspectRatio = localStorage.getItem("optForce169AspectRatioChecked") === "true";
-        config.graphical.showGrid = !document.getElementById("optNoGrid").checked;
+        config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
         config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
         config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
@@ -1277,7 +1276,7 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("coloredHealthbars");
         util.submitToLocalStorage("separatedHealthbars");
         util.submitToLocalStorage("optColoredNest");
-        util.submitToLocalStorage("optNoGrid");
+        util.submitToLocalStorage("optBackgroundGrid");
         util.submitToLocalStorage("optHexaGrid");
         // GUI
         util.submitToLocalStorage("optRenderGui");
@@ -6018,7 +6017,7 @@ const SIDE_BORDER = 0.5;
                     // Game Appearance
                     { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
                     { type: "checkbox",   id: "optRenderScores",        label: "Player Scores",         column: 0, row: 1, section: "appearance", tooltip: "Show player scores." },
-                    { type: "checkbox",   id: "optNoGrid",              label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid.", reverseCheck: true },
+                    { type: "checkbox",   id: "optBackgroundGrid",      label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid." },
                     { type: "checkbox",   id: "optPointy",              label: "Sharp Traps",           column: 0, row: 3, section: "appearance", tooltip: "Sharpen the corners of traps." },
                     { type: "checkbox",   id: "optSharpEdges",          label: "Sharp Polygons",        column: 0, row: 4, section: "appearance", tooltip: "Sharpen the corners of all polygons.\n" + "May slightly lower the frame rate." },
                     //{ type: "checkbox",   id: "coloredHealthbars",      label: "Colored Health Bars",   column: 0, row: 5, section: "appearance", tooltip: "Make the health and shield bar(s) of entities match their body color." },
