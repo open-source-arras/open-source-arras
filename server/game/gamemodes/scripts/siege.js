@@ -356,7 +356,7 @@ class Siege {
 
     spawnRogue(loc) {
         this.successfulRogueChoices = []
-        if (this.waveId % 1 == 0 && this.waveId > 0) {
+        if (this.waveId % 12 == 0 && this.waveId > 0) {
             for (let i = 0; i < this.friendlyBossChoices.length; i++) {
                 let random = Math.random() * 100;
                 if (random < this.friendlyBossChoices[i][1] && this.successfulRogueChoices.length <= 2) {
