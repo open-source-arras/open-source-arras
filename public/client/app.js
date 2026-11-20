@@ -2635,7 +2635,7 @@ const SIDE_BORDER = 0.5;
                     if (dir && bodyFill) {
                         // drawBody halves the width for circles and unfilled bodies
                         const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
-                        if (global.__probe) global.__probe[sideContext === ctx[0] ? 0 : 1]++;
+                        if (global.probe) global.probe[sideContext === ctx[0] ? 0 : 1]++;
                         sweepSide(sideContext, xx, yy, sizeRatio, m.shape, rot, sideX, sideY,
                             bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
                     }
