@@ -155,7 +155,6 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("autoLevelUp");
         util.retrieveFromLocalStorage("optMobile");
         // GUI
-        util.retrieveFromLocalStorage("optRenderGui");
         util.retrieveFromLocalStorage("optRenderLeaderboard");
         util.retrieveFromLocalStorage("optRenderUpgrades");
         util.retrieveFromLocalStorage("optRenderMinimap");
@@ -163,7 +162,7 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("optRenderHealth");
         util.retrieveFromLocalStorage("optRenderScores");
         util.retrieveFromLocalStorage("optRenderPlayerBars");
-        util.retrieveFromLocalStorage("optReducedInfo");
+        util.retrieveFromLocalStorage("optExtraInfo");
         util.retrieveFromLocalStorage("showCrosshair");
         util.retrieveFromLocalStorage("showJoystick");
         util.retrieveFromLocalStorage("optFullHD");
@@ -198,7 +197,6 @@ const SIDE_BORDER = 0.5;
         // If we are loaded for the first time then load the default options settings.
         if (!localStorage.getItem("loadedForFirstTime")) {
             [
-                "optRenderGui",
                 "optRenderLeaderboard",
                 "optRenderUpgrades",
                 "optRenderMinimap",
@@ -212,7 +210,8 @@ const SIDE_BORDER = 0.5;
                 "optFancy",
                 "autoLevelUp",
                 "optAutoReconnect",
-                "optBackgroundGrid"
+                "optBackgroundGrid",
+                "optExtraInfo"
             ].forEach(i => {
                 document.getElementById(i).checked = true;
                 util.submitToLocalStorage(i);
@@ -1155,7 +1154,6 @@ const SIDE_BORDER = 0.5;
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
         config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
         // GUI
-        global.GUIStatus.renderGUI = document.getElementById("optRenderGui").checked;
         global.GUIStatus.renderLeaderboard = document.getElementById("optRenderLeaderboard").checked;
         global.GUIStatus.renderUpgrades = document.getElementById("optRenderUpgrades").checked;
         global.GUIStatus.renderMinimap = document.getElementById("optRenderMinimap").checked;
@@ -1165,7 +1163,7 @@ const SIDE_BORDER = 0.5;
         global.GUIStatus.renderPlayerBars = document.getElementById("optRenderPlayerBars").checked;
         global.GUIStatus.renderPlayerKillbar = document.getElementById("optRenderKillbar").checked;
         global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
-        global.GUIStatus.minimapReducedInfo = document.getElementById("optReducedInfo").checked;
+        global.GUIStatus.minimapReducedInfo = !document.getElementById("optExtraInfo").checked;
         global.GUIStatus.fullHDMode = document.getElementById("optFullHD").checked;
         global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
@@ -1268,7 +1266,6 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("optBackgroundGrid");
         util.submitToLocalStorage("optHexaGrid");
         // GUI
-        util.submitToLocalStorage("optRenderGui");
         util.submitToLocalStorage("optRenderLeaderboard");
         util.submitToLocalStorage("optRenderUpgrades");
         util.submitToLocalStorage("optRenderMinimap");
@@ -1276,7 +1273,7 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("optRenderHealth");
         util.submitToLocalStorage("optRenderScores");
         util.submitToLocalStorage("optRenderPlayerBars");
-        util.submitToLocalStorage("optReducedInfo");
+        util.submitToLocalStorage("optExtraInfo");
         util.submitToLocalStorage("showCrosshair");
         util.submitToLocalStorage("showJoystick");
         util.submitToLocalStorage("optFullHD");
@@ -4864,14 +4861,12 @@ const SIDE_BORDER = 0.5;
             drawOperatorKeyboard(spacing, alcoveSize); // ` button + sandbox keyboard for sandbox etc.
         }
         if (global.gamepadMode) drawCrosshair();
-        if (global.GUIStatus.renderGUI) {
-            drawMessages(spacing, alcoveSize);
-            if (global.GUIStatus.renderUpgrades) drawSkillBars(spacing, alcoveSize);
-            if (global.GUIStatus.renderPlayerBars) drawSelfInfo(max);
-            drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
-            if (global.GUIStatus.renderLeaderboard) drawLeaderboard(spacing, alcoveSize, max);
-            if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
-        } else if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
+        drawMessages(spacing, alcoveSize);
+        if (global.GUIStatus.renderUpgrades) drawSkillBars(spacing, alcoveSize);
+        if (global.GUIStatus.renderPlayerBars) drawSelfInfo(max);
+        drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
+        if (global.GUIStatus.renderLeaderboard) drawLeaderboard(spacing, alcoveSize, max);
+        if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
         if (global.showTree) {
             drawUpgradeTree(spacing, alcoveSize);
         }
@@ -6049,7 +6044,7 @@ const SIDE_BORDER = 0.5;
 
                     { type: "checkbox", id: "optRenderLeaderboard",   label: "Leaderboard",           column: 1, row: 0, section: "ui", tooltip: "Toggle the visibility of the leaderboard." },
                     { type: "checkbox", id: "optRenderMinimap",       label: "Minimap",               column: 1, row: 1, section: "ui", tooltip: "Toggle the visibility of the minimap." },
-                    { type: "checkbox", id: "optReducedInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner.", reverseCheck: true },
+                    { type: "checkbox", id: "optExtraInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner." },
 
                     // Extra
                     { type: "option",    id: "optUiScale",             label: "",                      column: 0, row: 0, section: "extra", tooltip: "Configure the size of the user interface.",

@@ -94,8 +94,166 @@
                                 <span style="display: none;">Addons</span>
                             </div>
                             <div id="tabOptions" class="shadowScroll" style="height: 88.5%;">
-                                <input type="password" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
                                 <div class="optionsHeader">(this options menu will be removed soon, don't worry about the ugliness)</div>
+                                <input type="password" class="conceal" tabindex="3" placeholder="Insert token here" id="playerKeyInput" maxlength="64" />
+                                <div class="optionsHeader">Game Appearance</div>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderNames" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Names</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderScores" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Scores</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderHealth" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Health Bars</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optBackgroundGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Background Grid</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="separatedHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Separate Shield Bar</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Traps</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optCurvyTraps" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Curvy Traps</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optSharpEdges" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Polygons</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optTankSkins" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Tank Skins</label></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="optionsHeader">UI Elements</div>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderUpgrades" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Upgrades</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderLeaderboard" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Leaderboard</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderPlayerBars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Bars</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderMinimap" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Minimap</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optRenderKillbar" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Kill Bar</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optExtraInfo" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Extra Info</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr class="mobileRow">
+                                        <td>
+                                            <div><label class="container"><input id="showCrosshair" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Crosshair</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="showJoystick" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Joystick</label></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="optionsHeader">Extra</div>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="smoothCamera" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Camera</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optFancy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Fading Animation</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="autoLevelUp" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Auto-Level Up</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optIncognitoMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Incognito Mode</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optAutoReconnect" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Auto-Reconnect</label></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="optionsHeader">Unsorted (1)</div>
+                                <table>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="coloredHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Colored Health Bars</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optPredictive" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Disable Hyperactivity</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optHexaGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hexagonal Grid</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optColoredNest" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Colored Nest</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optOldUiStyle" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Classic UI Style</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="unlimitedMenuHeight" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Uncapped Height</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optInterpolation" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Interpolation</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optLowResolution" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Low Resolution</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optLerpAnim" tabindex="-1" title="Smoothing animation" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Animations</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optFullHD" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Full HD</label></div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div><label class="container"><input id="optOptimizeMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Optimize Mode</label></div>
+                                        </td>
+                                        <td>
+                                            <div><label class="container"><input id="optSlowerFOV" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Slow FOV Animation</label></div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="optionsHeader">Unsorted (2)</div>
+                                <select id="optUiScale" tabindex="-1">
+                                    <option value="auto">UI Scale (Auto)</option>
+                                    <option value="small">UI Scale (Small)</option>
+                                    <option value="normal">UI Scale (Regular)</option>
+                                    <option value="large">UI Scale (Large)</option>
+                                    <option value="mobile">UI Scale (Mobile)</option>
+                                </select>
                                 <select id="optColors" tabindex="-1" onchange="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'" onfocus="document.getElementById('optCustom').style.display = this.value === 'custom' ? 'block' : 'none'">
                                     <option value="normal">Light (by CX)</option>
                                     <option value="dark">Dark (by CX)</option>
@@ -136,118 +294,6 @@
                                     <option value="glass">Glass Mode</option>
                                 </select>
                                 <input style="display: none;" placeholder="Insert Custom Theme" id="optCustom" />
-                                <input style="display: none;" id="optTankSkins" type="checkbox" checked>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optColoredNest" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Colored Nest</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optSharpEdges" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Polygons</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optBackgroundGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Hide Grid</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optPointy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Sharp Traps</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="separatedHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Separate Shield Bar</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optCurvyTraps" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Curvy Traps</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="coloredHealthbars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Colored Health Bars</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optPredictive" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Disable Hyperactivity</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optHexaGrid" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span> Hexagonal Grid</label></div>
-                                        </td>
-                                        <td>
-                                            <div></div>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <select id="optUiScale" tabindex="-1">
-                                    <option value="auto">UI Scale (Auto)</option>
-                                    <option value="small">UI Scale (Small)</option>
-                                    <option value="normal">UI Scale (Regular)</option>
-                                    <option value="large">UI Scale (Large)</option>
-                                    <option value="mobile">UI Scale (Mobile)</option>
-                                </select>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderGui" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>GUI</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderLeaderboard" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Leaderboard</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderNames" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Names</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderHealth" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Health Bars</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderScores" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Scores</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optReducedInfo" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Reduced Info Bar</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderPlayerBars" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Player Bars</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderUpgrades" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Upgrades</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderKillbar" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Kill Bar</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optRenderMinimap" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Minimap</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr class="mobileRow">
-                                        <td>
-                                            <div><label class="container"><input id="showCrosshair" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Crosshair</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="showJoystick" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Joystick</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optOldUiStyle" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Classic UI Style</label></div>
-                                        </td>
-                                    </tr>
-                                </table>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="unlimitedMenuHeight" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Uncapped Height</label></div>
-                                        </td>
-                                    </tr>
-                                </table>
                                 <select id="optCanvas" tabindex="-1">
                                     <option value="auto">Auto (Recommended)</option>
                                     <option value="high">High (WebGL + MSAA)</option>
@@ -256,40 +302,6 @@
                                     <option value="canvas">High (Canvas2D)</option>
                                     <option value="software">High (Software)</option>
                                 </select>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optInterpolation" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Interpolation</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optLowResolution" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Low Resolution</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="smoothCamera" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Camera</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optFancy" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Fancy Animations</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optLerpAnim" tabindex="-1" title="Smoothing animation" class="checkbox" type="checkbox"><span class="checkmark"></span>Smooth Animations</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optFullHD" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Full HD</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optOptimizeMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Optimize Mode</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optSlowerFOV" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark"></span>Slow FOV Animation</label></div>
-                                        </td>
-                                    </tr>
-                                </table>
                                 <select id="optNames" tabindex="-1">
                                     <option value="none">No Filter</option>
                                     <option value="offensive">Filter Offensive Words</option>
@@ -297,21 +309,6 @@
                                     <option value="swear">Filter Profane Words</option>
                                     <option value="brainrot">Filter "Brainrot" Words</option>
                                 </select>
-                                <table>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="autoLevelUp" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Auto-Level Up</label></div>
-                                        </td>
-                                        <td>
-                                            <div><label class="container"><input id="optIncognitoMode" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Incognito Mode</label></div>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div><label class="container"><input id="optAutoReconnect" tabindex="-1" class="checkbox" type="checkbox"><span class="checkmark" checked></span>Auto-Reconnect</label></div>
-                                        </td>
-                                    </tr>
-                                </table>
                             </div>
                             <div id="tabControls">
                                 <div class="horizontalSelector" id="controlsMenuTabs">

@@ -471,7 +471,6 @@ handleOperatorKeyDown: function (key) {
         prefix: null,
     },
     GUIStatus: {
-        renderGUI: false,
         renderLeaderboard: false,
         renderUpgrades: false,
         renderMinimap: false,
