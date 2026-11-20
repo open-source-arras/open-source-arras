@@ -1,0 +1,1 @@
+This folder is intended to replace the two different addon systems with a more comprehensive "mods" system.

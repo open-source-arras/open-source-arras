@@ -4,11 +4,11 @@ const g = require("../../gunvals.js");
 
 // Set the below variable to true to enable OSA-specific fixes and adjustments for Retrograde and certain tank designs.
 // This also enables the Arms Race Retrograde addon if it is present.
-const better_retrograde = true;
+const better_retrograde = false;
 
 // Set the below variable to true to correct certain LABELs to be closer to Arms Race's conventions.
 // This also affects tanks from the Arms Race Retrograde addon if it is present.
-const label_correction = true;
+const label_correction = false;
 
 // Tier 2 (Level 30)
 Class.blaster = {
