@@ -204,8 +204,7 @@ module.exports = {
     map_tile_height: 420,
 
     // The message that appears once a player spawns.
-    spawn_message: "You have spawned! Welcome to the game.\n"
-                 + "You will be invulnerable until you move or shoot.",
+    spawn_message: "You will be invulnerable until you move or shoot.\nYou have spawned! Welcome to the game.",
 
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
@@ -214,7 +213,6 @@ module.exports = {
 
     // Seasonal
     seasonal_events: true, // Enable seasonal events at specific times of the year
-
     force_fireworks: false, // Forcefully enable fireworks (automatic around 4th of July (should be only in US region servers tbh))
     force_spooky_theme: false, // Forcefully enable seasonal halloween theme (adds eyes to walls and replaces rocks with pumpkins)
     force_thanksgiving: false, // Forcefully enable seasonal american thanksgiving theme (replaces Motherships with Turkeys)
