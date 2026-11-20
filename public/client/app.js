@@ -5013,7 +5013,7 @@ const SIDE_BORDER = 0.5;
     const THEME_PANEL_H = 608;
     const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
     const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
-    const SUPER_SECRET_SECTION_EXTRA = 80;
+    const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
         secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
         super:  { title: "Super Secret Options", titleY: 190, rowTop: 205 },
