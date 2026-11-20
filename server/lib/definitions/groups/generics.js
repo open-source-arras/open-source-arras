@@ -751,6 +751,11 @@ for (let i = 0; i < 2; i++) {
     });
 };
 
+Class.rogueEgg6 = makeRogueEgg(6)
+Class.rogueEgg7 = makeRogueEgg(7)
+Class.rogueEgg9 = makeRogueEgg(9)
+Class.rogueEgg11 = makeRogueEgg(11) // Troll
+
 // Technical
 Class.bot = {
     FACING_TYPE: "looseToTarget",
