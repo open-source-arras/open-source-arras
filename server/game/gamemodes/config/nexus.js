@@ -6,5 +6,5 @@ module.exports = {
     allow_server_travel: true,
     enable_food: false,
     enable_bosses: false,
-    room_setup: ["room_nexus"]
+    room_setup: ["nexus"]
 };

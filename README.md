@@ -20,7 +20,7 @@ You'll first need to install Node.js from either [the Node website](http://nodej
 ~$ npm run start
 ```
 
-If there aren't any errors, your server will start up. Go to `localhost:3000` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
+If there aren't any errors, your server will start up. Go to `localhost:8080` in your favourite web browser (keep the terminal window open, closing it will shut down the server) to play.
 
 You may also use either `run.bat` (if you're on Windows) or `run.sh` (if you're not) to quickly launch the server without opening the terminal.
 
@@ -34,15 +34,15 @@ You can set up in-game servers in `server/config.js`. An example is present in t
 Copy this code into your server's `properties`:
 ```js
 server_travel_properties: {
-    loop_interval: 10000, // how often the portal loop executes in seconds
-    portals: 1, // amount of portals to spawn
+    loop_interval: 10_000, // how often the portal loop executes in milliseconds
+    portals: 1 // amount of portals to spawn
 },
 server_travel: [
     {
-        ip: '<YourIP>', // destination server host, don't add "https://" or any slashes to it
+        ip: '<YourIP>', // destination server host
         portal_properties: {
             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-            color: "red", // portal color
+            color: "red"
         }
     }
 ]

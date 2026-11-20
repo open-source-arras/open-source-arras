@@ -6,7 +6,7 @@ const {
     sabase2: bas2
 } = tileClass;  
 
-let room_assault_bunker = [
+module.exports = [
     [bas1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bas1],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],
@@ -20,5 +20,3 @@ let room_assault_bunker = [
     [____, ____, ____, ____, ____, bas2, nest, nest, nest, nest, bas2, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____]
 ];
-
-module.exports = room_assault_bunker;

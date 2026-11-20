@@ -16,6 +16,8 @@ const THEME_PALETTE_KEYS = [
     "grey", "dgrey", "white", "guiblack",
 ];
 const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
+const SHADOW_DEPTH = 0.6;
+const SIDE_BORDER = 0.5;
 
 (async function (util, global, config, Canvas, color, gameDraw, socketStuff, keybinderHandler) {
     let { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow } = socketStuff;
@@ -96,7 +98,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     global.mobile && document.body.classList.add("mobile");
     !global.mobile && document.body.classList.add("not-mobile");
     if (global.mobile) {
-        document.getElementById("tabAppearance").style.height = "84.5%";
         document.getElementById("tabOptions").style.height = "84.5%";
         document.getElementById("tabAbout").style.height = "84.5%";
         document.getElementById("tabAddons").style.height = "84.5%";
@@ -146,7 +147,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("optLerpAnim");
         util.retrieveFromLocalStorage("optOptimizeMode");
         util.retrieveFromLocalStorage("optBorders");
-        util.retrieveFromLocalStorage("optNoGrid");
+        util.retrieveFromLocalStorage("optBackgroundGrid");
         util.retrieveFromLocalStorage("optHexaGrid");
         util.retrieveFromLocalStorage("optColoredNest");
         util.retrieveFromLocalStorage("optRenderKillbar");
@@ -154,7 +155,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("autoLevelUp");
         util.retrieveFromLocalStorage("optMobile");
         // GUI
-        util.retrieveFromLocalStorage("optRenderGui");
         util.retrieveFromLocalStorage("optRenderLeaderboard");
         util.retrieveFromLocalStorage("optRenderUpgrades");
         util.retrieveFromLocalStorage("optRenderMinimap");
@@ -162,18 +162,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.retrieveFromLocalStorage("optRenderHealth");
         util.retrieveFromLocalStorage("optRenderScores");
         util.retrieveFromLocalStorage("optRenderPlayerBars");
-        util.retrieveFromLocalStorage("optReducedInfo");
+        util.retrieveFromLocalStorage("optExtraInfo");
         util.retrieveFromLocalStorage("showCrosshair");
         util.retrieveFromLocalStorage("showJoystick");
         util.retrieveFromLocalStorage("optFullHD");
         util.retrieveFromLocalStorage("optUiScale");
         util.retrieveFromLocalStorage("optNames");
         util.retrieveFromLocalStorage("optCanvas");
-        util.retrieveFromLocalStorage("optAllowIngameOptions");
         util.retrieveFromLocalStorage("optOldUiStyle");
         // Game
         util.retrieveFromLocalStorage("optIncognitoMode");
-        util.retrieveFromLocalStorage("optDeltaEntities");
         // Default to true
         if (localStorage.getItem("optRenderKillbarChecked") === null) {
             document.getElementById("optRenderKillbar").checked = true;
@@ -182,11 +180,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.game.rainbowTeamColors = localStorage.getItem("optRainbowTeamColorsChecked") === "true";
         const savedBorderChunk = parseFloat(localStorage.getItem("strokeThicknessValue"));
         if (!isNaN(savedBorderChunk)) config.graphical.borderChunk = savedBorderChunk;
-        // Default to true
-        if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
-            document.getElementById("optDeltaEntities").checked = true;
-            util.submitToLocalStorage("optDeltaEntities");
-        }
         if (localStorage.getItem("optAutoReconnectChecked") === null) localStorage.setItem("optAutoReconnectChecked", "false");
         if (localStorage.getItem("optChatMessagesChecked") === null) localStorage.setItem("optChatMessagesChecked", "true");
         if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
@@ -204,7 +197,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         // If we are loaded for the first time then load the default options settings.
         if (!localStorage.getItem("loadedForFirstTime")) {
             [
-                "optRenderGui",
                 "optRenderLeaderboard",
                 "optRenderUpgrades",
                 "optRenderMinimap",
@@ -217,9 +209,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 "optLerpAnim",
                 "optFancy",
                 "autoLevelUp",
-                "optDeltaEntities",
-                "optAllowIngameOptions",
-                "optAutoReconnect"
+                "optAutoReconnect",
+                "optBackgroundGrid",
+                "optExtraInfo"
             ].forEach(i => {
                 document.getElementById(i).checked = true;
                 util.submitToLocalStorage(i);
@@ -239,7 +231,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             util.submitToLocalStorage("optUiScale");
             localStorage.setItem("uiScaleSettings", "true");
         }
-        if (!document.getElementById("optNames").value) document.getElementById("optNames").value = "offense";
+        if (!document.getElementById("optNames").value) document.getElementById("optNames").value = "inappropriate";
         if (!document.getElementById("optCanvas").value) document.getElementById("optCanvas").value = "auto";
         loadSettings();
         // Keybinds stuff
@@ -289,7 +281,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 c.style.transform = c.style.webkitTransform = clicked // Rotate the arrow.
                     ? "translate(2px, -2px) rotate(45deg)"
                     : "rotate(-45deg)";
-                h.innerText = clicked ? "close options" : "view options"; // Change the text.
+                h.innerText = clicked ? "close options (deprecated!)" : "view options (deprecated!)"; // Change the text.
                 clicked ? u.classList.add(global.uncappedMenu ? "slided2" : "slided") : u.classList.remove(global.uncappedMenu ? "slided2" : "slided"); // Slide it up.
                 y[0].style.opacity = clicked ? 0 : 1; // Fade it away.
                 y[2].style.opacity = clicked ? 1 : 0; // same for this.
@@ -308,7 +300,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     function tabOptionsMenuSwitcher() {
         let buttonTabs = document.getElementById("optionMenuTabs"),
             tabOptions = [
-                document.getElementById("tabAppearance"),
                 document.getElementById("tabOptions"),
                 document.getElementById("tabControls"),
                 document.getElementById("tabAbout"),
@@ -471,7 +462,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     if (docs.startsWith(".")) doc = document.getElementsByClassName(docs.substring(docs.length, 1))[0];
                     switch (docs) {
                         case ".mainWrapper":
-                            doc.style.padding = "0px";
+                            doc.style.padding = "28px";
                             setHeight(doc, "calc(100% - 55px)");
                             break;
                         case "#startMenuWrapper":
@@ -1157,13 +1148,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         config.graphical.separatedHealthbars = document.getElementById("separatedHealthbars").checked;
         config.graphical.lowResolution = document.getElementById("optLowResolution").checked;
         config.graphical.force169AspectRatio = localStorage.getItem("optForce169AspectRatioChecked") === "true";
-        config.graphical.showGrid = !document.getElementById("optNoGrid").checked;
+        config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
         config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
         config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
         config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
         // GUI
-        global.GUIStatus.renderGUI = document.getElementById("optRenderGui").checked;
         global.GUIStatus.renderLeaderboard = document.getElementById("optRenderLeaderboard").checked;
         global.GUIStatus.renderUpgrades = document.getElementById("optRenderUpgrades").checked;
         global.GUIStatus.renderMinimap = document.getElementById("optRenderMinimap").checked;
@@ -1173,15 +1163,14 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.GUIStatus.renderPlayerBars = document.getElementById("optRenderPlayerBars").checked;
         global.GUIStatus.renderPlayerKillbar = document.getElementById("optRenderKillbar").checked;
         global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
-        global.GUIStatus.minimapReducedInfo = document.getElementById("optReducedInfo").checked;
+        global.GUIStatus.minimapReducedInfo = !document.getElementById("optExtraInfo").checked;
         global.GUIStatus.fullHDMode = document.getElementById("optFullHD").checked;
-        global.GUIStatus.renderIngameOptions = document.getElementById("optAllowIngameOptions").checked;
         global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
+        config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
-        config.game.deltaEntities = document.getElementById("optDeltaEntities").checked;
         switch (document.getElementById("optBorders").value) {
             case "normal":
                 config.graphical.darkBorders = config.graphical.neon = false;
@@ -1274,10 +1263,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.submitToLocalStorage("coloredHealthbars");
         util.submitToLocalStorage("separatedHealthbars");
         util.submitToLocalStorage("optColoredNest");
-        util.submitToLocalStorage("optNoGrid");
+        util.submitToLocalStorage("optBackgroundGrid");
         util.submitToLocalStorage("optHexaGrid");
         // GUI
-        util.submitToLocalStorage("optRenderGui");
         util.submitToLocalStorage("optRenderLeaderboard");
         util.submitToLocalStorage("optRenderUpgrades");
         util.submitToLocalStorage("optRenderMinimap");
@@ -1285,18 +1273,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         util.submitToLocalStorage("optRenderHealth");
         util.submitToLocalStorage("optRenderScores");
         util.submitToLocalStorage("optRenderPlayerBars");
-        util.submitToLocalStorage("optReducedInfo");
+        util.submitToLocalStorage("optExtraInfo");
         util.submitToLocalStorage("showCrosshair");
         util.submitToLocalStorage("showJoystick");
         util.submitToLocalStorage("optFullHD");
         util.submitToLocalStorage("optUiScale");
         util.submitToLocalStorage("optNames");
         util.submitToLocalStorage("optCanvas");
-        util.submitToLocalStorage("optAllowIngameOptions");
         util.submitToLocalStorage("optOldUiStyle");
         // Game
         util.submitToLocalStorage("optIncognitoMode");
-        util.submitToLocalStorage("optDeltaEntities");
         loadSettings();
         global.optionsCheckboxes = undefined;
         // Other more important stuff
@@ -1825,6 +1811,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         let drawPolyImgs = [],
         drawPoly3D = new Map(),
         drawPoly4D = new Map(),
+        outlineX = new Float32Array(384),
+        outlineY = new Float32Array(384),
+        outlineVis = new Uint8Array(384),
         cameraFor3dProjection = { x: 0, y: 0, z: -1 },
         cameraFor4dProjection = { x: 0, y: 0, z: 0, w: -1 },
         projectPoint3d = p => {
@@ -1978,7 +1967,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                                 img = drawPolyImgs[sides] = new Image();
                                 img.src =
                                 defaultDirectory ?
-                                `img${sides.slice(6)}` :
+                                `${sides.slice(6)}` :
                                 clientRootDirectory || onlineDirectory ?
                                 `${onlineDirectory ? sides.slice(6) : sides.slice(7)}` :
                                 "img/missingno.png";
@@ -2234,8 +2223,126 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 console.error(`CanvasRenderingContext2D error: ${e}`);
             }
         },
+        outline = (x, y, radius, sides, angle) => {
+            let n = 0;
+            const push = (u, v) => {
+                outlineX[n] = x + u * radius;
+                outlineY[n] = y + v * radius;
+                n++;
+            };
+            if (sides instanceof Array) {
+                const cosA = Math.cos(angle), sinA = Math.sin(angle);
+                for (const [px, py] of sides) push(px * cosA - py * sinA, py * cosA + px * sinA);
+                return n;
+            }
+            if (!sides) { // circle: fewer segments when it is small
+                const steps = radius > 30 ? 24 : radius > 14 ? 16 : 10;
+                for (let i = 0; i < steps; i++) {
+                    const t = (i / steps) * Math.PI * 2;
+                    push(Math.cos(t), Math.sin(t));
+                }
+                return n;
+            }
+            angle += sides % 2 ? 0 : Math.PI / sides; // same half-step as drawBody
+            if (sides < 0) { // star
+                sides = -sides;
+                angle += (sides % 1) * Math.PI * 2;
+                sides = Math.floor(sides);
+                const dip = 1 - 6 / (sides ** 2);
+                push(Math.cos(angle), Math.sin(angle));
+                for (let i = 0; i < sides; i++) {
+                    const htheta = ((i + 0.5) / sides) * 2 * Math.PI + angle;
+                    const theta = ((i + 1) / sides) * 2 * Math.PI + angle;
+                    push(dip * Math.cos(htheta), dip * Math.sin(htheta));
+                    push(Math.cos(theta), Math.sin(theta));
+                }
+                return n - 1; // the closing point repeats the first
+            }
+            angle += (sides % 1) * Math.PI * 2;
+            for (let i = 0, c = Math.floor(sides); i < c; i++) {
+                const theta = (i / c) * 2 * Math.PI + angle;
+                push(Math.cos(theta), Math.sin(theta));
+            }
+            return n;
+        },
+        towardsPlayer = (x, y) => {
+            const px = global.screenWidth / 2 + (global.player.screenx || 0),
+                py = global.screenHeight / 2 + (global.player.screeny || 0),
+                dx = px - x, dy = py - y, len = Math.hypot(dx, dy);
+            return len > 1 ? [dx / len, dy / len] : null;
+        },
+        sweepSide = (context, x, y, radius, sides, angle, dx, dy, fill, stroke, width, alpha, borderless = false) => {
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len < 1.5 || typeof fill !== "string") return;
+            const n = outline(x, y, radius, sides, angle);
+            if (n < 3) return;
+            const ux = dx / len, uy = dy / len;
+            let area = 0, visible = false, minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+            for (let i = 0, j = n - 1; i < n; j = i++) area += outlineX[j] * outlineY[i] - outlineX[i] * outlineY[j];
+            const flip = area > 0 ? 1 : -1; // outward normal = flip·(dy, -dx)
+            for (let i = 0; i < n; i++) {
+                const j = i + 1 === n ? 0 : i + 1;
+                const ex = outlineX[j] - outlineX[i], ey = outlineY[j] - outlineY[i];
+                const facing = (flip * ey * ux - flip * ex * uy) / (Math.sqrt(ex * ex + ey * ey) || 1) > 0;
+                outlineVis[i] = facing ? 1 : 0;
+                if (facing) visible = true;
+                minX = Math.min(minX, outlineX[i]);
+                maxX = Math.max(maxX, outlineX[i]);
+                minY = Math.min(minY, outlineY[i]);
+                maxY = Math.max(maxY, outlineY[i]);
+            }
+            if (!visible) return;
+            if (maxX + dx < 0 || minX + dx > context.canvas.width) return; // off screen
+            if (maxY + dy < 0 || minY + dy > context.canvas.height) return;
+
+            context.save();
+            context.globalAlpha = alpha;
+            context.fillStyle = fill;
+            context.strokeStyle = stroke;
+            context.lineWidth = Math.max(1, width * SIDE_BORDER);
+            context.lineJoin = context.lineCap = config.graphical.sharpEdges ? "miter" : "round";
+
+            context.beginPath();
+            for (let i = 0; i < n; i++) {
+                if (!outlineVis[i]) continue;
+                const j = i + 1 === n ? 0 : i + 1;
+                context.moveTo(outlineX[i], outlineY[i]);
+                context.lineTo(outlineX[j], outlineY[j]);
+                context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
+                context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                context.closePath();
+            }
+            context.fill();
+
+            if (!borderless) {
+                for (let i = 0; i < n; i++) {
+                    if (!outlineVis[i] || outlineVis[i === 0 ? n - 1 : i - 1]) continue;
+                    context.beginPath();
+                    context.moveTo(outlineX[i], outlineY[i]);
+                    context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                    let k = 0;
+                    for (; k < n && outlineVis[(i + k) % n]; k++) {
+                        const j = (i + k + 1) % n;
+                        context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
+                    }
+                    const e = (i + k) % n;
+                    context.lineTo(outlineX[e], outlineY[e]);
+                    context.stroke();
+                }
+                if (len > 5 && (sides instanceof Array || !!sides)) { // creases
+                    context.beginPath();
+                    for (let i = 0; i < n; i++) {
+                        if (!outlineVis[i] || !outlineVis[i === 0 ? n - 1 : i - 1]) continue;
+                        context.moveTo(outlineX[i], outlineY[i]);
+                        context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
+                    }
+                    context.stroke();
+                }
+            }
+            context.restore();
+        },
         // Draw gun function, (AKA: drawTrapezoid)
-        drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position) => {
+        drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position, dx = 0, dy = 0, sideContext = null) => {
             let h = [];
             h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
 
@@ -2248,17 +2355,18 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             points.push([length * 2 - position, -h[0]]);
             points.push([-position, -h[1]]);
             context.globalAlpha = alpha;
-
-            // Rotate it to the new angle via vector rotation
-            context.beginPath();
-            for (let point of points) {
-                let newX = point[0] * cosT - point[1] * sinT + x,
-                    newY = point[0] * sinT + point[1] * cosT + y;
-                context.lineTo(newX, newY);
-            }
-            context.closePath();
-            context.lineWidth *= strokeWidth
+            context.lineWidth *= strokeWidth;
             context.lineWidth *= fill ? 1 : 0.5; // Maintain constant border width
+
+            const world = points.map(([px, py]) => [px * cosT - py * sinT + x, px * sinT + py * cosT + y]);
+            if ((dx !== 0 || dy !== 0) && fill) {
+                sweepSide(sideContext || context, 0, 0, 1, world, 0, dx, dy,
+                    context.fillStyle, context.strokeStyle, context.lineWidth, alpha, !!borderless);
+            }
+
+            context.beginPath();
+            for (const [px, py] of world) context.lineTo(px, py);
+            context.closePath();
             if (!borderless) context.stroke();
             context.lineWidth /= fill ? 1 : 0.5; // Maintain constant border width
             if (fill) context.fill();
@@ -2277,7 +2385,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.fillRect(left, top, Math.max(...xs) - left + pad, Math.max(...ys) - top + pad);
         };
         // The actual drawEntity function
-        return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false) => {
+        return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false, flat = false, shadow = null) => {
             // --- Fast early exit for invisible objects ---
             const fade = turretInfo ? 1 : render.status.getFade();
             if (fade === 0 || alpha === 0) return;
@@ -2320,11 +2428,20 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
             // --- Fancy canvas with reduced state setup ---
             let xx = x, yy = y;
+            // --- 3D mode ---
+            const sizeRatio = (drawSize / m.size) * m.realSize;
+            const isPlayer = instance.id === gui.playerid;
+            let dir = null;
+            if (config.graphical.threeDimensional && !flat && !dmcaDesign && !isPlayer && shadow !== false &&
+                (typeof m.shape === "number" || m.shape instanceof Array)) dir = shadow || towardsPlayer(x, y);
+            const depth = shadow && shadow.length > 2 ? shadow[2] : sizeRatio * SHADOW_DEPTH;
+            const sideX = dir ? dir[0] * depth : 0;
+            const sideY = dir ? dir[1] * depth : 0;
             const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
 
             if (useFancyCanvas) {
                 context = ctx2;
-                context.canvas.width = context.canvas.height = drawSize * m.position.axis + ratio * 20 * m.position.axis;
+                context.canvas.width = context.canvas.height = drawSize * m.position.axis + (ratio * 20 + (dir ? sizeRatio * (SHADOW_DEPTH + 0.2) : 0)) * m.position.axis;
                 xx = context.canvas.width / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.cos(rot)) / 4;
                 yy = context.canvas.height / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.sin(rot)) / 4;
                 context.translate(0.5, 0.5);
@@ -2342,8 +2459,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             context.lineJoin = sharp ? "miter" : "round";
             context.lineWidth = initStrokeWidth;
 
-            // --- Size ratio cached for body drawing ---
-            const sizeRatio = (drawSize / m.size) * m.realSize;
+            // 3D side layer
+            const sideContext = useFancyCanvas || (global.advanced && global.advanced.blackout.active) ? context : ctx[0];
+            const sideAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
 
             const dmcaZoom = ratio;
             if (dmcaDesign) {
@@ -2384,7 +2502,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         turretsObeyRot,
                         context,
                         t,
-                        render
+                        render,
+                        false,
+                        flat,
+                        t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false // cores flat, children inherit direction only
                     );
                 }
             }
@@ -2433,6 +2554,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     gameDraw.setColor(context, mixedColor);
 
                     // Draw gun with precalculated values
+                    const gunDepth = drawSize * g.width / 2 * SHADOW_DEPTH;
                     drawGun(
                         context,
                         xx + drawSize * gx,
@@ -2445,7 +2567,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         g.drawFill,
                         gunAlpha,
                         g.strokeWidth,
-                        drawSize * positions[i]
+                        drawSize * positions[i],
+                        dir ? dir[0] * gunDepth : 0,
+                        dir ? dir[1] * gunDepth : 0,
+                        sideContext
                     );
                 }
 
@@ -2505,8 +2630,16 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         context.shadowOffsetY = 0;
                     }
 
-                    // Draw the body, then overlay the skin.
-                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
+                    const bodyBorderless = instance.isProp ? instance.borderless : m.borderless;
+                    const bodyFill = instance.isProp ? instance.drawFill : m.drawFill;
+                    if (dir && bodyFill) {
+                        // drawBody halves the width for circles and unfilled bodies
+                        const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
+                        if (global.probe) global.probe[sideContext === ctx[0] ? 0 : 1]++;
+                        sweepSide(sideContext, xx, yy, sizeRatio, m.shape, rot, sideX, sideY,
+                            bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
+                    }
+                    drawBody(context, xx, yy, sizeRatio, m.shape, rot, bodyBorderless, bodyFill, m.imageInterpolation);
                     if (skin) drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
             }
@@ -2557,7 +2690,10 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                         turretsObeyRot,
                         context,
                         t,
-                        render
+                        render,
+                        false,
+                        flat,
+                        t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false
                     );
                 }
             }
@@ -2647,7 +2783,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         ctx[2].globalAlpha = 1;
 
         // Draw Tank
-        drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2]);
+        drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2], false, picture.render, false, true);
 
         // Tank name
         drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.825 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
@@ -2786,6 +2922,50 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         }
     }
 
+    let wallGroups = null, wallGroupsAt = 0;
+    function updateWallShadows(ratio) {
+        if (!config.graphical.threeDimensional) return;
+        if (!wallGroups || Date.now() - wallGroupsAt > 300) {
+            wallGroupsAt = Date.now();
+            wallGroups = [];
+            const blocks = global.entities.filter(e => {
+                const m = global.mockups[+String(e.index).split("-")[0]];
+                return m && e.id !== gui.playerid && (m.shape === 4 || (m.shape instanceof Array && m.shape.length === 4));
+            });
+            for (const entity of global.entities) entity.render.shadow3d = null;
+            const taken = new Set();
+            for (const block of blocks) {
+                if (taken.has(block)) continue;
+                taken.add(block);
+                const group = [block];
+                for (let i = 0; i < group.length; i++) {
+                    const a = group[i];
+                    for (const b of blocks) {
+                        if (taken.has(b)) continue;
+                        if (Math.abs(a.x - b.x) > a.size + b.size + 2) continue;
+                        if (Math.abs(a.y - b.y) > a.size + b.size + 2) continue;
+                        taken.add(b);
+                        group.push(b);
+                    }
+                }
+                const m = global.mockups[+String(block.index).split("-")[0]];
+                wallGroups.push({
+                    blocks: group,
+                    x: group.reduce((sum, e) => sum + e.render.x, 0) / group.length,
+                    y: group.reduce((sum, e) => sum + e.render.y, 0) / group.length,
+                    depth: (block.size / m.size) * m.realSize,
+                    shadow: [0.7071, 0.7071, 0]
+                });
+            }
+        }
+        for (const wall of wallGroups) {
+            const dx = global.player.renderx - wall.x, dy = global.player.rendery - wall.y, len = Math.hypot(dx, dy);
+            if (len > 1) { wall.shadow[0] = dx / len; wall.shadow[1] = dy / len; }
+            wall.shadow[2] = ratio * SHADOW_DEPTH * wall.depth;
+            for (const entity of wall.blocks) entity.render.shadow3d = wall.shadow;
+        }
+    }
+
     function drawEntities(px, py, ratio, tick) {
         if (global.advanced.blackout.active) {
             document.getElementById("gameCanvas-background").style.display = "none";
@@ -2794,6 +2974,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             ctx[1].drawImage(ctx[0].canvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
             if (global.glCanvas) ctx[1].drawImage(global.glCanvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
         } else if (document.getElementById("gameCanvas-background").style.display === "none") document.getElementById("gameCanvas-background").style.display = "block";
+        updateWallShadows(ratio);
         // Draw things
         for (let instance of global.entities) {
             if (!instance.render.draws) {
@@ -2850,7 +3031,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             y += global.screenHeight / 2;
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
             alpha = handleScreenDistance(alpha, instance, false);
-            drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize);
+            drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize, false, instance.render.shadow3d || null);
         }
         for (let instance of global.entities) {
             let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
@@ -4545,7 +4726,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         clearScreen(color.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
         let ratio = util.getScreenRatio();
         scaleScreenRatio(ratio, true);
-        drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
+        drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2], false, picture.render, false, true);
         drawText("Level " + gui.__s.getLevel(), x - 270, y + 100, 12, color.guiwhite, "center");
         drawText(picture.name, x - 270, y + 125, 18, color.guiwhite, "center");
         drawText(new Date(timestamp).toISOString() + "", x, y - 164, 8.125, color.guiwhite, "center");
@@ -4680,14 +4861,12 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
             drawOperatorKeyboard(spacing, alcoveSize); // ` button + sandbox keyboard for sandbox etc.
         }
         if (global.gamepadMode) drawCrosshair();
-        if (global.GUIStatus.renderGUI) {
-            drawMessages(spacing, alcoveSize);
-            if (global.GUIStatus.renderUpgrades) drawSkillBars(spacing, alcoveSize);
-            if (global.GUIStatus.renderPlayerBars) drawSelfInfo(max);
-            drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
-            if (global.GUIStatus.renderLeaderboard) drawLeaderboard(spacing, alcoveSize, max);
-            if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
-        } else if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
+        drawMessages(spacing, alcoveSize);
+        if (global.GUIStatus.renderUpgrades) drawSkillBars(spacing, alcoveSize);
+        if (global.GUIStatus.renderPlayerBars) drawSelfInfo(max);
+        drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
+        if (global.GUIStatus.renderLeaderboard) drawLeaderboard(spacing, alcoveSize, max);
+        if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
         if (global.showTree) {
             drawUpgradeTree(spacing, alcoveSize);
         }
@@ -4825,12 +5004,14 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     const THEME_PANEL_H = 608;
     const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
     const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
+    const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
-        secret: { title: "Secret Options", titleY: 30,  rowTop: 45 },
-        beta:   { title: "Beta Options",   titleY: 230, rowTop: 245 },
-        legacy: { title: "Legacy Options", titleY: 310, rowTop: 325 },
+        secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
+        super:  { title: "Super Secret Options", titleY: 190, rowTop: 205 },
+        beta:   { title: "Beta Options",         titleY: 230, rowTop: 245 },
+        legacy: { title: "Legacy Options",       titleY: 310, rowTop: 325 },
     };
-    const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
+    const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
 
     const LEGACY_THEMES = [
         ["bleach", "Bleach", "definitelynot."],
@@ -5431,7 +5612,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
     };
     global.applyCrosshairCursor();
 
-    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked) {
+    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked) {
         if (global.themeOverlay) global.themeOverlay.style.display = "none";
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
@@ -5441,20 +5622,22 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         global.clickables.optionsMenu.toggleBoxes.hide();
         global.clickables.optionsMenu.HoverBoxes.hide();
         const secretTooltips = [];
-        const fullExtra = fullUnlocked ? 40 : 0;
+        const superExtra = superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0;
+        const sectionOffset = (section) => (section === "beta" || section === "legacy") ? superExtra : 0;
         for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, color.guiwhite, "center");
+            if (section === "super" && !superUnlocked) continue;
+            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + sectionOffset(section), 15.5, color.guiwhite, "center");
         }
         for (let i = 0; i < global.optionsCheckboxes.length; i++) {
             const cb = global.optionsCheckboxes[i];
             if (!isSecretSection(cb.section)) continue;
-            if (cb.fullSecret && !fullUnlocked) {
+            if (cb.section === "super" && !superUnlocked) {
                 if (cb.tooltipService) cb.tooltipService.targetAlpha = 0;
                 continue;
             }
             const layout = SECRET_SECTION_LAYOUT[cb.section];
             const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-            const y = PANEL_Y + layout.rowTop + (cb.section === "secret" ? 0 : fullExtra) + cb.row * LINE_HEIGHT;
+            const y = PANEL_Y + layout.rowTop + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
             const hitSize = BOX_SIZE * clickableRatio;
             if (!cb.tooltipService) cb.tooltipService = {
                 text: cb.tooltip,
@@ -5475,6 +5658,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
                 if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
+                if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optShowLocalhost") {
@@ -5651,9 +5835,9 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         const PANEL_VISIBLE_X = mainMenuAnim;
         const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
         const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const fullBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
-        const fullUnlocked = fullBox ? !!fullBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
-        const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
+        const superBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
+        const superUnlocked = superBox ? !!superBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
+        const secretPanelH = SECRET_PANEL_H + (superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0);
         const TAB_CONTENT_HEIGHTS = [
             (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
             THEME_PANEL_H,
@@ -5820,7 +6004,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     // Game Appearance
                     { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
                     { type: "checkbox",   id: "optRenderScores",        label: "Player Scores",         column: 0, row: 1, section: "appearance", tooltip: "Show player scores." },
-                    { type: "checkbox",   id: "optNoGrid",              label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid.", reverseCheck: true },
+                    { type: "checkbox",   id: "optBackgroundGrid",      label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid." },
                     { type: "checkbox",   id: "optPointy",              label: "Sharp Traps",           column: 0, row: 3, section: "appearance", tooltip: "Sharpen the corners of traps." },
                     { type: "checkbox",   id: "optSharpEdges",          label: "Sharp Polygons",        column: 0, row: 4, section: "appearance", tooltip: "Sharpen the corners of all polygons.\n" + "May slightly lower the frame rate." },
                     //{ type: "checkbox",   id: "coloredHealthbars",      label: "Colored Health Bars",   column: 0, row: 5, section: "appearance", tooltip: "Make the health and shield bar(s) of entities match their body color." },
@@ -5860,7 +6044,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
 
                     { type: "checkbox", id: "optRenderLeaderboard",   label: "Leaderboard",           column: 1, row: 0, section: "ui", tooltip: "Toggle the visibility of the leaderboard." },
                     { type: "checkbox", id: "optRenderMinimap",       label: "Minimap",               column: 1, row: 1, section: "ui", tooltip: "Toggle the visibility of the minimap." },
-                    { type: "checkbox", id: "optReducedInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner.", reverseCheck: true },
+                    { type: "checkbox", id: "optExtraInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner." },
 
                     // Extra
                     { type: "option",    id: "optUiScale",             label: "",                      column: 0, row: 0, section: "extra", tooltip: "Configure the size of the user interface.",
@@ -5896,7 +6080,6 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
 
                     // Performance
-                    //{ type: "checkbox",  id: "optDeltaEntities",       label: "Delta Entities",        column: 0, row: 0, section: "perf", tooltip: "Support delta entity updates from the server.\nTakes effect on next connection." },
                     { type: "option",    id: "optCanvas",              label: "",                      column: 0, row: 0, section: "perf", tooltip: "[WIP] Select which canvas rendering driver to use.\nMay affect the frame rate.",
                       optionData: Array.from(document.getElementById("optCanvas").options).map((option) => ({ value: option.value, label: option.textContent })),
                       width: 202.5,
@@ -5918,15 +6101,18 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                     { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
                     { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 3, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 3, section: "secret", fullSecret: true, tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    // Super Secret Options
+                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
+                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Display movement and mouse control inputs beside the minimap." },
+                    { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
 
                     // Beta
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                     // Legacy
-                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
                     { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
                     { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
                     { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
@@ -6227,7 +6413,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
         ctx[2].globalAlpha *= fadeSecret;
         ctx[2].translate(0, -scrollY);
         if (fadeSecret > 0.01 && activeTab === 3 && secretUnlocked) {
-            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked);
+            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked);
         }
         ctx[2].restore();
 
@@ -6452,8 +6638,7 @@ const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
                 drawDisconnectedScreen();
             }
             if (global.dailyTankAd.renderUI) drawAdScreen();
-            if (global.GUIStatus.renderIngameOptions) drawOptionsMenu(tick, 20, util.getScreenRatio());
-            else if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
+            drawOptionsMenu(tick, 20, util.getScreenRatio());
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 
             //oh no we need to throw an error!

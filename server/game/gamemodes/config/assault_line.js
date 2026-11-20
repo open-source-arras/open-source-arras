@@ -6,7 +6,7 @@ module.exports = {
     map_tile_width: 413,
     map_tile_height: 412,
     do_not_override_room: false,
-    room_setup: ["room_assault_line"],
+    room_setup: ["assault_line"],
     maze: true,
     maze_type: 17,
     BOT_MOVE: [{

@@ -301,8 +301,7 @@ class socketManager {
                     socket.kick("Duplicate player spawn attempt."); return 1; 
                 }
                 // Optional capability flags: bit 0 = understands delta entity packets.
-                socket.status.deltaEntities = Config.delta_entities && ((m[1] || 0) & 1) === 1;
-                socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
+                socket.talk("w", true, 1);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
@@ -317,7 +316,6 @@ class socketManager {
                     socket.key = key;
                     setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
                 }
-                if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
                 if (this.clients.length == 1) {
                     util.log("[INFO]: " + this.clients.length + " client connected");
@@ -603,10 +601,11 @@ class socketManager {
                     return;
                 }
                 // Verify the request
-                if (typeof upgrade != "number" || !isFinite(upgrade) || upgrade < 0 || upgrade >= player.body.upgrades.length || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
+                if (typeof upgrade != "number" || !isFinite(upgrade) || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
                     socket.kick("Bad upgrade request.");
                     return 1;
                 }
+                if (upgrade >= player.body.upgrades.length) return;
                 // Upgrade it
                 if (player.body != null) {
                     player.body.upgrade(upgrade, branchId); // Ask to upgrade
@@ -1447,19 +1446,14 @@ class socketManager {
         socket.status.hasSpawned = true;
 
         //send the welcome message
-        if (!doNotTakeAction.dontSendWelcomeMessage) {
+        if (Config.spawn_message) {
             if (Config.tartarus) {
                 body.sendMessage("You have been warped to Tartarus.\nYou will receive your divine punishment soon!");
             } else {
-                let msg = ("" + Config.spawn_message).split(/\r\n|\r|\n/);
-                if (msg.length > 1 && msg[msg.length - 1] === "") msg.pop();
-                // reverse
-                for (let i = msg.length - 1; i >= 0; i--) {
-                    if (msg[i] === "") continue;
-                    body.sendMessage(msg[i]);
-                }
+                body.sendMessage("You have spawned! Welcome to the game.");
+                body.sendMessage("You will be invulnerable until you move or shoot.");
             }
-            if (Config.dev_build) socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
+            if (Config.dev_build) socket.talk("m", 60_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
         }
         // Move the client camera
         socket.talk("c", socket.camera.x, socket.camera.y, socket.camera.fov);
@@ -2033,23 +2027,6 @@ class socketManager {
                         camera.y
                     );
                     lastSentCamX = NaN; // force a full packet next time
-                } else if (
-                    !socket.status.deltaEntities &&
-                    visible.length === 0 &&
-                    camera.x === lastSentCamX && camera.y === lastSentCamY &&
-                    fovNow === lastSentFov && camera.vx === lastSentVx &&
-                    camera.vy === lastSentVy && camera.scoping === lastSentScope
-                ) {
-                    socket.talk(
-                        "u",
-                        lastCycle,
-                        camera.x,
-                        camera.y,
-                        fovNow,
-                        camera.vx,
-                        camera.vy,
-                        camera.scoping
-                    );
                 } else {
                     // Update the gui
                     player.gui.update();
@@ -2068,18 +2045,7 @@ class socketManager {
                     if (gui) {
                         for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
                     }
-                    if (socket.status.deltaEntities) {
-                        this.buildEntityDelta(msg, visible, sent);
-                    } else {
-                        // Full snapshot for clients without delta support.
-                        view.length = 0;
-                        for (let i = 0; i < visible.length; i++) {
-                            let data = visible[i];
-                            for (let j = 0; j < data.length; j++) view.push(data[j]);
-                        }
-                        msg.push(visible.length);
-                        for (let i = 0; i < view.length; i++) msg.push(view[i]);
-                    }
+                    this.buildEntityDelta(msg, visible, sent);
                     socket.talkArr(msg);
                 }
                 if (!updateCam) {
@@ -2568,7 +2534,6 @@ class socketManager {
         // Set up the status container
         socket.status = {
             verified: false,
-            deltaEntities: false,
             receiving: 0,
             spawning: false,
             deceased: true,

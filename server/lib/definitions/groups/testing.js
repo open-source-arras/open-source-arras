@@ -876,7 +876,7 @@ Class.radialAutoTest = makeRadialAuto("gunner", {
 Class.imageShapeTest = {
     PARENT: "genericTank",
     LABEL: "Image Shape Test",
-    SHAPE: "image=/example-image.png",
+    SHAPE: "image=/favicon/256x256.png",
     GUNS: Class.basic.GUNS
 };
 Class.screenShakeTest = {
