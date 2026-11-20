@@ -6124,7 +6124,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
 
                     // Beta
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." }, // [sic], same reason as above
 
                     // Legacy
                     { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
