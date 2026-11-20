@@ -1151,6 +1151,7 @@ const SIDE_BORDER = 0.5;
         config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
         config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
         config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
+        config.graphical.renderOldNest = localStorage.getItem("optRenderOldNestChecked") === "true";
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
         config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
         // GUI
@@ -2845,6 +2846,10 @@ const SIDE_BORDER = 0.5;
             ctx[0].clip();
         }
         ctx[0].fillRect(roomX, roomY, roomWidth, roomHeight);
+        if (config.graphical.renderOldNest) {
+            ctx[0].fillStyle = gameDraw.getColor("lavender");
+            ctx[0].fillRect(roomX + roomWidth / 3, roomY + roomHeight / 3, roomWidth / 3, roomHeight / 3);
+        }
         if (global.roomSetup.length) {
             let W = global.roomSetup[0].length,
                 H = global.roomSetup.length;
@@ -5660,6 +5665,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
+                if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
@@ -6101,6 +6107,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
                     { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
+                    { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
                     // Super Secret Options
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
                     { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
