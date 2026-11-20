@@ -6420,7 +6420,7 @@ const SIDE_BORDER = 0.5;
         ctx[2].globalAlpha *= fadeSecret;
         ctx[2].translate(0, -scrollY);
         if (fadeSecret > 0.01 && activeTab === 3 && secretUnlocked) {
-            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked);
+            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked);
         }
         ctx[2].restore();
 
