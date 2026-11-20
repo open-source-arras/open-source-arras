@@ -1170,6 +1170,7 @@ const SIDE_BORDER = 0.5;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
         config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
+        config.graphical.wireframes = localStorage.getItem("optWireframesChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
         switch (document.getElementById("optBorders").value) {
@@ -1946,6 +1947,8 @@ const SIDE_BORDER = 0.5;
         },
         // Draw body function, (AKA: drawPoly)
         drawBody = (context, centerX, centerY, radius, sides, angle = 0, borderless, fill, imageInterpolation, hasGlow = false) => {
+            const wireframes = config.graphical.wireframes;
+            fill = fill && !wireframes;
             try {
                 // Start drawing
                 context.beginPath();
@@ -2160,11 +2163,12 @@ const SIDE_BORDER = 0.5;
                             if (!borderless) context.stroke();
                             break;
                         default:
-                            context.arc(centerX, centerY, radius + context.lineWidth / borderRadius, 0, 2 * Math.PI);
+                            context.arc(centerX, centerY, radius + (wireframes ? 0 : context.lineWidth / borderRadius), 0, 2 * Math.PI);
                             context.fillStyle = strokecolor;
                             context.lineWidth /= 2; // Maintain constant border width
                             if (!borderless) {
-                                switch (context.globalAlpha) {
+                                if (wireframes) context.stroke();
+                                else switch (context.globalAlpha) {
                                     case 1:
                                         context.fill();
                                         break;
@@ -2346,6 +2350,7 @@ const SIDE_BORDER = 0.5;
         drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position, dx = 0, dy = 0, sideContext = null) => {
             let h = [];
             h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
+            fill = fill && !config.graphical.wireframes;
 
             // Construct a trapezoid at angle 0
             let points = [],
@@ -2632,7 +2637,7 @@ const SIDE_BORDER = 0.5;
                     }
 
                     const bodyBorderless = instance.isProp ? instance.borderless : m.borderless;
-                    const bodyFill = instance.isProp ? instance.drawFill : m.drawFill;
+                    const bodyFill = (instance.isProp ? instance.drawFill : m.drawFill) && !config.graphical.wireframes;
                     if (dir && bodyFill) {
                         // drawBody halves the width for circles and unfilled bodies
                         const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
@@ -5667,6 +5672,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
+                if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
@@ -6109,6 +6115,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
                     { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
+                    { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
                     // Super Secret Options
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
                     { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },

@@ -29,6 +29,7 @@ const config = {
         fontStrokeRatio: 4.75,
         neon: false,
         threeDimensional: false,
+        wireframes: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {
