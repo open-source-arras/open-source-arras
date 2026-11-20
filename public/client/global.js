@@ -481,7 +481,6 @@ handleOperatorKeyDown: function (key) {
         renderChatMessages: true,
         renderPlayerBars: false,
         renderPlayerKillbar: true,
-        renderIngameOptions: false,
         minimapReducedInfo: false,
         fullHDMode: false,
     },

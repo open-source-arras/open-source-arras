@@ -170,7 +170,6 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("optUiScale");
         util.retrieveFromLocalStorage("optNames");
         util.retrieveFromLocalStorage("optCanvas");
-        util.retrieveFromLocalStorage("optAllowIngameOptions");
         util.retrieveFromLocalStorage("optOldUiStyle");
         // Game
         util.retrieveFromLocalStorage("optIncognitoMode");
@@ -212,7 +211,6 @@ const SIDE_BORDER = 0.5;
                 "optLerpAnim",
                 "optFancy",
                 "autoLevelUp",
-                "optAllowIngameOptions",
                 "optAutoReconnect",
                 "optBackgroundGrid"
             ].forEach(i => {
@@ -1169,7 +1167,6 @@ const SIDE_BORDER = 0.5;
         global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
         global.GUIStatus.minimapReducedInfo = document.getElementById("optReducedInfo").checked;
         global.GUIStatus.fullHDMode = document.getElementById("optFullHD").checked;
-        global.GUIStatus.renderIngameOptions = document.getElementById("optAllowIngameOptions").checked;
         global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
@@ -1286,7 +1283,6 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("optUiScale");
         util.submitToLocalStorage("optNames");
         util.submitToLocalStorage("optCanvas");
-        util.submitToLocalStorage("optAllowIngameOptions");
         util.submitToLocalStorage("optOldUiStyle");
         // Game
         util.submitToLocalStorage("optIncognitoMode");
@@ -6647,8 +6643,7 @@ const SIDE_BORDER = 0.5;
                 drawDisconnectedScreen();
             }
             if (global.dailyTankAd.renderUI) drawAdScreen();
-            if (global.GUIStatus.renderIngameOptions) drawOptionsMenu(tick, 20, util.getScreenRatio());
-            else if (global.themeOverlay && global.themeOverlay.style.display !== "none") global.themeOverlay.style.display = "none";
+            drawOptionsMenu(tick, 20, util.getScreenRatio());
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 
             //oh no we need to throw an error!
