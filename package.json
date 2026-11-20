@@ -1,12 +1,13 @@
 {
   "name": "open-source-arras",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "main": "index.js",
   "scripts": {
     "start": "node --no-lazy index",
     "control": "node server/control/main.js",
     "bot": "node bot/index.js",
-    "test:control": "node --test \"server/control/test/*.test.js\""
+    "test:control": "node --test \"server/control/test/*.test.js\"",
+    "make-skin": "node tools/make-skin.js"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",
@@ -19,10 +20,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@stylistic/eslint-plugin": "^5.10.0",
-    "eslint": "^10.10.0",
-    "globals": "^17.12.0"
+    "eslint": "^10.10.0"
   },
   "allowScripts": {
-    "better-sqlite3@13.0.3": true
+    "better-sqlite3@13.0.3": true,
+    "globals": "^17.12.0",
+    "sharp": "^0.35.5"
   }
 }

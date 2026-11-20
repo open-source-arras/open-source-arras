@@ -6,7 +6,7 @@ const preset = require("../../presets.js");
 
 const placeholder = {
     UPGRADE_COLOR: "black",
-    UPGRADE_TOOLTIP: "PLACEHOLDER MOCKUP - TANK DOES NOT DO ANYTHING"
+    UPGRADE_TOOLTIP: "THIS IS A PLACEHOLDER MOCKUP IT DOES NOT ACTUALLY WORK!!!"
 };
 
 
@@ -587,41 +587,6 @@ Class.aeronaut = {
     ]
 };
 Class.autoProdigy = makeAuto("prodigy");
-Class.oldBand = makeAuto({
-    PARENT: "genericTank",
-    DANGER: 7,
-    STAT_NAMES: statnames.mixed,
-    GUNS: weaponArray([
-        {
-            POSITION: {
-                LENGTH: 15,
-                WIDTH: 7
-            }
-        },
-        {
-            POSITION: {
-                LENGTH: 3,
-                WIDTH: 7,
-                ASPECT: 1.7,
-                X: 15
-            },
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
-                TYPE: "trap",
-                STAT_CALCULATOR: "trap"
-            }
-        }
-    ], 3),
-    TURRETS: weaponArray({
-        TYPE: ["autoTankGun", { INDEPENDENT: true }],
-        POSITION: {
-            SIZE: 11,
-            X: 8,
-            ANGLE: 180,
-            ARC: 190
-        }
-    }, 3)
-}, "Old Band");
 Class.duster = {
     PARENT: "genericTank",
     LABEL: "Duster",
@@ -663,6 +628,235 @@ Class.duster = {
         }
     ]
 };
+Class.oldBand = makeAuto({
+    PARENT: "genericTank",
+    DANGER: 7,
+    STAT_NAMES: statnames.mixed,
+    GUNS: weaponArray([
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 7
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 7,
+                ASPECT: 1.7,
+                X: 15
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                TYPE: "trap",
+                STAT_CALCULATOR: "trap"
+            }
+        }
+    ], 3),
+    TURRETS: weaponArray({
+        TYPE: ["autoTankGun", { INDEPENDENT: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 8,
+            ANGLE: 180,
+            ARC: 190
+        }
+    }, 3)
+}, "Old Band");
+Class.oldDustStorm = {
+    PARENT: "genericTank",
+    LABEL: "Old Dust Storm",
+    DANGER: 8,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 25
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 51
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 77,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 102,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 128
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 154
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 180,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 205,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 231
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 257
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 282,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5,
+                ANGLE: 308,
+                DELAY: 0.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 15,
+                WIDTH: 3.5,
+                ANGLE: 334
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                TYPE: "bullet"
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 14,
+                WIDTH: 4.5
+            },
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                TYPE: ["bee", { INDEPENDENT: true }],
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                LABEL: "Secondary"
+            }
+        }
+    ]
+};
 Class.oldHewnTriple = {
     PARENT: "genericTank",
     LABEL: "Old Hewn Triple",
@@ -694,54 +888,43 @@ Class.oldHewnTriple = {
     ]
 };
 Class.oldRattler = {
-	LABEL: "Old Rattler",
-	SIZE: 12,
-	STAT_NAMES: 0,
-	COLOR: 16,
-	SHAPE: 0,
-	...preset.placeholder,
-	GUNS: [
-		{
-			POSITION: {
-				LENGTH: 10,
-				WIDTH: 12.999999523162842,
-				ASPECT: -0.5,
-				X: 8.999999761581421,
-				Y: -5.510910450173814e-16,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 17.000000476837158,
-				WIDTH: 13.999999761581421,
-				ASPECT: -1.399999976158142,
-				X: 0,
-				Y: 0,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 3.0000001192092896,
-				WIDTH: 8.00000011920929,
-				ASPECT: -1.399999976158142,
-				X: 13.999999761581421,
-				Y: -8.572527448042198e-16,
-				ANGLE: 0,
-			}
-		},
-		{
-			POSITION: {
-				LENGTH: 8.00000011920929,
-				WIDTH: 6.000000238418579,
-				ASPECT: -0.800000011920929,
-				X: 8.999999761581421,
-				Y: -5.510910450173814e-16,
-				ANGLE: 0,
-			}
-		}
-	],
+    PARENT: "genericTank",
+    LABEL: "Old Rattler",
+    DANGER: 8,
+    ...preset.placeholder,
+    GUNS: [
+        {
+            POSITION: {
+                LENGTH: 10,
+                WIDTH: 13,
+                ASPECT: -0.5,
+                X: 9
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 17,
+                WIDTH: 14,
+                ASPECT: -1.4
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 3,
+                WIDTH: 8,
+                ASPECT: -1.4,
+                X: 14
+            }
+        },
+        {
+            POSITION: {
+                LENGTH: 8,
+                WIDTH: 6,
+                ASPECT: -0.8,
+                X: 9
+            }
+        }
+    ]
 };
 Class.shikra = makeBird({
     PARENT: "genericTank",

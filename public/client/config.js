@@ -27,6 +27,7 @@ const config = {
         fontSizeBoost: 1.4,
         fontStrokeRatio: 4.75,
         neon: false,
+        threeDimensional: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {
@@ -55,7 +56,6 @@ const config = {
         autoReconnectDelay: 20_000,
         centeredMinimap: false,
         incognitoMode: false,
-        deltaEntities: true,
         rainbowTeamColors: false,
         dmcaMode: false,
     }

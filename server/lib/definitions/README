@@ -1,3 +1,5 @@
 ADDONS NOTICE
 - Use [/server/game/addons] for addons that change the game drasitcally.
-- For simpler/old format addons that only change entities, use [/server/lib/definitions/entityAddons].
+- Use [/server/lib/definitions/entityAddons] for addons that only change entities.
+
+NOTE: Addons will soon be replaced by a more comprehensive "mods" system (/mods). Old format addons in either folder will not be compatible with it.

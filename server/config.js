@@ -1,16 +1,15 @@
 module.exports = {
     // Public
     index: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:3000", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 3000, // Which port to run the web server on.
+    host: "localhost:8080", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
+    port: 8080, // Which port to run the web server on.
 
     // Server
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
     enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
-    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
+    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. Useful for debugging, but may noticeably slow down server startup.
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    delta_entities: true, // Send entity updates as created/changed/removed lists instead of a full snapshot every packet.
     per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
         threshold: 1024, // Don't bother compressing messages smaller than this.
         concurrencyLimit: 10, // How many messages can be compressed at once.
@@ -32,7 +31,7 @@ module.exports = {
 
     /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
-        share_client_server - Forces your server to share the same host and port as the client. (by default, 3000)
+        share_client_server - Forces your server to share the same host and port as the client.
         - Only one server at a time can have this enabled.
         - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
 
@@ -56,8 +55,8 @@ module.exports = {
     servers: [
         {
             share_client_server: false,
-            host: "localhost:3001",
-            port: 3001,
+            host: "localhost:3000",
+            port: 3000,
             id: "la",
 
             region: "Local",
@@ -91,29 +90,9 @@ module.exports = {
         },
         {
             share_client_server: false,
-            host: "localhost:3002",
-            port: 3002,
+            host: "localhost:3001",
+            port: 3001,
             id: "lb",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["space", "open_tdm"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                round_arena: true,
-                teams: 3
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3003",
-            port: 3003,
-            id: "lc",
 
             region: "Local",
             location: "Localhost",
@@ -126,17 +105,37 @@ module.exports = {
 
             properties: {
                 teams: 2,
-                bot_cap: 20,
+                bot_cap: 20
+            }
+        },
+        {
+            share_client_server: false,
+            host: "localhost:3002",
+            port: 3002,
+            id: "lc",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["space", "open_tdm"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                round_arena: true,
+                teams: 3,
                 server_travel_properties: {
-                    loop_interval: 10_000, // how often the portal loop executes in seconds
+                    loop_interval: 10_000, // how often the portal loop executes in milliseconds
                     portals: 1 // amount of portals to spawn
                 },
                 server_travel: [
                     {
-                        ip: "localhost:3001", // destination server host, don't add "https://" or any slashes to it
+                        ip: "localhost:3000", // destination server host
                         portal_properties: {
                             spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "blue" // portal color
+                            color: "blue"
                         }
                     }
                 ]
@@ -144,9 +143,29 @@ module.exports = {
         },
         {
             share_client_server: false,
+            host: "localhost:3003",
+            port: 3003,
+            id: "ld",
+
+            region: "Local",
+            location: "Localhost",
+            gamemode: ["domination"],
+            player_cap: 80,
+
+            featured: false,
+            hidden: false,
+            private: false,
+
+            properties: {
+                teams: 4,
+                bot_cap: 20
+            }
+        },
+        {
+            share_client_server: false,
             host: "localhost:3004",
             port: 3004,
-            id: "ld",
+            id: "le",
 
             region: "Local",
             location: "Localhost",
@@ -191,10 +210,7 @@ module.exports = {
     map_tile_width: 420,
     map_tile_height: 420,
 
-    // The message that appears once a player spawns.
-    spawn_message: "You have spawned! Welcome to the game.\n"
-                 + "You will be invulnerable until you move or shoot.",
-
+    spawn_message: true, // Whether to send the popup message(s) that appear on spawn.
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
     sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
@@ -202,7 +218,6 @@ module.exports = {
 
     // Seasonal
     seasonal_events: true, // Enable seasonal events at specific times of the year
-
     force_fireworks: false, // Forcefully enable fireworks (automatic around 4th of July (should be only in US region servers tbh))
     force_spooky_theme: false, // Forcefully enable seasonal halloween theme (adds eyes to walls and replaces rocks with pumpkins)
     force_thanksgiving: false, // Forcefully enable seasonal american thanksgiving theme (replaces Motherships with Turkeys)
@@ -312,18 +327,18 @@ module.exports = {
     classic_food: false, // Enables classic (Old Dreadnoughts) food types.
     classic_food_types: [ // Possible classic food types outside the nest
         [1, [
-            [65, "egg"], [64, "triangle"], [45, "square"], [7, "pentagon"]//, [1, "hexagon"]
+            [65, "egg"], [64, "square"], [45, "triangle"], [7, "pentagon"]
         ]],
         [1 / 50000, [
-            [625, "gem"], [125, "shinyTriangle"], [25, "shinySquare"], [5, "shinyPentagon"]//, [1, "shinyHexagon"]
+            [625, "gem"], [125, "shinySquare"], [25, "shinyTriangle"], [5, "shinyPentagon"]
         ]],
         [1 / 1000000, [
-            [1296, "jewel"], [216, "legendaryTriangle"], [36, "legendarySquare"], [6, "legendaryPentagon"]//, [1, "legendaryHexagon"]
+            [1296, "jewel"], [216, "legendarySquare"], [36, "legendaryTriangle"], [6, "legendaryPentagon"]
         ]]
     ],
     classic_food_types_nest: [ // Possible classic food types in the nest
         [1, [
-            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]/*, [16, "presentRY"], [16, "presentRP"], [16, "presentRW"], [16, "presentGY"], [16, "presentGP"], [16, "presentGW"], [16, "presentBY"], [16, "presentBP"], [16, "presentBW"],*/
+            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]
         ]]
     ],
     classic_enemy_types_nest: [ // Possible classic enemy food types in the nest
@@ -377,7 +392,7 @@ module.exports = {
     random_body_colors: false,
 
     // Room setup (don't change these unless you know what you're doing)
-    room_setup: ["room_default"],
+    room_setup: ["default"],
     round_arena: false,
     mode: "ffa",
 

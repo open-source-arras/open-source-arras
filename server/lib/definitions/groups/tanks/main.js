@@ -23,6 +23,7 @@ Class.basic = {
     UPGRADES_TIER_1: ["twin", "sniper", "machineGun", "flankGuard", "director", "pounder", "trapper", "whirlwind"],
     UPGRADES_TIER_2: ["healer", "smasher"]
 };
+if (!Config.siege) removeUpgrades("basic", 2, ["healer"]);
 
 // Tier 1 (Level 15)
 Class.director = {
@@ -3649,11 +3650,6 @@ Class.xHunter = {
             }
         }
     ]
-};
-
-// Class Tree Modification
-if (!Config.siege) {
-    removeUpgrades("basic", 2, ["healer"]);
 };
 
 // Load other mode branches

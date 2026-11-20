@@ -548,7 +548,7 @@ Class.menu_armsRace = makeMenu("Special AR Tanks", {
     upgrades: [
         "menu_editedArmsRace",
         "menu_removedArmsRace",
-        "menu_changedArmsRace",
+        "menu_changedArmsRace"
     ]
 });
 Class.menu_editedArmsRace = makeMenu("Edited AR Tanks", 
@@ -558,15 +558,15 @@ Class.menu_editedArmsRace = makeMenu("Edited AR Tanks",
 );
 
 Class.menu_changedArmsRace = makeMenu("Old AR Tank Designs", 
-	{ boxLabel: "Old AR", 
-	upgrades: [/*"oldDustStorm", "oldGrazer",*/"oldRattler"]
-	}
+    { boxLabel: "Old AR", 
+        upgrades: [/*"oldDustStorm", "oldGrazer",*/"oldRattler"]
+    }
 );
 
 Class.menu_removedArmsRace = makeMenu("Removed AR Tanks", 
-	{ boxLabel: "Unused AR", 
-	upgrades: ["aeronaut", "autoProdigy", "duster", "shikra", "virago"] 
-	}
+    { boxLabel: "Unused AR", 
+        upgrades: ["aeronaut", "autoProdigy", "duster", "shikra", "virago"] 
+    }
 );
 
 

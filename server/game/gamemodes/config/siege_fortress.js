@@ -9,7 +9,7 @@ module.exports = {
     food_cap: 40,
     food_cap_nest: 5,
     do_not_override_room: false,
-    room_setup: ["room_siege_fortress"],
+    room_setup: ["siege_fortress"],
     sanctuary_size: 20,
     fortress: true,
     bot_xp_gain: 500,
