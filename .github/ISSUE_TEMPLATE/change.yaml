@@ -1,0 +1,32 @@
+name: Change
+description: Suggest something that should be changed or updated
+title: "[Change] "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! Please fill out this form to help us understand your request.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Please confirm the following before submitting your change request
+      options:
+        - label: I have searched for existing issues (open and closed) and confirmed this change hasn't been requested before
+          required: true
+        - label: I believe this change will benefit more than 10% of users, not just myself
+          required: true
+        - label: This is a change that is present in arras.io, but not in Open Source Arras yet
+          required: false
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Change Description
+      description: Please provide a clear and detailed description of the feature you'd like to see changed and why it should be implemented
+      placeholder: Describe your change request here...
+    validations:
+      required: true
