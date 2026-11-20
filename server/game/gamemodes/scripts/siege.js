@@ -123,7 +123,13 @@ class Siege {
             [100, "odin"],
             [100, "amun"]
         ];
-        this.friendlyBossChoices = ["roguePalisade", "rogueArmada", "julius", "genghis", "napoleon"];
+        this.friendlyBossChoices = [
+            ["roguePalisade", 15, "rogueEgg6"],
+            ["rogueArmada", 15, "rogueEgg7"],
+            ["julius", 2, "rogueEgg9"],
+            ["genghis", 2, "rogueEgg9"],
+            ["napoleon", 2, "rogueEgg9"]
+        ];
         this.bigFodderChoices = ["sentryGun", "sentrySwarm", "sentryTrap"];
         this.smallFodderChoices = ["crasher"];
         this.sentinelChoices = ["sentinelMinigun", "sentinelLauncher", "sentinelCrossbow"];
@@ -348,6 +354,36 @@ class Siege {
         this.defineProperties();
     }
 
+    spawnRogue(loc) {
+        this.successfulRogueChoices = []
+        if (this.waveId % 1 == 0 && this.waveId > 0) {
+            for (let i = 0; i < this.friendlyBossChoices.length; i++) {
+                let random = Math.random() * 100;
+                if (random < this.friendlyBossChoices[i][1] && this.successfulRogueChoices.length <= 2) {
+                    this.successfulRogueChoices.push(this.friendlyBossChoices[i]);
+                }
+            }
+            for (let i = 0; i < this.successfulRogueChoices.length; i++) {
+                let o = new Entity(loc);
+                o.define(this.successfulRogueChoices[i][2]);
+                o.team = TEAM_BLUE;
+                o.isUnhatchedRogueEgg = true;
+                o.whatItGrowsUpToBe = this.successfulRogueChoices[i][0];
+                global.gameManager.socketManager.broadcast('A Mysterious egg has spawned.');
+            }
+        }
+    }
+
+    hatchRogues() {
+        for (let entity of global.entities.values()) {
+            if (entity.isUnhatchedRogueEgg && !entity.isDead()) {
+                entity.define(entity.whatItGrowsUpToBe);
+                global.gameManager.socketManager.broadcast(`A ${entity.label} has hatched!`);
+                entity.isUnhatchedRogueEgg = false;
+            }
+        }
+    }
+
     // runs every second
     loop() {
     // If the game isnt active, then dont run the rest of the code.
@@ -356,6 +392,8 @@ class Siege {
         //the timer has ran out? reset timer and spawn the next wave
         if (this.timer <= 0) {
             this.timer = 3; // 5 seconds
+            this.hatchRogues();
+            this.spawnRogue(ran.choose(global.gameManager.room.spawnable[TEAM_BLUE]).randomInside());
             this.waveId++;
             if (this.waves[this.waveId]) {
                 this.spawnWave(this.waveId);
