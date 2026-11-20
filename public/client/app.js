@@ -5012,9 +5012,9 @@ const SIDE_BORDER = 0.5;
     const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
         secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
-        super:  { title: "Super Secret Options", titleY: 190, rowTop: 205 },
-        beta:   { title: "Beta Options",         titleY: 230, rowTop: 245 },
-        legacy: { title: "Legacy Options",       titleY: 310, rowTop: 325 },
+        super:  { title: "Super Secret Options", titleY: 230, rowTop: 245 },
+        beta:   { title: "Beta Options",         titleY: 270, rowTop: 285 },
+        legacy: { title: "Legacy Options",       titleY: 350, rowTop: 365 },
     };
     const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
 
