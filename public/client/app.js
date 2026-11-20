@@ -6114,6 +6114,8 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
                     { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
                     { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Display movement and mouse control inputs beside the minimap." },
+                    { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
 
                     // Beta
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
