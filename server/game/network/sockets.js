@@ -1446,19 +1446,14 @@ class socketManager {
         socket.status.hasSpawned = true;
 
         //send the welcome message
-        if (!doNotTakeAction.dontSendWelcomeMessage) {
+        if (Config.spawn_message) {
             if (Config.tartarus) {
                 body.sendMessage("You have been warped to Tartarus.\nYou will receive your divine punishment soon!");
             } else {
-                let msg = ("" + Config.spawn_message).split(/\r\n|\r|\n/);
-                if (msg.length > 1 && msg[msg.length - 1] === "") msg.pop();
-                // reverse
-                for (let i = msg.length - 1; i >= 0; i--) {
-                    if (msg[i] === "") continue;
-                    body.sendMessage(msg[i]);
-                }
+                body.sendMessage("You have spawned! Welcome to the game.");
+                body.sendMessage("You will be invulnerable until you move or shoot.");
             }
-            if (Config.dev_build) socket.talk("m", 20_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
+            if (Config.dev_build) socket.talk("m", 60_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
         }
         // Move the client camera
         socket.talk("c", socket.camera.x, socket.camera.y, socket.camera.fov);

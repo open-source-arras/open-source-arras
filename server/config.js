@@ -7,7 +7,7 @@ module.exports = {
     // Server
     broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
     enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
-    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. May noticeably slow down server startup.
+    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. Useful for debugging, but may noticeably slow down server startup.
     verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
     visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
     per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
@@ -203,9 +203,7 @@ module.exports = {
     map_tile_width: 420,
     map_tile_height: 420,
 
-    // The message that appears once a player spawns.
-    spawn_message: "You will be invulnerable until you move or shoot.\nYou have spawned! Welcome to the game.",
-
+    spawn_message: true, // Whether to send the popup message(s) that appear on spawn.
     chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
     popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
     sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
@@ -322,18 +320,18 @@ module.exports = {
     classic_food: false, // Enables classic (Old Dreadnoughts) food types.
     classic_food_types: [ // Possible classic food types outside the nest
         [1, [
-            [65, "egg"], [64, "triangle"], [45, "square"], [7, "pentagon"]//, [1, "hexagon"]
+            [65, "egg"], [64, "square"], [45, "triangle"], [7, "pentagon"]
         ]],
         [1 / 50000, [
-            [625, "gem"], [125, "shinyTriangle"], [25, "shinySquare"], [5, "shinyPentagon"]//, [1, "shinyHexagon"]
+            [625, "gem"], [125, "shinySquare"], [25, "shinyTriangle"], [5, "shinyPentagon"]
         ]],
         [1 / 1000000, [
-            [1296, "jewel"], [216, "legendaryTriangle"], [36, "legendarySquare"], [6, "legendaryPentagon"]//, [1, "legendaryHexagon"]
+            [1296, "jewel"], [216, "legendarySquare"], [36, "legendaryTriangle"], [6, "legendaryPentagon"]
         ]]
     ],
     classic_food_types_nest: [ // Possible classic food types in the nest
         [1, [
-            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]/*, [16, "presentRY"], [16, "presentRP"], [16, "presentRW"], [16, "presentGY"], [16, "presentGP"], [16, "presentGW"], [16, "presentBY"], [16, "presentBP"], [16, "presentBW"],*/
+            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]
         ]]
     ],
     classic_enemy_types_nest: [ // Possible classic enemy food types in the nest
