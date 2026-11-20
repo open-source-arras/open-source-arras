@@ -301,8 +301,7 @@ class socketManager {
                     socket.kick("Duplicate player spawn attempt."); return 1; 
                 }
                 // Optional capability flags: bit 0 = understands delta entity packets.
-                socket.status.deltaEntities = Config.delta_entities && ((m[1] || 0) & 1) === 1;
-                socket.talk("w", true, socket.status.deltaEntities ? 1 : 0);
+                socket.talk("w", true, 1);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
@@ -317,7 +316,6 @@ class socketManager {
                     socket.key = key;
                     setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
                 }
-                if (!socket.status.deltaEntities) util.warn("Client without delta entity support connected (deprecated).");
                 socket.status.verified = true;
                 if (this.clients.length == 1) {
                     util.log("[INFO]: " + this.clients.length + " client connected");
@@ -2034,23 +2032,6 @@ class socketManager {
                         camera.y
                     );
                     lastSentCamX = NaN; // force a full packet next time
-                } else if (
-                    !socket.status.deltaEntities &&
-                    visible.length === 0 &&
-                    camera.x === lastSentCamX && camera.y === lastSentCamY &&
-                    fovNow === lastSentFov && camera.vx === lastSentVx &&
-                    camera.vy === lastSentVy && camera.scoping === lastSentScope
-                ) {
-                    socket.talk(
-                        "u",
-                        lastCycle,
-                        camera.x,
-                        camera.y,
-                        fovNow,
-                        camera.vx,
-                        camera.vy,
-                        camera.scoping
-                    );
                 } else {
                     // Update the gui
                     player.gui.update();
@@ -2069,18 +2050,7 @@ class socketManager {
                     if (gui) {
                         for (let i = 0; i < gui.length; i++) msg.push(gui[i]);
                     }
-                    if (socket.status.deltaEntities) {
-                        this.buildEntityDelta(msg, visible, sent);
-                    } else {
-                        // Full snapshot for clients without delta support.
-                        view.length = 0;
-                        for (let i = 0; i < visible.length; i++) {
-                            let data = visible[i];
-                            for (let j = 0; j < data.length; j++) view.push(data[j]);
-                        }
-                        msg.push(visible.length);
-                        for (let i = 0; i < view.length; i++) msg.push(view[i]);
-                    }
+                    this.buildEntityDelta(msg, visible, sent);
                     socket.talkArr(msg);
                 }
                 if (!updateCam) {
@@ -2569,7 +2539,6 @@ class socketManager {
         // Set up the status container
         socket.status = {
             verified: false,
-            deltaEntities: false,
             receiving: 0,
             spawning: false,
             deceased: true,

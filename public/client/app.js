@@ -174,7 +174,6 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("optOldUiStyle");
         // Game
         util.retrieveFromLocalStorage("optIncognitoMode");
-        util.retrieveFromLocalStorage("optDeltaEntities");
         // Default to true
         if (localStorage.getItem("optRenderKillbarChecked") === null) {
             document.getElementById("optRenderKillbar").checked = true;
@@ -183,11 +182,6 @@ const SIDE_BORDER = 0.5;
         config.game.rainbowTeamColors = localStorage.getItem("optRainbowTeamColorsChecked") === "true";
         const savedBorderChunk = parseFloat(localStorage.getItem("strokeThicknessValue"));
         if (!isNaN(savedBorderChunk)) config.graphical.borderChunk = savedBorderChunk;
-        // Default to true
-        if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
-            document.getElementById("optDeltaEntities").checked = true;
-            util.submitToLocalStorage("optDeltaEntities");
-        }
         if (localStorage.getItem("optAutoReconnectChecked") === null) localStorage.setItem("optAutoReconnectChecked", "false");
         if (localStorage.getItem("optChatMessagesChecked") === null) localStorage.setItem("optChatMessagesChecked", "true");
         if (localStorage.getItem("optTankSkinsChecked") === null) document.getElementById("optTankSkins").checked = true;
@@ -218,7 +212,6 @@ const SIDE_BORDER = 0.5;
                 "optLerpAnim",
                 "optFancy",
                 "autoLevelUp",
-                "optDeltaEntities",
                 "optAllowIngameOptions",
                 "optAutoReconnect",
                 "optBackgroundGrid"
@@ -1183,7 +1176,6 @@ const SIDE_BORDER = 0.5;
         config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
-        config.game.deltaEntities = document.getElementById("optDeltaEntities").checked;
         switch (document.getElementById("optBorders").value) {
             case "normal":
                 config.graphical.darkBorders = config.graphical.neon = false;
@@ -1298,7 +1290,6 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("optOldUiStyle");
         // Game
         util.submitToLocalStorage("optIncognitoMode");
-        util.submitToLocalStorage("optDeltaEntities");
         loadSettings();
         global.optionsCheckboxes = undefined;
         // Other more important stuff
@@ -6093,7 +6084,6 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
 
                     // Performance
-                    //{ type: "checkbox",  id: "optDeltaEntities",       label: "Delta Entities",        column: 0, row: 0, section: "perf", tooltip: "Support delta entity updates from the server.\nTakes effect on next connection." },
                     { type: "option",    id: "optCanvas",              label: "",                      column: 0, row: 0, section: "perf", tooltip: "[WIP] Select which canvas rendering driver to use.\nMay affect the frame rate.",
                       optionData: Array.from(document.getElementById("optCanvas").options).map((option) => ({ value: option.value, label: option.textContent })),
                       width: 202.5,

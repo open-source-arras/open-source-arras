@@ -858,32 +858,23 @@ const convert = {
     // Make a data convertor
     data: () => {
         let output = [];
-        if (global.deltaEntities) {
-            for (let i = 0, len = get.next(); i < len; i++) {
-                output.push(process());
-            }
-            for (let i = 0, len = get.next(); i < len; i++) {
-                let id = get.next(),
-                    mask = get.next(),
-                    index = global.entities.findIndex(x => x.id === id),
-                    z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
-                patch(z, mask);
-                if (z) output.push(z);
-            }
-            for (let i = 0, len = get.next(); i < len; i++) {
-                let id = get.next();
-                let index = global.entities.findIndex(x => x.id === id);
-                if (index !== -1) killEntity(global.entities.splice(index, 1)[0], output);
-            }
-            for (let e of global.entities) if (e.render.status.getFade() !== 0) output.push(e);
-        } else {
-            // Get the number of entities and work through them
-            for (let i = 0, len = get.next(); i < len; i++) {
-                output.push(process());
-            }
-            // Handle the dead/leftover entities
-            for (let e of global.entities) killEntity(e, output);
+        for (let i = 0, len = get.next(); i < len; i++) {
+            output.push(process());
         }
+        for (let i = 0, len = get.next(); i < len; i++) {
+            let id = get.next(),
+                mask = get.next(),
+                index = global.entities.findIndex(x => x.id === id),
+                z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
+            patch(z, mask);
+            if (z) output.push(z);
+        }
+        for (let i = 0, len = get.next(); i < len; i++) {
+            let id = get.next();
+            let index = global.entities.findIndex(x => x.id === id);
+            if (index !== -1) killEntity(global.entities.splice(index, 1)[0], output);
+        }
+        for (let e of global.entities) if (e.render.status.getFade() !== 0) output.push(e);
         // Save the new entities list
         global.entities = output;
         global.entities.sort((a, b) => {
@@ -1054,7 +1045,7 @@ let incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey, config.game.deltaEntities ? 1 : 0);
+                socket.talk("k", global.playerKey, 1);
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);
@@ -1068,7 +1059,6 @@ let incoming = async function(message, socket) {
 
             case "w": { // welcome to the game
                 socket.welcomeReceived = true;
-                global.deltaEntities = m[1] === 1; // server tells us if it will send delta entity packets
                 if (m[0]) { // Ask to get the room data first
                     socket.talk("s", "", 1, 0, false, 0);
                 }
