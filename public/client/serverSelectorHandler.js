@@ -55,7 +55,7 @@ global.loadServerSelector = (serverData, text) => {
             tr.appendChild(td3);
             tr.title = `${server.location} - #${server.id} (${td2.textContent})`;
             server.featured && tr.classList.add("featured");
-            if (server.hidden) tr.style.display = "none";
+            if (server.hidden && localStorage.getItem("optListAllServersChecked") !== "true") tr.style.display = "none";
             tr.onclick = () => {
                 if (myServer.classList.contains("selected")) {
                     myServer.classList.remove("selected");

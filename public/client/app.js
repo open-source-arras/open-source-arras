@@ -5674,6 +5674,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
                 if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
+                if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -6117,7 +6118,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
                     { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
                     { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", placeholder: true, tooltip: "[WIP] Make large entities transparent." },
-                    { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", placeholder: true, tooltip: "[WIP] List all servers, including normally hidden servers, in the server list." },
+                    { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
                     { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
 
                     // Super Secret Options

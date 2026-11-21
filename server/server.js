@@ -118,8 +118,8 @@ server = http.createServer((req, res) => {
     // Handle specific API endpoints based on the request URL
     switch (pathname) {
         case "/getServers.json": {
-            // Serve a list of active servers (excluding hidden ones)
-            readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
+            // Serve a list of active servers
+            readString = JSON.stringify(servers.filter((s) => s).map((server) => ({
                 ip: server.ip,
                 players: server.players,
                 maxPlayers: server.maxPlayers,
