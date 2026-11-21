@@ -30,6 +30,7 @@ const config = {
         neon: false,
         threeDimensional: false,
         wireframes: false,
+        alphaLarge: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {

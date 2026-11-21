@@ -1171,6 +1171,7 @@ const SIDE_BORDER = 0.5;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
         config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
         config.graphical.wireframes = localStorage.getItem("optWireframesChecked") === "true";
+        config.graphical.alphaLarge = localStorage.getItem("optFadeLargeEntitiesChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
         switch (document.getElementById("optBorders").value) {
@@ -2396,7 +2397,7 @@ const SIDE_BORDER = 0.5;
             const fade = turretInfo ? 1 : render.status.getFade();
             if (fade === 0 || alpha === 0) return;
 
-            const alphaFade = fade * alpha;
+            const alphaFade = fade * alpha * (config.graphical.alphaLarge && !assignedContext ? Math.min(1, Math.max(0.2, 120 / instance.size)) : 1);
             if (!global.gameUpdate && alphaFade < 0.5) return;
 
             // --- Context setup with minimal state changes ---
@@ -5673,6 +5674,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
                 if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
                 if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
+                if (cb.id === "optFadeLargeEntities") config.graphical.alphaLarge = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
                 if (cb.id === "optServerUptime") global.loadServerSelector(global.servers);
@@ -6118,7 +6120,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
                     { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
                     { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
-                    { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", placeholder: true, tooltip: "[WIP] Make large entities transparent." },
+                    { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
                     { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
                     { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
 
