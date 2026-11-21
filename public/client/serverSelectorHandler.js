@@ -54,6 +54,9 @@ global.loadServerSelector = (serverData, text) => {
             tr.appendChild(td2);
             tr.appendChild(td3);
             tr.title = `${server.location} - #${server.id} (${td2.textContent})`;
+            if (server.uptime && localStorage.getItem("optServerUptimeChecked") === "true") {
+                tr.title += ` - up ${server.uptime}`;
+            }
             server.featured && tr.classList.add("featured");
             if (server.hidden && localStorage.getItem("optListAllServersChecked") !== "true") tr.style.display = "none";
             tr.onclick = () => {

@@ -5675,6 +5675,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
+                if (cb.id === "optServerUptime") global.loadServerSelector(global.servers);
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -6130,7 +6131,7 @@ const SIDE_BORDER = 0.5;
 
                     // Beta
                     { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." }, // [sic], same reason as above
-                    { type: "checkbox", id: "optServerUptime",        label: "Server Uptime",           column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Show how long each server has been up for." },
+                    { type: "checkbox", id: "optServerUptime",        label: "Server Uptime",           column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
 
                     // Legacy
                     { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
