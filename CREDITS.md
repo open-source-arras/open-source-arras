@@ -2,13 +2,13 @@
 - `TGS`: Current Project Owner, Creator of `aps-template` (original OSA)\
 - `AE0Hello`: Former Project Owner, Mobile Controls, Daily Tanks, In-Game UI\
 - `Dogeiscut`: TODO\
+- `Taureon`: Founder of `aps-plus-plus` (pre-rewrite OSA), Major Refactoring\
 - `Toothless`: TODO\
 - `ZyraFAQ`: Overall accuracy improvements, Skins\
 
 # Former Developers
 - `Frostbyte`: Split upgrades, Dreadnoughts (V1 + V2 + V2AR)\
 - `Helena`: March Madness\
-- `Taureon`: Founder of `aps-plus-plus` (pre-rewrite OSA), Major Refactoring\
 - `Trioplane`: TODO\
 
 # Notable Contributors

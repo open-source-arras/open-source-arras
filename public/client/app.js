@@ -1151,6 +1151,7 @@ const SIDE_BORDER = 0.5;
         config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
         config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
         config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
+        config.graphical.renderOldNest = localStorage.getItem("optRenderOldNestChecked") === "true";
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
         config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
         // GUI
@@ -1169,6 +1170,8 @@ const SIDE_BORDER = 0.5;
         global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
         config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
         config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
+        config.graphical.wireframes = localStorage.getItem("optWireframesChecked") === "true";
+        config.graphical.alphaLarge = localStorage.getItem("optFadeLargeEntitiesChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
         switch (document.getElementById("optBorders").value) {
@@ -1945,6 +1948,8 @@ const SIDE_BORDER = 0.5;
         },
         // Draw body function, (AKA: drawPoly)
         drawBody = (context, centerX, centerY, radius, sides, angle = 0, borderless, fill, imageInterpolation, hasGlow = false) => {
+            const wireframes = config.graphical.wireframes;
+            fill = fill && !wireframes;
             try {
                 // Start drawing
                 context.beginPath();
@@ -2159,11 +2164,12 @@ const SIDE_BORDER = 0.5;
                             if (!borderless) context.stroke();
                             break;
                         default:
-                            context.arc(centerX, centerY, radius + context.lineWidth / borderRadius, 0, 2 * Math.PI);
+                            context.arc(centerX, centerY, radius + (wireframes ? 0 : context.lineWidth / borderRadius), 0, 2 * Math.PI);
                             context.fillStyle = strokecolor;
                             context.lineWidth /= 2; // Maintain constant border width
                             if (!borderless) {
-                                switch (context.globalAlpha) {
+                                if (wireframes) context.stroke();
+                                else switch (context.globalAlpha) {
                                     case 1:
                                         context.fill();
                                         break;
@@ -2345,6 +2351,7 @@ const SIDE_BORDER = 0.5;
         drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position, dx = 0, dy = 0, sideContext = null) => {
             let h = [];
             h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
+            fill = fill && !config.graphical.wireframes;
 
             // Construct a trapezoid at angle 0
             let points = [],
@@ -2390,7 +2397,7 @@ const SIDE_BORDER = 0.5;
             const fade = turretInfo ? 1 : render.status.getFade();
             if (fade === 0 || alpha === 0) return;
 
-            const alphaFade = fade * alpha;
+            const alphaFade = fade * alpha * (config.graphical.alphaLarge && !assignedContext ? Math.min(1, Math.max(0.2, 120 / instance.size)) : 1);
             if (!global.gameUpdate && alphaFade < 0.5) return;
 
             // --- Context setup with minimal state changes ---
@@ -2631,7 +2638,7 @@ const SIDE_BORDER = 0.5;
                     }
 
                     const bodyBorderless = instance.isProp ? instance.borderless : m.borderless;
-                    const bodyFill = instance.isProp ? instance.drawFill : m.drawFill;
+                    const bodyFill = (instance.isProp ? instance.drawFill : m.drawFill) && !config.graphical.wireframes;
                     if (dir && bodyFill) {
                         // drawBody halves the width for circles and unfilled bodies
                         const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
@@ -2845,6 +2852,11 @@ const SIDE_BORDER = 0.5;
             ctx[0].clip();
         }
         ctx[0].fillRect(roomX, roomY, roomWidth, roomHeight);
+        if (config.graphical.renderOldNest) {
+            ctx[0].fillStyle = gameDraw.getColor("purple");
+            ctx[0].globalAlpha = 0.25;
+            ctx[0].fillRect(roomX + roomWidth / 3, roomY + roomHeight / 3, roomWidth / 3, roomHeight / 3);
+        }
         if (global.roomSetup.length) {
             let W = global.roomSetup[0].length,
                 H = global.roomSetup.length;
@@ -5007,9 +5019,9 @@ const SIDE_BORDER = 0.5;
     const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
         secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
-        super:  { title: "Super Secret Options", titleY: 190, rowTop: 205 },
-        beta:   { title: "Beta Options",         titleY: 230, rowTop: 245 },
-        legacy: { title: "Legacy Options",       titleY: 310, rowTop: 325 },
+        super:  { title: "Super Secret Options", titleY: 310, rowTop: 325 },
+        beta:   { title: "Beta Options",         titleY: 350, rowTop: 365 },
+        legacy: { title: "Legacy Options",       titleY: 430, rowTop: 445 },
     };
     const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
 
@@ -5660,7 +5672,12 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
+                if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
+                if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
+                if (cb.id === "optFadeLargeEntities") config.graphical.alphaLarge = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
+                if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
+                if (cb.id === "optServerUptime") global.loadServerSelector(global.servers);
                 if (cb.id === "optShowLocalhost") {
                     if (cb.value) global.servers.unshift({
                         id: "x",
@@ -6101,6 +6118,12 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
                     { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
+                    { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
+                    { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
+                    { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
+                    { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
+                    { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
+
                     // Super Secret Options
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
                     { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
@@ -6109,7 +6132,8 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
 
                     // Beta
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." }, // [sic], same reason as above
+                    { type: "checkbox", id: "optServerUptime",        label: "Server Uptime",           column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
 
                     // Legacy
                     { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },

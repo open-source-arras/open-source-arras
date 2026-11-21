@@ -19,6 +19,7 @@ const config = {
         oldUIStyle: false,
         renderSkins: true,
         coloredNest: false,
+        renderOldNest: false,
         colors: "normal",
         pointy: true,
         showGrid: true,
@@ -28,6 +29,8 @@ const config = {
         fontStrokeRatio: 4.75,
         neon: false,
         threeDimensional: false,
+        wireframes: false,
+        alphaLarge: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {

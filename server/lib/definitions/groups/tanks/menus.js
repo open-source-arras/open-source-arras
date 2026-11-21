@@ -301,7 +301,9 @@ Class.menu_devBosses = makeMenu("Dev Bosses Menu", {
     color: "lime",
     shape: 4,
     upgrades: [
+        "AEMKShipBoss",
         "dogeiscutBoss",
+        "taureonBoss",
         "tgsBoss",
         "toothlessBoss",
         "zyrafaqBoss",
@@ -314,10 +316,8 @@ Class.menu_retiredDevBosses = makeMenu("Retired Dev Bosses Menu", {
     color: "pureBlack",
     shape: 4,
     upgrades: [
-        "AEMKShipBoss",
         "frostBoss",
         "helenaBoss",
-        "taureonBoss",
         "trplnrBoss"
     ]
 });
