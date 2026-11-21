@@ -5018,9 +5018,9 @@ const SIDE_BORDER = 0.5;
     const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
         secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
-        super:  { title: "Super Secret Options", titleY: 230, rowTop: 245 },
-        beta:   { title: "Beta Options",         titleY: 270, rowTop: 285 },
-        legacy: { title: "Legacy Options",       titleY: 350, rowTop: 365 },
+        super:  { title: "Super Secret Options", titleY: 310, rowTop: 325 },
+        beta:   { title: "Beta Options",         titleY: 350, rowTop: 365 },
+        legacy: { title: "Legacy Options",       titleY: 430, rowTop: 445 },
     };
     const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
 
@@ -6116,6 +6116,9 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
                     { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
                     { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
+                    { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", placeholder: true, tooltip: "[WIP] Make large entities transparent." },
+                    { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", placeholder: true, tooltip: "[WIP] List all servers, including normally hidden servers, in the server list." },
+                    { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
 
                     // Super Secret Options
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
