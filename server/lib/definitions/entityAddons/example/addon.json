@@ -3,9 +3,9 @@
 	"authors": [
 		"Taureon"
 	],
-	"addon-version": "v0.1.0",
+	"addon-version": "0.1.0",
 	"osa-version": {
-		"minimum": "v2.0.11",
-		"target": "v2.1.2"
+		"minimum": "2.0.11",
+		"target": "2.1.2"
 	}
 }

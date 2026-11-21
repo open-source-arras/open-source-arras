@@ -9,11 +9,12 @@
 > [!WARNING]
 > **Open Source Arras is beta software.** This build is **not** representative of the final product. Expect bugs and missing features.
 > 
-> If you want to stay up to date, create a fork, download a git client (such as GitHub Desktop), and sync the fork whenever there's a major update. **Major updates may introduce breaking changes that alter how certain things work. It is *your responsibility* to keep your private server up-to-date and functioning!**
+> If you want to stay up to date, create a fork, download a git client (such as GitHub Desktop), and sync the fork whenever there's a major update.
+> 
+> Major updates may introduce breaking changes that alter how certain things work. It is *your responsibility* to keep your private server up-to-date and functioning!
 
 ## Setup Guide (Localhost)
-
-You'll first need to install Node.js from either [the Node website](http://nodejs.org) or your distribution's package manager (for \*nix-like systems). Once Node.js is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
+Install Node.js from either [the Node website](http://nodejs.org) or your distribution's package manager (for \*nix-like systems). Once Node.js is installed, [download the source code of the latest release](https://github.com/open-source-arras/open-source-arras/releases) and extract it. Open the extracted folder in a terminal window and run the following commands in order:
 
 ```sh
 ~$ npm install

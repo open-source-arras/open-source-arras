@@ -56,6 +56,15 @@ const publicRoot = path.join(__dirname, "../public/"),
 let wsServer; // WebSocket server instance
 let server; // HTTP server instance
 
+let formatUptime = (ms) => {
+    let seconds = Math.floor(ms / 1000);
+    let d = Math.floor(seconds / 86400),
+    h = Math.floor((seconds % 86400) / 3600),
+    m = Math.floor((seconds % 3600) / 60),
+    s = seconds % 60;
+    return [d > 0 && `${d}d`, (h > 0 || d > 0) && `${h}h`, (m > 0 || h > 0 || d > 0) && `${m}m`, `${s}s`].filter(Boolean).join(" ");
+};
+
 // Attempt to create a WebSocket server instance using the 'ws' package
 try {
     const WebSocketServer = require("ws").WebSocketServer;
@@ -118,8 +127,8 @@ server = http.createServer((req, res) => {
     // Handle specific API endpoints based on the request URL
     switch (pathname) {
         case "/getServers.json": {
-            // Serve a list of active servers (excluding hidden ones)
-            readString = JSON.stringify(servers.filter((s) => s && !s.hidden).map((server) => ({
+            // Serve a list of active servers
+            readString = JSON.stringify(servers.filter((s) => s).map((server) => ({
                 ip: server.ip,
                 players: server.players,
                 maxPlayers: server.maxPlayers,
@@ -129,7 +138,8 @@ server = http.createServer((req, res) => {
                 private: server.private,
                 region: server.region,
                 location: server.location,
-                gameMode: server.gameMode
+                gameMode: server.gameMode,
+                uptime: formatUptime(util.time())
             })));
         } break;
         case "/getSkins.json": {
@@ -146,7 +156,7 @@ server = http.createServer((req, res) => {
             readString = JSON.stringify(countPlayers);
         } break;
         case "/version": {
-            readString = JSON.stringify({ver: `v${pjson.version}${Config.dev_build ? "-dev" : ""}`});
+            readString = JSON.stringify({ver: `${pjson.version}${Config.dev_build ? "-dev" : ""}`});
         } break;
         
         case "/api/getAddonAuthors": {
