@@ -5072,12 +5072,11 @@ const SIDE_BORDER = 0.5;
     const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
     const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
-        secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
-        super:  { title: "Super Secret Options", titleY: 310, rowTop: 325 },
-        beta:   { title: "Beta Options",         titleY: 350, rowTop: 365 },
-        legacy: { title: "Legacy Options",       titleY: 430, rowTop: 445 },
+        secret: { title: "Secret Options",       titleY: 30  },
+        beta:   { title: "Beta Options",         titleY: 270 },
+        legacy: { title: "Legacy Options",       titleY: 390 },
     };
-    const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
+    const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
 
     const LEGACY_THEMES = [
         ["bleach", "Bleach", "definitelynot."],
@@ -5703,7 +5702,7 @@ const SIDE_BORDER = 0.5;
             }
             const layout = SECRET_SECTION_LAYOUT[cb.section];
             const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-            const y = PANEL_Y + layout.rowTop + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
+            const y = PANEL_Y + layout.titleY + 15 + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
             const hitSize = BOX_SIZE * clickableRatio;
             if (!cb.tooltipService) cb.tooltipService = {
                 text: cb.tooltip,
@@ -6072,7 +6071,6 @@ const SIDE_BORDER = 0.5;
             drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, color.guiwhite, "center");
 
             if (!global.optionsCheckboxes) {
-                let legacyOptionNotice = "\nNote: This is a legacy option and will be removed in a future update.";
                 global.optionsCheckboxes = [
                     // Game Appearance
                     { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
@@ -6172,30 +6170,34 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow." },
                     { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 0, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
                     { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
-                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
-                    { type: "checkbox", id: "optBrainrotFilter",      label: '"Brainrot" Filter',       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
+                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self-Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
+                    { type: "checkbox", id: "optBrainrotFilter",      label: "\"Brainrot\" Filter",     column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
                     { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
                     { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
                     { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
                     { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
                     { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", tooltip: "Show hitboxes." },
-
-                    // Super Secret Options
-                    { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
-                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", tooltip: "Display movement and mouse control inputs beside the minimap." },
-                    { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
+                    { type: "checkbox", id: "optBackgroundImage",     label: "Background Image",        column: 1, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Display the configured custom background image.\nNote: The site hosting the image must allow cross-origin embedding, such as Discord or Imgur." },
+                    { type: "checkbox", id: "optHealthPercent",       label: "Health Percentages",      column: 0, row: 6, section: "secret", placeholder: true, tooltip: "[WIP] Show the health percentages on health bars." },
+                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 6, section: "secret", tooltip: "Display movement and mouse control inputs beside the minimap." },
+                    { type: "checkbox", id: "optDirectNetwork",       label: "Direct Network",          column: 0, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Connect to game servers directly.\nNote: This option may cause connections to fail depending on server firewall settings." },
+                    { type: "checkbox", id: "optMovementTimeout",     label: "Movement Timeout",        column: 1, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Stop moving when you're lagging instead of continuing to move in the same direction." },
 
                     // Beta
-                    { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." }, // [sic], same reason as above
-                    { type: "checkbox", id: "optServerUptime",        label: "Server Uptime",           column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
+                    { type: "checkbox", id: "optPlayerList",    label: "Player List",    column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." },
+                    { type: "checkbox", id: "optServerUptime",  label: "Server Uptime",  column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
+                    { type: "checkbox", id: "optAnonymousMode", label: "Anonymous Mode", column: 0, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Prevent other players from seeing which account you logged in as\nNote: This option is enabled by default to protect the privacy of users without access to the secret options menu." },
+                    { type: "checkbox", id: "optStealthMode",   label: "Stealth Mode",   column: 1, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Hide you on your teammates' maps." },
 
                     // Legacy
-                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
-                    { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
+                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate." },
+                    { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu." },
                     { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
                     { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
+                    { type: "checkbox", id: "optDmcaMode",              label: "DMCA Mode",                column: 0, row: 2, section: "legacy", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                    { type: "checkbox", id: "optShowLocalhost",         label: "Show Localhost",           column: 1, row: 2, section: "legacy", tooltip: "Display wss://localhost:5000 as one of the servers." },
+                    { type: "checkbox", id: "optDebugBoxes",            label: "Debug Boxes",              column: 0, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                    { type: "checkbox", id: "optUnreleasedFeatures",    label: "Additional Unreleased Features", column: 1, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
