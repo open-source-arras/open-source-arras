@@ -294,14 +294,13 @@ class socketManager {
         const packetType = m.shift();
         switch (packetType) {
             case "k": { // key verification
-                if (m.length > 2) {
+                if (m.length > 1) {
                     socket.kick("Ill-sized key request."); return 1; 
                 }
                 if (socket.status.verified) {
                     socket.kick("Duplicate player spawn attempt."); return 1; 
                 }
-                // Optional capability flags: bit 0 = understands delta entity packets.
-                socket.talk("w", true, 1);
+                socket.talk("w", true);
                 if (m.length >= 1) {
                     let key = m[0].toString().trim();
                     socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
@@ -1875,10 +1874,8 @@ class socketManager {
         let lastVisibleUpdate = 0, lastNearX = socket.camera.x, lastNearY = socket.camera.y;
         let nearby = new Map();
         let visible = [];
-        let view = [];
         let msg = [];
         let sent = socket.status.entitySent || (socket.status.entitySent = new Map());
-        let lastSentCamX = NaN, lastSentCamY = NaN, lastSentFov = NaN, lastSentVx = NaN, lastSentVy = NaN, lastSentScope = null;
         let o = {
             socket,
             getNearby: () => nearby,
@@ -2026,7 +2023,6 @@ class socketManager {
                         camera.x,
                         camera.y
                     );
-                    lastSentCamX = NaN; // force a full packet next time
                 } else {
                     // Update the gui
                     player.gui.update();
@@ -2047,14 +2043,6 @@ class socketManager {
                     }
                     this.buildEntityDelta(msg, visible, sent);
                     socket.talkArr(msg);
-                }
-                if (!updateCam) {
-                    lastSentCamX = camera.x;
-                    lastSentCamY = camera.y;
-                    lastSentFov = fovNow;
-                    lastSentVx = camera.vx;
-                    lastSentVy = camera.vy;
-                    lastSentScope = camera.scoping;
                 }
                 logs.network.mark();
             }
