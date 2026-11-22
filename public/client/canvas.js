@@ -37,7 +37,7 @@ class Canvas {
         this.cv.resize(innerWidth, innerHeight);
         this.reverseDirection = false;
         this.reverseSpam = [];
-        this.inverseMouse = false;
+        this.alternateControls = false;
         this.spinLock = false;
         this.mouseMoved = false;
         this.treeScrollSpeed = 0.5;
@@ -107,7 +107,7 @@ class Canvas {
         this.reverseSpam.push(now);
         if (this.reverseSpam.length >= 7) return global.createMessage("Please slow down!");
         this.reverseDirection = !this.reverseDirection;
-        global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+        global.createMessage(`Reverse tank ${this.reverseDirection ? "enabled." : "disabled."}`);
     }
 
     wheel(event) {
@@ -261,6 +261,7 @@ class Canvas {
             case global.KEY_UP_ALT:
                 this.socket.cmd.set(0, true);
                 break;
+
             case global.KEY_DOWN_ARROW:
             case global.KEY_DOWN_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
@@ -268,6 +269,7 @@ class Canvas {
             case global.KEY_DOWN_ALT:
                 this.socket.cmd.set(1, true);
                 break;
+
             case global.KEY_LEFT_ARROW:
             case global.KEY_LEFT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
@@ -275,6 +277,7 @@ class Canvas {
             case global.KEY_LEFT_ALT:
                 this.socket.cmd.set(2, true);
                 break;
+
             case global.KEY_RIGHT_ARROW:
             case global.KEY_RIGHT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
@@ -282,30 +285,35 @@ class Canvas {
             case global.KEY_RIGHT_ALT:
                 this.socket.cmd.set(3, true);
                 break;
+
             case global.KEY_PRIMARY:
             case global.KEY_PRIMARY_ALT:
             case global.KEY_PRIMARY_MOUSE:
             case global.KEY_PRIMARY_MOUSE_ALT:
                 this.socket.cmd.set(4, true);
                 break;
+
             case global.KEY_SECONDARY:
             case global.KEY_SECONDARY_ALT:
             case global.KEY_SECONDARY_MOUSE:
             case global.KEY_SECONDARY_MOUSE_ALT:
                 this.socket.cmd.set(6, true); //todo: switch 5 and 6
                 break;
+
             case global.KEY_TERTIARY:
             case global.KEY_TERTIARY_ALT:
             case global.KEY_TERTIARY_MOUSE:
             case global.KEY_TERTIARY_MOUSE_ALT:
                 this.socket.cmd.set(5, true);
                 break;
+
             case global.KEY_SCOPE:
             case global.KEY_SCOPE_ALT:
             case global.KEY_SCOPE_MOUSE:
             case global.KEY_SCOPE_MOUSE_ALT:
                 //this.socket.talk("scope");
                 break;
+
             case global.KEY_LEVEL_UP:
                 this.socket.talk("L");
                 break;
@@ -347,11 +355,11 @@ class Canvas {
                     break;
                 case global.KEY_SPIN_LOCK:
                     this.spinLock = !this.spinLock;
-                    global.createMessage(this.spinLock ? "Spinlock enabled." : "Spinlock disabled.");
+                    global.createMessage(`Spinlock ${this.spinLock ? "enabled." : "disabled."}`);
                     break;
                 case global.KEY_ALT_CONTROLS:
-                    this.inverseMouse = !this.inverseMouse;
-                    global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
+                    this.alternateControls = !this.alternateControls;
+                    global.createMessage(`Alternate controls ${this.alternateControls ? "enabled." : "disabled."}`);
                     break;
                 case global.KEY_REVERSE_TANK:
                     this.toggleReverse();
@@ -520,7 +528,7 @@ class Canvas {
     mouseDown(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.alternateControls) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         global.clickables.clicked = true;
         switch (mouse.button) {
             case 0:
@@ -605,7 +613,7 @@ class Canvas {
    mouseUp(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.alternateControls) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         global.clickables.clicked = false;
         switch (mouse.button) {
             case 0:
