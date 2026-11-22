@@ -254,34 +254,57 @@ class Canvas {
                 }
                 break;
 
-            case "ArrowUp":
+            case global.KEY_UP_ARROW:
+            case global.KEY_UP_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_UP:
+            case global.KEY_UP_ALT:
                 this.socket.cmd.set(0, true);
                 break;
-            case "ArrowDown":
+            case global.KEY_DOWN_ARROW:
+            case global.KEY_DOWN_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_DOWN:
+            case global.KEY_DOWN_ALT:
                 this.socket.cmd.set(1, true);
                 break;
-            case "ArrowLeft":
+            case global.KEY_LEFT_ARROW:
+            case global.KEY_LEFT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_LEFT:
+            case global.KEY_LEFT_ALT:
                 this.socket.cmd.set(2, true);
                 break;
-            case "ArrowRight":
+            case global.KEY_RIGHT_ARROW:
+            case global.KEY_RIGHT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_RIGHT:
+            case global.KEY_RIGHT_ALT:
                 this.socket.cmd.set(3, true);
                 break;
             case global.KEY_PRIMARY:
+            case global.KEY_PRIMARY_ALT:
+            case global.KEY_PRIMARY_MOUSE:
+            case global.KEY_PRIMARY_MOUSE_ALT:
                 this.socket.cmd.set(4, true);
                 break;
+            case global.KEY_SECONDARY:
+            case global.KEY_SECONDARY_ALT:
+            case global.KEY_SECONDARY_MOUSE:
+            case global.KEY_SECONDARY_MOUSE_ALT:
+                this.socket.cmd.set(6, true); //todo: switch 5 and 6
+                break;
             case global.KEY_TERTIARY:
+            case global.KEY_TERTIARY_ALT:
+            case global.KEY_TERTIARY_MOUSE:
+            case global.KEY_TERTIARY_MOUSE_ALT:
                 this.socket.cmd.set(5, true);
                 break;
-            case global.KEY_SECONDARY:
-                this.socket.cmd.set(6, true);
+            case global.KEY_SCOPE:
+            case global.KEY_SCOPE_ALT:
+            case global.KEY_SCOPE_MOUSE:
+            case global.KEY_SCOPE_MOUSE_ALT:
+                //this.socket.talk("scope");
                 break;
             case global.KEY_LEVEL_UP:
                 this.socket.talk("L");
