@@ -570,7 +570,7 @@ class Canvas {
                 let upgradeCheck = global.clickables.upgrade.check(mpos);
                 let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    let box = global[global.optionsMenu_Anim.storageName[global.optionsMenu_Anim.activeTab]][optionsMenu_toggleBox];
                     if (box.type === "slidingBar") {
                         box.trigger?.(mpos, box);
                         global.optionsMenu_Anim.sliderMoving = box;
@@ -660,7 +660,7 @@ class Canvas {
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTarget) global.optionsMenu_Anim.scrollTarget = 0;
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
@@ -690,11 +690,12 @@ class Canvas {
                     global.clickables.optionsMenu.toggleBoxes.hide();
                     global.clickables.optionsMenu.HoverBoxes.hide();
                     global.clickables.optionsMenu.optionBoxes.hide();
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
+                    if (global.optionsMenu_Anim.scrollTarget) global.optionsMenu_Anim.scrollTarget = 0;
                     break;
                 }
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    let box = global[global.optionsMenu_Anim.storageName[global.optionsMenu_Anim.activeTab]][optionsMenu_toggleBox];
+                    console.log(box)
                     if (box.placeholder) break;
                     if (box.type === "checkbox") {
                         let doc = document.getElementById(box.id);
@@ -702,6 +703,7 @@ class Canvas {
                         if (doc) doc.checked = box.value;
                         if (doc) util.submitToLocalStorage(box.id);
                         else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
+                        if (box.trigger) box.trigger(box);
                     }
                     break;
                 }

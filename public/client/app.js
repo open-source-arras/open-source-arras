@@ -5493,14 +5493,12 @@ const SIDE_BORDER = 0.5;
         refreshThemeCode();
     }
 
-    function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
+    function drawThemeTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio) {
         const wrap = global.themeOverlay || ensureThemeOverlay();
         const o = wrap._ov;
         if (wrap.style.display !== "block") syncThemeOverlay();
         wrap.style.display = "block";
         const r = clickableRatio;
-        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[1]
-            ? global.optionsMenu_Anim.scrollOffsets[1].get() : 0;
         const L = PANEL_X + OV_INSET_L, W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R, T = PANEL_Y - scrollY;
         const hw = (W - OV_GAP) / 2;
         const put = (el, x, y, w, h) => {
@@ -5599,12 +5597,10 @@ const SIDE_BORDER = 0.5;
         global.ingameThemeNeon = { x: nx * cr, y: ny * cr, w: OV_SWATCH * cr, h: OV_SWATCH * cr };
     }
 
-    function drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
+    function drawKeybindsTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio) {
         if (global.themeOverlay) global.themeOverlay.style.display = "none";
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
-        const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[2]
-            ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
         const L = PANEL_X + 22, W = PANEL_WIDTH - 44;
         const T = PANEL_Y - scrollY;
         const cr = clickableRatio * global.ratio;
@@ -5677,104 +5673,372 @@ const SIDE_BORDER = 0.5;
     };
     global.applyCrosshairCursor();
 
-    function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked) {
+    function drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, superUnlocked, mpos, fadeSecret) {
         if (global.themeOverlay) global.themeOverlay.style.display = "none";
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
         global.ingameKeybindRects = null;
-        const BOX_SIZE = 25;
-        const LINE_HEIGHT = 40;
         global.clickables.optionsMenu.toggleBoxes.hide();
         global.clickables.optionsMenu.HoverBoxes.hide();
-        const secretTooltips = [];
         const superExtra = superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0;
         const sectionOffset = (section) => (section === "beta" || section === "legacy") ? superExtra : 0;
         for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
             if (section === "super" && !superUnlocked) continue;
             drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + sectionOffset(section), 15.5, color.guiwhite, "center");
         }
-        for (let i = 0; i < global.optionsCheckboxes.length; i++) {
-            const cb = global.optionsCheckboxes[i];
-            if (!isSecretSection(cb.section)) continue;
-            if (cb.section === "super" && !superUnlocked) {
-                if (cb.tooltipService) cb.tooltipService.targetAlpha = 0;
-                continue;
-            }
-            const layout = SECRET_SECTION_LAYOUT[cb.section];
-            const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-            const y = PANEL_Y + layout.titleY + 15 + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
-            const hitSize = BOX_SIZE * clickableRatio;
-            if (!cb.tooltipService) cb.tooltipService = {
-                text: cb.tooltip,
-                targetAlpha: 0,
-                alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
-                x: 0,
-                y: 0
-            };
-            cb.tooltipService.x = x * clickableRatio;
-            cb.tooltipService.y = (y + BOX_SIZE + 10) * clickableRatio;
-            global.clickables.optionsMenu.HoverBoxes.place(i, x * clickableRatio, y * clickableRatio, hitSize + (10.5 + measureText(cb.label, BOX_SIZE) * 0.65 + 1) * clickableRatio, hitSize);
-            cb.tooltipService.targetAlpha = global.clickables.optionsMenu.HoverBoxes.check({ x: global.mouse.x, y: global.mouse.y }) === i ? 1 : 0;
-            if (!cb.placeholder && cb.lastValue !== cb.value) {
-                cb.lastValue = cb.value;
-                localStorage.setItem(cb.id + "Checked", cb.value ? "true" : "false");
-                if (cb.id === "optBrainrotFilter") global.refreshBrainrotOption();
-                if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
-                if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
-                if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
-                if (cb.id === "optKeyboardDisplay") config.game.keyboardDisplay = !!cb.value;
-                if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
-                if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
-                if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
-                if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
-                if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
-                if (cb.id === "optFadeLargeEntities") config.graphical.alphaLarge = !!cb.value;
-                if (cb.id === "optDebugHitboxes") config.graphical.debugHitboxes = !!cb.value;
-                if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
-                if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
-                if (cb.id === "optServerUptime") global.loadServerSelector(global.servers);
-                if (cb.id === "optShowLocalhost") {
-                    if (cb.value) global.servers.unshift({
-                        id: "x",
-                        ip: "localhost:5000",
-                        players: 0,
-                        maxPlayers: 80,
-                        featured: false,
-                        hidden: false,
-                        private: false,
-                        region: "Local",
-                        location: "Localhost",
-                        gameMode: "Private"
-                    });
-                    else global.servers = global.servers.filter(s => s.id !== "localhost");
-                    global.loadServerSelector(global.servers);
+        if (!global.optionsSecretCheckboxes) {
+            global.optionsSecretCheckboxes = [
+                { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor.",
+                    trigger: (cb) => {
+                        global.applyCrosshairCursor();
+                    }
+                },
+                { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow.",
+                    trigger: (cb) => {
+                        config.game.rainbowTeamColors = !!cb.value;
+                    }
+                },
+                { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 0, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
+                { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
+                { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self-Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
+                { type: "checkbox", id: "optBrainrotFilter",      label: "\"Brainrot\" Filter",     column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words.",
+                    trigger: (cb) => {
+                        global.refreshBrainrotOption();
+                    }
+                },
+                { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is.",
+                    trigger: (cb) => {
+                        config.graphical.renderOldNest = !!cb.value;
+                    }
+                },
+                { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
+                { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
+                { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list.",
+                    trigger: (cb) => {
+                        global.loadServerSelector(global.servers);
+                    }
+                },
+                { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", tooltip: "Show hitboxes." },
+                { type: "checkbox", id: "optBackgroundImage",     label: "Background Image",        column: 1, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Display the configured custom background image.\nNote: The site hosting the image must allow cross-origin embedding, such as Discord or Imgur.", },
+                { type: "checkbox", id: "optHealthPercent",       label: "Health Percentages",      column: 0, row: 6, section: "secret", placeholder: true, tooltip: "[WIP] Show the health percentages on health bars.", },
+                { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 6, section: "secret", tooltip: "Display movement and mouse control inputs beside the minimap.", },
+                { type: "checkbox", id: "optDirectNetwork",       label: "Direct Network",          column: 0, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Connect to game servers directly.\nNote: This option may cause connections to fail depending on server firewall settings.", },
+                { type: "checkbox", id: "optMovementTimeout",     label: "Movement Timeout",        column: 1, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Stop moving when you're lagging instead of continuing to move in the same direction.", },
+
+                // Beta
+                { type: "checkbox", id: "optPlayerList",    label: "Player List",    column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." },
+                { type: "checkbox", id: "optServerUptime",  label: "Server Uptime",  column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for.",
+                    trigger: (cb) => {
+                        global.loadServerSelector(global.servers);
+                    } 
+                },
+                { type: "checkbox", id: "optAnonymousMode", label: "Anonymous Mode", column: 0, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Prevent other players from seeing which account you logged in as\nNote: This option is enabled by default to protect the privacy of users without access to the secret options menu." },
+                { type: "checkbox", id: "optStealthMode",   label: "Stealth Mode",   column: 1, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Hide you on your teammates' maps." },
+
+                // Legacy
+                { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate." },
+                { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu.",
+                    trigger: (cb) => {
+                        global.refreshSecretThemes();
+                    }  
+                },
+                { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
+                { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
+                { type: "checkbox", id: "optDmcaMode",              label: "DMCA Mode",                column: 0, row: 2, section: "legacy", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                { type: "checkbox", id: "optShowLocalhost",         label: "Show Localhost",           column: 1, row: 2, section: "legacy", tooltip: "Display wss://localhost:5000 as one of the servers.",
+                    trigger: (cb) => {
+                        if (cb.value) global.servers.unshift({
+                            id: "x",
+                            ip: "localhost:5000",
+                            players: 0,
+                            maxPlayers: 80,
+                            featured: false,
+                            hidden: false,
+                            private: false,
+                            region: "Local",
+                            location: "Localhost",
+                            gameMode: "Private"
+                        });
+                        else global.servers = global.servers.filter(s => s.id !== "localhost");
+                        global.loadServerSelector(global.servers);
+                    }
+                },
+                { type: "checkbox", id: "optDebugBoxes",            label: "Debug Boxes",              column: 0, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
+                { type: "checkbox", id: "optUnreleasedFeatures",    label: "Additional Unreleased Features", column: 1, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
+            ]
+            for (const cb of global.optionsSecretCheckboxes) {
+                if (cb.type === "checkbox") {
+                    let doc = document.getElementById(cb.id);
+                    if (doc) cb.value = doc.checked, cb.lastValue = cb.value;
+                    else cb.value = localStorage.getItem(cb.id + "Checked") === "true", cb.lastValue = cb.value;
                 }
             }
-            const isOn = !cb.placeholder && !!cb.value;
-            if (!cb.placeholder) {
-                global.clickables.optionsMenu.toggleBoxes.place(i, x * clickableRatio, y * clickableRatio, hitSize, hitSize);
-            }
-            ctx[2].lineWidth = 3;
-            gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
-            drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-            gameDraw.setColor(ctx[2], color.black);
-            drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
-            if (isOn) {
-                ctx[2].strokeStyle = "#FFFFFF";
-                ctx[2].lineWidth = 3;
-                ctx[2].beginPath();
-                ctx[2].moveTo(x + 5.5, y + BOX_SIZE / 1.8);
-                ctx[2].lineTo(x + BOX_SIZE / 2 - 3, y + BOX_SIZE - 7);
-                ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
-                ctx[2].stroke();
-            }
-            drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
-            secretTooltips.push(cb);
         }
-        for (const cb of secretTooltips) drawToolip(cb);
+        const BOX_SIZE = 25;
+        const LINE_HEIGHT = 40;
+        optionsMenu_drawOptions(global.optionsSecretCheckboxes, PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, 0, BOX_SIZE, LINE_HEIGHT, clickableRatio, fadeSecret, mpos); // Draw everything
+    }
+
+    function optionsMenu_drawOptions(theArray, PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, PANEL_HEIGHT, BOX_SIZE, LINE_HEIGHT, clickableRatio, fadeOptions, mpos) {
+        for (let i = 0; i < theArray.length; i++) {
+            const cb = theArray[i];
+
+            let baseY = PANEL_Y + 45;
+            if (cb.section === "ui")    baseY = PANEL_Y + 365;
+            if (cb.section === "extra") baseY = PANEL_Y + 525;
+            if (cb.section === "perf")  baseY = PANEL_Y + 725;
+            if (cb.section === "beta")  baseY = PANEL_Y + 405;
+            if (cb.section === "legacy")  baseY = PANEL_Y + 525;
+
+            const baseXLeft  = PANEL_X + 20;
+            const baseXRight = PANEL_X + PANEL_WIDTH / 2 + 7.5;
+
+            const x = (cb.column === 0 ? baseXLeft : baseXRight);
+            const y = baseY + cb.row * LINE_HEIGHT;
+            const hitX = x * clickableRatio;
+            const hitY = y * clickableRatio;
+            let hitYCalc = hitY - scrollY * clickableRatio;
+            if (!cb.tooltipService) {
+                cb.tooltipService = {
+                    text: cb.tooltip,
+                    targetAlpha: 0,
+                    alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
+                    x: 0,
+                    y: 0
+                }
+            }
+            if (cb.type === "option") {
+                cb.tooltipService.x = hitX;
+                cb.tooltipService.y = hitY + 33 - scrollY * clickableRatio;
+                cb.tooltipService.targetAlpha = 0;
+                if (!cb.optionService) cb.optionService = {
+                    opened: false,
+                    smoothbar: Smoothbar(0, 2, 3, 0.07, 0.025, true),
+                    selected: "",
+                    x: x,
+                    y: y,
+                    hitX: hitX,
+                    hitY: hitY,
+                    hitYCalc: hitYCalc
+                };
+                if (!cb.optionService.selected) {
+                    if (cb.order) {
+                        let sorted = [];
+                        for (let e of cb.order) {
+                            for (let o of cb.optionData) {
+                                if (o.value === e) sorted.push(o);
+                            }
+                        }
+                        cb.optionData = sorted;
+                    }
+                    let doc = document.getElementById(cb.id);
+                    let fd = cb.optionData.find(o => o.value === doc.value);
+                    if (fd) {
+                        cb.optionService.selected = fd.label;
+                    }
+                }
+                cb.optionService.x = x;
+                cb.optionService.y = y - scrollY;
+                cb.optionService.hitX = hitX;
+                cb.optionService.hitY = hitY;
+                cb.optionService.hitYCalc = hitYCalc;
+                ctx[2].fillStyle = color.guiwhite;
+                drawGuiRect(x, y, cb.width, 25);
+                ctx[2].strokeStyle = color.black;
+                ctx[2].lineWidth = 3;
+                drawGuiRect(x, y, cb.width, 25, true);
+                drawText(cb.optionService.selected, x + 13, y + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
+                ctx[2].fillStyle = color.black;
+                const arrowW = 5; // Arrow width (horizontal)
+                const arrowH = 30 * 0.3; // Arrow height (vertical)
+                const arrowBaseX = x + cb.width + 17;
+                const arrowCenterX = arrowBaseX - 19;
+                const arrowCenterY = y + 18.4;
+
+
+                const leftX = arrowCenterX - arrowW;
+                const tipX = arrowCenterX + arrowW;
+                const topY = arrowCenterY - arrowH;
+                const botY = arrowCenterY - 2.9;
+                ctx[2].beginPath();
+                ctx[2].moveTo(leftX - 14, topY);
+                ctx[2].lineTo(tipX - 12, arrowCenterY - 9);
+                ctx[2].lineTo(leftX - 8, botY);
+                ctx[2].closePath();
+                ctx[2].fill();
+                global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
+                global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
+            } else if (cb.type === "slidingBar") {
+                cb.tooltipService.x = hitX;
+                cb.tooltipService.y = hitY + 35 - scrollY * clickableRatio;
+                cb.tooltipService.targetAlpha = 0;
+                cb.bounds = {x: x, width: 150};
+                let listFolder = config[cb.listTarget];
+                const rawStrokeValue = listFolder[cb.target] ?? 0;
+                const strokeValue = Math.max(cb.maxLowestValue, Math.min(cb.maxValue, rawStrokeValue));
+                const renderRange = cb.maxValue - cb.maxLowestValue;
+                const strokeRatio = renderRange > 0 ? (strokeValue - cb.maxLowestValue) / renderRange : 0;
+                ctx[2].fillStyle = color.guiwhite;
+                drawGuiRect(x, y + 2.5, 150, 20);
+                ctx[2].fillStyle = color.green;
+                ctx[2].globalAlpha = 0.7 * fadeOptions;
+                drawGuiRect(x, y + 2.5, 150 * strokeRatio, 20);
+                ctx[2].globalAlpha = fadeOptions;
+                ctx[2].strokeStyle = color.black;
+                ctx[2].lineWidth = 3;
+                drawGuiRect(x, y + 2.5, 150, 20, true);
+
+                const knob = x + 137.5 * strokeRatio;
+                ctx[2].fillStyle = color.green;
+                drawGuiRect(knob, y, 12.5, 17 + 8);
+                ctx[2].strokeStyle = color.black;
+                drawGuiRect(knob, y, 12.5, 17 + 8, true);
+
+                drawText(cb.label, x + 160, y + 18, 13.5, color.guiwhite, "left", false, 1, 5.5);
+
+                global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc + 2.5, 150 + measureText(cb.label, 25 * clickableRatio) * 0.65, 22 * clickableRatio);
+                global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc + 2.5, 150 * clickableRatio, 22 * clickableRatio);
+            } else if (cb.type === "checkbox") {
+                const hitSize = BOX_SIZE * clickableRatio;
+
+                cb.tooltipService.x = hitX;
+                cb.tooltipService.y = hitY + hitSize + 10 - scrollY * clickableRatio;
+                if (fadeOptions > 0.2 && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
+                    if (!cb.placeholder) global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, hitSize, hitSize);
+                    global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, hitSize + (10.5 + measureText(cb.label, BOX_SIZE) * 0.65 + 1) * clickableRatio, hitSize);
+                } else {
+                    global.clickables.optionsMenu.toggleBoxes.hide();
+                    global.clickables.optionsMenu.HoverBoxes.hide();
+                }
+                let clickHover = global.clickables.optionsMenu.toggleBoxes.check(mpos);
+                let hovered = global.clickables.optionsMenu.HoverBoxes.check(mpos);
+
+                if (hovered !== -1) {
+                    theArray[hovered].tooltipService.targetAlpha = 1;
+                } else theArray[i].tooltipService.targetAlpha = 0;
+
+                if (!cb.placeholder && cb.lastValue !== cb.value) {
+                    cb.lastValue = cb.value;
+                    loadSettings();
+                    if (cb.id === "optLowResolution") resizeEvent();
+                }
+
+                const isOn = !cb.placeholder && ((cb.reverseCheck && !cb.value) || (!cb.reverseCheck && cb.value));
+                ctx[2].lineWidth = 3;
+                gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
+                drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
+                if (!cb.placeholder && clickHover !== -1 && clickHover === i) {
+                    gameDraw.setColor(ctx[2], !isOn ? global.clickables.clicked ? color.guiblack : color.black : global.clickables.clicked ? color.black : color.guiwhite);
+                    ctx[2].globalAlpha = global.clickables.clicked ? 0.25 : 0.2;
+                    drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
+                    ctx[2].globalAlpha = 1 * fadeOptions;
+                }
+                gameDraw.setColor(ctx[2], color.black);
+                drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
+
+                if (isOn) {
+                    ctx[2].strokeStyle = "#FFFFFF";
+                    ctx[2].lineWidth = 3;
+                    ctx[2].beginPath();
+                    ctx[2].moveTo(x + 5.5, y + BOX_SIZE / 1.8);
+                    ctx[2].lineTo(x + BOX_SIZE / 2 - 3, y + BOX_SIZE - 7);
+                    ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
+                    ctx[2].stroke();
+                }
+
+                drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
+            }
+        }
+    }
+
+    function optionsMenu_drawRest(theArray, mpos, clickableRatio) {
+        for (const cb of theArray) {
+            if (cb.type === "option" && cb.optionService) {
+                let above = cb.location === "top";
+                let height = 0;
+                for (let box of cb.optionData) {
+                    height += 25;
+                }
+                const bottomPos = cb.optionService.y + 25 + height;
+                if (bottomPos > global.screenHeight && cb.location === "auto") {
+                    above = true;
+                }
+                if (cb.optionService.opened) {
+                    cb.optionService.smoothbar.set(height);
+                    cb.optionService.visible = true;
+                } else if (cb.optionService.visible) {
+                    cb.optionService.smoothbar.set(0);
+                }
+                if (cb.optionService.visible) {
+                    const cbp = cb.optionService;
+                    const heightCalc = cbp.smoothbar.get();
+                    if (!cbp.opened && heightCalc < 0.5) {
+                        cbp.smoothbar.force(0);
+                        cbp.visible = false;
+                    }
+                    if (above) { // Above
+                        let yy = cbp.y - heightCalc;
+                        ctx[2].save();
+                        ctx[2].beginPath();
+                        ctx[2].rect(cbp.x - 3, cbp.y - cb.optionData.length * 25 - 3, cb.width + 6, cb.optionData.length * 25 + 3);
+                        ctx[2].clip();
+                        for (let i = 0; i < cb.optionData.length; i++) {
+                            let box = cb.optionData[i];
+                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
+                            ctx[2].fillStyle = color.guiwhite;
+                            drawGuiRect(cbp.x, yy, cb.width, 25);
+                            if (hover === i) {
+                                ctx[2].fillStyle = color.black;
+                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
+                                drawGuiRect(cbp.x, yy, cb.width, 25);
+                                ctx[2].globalAlpha = 1;
+                            }
+                            ctx[2].strokeStyle = color.black;
+                            ctx[2].lineWidth = 3;
+                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
+                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
+                            if (cbp.opened && cbp.canClick) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
+                            yy += 25;
+                        }
+                        ctx[2].restore();
+                        ctx[2].lineWidth = 3;
+                        drawGuiRect(cbp.x, cbp.y, cb.width, 0, true);
+                    } else { // Bottom
+                        let yy = cbp.y + 25;
+                        ctx[2].save();
+                        ctx[2].beginPath();
+                        ctx[2].rect(cbp.x, yy, cb.width, heightCalc);
+                        ctx[2].clip();
+                        for (let i = 0; i < cb.optionData.length; i++) {
+                            let box = cb.optionData[i];
+                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
+                            ctx[2].fillStyle = color.guiwhite;
+                            drawGuiRect(cbp.x, yy, cb.width, 25);
+                            if (hover === i) {
+                                ctx[2].fillStyle = color.black;
+                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
+                                drawGuiRect(cbp.x, yy, cb.width, 25);
+                                ctx[2].globalAlpha = 1;
+                            }
+                            ctx[2].strokeStyle = color.black;
+                            ctx[2].lineWidth = 3;
+                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
+                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
+                            if (cbp.opened) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
+                            yy += 25;
+                        }
+                        ctx[2].restore();
+                        ctx[2].lineWidth = 3;
+                        drawGuiRect(cbp.x, cbp.y + 25, cb.width, heightCalc, true);
+                    }
+                }
+            }
+            drawToolip(cb);
+        }
     }
 
     function drawOptionsMenu() {
+        ctx[2].globalAlpha = 1;
         global.ingameKeybindRects = null;
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
@@ -5782,13 +6046,8 @@ const SIDE_BORDER = 0.5;
         // Initialize tab offset for sliding animation and menu height animation
         if (!global.optionsMenu_Anim.tabOffset) {
             global.optionsMenu_Anim.tabOffset = Smoothbar(global.optionsMenu_Anim.activeTab || 0, 2, 3, 0.08, 0.025, true);
-            global.optionsMenu_Anim.scrollOffsets = [
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-                Smoothbar(0, 2, 3, 0.05, 0.13, true),
-            ];
-            global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0]
+            global.optionsMenu_Anim.scrollOffset = Smoothbar(0, 2, 3, 0.05, 0.13, true);
+            global.optionsMenu_Anim.scrollTarget = 0;
         }
 
         const RENDERX = global.optionsMenu_Anim.switchMenu_button.get();
@@ -5911,20 +6170,11 @@ const SIDE_BORDER = 0.5;
         const superUnlocked = superBox ? !!superBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
         const secretPanelH = SECRET_PANEL_H + (superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0);
         const TAB_CONTENT_HEIGHTS = [
-            (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
-            THEME_PANEL_H,
+            global.optionsMenu_Anim.tabs[0][1],
+            global.optionsMenu_Anim.tabs[1][1],
             keybindsPanelHeight(),
             secretPanelH
         ];
-        const TAB_CONTENT_MAX_SCROLL = [
-            0,
-            THEME_PANEL_H,
-            keybindsPanelHeight(),
-            secretPanelH
-        ];
-        global.optionsMenu_Anim.tabs[1][1] = THEME_PANEL_H;
-        global.optionsMenu_Anim.tabs[2][1] = TAB_CONTENT_HEIGHTS[2];
-        global.optionsMenu_Anim.tabs[3][1] = secretPanelH;
         const secretBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSecretOptions");
         const secretUnlocked = secretBox ? !!secretBox.value : localStorage.getItem("optSecretOptionsChecked") === "true";
         global.clickables.optionsMenu.mainMenuIdle.set(PANEL_X * clickableRatio, PANEL_Y * clickableRatio, PANEL_WIDTH * clickableRatio, PANEL_HEIGHT * clickableRatio);
@@ -5934,17 +6184,16 @@ const SIDE_BORDER = 0.5;
             global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[0][1]);
         }
         const activeTab = global.optionsMenu_Anim.activeTab || 0;
-        const scrollOffsetAnim = global.optionsMenu_Anim.scrollOffsets[activeTab];
+        const scrollOffsetAnim = global.optionsMenu_Anim.scrollOffset;
         const contentH = TAB_CONTENT_HEIGHTS[activeTab];
-        const contentM = TAB_CONTENT_MAX_SCROLL[activeTab];
         const maxScroll = Math.max(0, contentH - PANEL_HEIGHT);
 
-        if (global.optionsMenu_Anim.scrollTargets[activeTab] < 0)
-            global.optionsMenu_Anim.scrollTargets[activeTab] = 0;
-        if (global.optionsMenu_Anim.scrollTargets[activeTab] > maxScroll)
-            global.optionsMenu_Anim.scrollTargets[activeTab] = maxScroll;
+        if (global.optionsMenu_Anim.scrollTarget < 0)
+            global.optionsMenu_Anim.scrollTarget = 0;
+        if (global.optionsMenu_Anim.scrollTarget > maxScroll)
+            global.optionsMenu_Anim.scrollTarget = maxScroll;
 
-        scrollOffsetAnim.set(global.optionsMenu_Anim.scrollTargets[activeTab]);
+        scrollOffsetAnim.set(global.optionsMenu_Anim.scrollTarget);
         const scrollY = scrollOffsetAnim.get();
 
         // Store live panel bounds for the wheel handler to read each frame
@@ -5955,9 +6204,7 @@ const SIDE_BORDER = 0.5;
         if (global.optionsMenu_Anim.isOpened && global.optionsMenu_Anim._wheelHandler === undefined) {
             global.optionsMenu_Anim._wheelHandler = (e) => {
                 if (!global.clickables.optionsMenu.mainMenuIdle.check({x: global.mouse.x, y: global.mouse.y})) return;
-                const tab = global.optionsMenu_Anim.activeTab || 0;
-                global.optionsMenu_Anim.scrollTargets[tab] =
-                    (global.optionsMenu_Anim.scrollTargets[tab] || 0) + e.deltaY * 0.8;
+                global.optionsMenu_Anim.scrollTarget = global.optionsMenu_Anim.scrollTarget + e.deltaY * 0.8;
             };
             window.addEventListener("wheel", global.optionsMenu_Anim._wheelHandler, { passive: true });
         } else if (!global.optionsMenu_Anim.isOpened && global.optionsMenu_Anim._wheelHandler) {
@@ -6164,40 +6411,6 @@ const SIDE_BORDER = 0.5;
                       }
                     },
                     { type: "checkbox",  id: "optLowResolution",       label: "Low Resolution",         column: 1, row: 0, section: "perf", tooltip: "Lower the game's resolution.\nMay help to improve the frame rate." },
-
-                    // Secrets
-                    { type: "checkbox", id: "optCrosshairCursor",     label: "Crosshair Cursor",        column: 0, row: 0, section: "secret", tooltip: "Use a crosshair for the cursor." },
-                    { type: "checkbox", id: "optRainbowTeamColors",   label: "Rainbow Team Colors",     column: 1, row: 0, section: "secret", tooltip: "Replace the colors of the teams with colors of the rainbow." },
-                    { type: "checkbox", id: "optCopyScreenshots",     label: "Copy Screenshots",        column: 0, row: 1, section: "secret", tooltip: "Copy screenshots to the clipboard instead of downloading them." },
-                    { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
-                    { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self-Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
-                    { type: "checkbox", id: "optBrainrotFilter",      label: "\"Brainrot\" Filter",     column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                    { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
-                    { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
-                    { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
-                    { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
-                    { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", tooltip: "Show hitboxes." },
-                    { type: "checkbox", id: "optBackgroundImage",     label: "Background Image",        column: 1, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Display the configured custom background image.\nNote: The site hosting the image must allow cross-origin embedding, such as Discord or Imgur." },
-                    { type: "checkbox", id: "optHealthPercent",       label: "Health Percentages",      column: 0, row: 6, section: "secret", placeholder: true, tooltip: "[WIP] Show the health percentages on health bars." },
-                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 6, section: "secret", tooltip: "Display movement and mouse control inputs beside the minimap." },
-                    { type: "checkbox", id: "optDirectNetwork",       label: "Direct Network",          column: 0, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Connect to game servers directly.\nNote: This option may cause connections to fail depending on server firewall settings." },
-                    { type: "checkbox", id: "optMovementTimeout",     label: "Movement Timeout",        column: 1, row: 7, section: "secret", placeholder: true, tooltip: "[WIP] Stop moving when you're lagging instead of continuing to move in the same direction." },
-
-                    // Beta
-                    { type: "checkbox", id: "optPlayerList",    label: "Player List",    column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." },
-                    { type: "checkbox", id: "optServerUptime",  label: "Server Uptime",  column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
-                    { type: "checkbox", id: "optAnonymousMode", label: "Anonymous Mode", column: 0, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Prevent other players from seeing which account you logged in as\nNote: This option is enabled by default to protect the privacy of users without access to the secret options menu." },
-                    { type: "checkbox", id: "optStealthMode",   label: "Stealth Mode",   column: 1, row: 1, section: "beta", placeholder: true, tooltip: "[WIP] Hide you on your teammates' maps." },
-
-                    // Legacy
-                    { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: "[WIP] Make arras.io 3D.\nMay lower the frame rate." },
-                    { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: "Display legacy themes in the options menu." },
-                    { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
-                    { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." },
-                    { type: "checkbox", id: "optDmcaMode",              label: "DMCA Mode",                column: 0, row: 2, section: "legacy", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                    { type: "checkbox", id: "optShowLocalhost",         label: "Show Localhost",           column: 1, row: 2, section: "legacy", tooltip: "Display wss://localhost:5000 as one of the servers." },
-                    { type: "checkbox", id: "optDebugBoxes",            label: "Debug Boxes",              column: 0, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
-                    { type: "checkbox", id: "optUnreleasedFeatures",    label: "Additional Unreleased Features", column: 1, row: 3, section: "legacy", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
                 ];
 
                 for (const cb of global.optionsCheckboxes) {
@@ -6211,293 +6424,57 @@ const SIDE_BORDER = 0.5;
 
             const BOX_SIZE = 25;
             const LINE_HEIGHT = 40;
-
-            for (let i = 0; i < global.optionsCheckboxes.length; i++) {
-                const cb = global.optionsCheckboxes[i];
-                if (isSecretSection(cb.section)) continue;
-                let baseY = PANEL_Y + 45;
-                if (cb.section === "ui")    baseY = PANEL_Y + 365;
-                if (cb.section === "extra") baseY = PANEL_Y + 525;
-                if (cb.section === "perf")  baseY = PANEL_Y + 725;
-
-                const baseXLeft  = PANEL_X + 20;
-                const baseXRight = PANEL_X + PANEL_WIDTH / 2 + 7.5;
-
-                const x = (cb.column === 0 ? baseXLeft : baseXRight);
-                const y = baseY + cb.row * LINE_HEIGHT;
-                const hitX = x * clickableRatio;
-                const hitY = y * clickableRatio;
-                let hitYCalc = hitY - scrollY * clickableRatio;
-                if (!cb.tooltipService) {
-                    global.optionsCheckboxes[i].tooltipService = {
-                        text: cb.tooltip,
-                        targetAlpha: 0,
-                        alpha: Smoothbar(0, 2, 3, 0.06, 0.025, true),
-                        x: 0,
-                        y: 0
-                    }
-                }
-                if (cb.type === "option") {
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + 33 - scrollY * clickableRatio;
-                    cb.tooltipService.targetAlpha = 0;
-                    if (!cb.optionService) cb.optionService = {
-                        opened: false,
-                        smoothbar: Smoothbar(0, 2, 3, 0.07, 0.025, true),
-                        selected: "",
-                        x: x,
-                        y: y,
-                        hitX: hitX,
-                        hitY: hitY,
-                        hitYCalc: hitYCalc
-                    };
-                    if (!cb.optionService.selected) {
-                        if (cb.order) {
-                            let sorted = [];
-                            for (let e of cb.order) {
-                                for (let o of cb.optionData) {
-                                    if (o.value === e) sorted.push(o);
-                                }
-                            }
-                            cb.optionData = sorted;
-                        }
-                        let doc = document.getElementById(cb.id);
-                        let fd = cb.optionData.find(o => o.value === doc.value);
-                        if (fd) {
-                            cb.optionService.selected = fd.label;
-                        }
-                    }
-                    cb.optionService.x = x;
-                    cb.optionService.y = y - scrollY;
-                    cb.optionService.hitX = hitX;
-                    cb.optionService.hitY = hitY;
-                    cb.optionService.hitYCalc = hitYCalc;
-                    ctx[2].fillStyle = color.guiwhite;
-                    drawGuiRect(x, y, cb.width, 25);
-                    ctx[2].strokeStyle = color.black;
-                    ctx[2].lineWidth = 3;
-                    drawGuiRect(x, y, cb.width, 25, true);
-                    drawText(cb.optionService.selected, x + 13, y + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                    ctx[2].fillStyle = color.black;
-                    const arrowW = 5; // Arrow width (horizontal)
-                    const arrowH = 30 * 0.3; // Arrow height (vertical)
-                    const arrowBaseX = x + cb.width + 17;
-                    const arrowCenterX = arrowBaseX - 19;
-                    const arrowCenterY = y + 18.4;
-
-
-                    const leftX = arrowCenterX - arrowW;
-                    const tipX = arrowCenterX + arrowW;
-                    const topY = arrowCenterY - arrowH;
-                    const botY = arrowCenterY - 2.9;
-                    ctx[2].beginPath();
-                    ctx[2].moveTo(leftX - 14, topY);
-                    ctx[2].lineTo(tipX - 12, arrowCenterY - 9);
-                    ctx[2].lineTo(leftX - 8, botY);
-                    ctx[2].closePath();
-                    ctx[2].fill();
-                    global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
-                    global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, cb.width * clickableRatio, 25 * clickableRatio);
-                } else if (cb.type === "slidingBar") {
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + 35 - scrollY * clickableRatio;
-                    cb.tooltipService.targetAlpha = 0;
-                    cb.bounds = {x: x, width: 150};
-                    let listFolder = config[cb.listTarget];
-                    const rawStrokeValue = listFolder[cb.target] ?? 0;
-                    const strokeValue = Math.max(cb.maxLowestValue, Math.min(cb.maxValue, rawStrokeValue));
-                    const renderRange = cb.maxValue - cb.maxLowestValue;
-                    const strokeRatio = renderRange > 0 ? (strokeValue - cb.maxLowestValue) / renderRange : 0;
-                    ctx[2].fillStyle = color.guiwhite;
-                    drawGuiRect(x, y + 2.5, 150, 20);
-                    ctx[2].fillStyle = color.green;
-                    ctx[2].globalAlpha = 0.7 * fadeOptions;
-                    drawGuiRect(x, y + 2.5, 150 * strokeRatio, 20);
-                    ctx[2].globalAlpha = fadeOptions;
-                    ctx[2].strokeStyle = color.black;
-                    ctx[2].lineWidth = 3;
-                    drawGuiRect(x, y + 2.5, 150, 20, true);
-
-                    const knob = x + 137.5 * strokeRatio;
-                    ctx[2].fillStyle = color.green;
-                    drawGuiRect(knob, y, 12.5, 17 + 8);
-                    ctx[2].strokeStyle = color.black;
-                    drawGuiRect(knob, y, 12.5, 17 + 8, true);
-
-                    drawText(cb.label, x + 160, y + 18, 13.5, color.guiwhite, "left", false, 1, 5.5);
-
-                    global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc + 2.5, 150 + measureText(cb.label, 25 * clickableRatio) * 0.65, 22 * clickableRatio);
-                    global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc + 2.5, 150 * clickableRatio, 22 * clickableRatio);
-                } else if (cb.type === "checkbox") {
-                    const hitSize = BOX_SIZE * clickableRatio;
-
-                    cb.tooltipService.x = hitX;
-                    cb.tooltipService.y = hitY + hitSize + 10 - scrollY * clickableRatio;
-                    if (fadeOptions > 0.2 && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
-                        if (!cb.placeholder) global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc, hitSize, hitSize);
-                        global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc, hitSize + (10.5 + measureText(cb.label, BOX_SIZE) * 0.65 + 1) * clickableRatio, hitSize);
-                    } else {
-                        global.clickables.optionsMenu.toggleBoxes.hide();
-                        global.clickables.optionsMenu.HoverBoxes.hide();
-                    }
-                    let clickHover = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                    let hovered = global.clickables.optionsMenu.HoverBoxes.check(mpos);
-
-                    if (hovered !== -1) {
-                        global.optionsCheckboxes[hovered].tooltipService.targetAlpha = 1;
-                    } else global.optionsCheckboxes[i].tooltipService.targetAlpha = 0;
-
-                    if (!cb.placeholder && cb.lastValue !== cb.value) {
-                        cb.lastValue = cb.value;
-                        loadSettings();
-                        if (cb.id === "optLowResolution") resizeEvent();
-                    }
-
-                    const isOn = !cb.placeholder && ((cb.reverseCheck && !cb.value) || (!cb.reverseCheck && cb.value));
-                    ctx[2].lineWidth = 3;
-                    gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
-                    drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-                    if (!cb.placeholder && clickHover !== -1 && clickHover === i) {
-                        gameDraw.setColor(ctx[2], !isOn ? global.clickables.clicked ? color.guiblack : color.black : global.clickables.clicked ? color.black : color.guiwhite);
-                        ctx[2].globalAlpha = global.clickables.clicked ? 0.25 : 0.2;
-                        drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-                        ctx[2].globalAlpha = 1 * fadeOptions;
-                    }
-                    gameDraw.setColor(ctx[2], color.black);
-                    drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
-
-                    if (isOn) {
-                        ctx[2].strokeStyle = "#FFFFFF";
-                        ctx[2].lineWidth = 3;
-                        ctx[2].beginPath();
-                        ctx[2].moveTo(x + 5.5, y + BOX_SIZE / 1.8);
-                        ctx[2].lineTo(x + BOX_SIZE / 2 - 3, y + BOX_SIZE - 7);
-                        ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
-                        ctx[2].stroke();
-                    }
-
-                    drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
-                }
-            }
+            optionsMenu_drawOptions(global.optionsCheckboxes, PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, PANEL_HEIGHT, BOX_SIZE, LINE_HEIGHT, clickableRatio, fadeOptions, mpos); // Draw everything
         }
         ctx[2].restore();
 
-        for (const cb of global.optionsCheckboxes) {
-            if (isSecretSection(cb.section)) continue;
-            if (cb.type === "option" && cb.optionService) {
-                let above = cb.location === "top";
-                let height = 0;
-                for (let box of cb.optionData) {
-                    height += 25;
-                }
-                const bottomPos = cb.optionService.y + 25 + height;
-                if (bottomPos > global.screenHeight && cb.location === "auto") {
-                    above = true;
-                }
-                if (cb.optionService.opened) {
-                    cb.optionService.smoothbar.set(height);
-                    cb.optionService.visible = true;
-                } else if (cb.optionService.visible) {
-                    cb.optionService.smoothbar.set(0);
-                }
-                if (cb.optionService.visible) {
-                    const cbp = cb.optionService;
-                    const heightCalc = cbp.smoothbar.get();
-                    if (!cbp.opened && heightCalc < 0.5) {
-                        cbp.smoothbar.force(0);
-                        cbp.visible = false;
-                    }
-                    if (above) { // Above
-                        let yy = cbp.y - heightCalc;
-                        ctx[2].save();
-                        ctx[2].beginPath();
-                        ctx[2].rect(cbp.x - 3, cbp.y - cb.optionData.length * 25 - 3, cb.width + 6, cb.optionData.length * 25 + 3);
-                        ctx[2].clip();
-                        for (let i = 0; i < cb.optionData.length; i++) {
-                            let box = cb.optionData[i];
-                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                            ctx[2].fillStyle = color.guiwhite;
-                            drawGuiRect(cbp.x, yy, cb.width, 25);
-                            if (hover === i) {
-                                ctx[2].fillStyle = color.black;
-                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
-                                drawGuiRect(cbp.x, yy, cb.width, 25);
-                                ctx[2].globalAlpha = 1;
-                            }
-                            ctx[2].strokeStyle = color.black;
-                            ctx[2].lineWidth = 3;
-                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                            if (cbp.opened && cbp.canClick) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
-                            yy += 25;
-                        }
-                        ctx[2].restore();
-                        ctx[2].lineWidth = 3;
-                        drawGuiRect(cbp.x, cbp.y, cb.width, 0, true);
-                    } else { // Bottom
-                        let yy = cbp.y + 25;
-                        ctx[2].save();
-                        ctx[2].beginPath();
-                        ctx[2].rect(cbp.x, yy, cb.width, heightCalc);
-                        ctx[2].clip();
-                        for (let i = 0; i < cb.optionData.length; i++) {
-                            let box = cb.optionData[i];
-                            let hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                            ctx[2].fillStyle = color.guiwhite;
-                            drawGuiRect(cbp.x, yy, cb.width, 25);
-                            if (hover === i) {
-                                ctx[2].fillStyle = color.black;
-                                ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
-                                drawGuiRect(cbp.x, yy, cb.width, 25);
-                                ctx[2].globalAlpha = 1;
-                            }
-                            ctx[2].strokeStyle = color.black;
-                            ctx[2].lineWidth = 3;
-                            drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                            drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
-                            if (cbp.opened) global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio); else global.clickables.optionsMenu.optionBoxes.hide();
-                            yy += 25;
-                        }
-                        ctx[2].restore();
-                        ctx[2].lineWidth = 3;
-                        drawGuiRect(cbp.x, cbp.y + 25, cb.width, heightCalc, true);
-                    }
-                }
-            }
-            drawToolip(cb);
-        }
+        optionsMenu_drawRest(global.optionsCheckboxes, mpos, clickableRatio) // `Rest` it means we draw the rest of it
 
         ctx[2].save();
         ctx[2].globalAlpha *= fadeTheme;
+        ctx[2].beginPath();
+        ctx[2].rect(PANEL_X, PANEL_Y + 15, PANEL_WIDTH, PANEL_HEIGHT - 30);
+        ctx[2].clip();
         ctx[2].translate(0, -scrollY);
         if (fadeTheme > 0.01 && activeTab === 1) {
             // THEME TAB
             drawText("Theme", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
-            drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
+            drawThemeTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio);
         } else if (global.themeOverlay) {
             global.themeOverlay.style.display = "none";
             global.themeOverlay._colorHover = -1;
         }
+        ctx[2].restore();
         ctx[2].restore();
 
         if (fadeTheme > 0.01 && activeTab === 1 && global.themeOverlay) drawToolip(global.themeOverlay);
 
         ctx[2].save();
         ctx[2].globalAlpha *= fadeKeybinds;
+        ctx[2].beginPath();
+        ctx[2].rect(PANEL_X, PANEL_Y + 15, PANEL_WIDTH, PANEL_HEIGHT - 30);
+        ctx[2].clip();
         ctx[2].translate(0, -scrollY);
         if (fadeKeybinds > 0.01 && activeTab === 2) {
             // KEYBINDS TAB
-            drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
+            drawKeybindsTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio);
         }
+        ctx[2].restore();
         ctx[2].restore();
 
         ctx[2].save();
         ctx[2].globalAlpha *= fadeSecret;
+        ctx[2].beginPath();
+        ctx[2].rect(PANEL_X, PANEL_Y + 15, PANEL_WIDTH, PANEL_HEIGHT - 30);
+        ctx[2].clip();
         ctx[2].translate(0, -scrollY);
-        if (fadeSecret > 0.01 && activeTab === 3 && secretUnlocked) {
-            drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked);
+        if (fadeSecret > 0.01 && secretUnlocked) {
+            drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, superUnlocked, mpos, fadeSecret);
         }
         ctx[2].restore();
+        ctx[2].restore();
+
+        optionsMenu_drawRest(global.optionsSecretCheckboxes ?? [], mpos, clickableRatio) // `Rest` it means we draw the rest of it
 
         // Close button
         const CLOSE_SIZE = 30;
