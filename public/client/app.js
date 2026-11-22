@@ -4266,10 +4266,8 @@ const SIDE_BORDER = 0.5;
                 rowWidth = x;
                 !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
 
-                let upgradeSubkey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
-
-                let upgradeKey = `${getKeybind("KEY_UPGRADE_CLASS")}+${upgradeSubkey}`;
-                if (!upgradeSubkey) upgradeKey = undefined;
+                // todo: only show if KEY_UPGRADE_CLASS is being held down
+                let upgradeKey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
 
                 drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? upgradeKey : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
 
