@@ -2806,7 +2806,7 @@ const SIDE_BORDER = 0.5;
         drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2], false, picture.render, false, true);
 
         // Tank name
-        drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.825 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
+        drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.95 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
 
         // Upgrade key
         if (upgradeKey) {
@@ -3770,7 +3770,7 @@ const SIDE_BORDER = 0.5;
             drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
             // Skill key
-            drawText(`[${getKeybind(`KEY_UPGRADE_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
+            drawText(global.upgradingClass ? "+" : `[${getKeybind(`KEY_UPGRADE_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 21, y + height / 2, height - 6, textcolor, "center", true);
             if (textcolor === color.guiwhite) {
                 // If it's active
                 global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
@@ -4266,8 +4266,7 @@ const SIDE_BORDER = 0.5;
                 rowWidth = x;
                 !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
 
-                // todo: only show upgrade key if KEY_UPGRADE_CLASS is being held down
-                drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`) : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
+                drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, global.upgradingClass ? (!global.mobile ? getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`) : false) : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
 
                 ticker++;
                 upgradeNum++;

@@ -380,6 +380,9 @@ class Canvas {
                 case global.KEY_PAUSE:
                     this.socket.talk("G");
                     break;
+                case global.KEY_UPGRADE_CLASS:
+                    global.upgradingClass = true;
+                    break;
             }
             const skill = [
                 global.KEY_UPGRADE_1,
@@ -410,7 +413,7 @@ class Canvas {
                         }
                     }
                 }
-            } else if (global.canSkill && skill >= 0) {
+            } else if (global.canSkill && skill >= 0 && !global.upgradingClass) {
                 this.socket.talk("x", skill, 1 * global.statMaxing);
             }
             // todo: map below to require a KEY_UPGRADE_CLASS press
@@ -423,9 +426,10 @@ class Canvas {
                 [global.KEY_UPGRADE_6]: 5,
                 [global.KEY_UPGRADE_7]: 6,
                 [global.KEY_UPGRADE_8]: 7,
-                [global.KEY_UPGRADE_9]: 8
+                [global.KEY_UPGRADE_9]: 8,
+                [global.KEY_UPGRADE_10]: 9
             }
-            if (global.canUpgrade && !global.died) {
+            if (global.canUpgrade && !global.died && global.upgradingClass) {
                 const i = upgradeMap[event.code];
                 if (i !== undefined) this.socket.talk("U", i, parseInt(gui.upgrades[i][0]));
             }
@@ -482,6 +486,9 @@ class Canvas {
             case global.KEY_SKILL_SAVE:
             case global.KEY_SKILL_LOAD:
                 global.skillSavePressed = global.skillLoadPressed = false;
+                break;
+            case global.KEY_UPGRADE_CLASS:
+                global.upgradingClass = false;
                 break;
         }
         if (global.specialPressed) {
