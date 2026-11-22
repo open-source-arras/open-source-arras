@@ -31,6 +31,7 @@ const config = {
         threeDimensional: false,
         wireframes: false,
         alphaLarge: false,
+        debugHitboxes: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {

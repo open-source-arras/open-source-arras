@@ -1173,6 +1173,7 @@ const SIDE_BORDER = 0.5;
         config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
         config.graphical.wireframes = localStorage.getItem("optWireframesChecked") === "true";
         config.graphical.alphaLarge = localStorage.getItem("optFadeLargeEntitiesChecked") === "true";
+        config.graphical.debugHitboxes = localStorage.getItem("optDebugHitboxesChecked") === "true";
         // Game
         config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
         switch (document.getElementById("optBorders").value) {
@@ -2716,6 +2717,17 @@ const SIDE_BORDER = 0.5;
 
                 // Draw in one operation
                 ctx[1].drawImage(context.canvas, x - xx, y - yy);
+                ctx[1].restore();
+            }
+
+            if (config.graphical.debugHitboxes && !assignedContext && !turretInfo) {
+                ctx[1].save();
+                ctx[1].globalAlpha = alphaFade;
+                ctx[1].strokeStyle = "#00ff00";
+                ctx[1].lineWidth = 1;
+                ctx[1].beginPath();
+                ctx[1].arc(x, y, ratio * instSize, 0, Math.PI * 2);
+                ctx[1].stroke();
                 ctx[1].restore();
             }
 
@@ -5723,6 +5735,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optRenderOldNest") config.graphical.renderOldNest = !!cb.value;
                 if (cb.id === "optWireframes") config.graphical.wireframes = !!cb.value;
                 if (cb.id === "optFadeLargeEntities") config.graphical.alphaLarge = !!cb.value;
+                if (cb.id === "optDebugHitboxes") config.graphical.debugHitboxes = !!cb.value;
                 if (cb.id === "optLegacyThemes") global.refreshSecretThemes();
                 if (cb.id === "optListAllServers") global.loadServerSelector(global.servers);
                 if (cb.id === "optServerUptime") global.loadServerSelector(global.servers);
@@ -6170,7 +6183,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
                     { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
                     { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
-                    { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
+                    { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", tooltip: "Show hitboxes." },
 
                     // Super Secret Options
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
