@@ -1141,6 +1141,7 @@ const SIDE_BORDER = 0.5;
         config.game.autoLevelUp = document.getElementById("autoLevelUp").checked;
         config.game.centeredMinimap = localStorage.getItem("optSelfCenteredMinimapChecked") === "true";
         config.game.dmcaMode = localStorage.getItem("optDmcaModeChecked") === "true";
+        config.game.keyboardDisplay = localStorage.getItem("optKeyboardDisplayChecked") === "true";
         config.lag.unresponsive = document.getElementById("optPredictive").checked;
         config.graphical.sharpEdges = document.getElementById("optSharpEdges").checked;
         config.graphical.renderSkins = document.getElementById("optTankSkins").checked;
@@ -3848,6 +3849,51 @@ const SIDE_BORDER = 0.5;
         } else global.serverStats.mspt_color = color.guiwhite;
     }
     const xc = { cc: 0, dc: 0 };
+    function drawKeyboardDisplay(spacing, alcoveSize) {
+        if (!config.game.keyboardDisplay || global.mobile) return;
+        let cmd = global.socket && global.socket.cmd;
+        if (!cmd || !cmd.getInputs) return;
+        let inputs = cmd.getInputs();
+
+        let gap = alcoveSize * 0.03;
+        let keySize = (alcoveSize * 0.84 - gap * 2) / 3;
+        let width = keySize * 3 + gap * 2;
+        let mapHeight = (alcoveSize / global.gameWidth) * global.gameHeight;
+        let x = global.screenWidth - spacing - alcoveSize - width - 17;
+        let y = global.screenHeight - spacing - width - 5;
+        if (x < 5) {
+            x = global.screenWidth - spacing - width - 5;
+            y = global.screenHeight - spacing - mapHeight - width - 17;
+        }
+
+        let keys = [
+            [1, 0, "W", inputs.up],
+            [0, 1, "A", inputs.left],
+            [1, 1, "S", inputs.down],
+            [2, 1, "D", inputs.right],
+            [0, 2, "␣", inputs.lmb],
+            [1, 2, "X", inputs.mmb],
+            [2, 2, "↑", inputs.rmb]
+        ];
+
+        for (let i = 0; i < keys.length; i++) {
+            let col = keys[i][0],
+                row = keys[i][1],
+                label = keys[i][2],
+                active = keys[i][3],
+                kx = x + col * (keySize + gap),
+                ky = y + row * (keySize + gap);
+
+            ctx[2].globalAlpha = active ? 0.85 : 0.55;
+            ctx[2].fillStyle = active ? color.green : color.grey;
+            drawGuiRect(kx, ky, keySize, keySize);
+            ctx[2].globalAlpha = 1;
+            ctx[2].strokeStyle = color.black;
+            ctx[2].lineWidth = Math.max(2, keySize * 0.055);
+            drawGuiRect(kx, ky, keySize, keySize, true);
+            drawText(label, kx + keySize / 2, ky + keySize / 2, keySize * 0.5, color.guiwhite, "center", true, 1, 9);
+        }
+    }
     function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
         // Draw minimap and FPS monitors
         // Minimap stuff starts here
@@ -4877,6 +4923,7 @@ const SIDE_BORDER = 0.5;
         if (global.GUIStatus.renderUpgrades) drawSkillBars(spacing, alcoveSize);
         if (global.GUIStatus.renderPlayerBars) drawSelfInfo(max);
         drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
+        drawKeyboardDisplay(spacing, alcoveSize);
         if (global.GUIStatus.renderLeaderboard) drawLeaderboard(spacing, alcoveSize, max);
         if (global.GUIStatus.renderUpgrades) drawAvailableUpgrades(spacing, alcoveSize);
         if (global.showTree) {
@@ -5669,6 +5716,7 @@ const SIDE_BORDER = 0.5;
                 if (cb.id === "optCrosshairCursor") global.applyCrosshairCursor();
                 if (cb.id === "optRainbowTeamColors") config.game.rainbowTeamColors = !!cb.value;
                 if (cb.id === "optDmcaMode") global.setDmcaMode(!!cb.value);
+                if (cb.id === "optKeyboardDisplay") config.game.keyboardDisplay = !!cb.value;
                 if (cb.id === "optSelfCenteredMinimap") config.game.centeredMinimap = !!cb.value;
                 if (cb.id === "opt3DMode") config.graphical.threeDimensional = !!cb.value;
                 if (cb.id === "optForce169AspectRatio") config.graphical.force169AspectRatio = !!cb.value;
@@ -6128,7 +6176,7 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
                     { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
                     { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
-                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Display movement and mouse control inputs beside the minimap." },
+                    { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", tooltip: "Display movement and mouse control inputs beside the minimap." },
                     { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
 
                     // Beta

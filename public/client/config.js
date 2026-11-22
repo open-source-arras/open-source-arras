@@ -61,6 +61,7 @@ const config = {
         incognitoMode: false,
         rainbowTeamColors: false,
         dmcaMode: false,
+        keyboardDisplay: false,
     }
 };
 export { config }

@@ -1569,6 +1569,15 @@ const socketInit = () => {
             x: commands[3] - commands[2],
             y: commands[1] - commands[0],
         }),
+        getInputs: () => ({
+            up: commands[0],
+            down: commands[1],
+            left: commands[2],
+            right: commands[3],
+            lmb: commands[4],
+            mmb: commands[5],
+            rmb: commands[6],
+        }),
         reactNow: () => {
             flag = true;
             return flag;
