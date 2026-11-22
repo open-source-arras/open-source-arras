@@ -6582,13 +6582,17 @@ const SIDE_BORDER = 0.5;
         drawText("The rendering has paused to prevent interuptions.", global.screenWidth / 2, global.screenHeight / 2 + 90, 15, color.guiwhite, "center");
     };
 
-    const drawErrorScreen = () => {
-        let ratio = util.getScreenRatio();
-        scaleScreenRatio(ratio, true);
-        clearScreen(gameDraw.mixColors(color.black, color.guiblack, 0.3), 0.25, ctx[2]);
-        drawText("Client error detected!", global.screenWidth / 2, global.screenHeight / 2, 30, color.red, "center");
-        drawText("If this is because of an entity, try to move away from it.", global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.guiwhite, "center");
-        drawText("Check your browser's console logs and report whatever you see to the developers.", global.screenWidth / 2, global.screenHeight / 2 + 60, 15, color.guiwhite, "center");
+    let errorDialogShown = false;
+    const showErrorDialog = (error) => {
+        if (errorDialogShown) return;
+        errorDialogShown = true;
+        prompt("The game may have crashed, refresh the page to recover from error.\n\nError information:", JSON.stringify({
+            message: error.message,
+            filename: error.fileName,
+            lineno: error.lineNumber,
+            colno: error.columnNumber,
+            error: String(error)
+        }));
     };
 
     let animationFrame =
@@ -6717,7 +6721,7 @@ const SIDE_BORDER = 0.5;
         } catch (e) {
 
             //hold on....
-            drawErrorScreen(); // Draw the error screen.
+            showErrorDialog(e); // Show the crash dialog.
             if (global.GUIStatus.fullHDMode) ctx[2].translate(-0.5, -0.5);
 
             //okay, NOW throw the error!
