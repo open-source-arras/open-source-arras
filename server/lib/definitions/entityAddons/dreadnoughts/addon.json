@@ -3,9 +3,5 @@
 	"authors": [
 		"Frostbyte"
 	],
-	"addon-version": "0.1.0-beta.1",
-	"osa-version": {
-		"minimum": "2.0.11",
-		"target": "2.1.2"
-	}
+	"version": "0.1.0-beta.1"
 }

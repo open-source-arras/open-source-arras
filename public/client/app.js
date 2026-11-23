@@ -368,25 +368,6 @@ const SIDE_BORDER = 0.5;
 
         // Addon stuff
         for (let e of data) {
-            let warnDoc = null;
-            if (e["osa-version"].target !== global.version) {
-                if (global.version.startsWith("v") && e["osa-version"].minimum.startsWith("v")) {
-                    let targetVersion = global.version.split("v")[1];
-                    let target = "";
-                    targetVersion.split(".").forEach(e => {
-                        target += e;
-                    })
-                    let minimumVersion = e["osa-version"].minimum.split("v")[1];
-                    let minimum = "";
-                    minimumVersion.split(".").forEach(e => {
-                        minimum += e;
-                    })
-                    if (parseInt(minimum) > parseInt(target)) {
-                        warnDoc = document.createElement("ul3");
-                        warnDoc.textContent = "This addon may be incompatible with your version!";
-                    }
-                }
-            }
             let divDoc = document.createElement("div");
             divDoc.classList.add("optionsHeader");
             let name = document.createElement("ul");
@@ -398,7 +379,7 @@ const SIDE_BORDER = 0.5;
 
             name.textContent = e.name;
             addonVer.textContent = "Version: ";
-            versionValue.textContent = `${e["addon-version"]}`;
+            versionValue.textContent = `${e["version"]}`;
             addonVer.appendChild(versionValue);
             author.textContent = "Author(s): ";
             authorValue.textContent = "";
@@ -407,12 +388,10 @@ const SIDE_BORDER = 0.5;
                 authorValue.textContent += `${i !== 0 ? ", " : ""}${auth}`;
             }
             author.appendChild(authorValue);
-            targetVer.textContent = `Made for Open Source Arras ${e["osa-version"].target}`;
 
             divDoc.appendChild(name);
             divDoc.appendChild(author);
             divDoc.appendChild(addonVer);
-            if (warnDoc) divDoc.appendChild(warnDoc);
             divDoc.appendChild(targetVer);
 
             mainDoc.appendChild(divDoc);
