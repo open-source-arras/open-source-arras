@@ -292,14 +292,15 @@ function init() {
             run: ({ player }) => {
                 const colors = [
                     "teal", "lime", "orange",
-                    "yellow", "aqua",
-                    "pink", "veryLightGrey", "wall", 
+                    "yellow", "aqua", "pink",
+                    "veryLightGrey", "lightGrey", 
                     "pureWhite", "black", "blue",
                     "green", "red", "gold",
                     "purple", "magenta", "grey",
                     "darkGrey", "white", "pureBlack",
-                    "flashBlueRed", "flashBlueGrey", "flashGreyBlue",
-                    "flashRedGrey", "flashGreyRed", "mustard",
+                    "flashBlueRed", "flashBlueGrey",
+                    "flashGreyBlue", "flashRedGrey",
+                    "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan", 
                     "rainbow", "trans"
                 ];

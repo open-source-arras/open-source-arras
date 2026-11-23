@@ -286,7 +286,6 @@ var gameDraw = {
                 return gameDraw.color.vlgrey;
 
             case 7:
-            case "wall":
             case "lightGrey":
                 return gameDraw.color.lgrey;
 
