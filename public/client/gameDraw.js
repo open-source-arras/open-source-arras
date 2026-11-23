@@ -108,7 +108,7 @@ var gameDraw = {
     teamColors: [10, 11, 12, 15, 25, 26, 27, 28, "blue", "green", "red", "magenta", "mustard", "tangerine", "brown", "cyan"],
     getRainbowTeamColor: (colorNumber) => {
         let index = gameDraw.teamColors.indexOf(util.isNumeric(colorNumber) ? parseInt(colorNumber) : colorNumber);
-        if (index < 0) return gameDraw.animatedColor.gay;
+        if (index < 0) return gameDraw.animatedColor.rainbow;
         return gameDraw.animatedColor.rainbowTeams[index % (gameDraw.teamColors.length / 2)];
     },
     modifyColor: (color, base = "16 0 1 0 false") => {
@@ -174,7 +174,7 @@ var gameDraw = {
     },
     animatedColor: {
         lesbian: "",
-        gay: "",
+        rainbow: "",
         rainbowTeams: [],
         bi: "",
         trans: "",
@@ -197,7 +197,7 @@ var gameDraw = {
         lesbian_white = "#FFFFFF",
         lesbian_useSecondSet = five_bars < 2,
 
-        gay_transition = (now / 6000) % 1,
+        rainbow_transition = (now / 6000) % 1,
 
         ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
         light_purple = { h: 258 / 360, s: 1, l: 0.84 },
@@ -208,10 +208,10 @@ var gameDraw = {
         trans_white = "#FFFFFF";
 
         gameDraw.animatedColor.lesbian = gameDraw.getRainbow(lesbian_useSecondSet ? lesbian_oredange : lesbian_white, lesbian_useSecondSet ? lesbian_white : lesbian_magenta, (lesbian_useSecondSet ? five_bars : five_bars - 3) / 2);
-        gameDraw.animatedColor.gay = gameDraw.hslToRgb(gay_transition, 0.75, 0.5);
+        gameDraw.animatedColor.rainbow = gameDraw.hslToRgb(rainbow_transition, 0.75, 0.5);
         let teamCount = gameDraw.teamColors.length / 2;
         gameDraw.animatedColor.rainbowTeams = Array.from({ length: teamCount }, (_, i) =>
-            gameDraw.hslToRgb((gay_transition + i / teamCount) % 1, 0.75, 0.5)
+            gameDraw.hslToRgb((rainbow_transition + i / teamCount) % 1, 0.75, 0.5)
         );
         gameDraw.animatedColor.trans = gameDraw.mixColors(trans_white, 2000 > now % 4000 ? trans_blue : trans_pink, Math.max(Math.min(5 * Math.sin(now % 2000 / 2000 * Math.PI) - 2, 1), 0));
         gameDraw.animatedColor.trueTrans = [trans_blue, trans_pink, trans_white, trans_pink, trans_blue][five_bars];
@@ -251,7 +251,6 @@ var gameDraw = {
         lesbian: true,
 
         // rainbow
-        36: true,
         rainbow: true,
 
         // trans
@@ -439,16 +438,13 @@ var gameDraw = {
 
             case 28:
             case "cyan":
-            case "turquoise":
                 return gameDraw.color.cyan;
 
             case "lesbian":
                 return gameDraw.animatedColor.lesbian;
 
-            case 36:
-            case "gay":
             case "rainbow":
-                return gameDraw.animatedColor.gay;
+                return gameDraw.animatedColor.rainbow;
 
             case 37:
             case "trans":

@@ -882,7 +882,7 @@ Class.imageShapeTest = {
 Class.screenShakeTest = {
     PARENT: "genericTank",
     LABEL: "Screen Shake Test",
-    COLOR: 36,
+    COLOR: "rainbow",
     SHAKE: [
         {
             CAMERA_SHAKE: {
