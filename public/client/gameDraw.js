@@ -225,10 +225,7 @@ var gameDraw = {
         flashGreyRed: true,
         rainbow: true,
         trans: true,
-
-        // magenta
-        42: true,
-        animatedMagenta: true,
+        aeBoss_magenta: true
     },
     getColor: (colorNumber, ctx, x1, y1, x2, y2) => {
         if (colorNumber == undefined || colorNumber == null) return gameDraw.color.black;
@@ -388,8 +385,7 @@ var gameDraw = {
             case "trans":
                 return gameDraw.animatedColor.trans;
 
-            case 42:
-            case "animatedMagenta":
+            case "aeBoss_magenta":
                 return gameDraw.animatedColor.magenta;
 
             case "nest":

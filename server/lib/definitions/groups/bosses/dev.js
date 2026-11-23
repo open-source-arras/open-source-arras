@@ -1438,7 +1438,7 @@ Class.toothlessBoss = {
 };
 
 // AESports
-Class.MKAura = makeAura(5, 0, 0.1, 42);
+Class.MKAura = makeAura(5, 0, 0.1, "aeBoss_magenta");
 Class.MKDoneAura = makeAura(2, 1, 0.3, "#ff1000");
 Class.MKFactoryAura = makeAura(2.6, 1, 0.3, "trans");
 Class.MKCarrierAura = makeAura(2.1, 1, 0.3, 1);

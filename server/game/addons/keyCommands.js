@@ -301,8 +301,7 @@ function init() {
                     "flashBlueRed", "flashBlueGrey", "flashGreyBlue",
                     "flashRedGrey", "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan", 
-                    "rainbow", "trans",
-                    "animatedMagenta"
+                    "rainbow", "trans"
                 ];
                 let target = targetEntities(player);
                 if (target.length) {
