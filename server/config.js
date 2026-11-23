@@ -515,7 +515,6 @@ module.exports = {
 
     // Room setup (don't change these unless you know what you're doing)
     room_setup: ["default"],
-    round_arena: false,
     mode: "ffa",
 
     // Development build marker.
