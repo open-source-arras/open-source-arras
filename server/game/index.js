@@ -288,7 +288,7 @@ class gameHandler {
             instance.emit("tick", { body: instance });
 
             // Only walls and food can sleep.
-            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) instance.sleeping = true;
+            if (Config.entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) instance.sleeping = true;
         }
         logs.entities.mark();
         logs.master.mark();
