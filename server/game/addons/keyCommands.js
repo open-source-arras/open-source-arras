@@ -291,12 +291,12 @@ function init() {
             permissionLevel: 1,
             run: ({ player }) => {
                 const colors = [
-                    "teal", "shiny", "triangle",
+                    "teal", "lime", "orange",
                     "yellow", "aqua",
-                    "crasher", "egg", "wall", 
+                    "pink", "veryLightGrey", "wall", 
                     "pureWhite", "black", "blue",
-                    "green", "red", "square",
-                    "pentagon", "magenta", "grey",
+                    "green", "red", "gold",
+                    "purple", "magenta", "grey",
                     "darkGrey", "white", "pureBlack",
                     "flashBlueRed", "flashBlueGrey", "flashGreyBlue",
                     "flashRedGrey", "flashGreyRed", "mustard",

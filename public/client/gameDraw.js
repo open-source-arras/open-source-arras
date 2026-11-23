@@ -255,22 +255,18 @@ var gameDraw = {
         switch (colorNumber) {
             case 0:
             case "teal":
-            case "legendary":
                 return gameDraw.color.teal;
 
             case 1:
-            case "shiny":
             case "lime":
             case "lightGreen":
                 return gameDraw.color.lgreen;
 
             case 2:
-            case "triangle":
             case "orange":
                 return gameDraw.color.orange;
 
             case 3:
-            case "neutral":
             case "yellow":
                 return gameDraw.color.yellow;
 
@@ -278,18 +274,14 @@ var gameDraw = {
                 return gameDraw.color.lavender;
 
             case 4:
-            case "hexagon":
             case "aqua":
                 return gameDraw.color.aqua;
 
             case 5:
-            case "crasher":
             case "pink":
                 return gameDraw.color.pink;
 
             case 6:
-            case "egg":
-            case "circle":
             case "veryLightGrey":
                 return gameDraw.color.vlgrey;
 
@@ -319,12 +311,10 @@ var gameDraw = {
                 return gameDraw.color.red;
 
             case 13:
-            case "square":
             case "gold":
                 return gameDraw.color.gold;
 
             case 14:
-            case "pentagon":
             case "purple":
                 return gameDraw.color.purple;
 

@@ -125,12 +125,12 @@ Class.spikyPortalSpikes_dreadsV1 = {
     FACING_TYPE: ["spin", {speed: 0.07}],
     GUNS: weaponArray({
         POSITION: [30, 8, 0.001, 0, 0, 0, 0],
-        PROPERTIES: {COLOR: "egg"}
+        PROPERTIES: {COLOR: "veryLightGrey"}
     }, 5)
 };
 Class.spikyPortalBumps_dreadsV1 = {
     SHAPE: "M 1 0 L 0.666 0.216 L 0.566 0.41 L 0.41 0.566 L 0.309 0.951 L 0 0.7 L -0.215 0.665 L -0.412 0.565 L -0.809 0.588 L -0.666 0.217 L -0.699 0.001 L -0.664 -0.217 L -0.809 -0.588 L -0.412 -0.566 L -0.217 -0.664 L 0.001 -0.699 L 0.309 -0.951 L 0.411 -0.567 L 0.565 -0.412 L 0.665 -0.215 Z",
-    COLOR: "egg",
+    COLOR: "veryLightGrey",
     INDEPENDENT: true,
     FACING_TYPE: ["spin", {speed: 0.12}]
 };

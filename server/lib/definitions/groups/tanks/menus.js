@@ -232,8 +232,7 @@ Class.menu_mysticalBosses = makeMenu("Mystical Bosses Menu", {
         "summoner",
         "enchantress",
         "exorcistor",
-        "shaman",
-        "witch"
+        "shaman"
     ]
 });
 Class.menu_terrestrialBosses = makeMenu("Terrestrial Bosses Menu", {
