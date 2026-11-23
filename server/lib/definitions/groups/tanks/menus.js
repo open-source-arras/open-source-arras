@@ -219,7 +219,7 @@ Class.menu_nesterBosses = makeMenu("Nester Bosses Menu", {
     ]
 });
 Class.menu_rogueBosses = makeMenu("Rogue Bosses Menu", {
-    color: "rogue",
+    color: "darkGrey",
     upgrades: [
         "roguePalisade",
         "rogueArmada"

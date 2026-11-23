@@ -297,12 +297,12 @@ function init() {
                     "pureWhite", "black", "blue",
                     "green", "red", "square",
                     "pentagon", "magenta", "grey",
-                    "rogue", "white", "pureBlack",
+                    "darkGrey", "white", "pureBlack",
                     "flashBlueRed", "flashBlueGrey", "flashGreyBlue",
                     "flashRedGrey", "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan", 
                     "lesbian", "rainbow", "trans",
-                    "trueTrans", "bi", "animatedMagenta"
+                    "bi", "animatedMagenta"
                 ];
                 let target = targetEntities(player);
                 if (target.length) {

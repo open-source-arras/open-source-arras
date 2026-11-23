@@ -370,7 +370,7 @@ Class.spotterRadar_dreadsV2 = {
     CONTROLLERS: [["spin", {speed: 0.02}]],
     INDEPENDENT: true,
     SHAPE: [[0.225, 1], [0.225, -1], [-0.225, -1], [-0.225, 1]],
-    COLOR: 17,
+    COLOR: "darkGrey",
     GUNS: [
         {
             POSITION: [4.5, 26, 1, -2.25, 0, 0, 0],

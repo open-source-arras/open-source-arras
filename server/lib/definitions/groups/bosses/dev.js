@@ -1001,7 +1001,7 @@ function addIcosphereAura(damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraS
         PARENT: "genericTank",
         INDEPENDENT: true,
         LABEL: "",
-        COLOR: 17,
+        COLOR: "darkGrey",
         GUNS: [
             {
                 POSITION: [0, 20, 1, 0, 0, 0, 0],
@@ -1030,7 +1030,7 @@ Class.frostAuraBlockTop = {
 Class.frostAuraBlockTurret = {
     PARENT: "genericTank",
     INDEPENDENT: true,
-    COLOR: 17,
+    COLOR: "darkGrey",
     CONTROLLERS: ["nearestDifferentMaster"],
     LABEL: "",
     BODY: {
@@ -1082,7 +1082,7 @@ Class.frostBossBigAura = addIcosphereAura(1.5, 1.45, 0.3, "Large");
 Class.frostBossAutoTurret = {
     PARENT: "autoTankGun",
     INDEPENDENT: true,
-    COLOR: 17,
+    COLOR: "darkGrey",
     GUNS: [
         {
             POSITION: [17, 14, 1, 0, 0, 0, 0],

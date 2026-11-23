@@ -214,7 +214,6 @@ var gameDraw = {
             gameDraw.hslToRgb((rainbow_transition + i / teamCount) % 1, 0.75, 0.5)
         );
         gameDraw.animatedColor.trans = gameDraw.mixColors(trans_white, 2000 > now % 4000 ? trans_blue : trans_pink, Math.max(Math.min(5 * Math.sin(now % 2000 / 2000 * Math.PI) - 2, 1), 0));
-        gameDraw.animatedColor.trueTrans = [trans_blue, trans_pink, trans_white, trans_pink, trans_blue][five_bars];
         gameDraw.animatedColor.magenta = gameDraw.hslToRgb(
             light_purple.h + (purple.h - light_purple.h) * ratio,
             light_purple.s + (purple.s - light_purple.s) * ratio,
@@ -250,9 +249,7 @@ var gameDraw = {
         rainbow: true,
 
         // trans
-        37: true,
         trans: true,
-        trueTrans: true,
 
         // bi
         bi: true,
@@ -371,7 +368,6 @@ var gameDraw = {
                 return gameDraw.color.grey;
 
             case 17:
-            case "rogue":
             case "darkGrey":
                 return gameDraw.color.dgrey;
 
@@ -420,12 +416,8 @@ var gameDraw = {
             case "rainbow":
                 return gameDraw.animatedColor.rainbow;
 
-            case 37:
             case "trans":
                 return gameDraw.animatedColor.trans;
-
-            case "trueTrans":
-                return gameDraw.animatedColor.trueTrans;
 
             case "bi":
                 return gameDraw.animatedColor.bi;
