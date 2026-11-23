@@ -52,15 +52,28 @@ Class.pumpkin = {
     SIZE: 63,
     TURRETS: [
         ...weaponArray({
-            POSITION: [6, -4.5, 0, 0, 360, 1],
+            POSITION: {
+                SIZE: 6,
+                X: -4.5,
+                ARC: 360,
+                LAYER: 1
+            },
             TYPE: "pumpkinLine"
         }, 9),
         {
-            POSITION: [6.5, 0, 0, 0, 360, 2],
+            POSITION: {
+                SIZE: 6.5,
+                ARC: 360,
+                LAYER: 2
+            },
             TYPE: "pumpkinCircle"
         },
         {
-            POSITION: [4.5, 0, 0, 0, 360, 3],
+            POSITION: {
+                SIZE: 4.5,
+                ARC: 360,
+                LAYER: 3
+            },
             TYPE: "pumpkinStar"
         }
     ]
