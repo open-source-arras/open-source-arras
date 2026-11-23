@@ -121,7 +121,7 @@ Class[`gaybabyjail${suffix}`] = {
     PARENT: "genBody",
     LABEL: "Gay Baby Jail Creator",
     SHAPE: "M 0.9 0.4 L 1.2 0.3 L 1.2 -0.3 L 0.9 -0.4 A 1 1 0 0 0 0 -1 L -0.3 -1.2 L -0.8 -0.9 L -0.8 -0.6 A 1 1 0 0 0 -0.8 0.6 L -0.8 0.9 L -0.3 1.2 L 0 1 A 1 1 0 0 0 0.9 0.4",
-    COLOR: "lightGray",
+    COLOR: "lightGrey",
     SIZE: 24,
     UPGRADES_TIER_0: [],
     BODY: {FOV: base.FOV * 1.5},

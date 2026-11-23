@@ -29,7 +29,7 @@ tileClass.nexus_portal_tile = new Tile({
         room.portalTiles.push(tile);
     }
 });
-tileClass.grayWall = new Tile({
+tileClass.greyWall = new Tile({
     COLOR: "pureBlack"
 });
 tileClass.nexusKillTile = new Tile({

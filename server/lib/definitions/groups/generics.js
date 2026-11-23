@@ -257,7 +257,7 @@ Class.genericObstacle = {
         STEALTH: 1
     },
     VALUE: 0,
-    COLOR: "lightGray",
+    COLOR: "lightGrey",
     ACCEPTS_SCORE: false,
     VARIES_IN_SIZE: true
 };

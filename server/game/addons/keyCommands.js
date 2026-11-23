@@ -298,8 +298,8 @@ function init() {
                     "green", "red", "square",
                     "pentagon", "magenta", "grey",
                     "rogue", "white", "pureBlack",
-                    "animatedBlueRed", "animatedBlueGrey", "animatedGreyBlue",
-                    "animatedRedGrey", "animatedGreyRed", "mustard",
+                    "flashBlueRed", "flashBlueGrey", "flashGreyBlue",
+                    "flashRedGrey", "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan", 
                     "lesbian", "rainbow", "trans",
                     "trueTrans", "bi", "animatedMagenta"

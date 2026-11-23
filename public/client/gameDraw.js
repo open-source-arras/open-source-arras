@@ -233,19 +233,15 @@ var gameDraw = {
 
         21: true,
         flashBlueGrey: true,
-        flashBlueGray: true,
 
         22: true,
         flashGreyBlue: true,
-        flashGrayBlue: true,
 
         23: true,
         flashRedGrey: true,
-        flashRedGray: true,
 
         24: true,
         flashGreyRed: true,
-        flashGrayRed: true,
 
         // lesbian
         lesbian: true,
@@ -329,13 +325,11 @@ var gameDraw = {
             case "egg":
             case "circle":
             case "veryLightGrey":
-            case "veryLightGray":
                 return gameDraw.color.vlgrey;
 
             case 7:
             case "wall":
             case "lightGrey":
-            case "lightGray":
                 return gameDraw.color.lgrey;
 
             case 8:
@@ -374,13 +368,11 @@ var gameDraw = {
 
             case 16:
             case "grey":
-            case "gray":
                 return gameDraw.color.grey;
 
             case 17:
             case "rogue":
             case "darkGrey":
-            case "darkGray":
                 return gameDraw.color.dgrey;
 
             case 18:
@@ -391,37 +383,19 @@ var gameDraw = {
             case "pureBlack":
                 return gameDraw.color.guiblack;
 
-            case 20:
-            case "animatedBlueRed":
             case "flashBlueRed":
                 return gameDraw.animatedColor.blue_red;
 
-            case 21:
-            case "animatedBlueGrey":
-            case "animatedBlueGray":
             case "flashBlueGrey":
-            case "flashBlueGray":
                 return gameDraw.animatedColor.blue_grey;
 
-            case 22:
-            case "animatedGreyBlue":
-            case "animatedGrayBlue":
             case "flashGreyBlue":
-            case "flashGrayBlue":
                 return gameDraw.animatedColor.grey_blue;
 
-            case 23:
-            case "animatedRedGrey":
-            case "animatedRedGray":
             case "flashRedGrey":
-            case "flashRedGray":
                 return gameDraw.animatedColor.red_grey;
 
-            case 24:
-            case "animatedGreyRed":
-            case "animatedGrayRed":
             case "flashGreyRed":
-            case "flashGrayRed":
                 return gameDraw.animatedColor.grey_red;
 
             case 25:
