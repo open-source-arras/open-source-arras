@@ -1001,7 +1001,7 @@ function addIcosphereAura(damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraS
         PARENT: "genericTank",
         INDEPENDENT: true,
         LABEL: "",
-        COLOR: 17,
+        COLOR: "darkGrey",
         GUNS: [
             {
                 POSITION: [0, 20, 1, 0, 0, 0, 0],
@@ -1030,7 +1030,7 @@ Class.frostAuraBlockTop = {
 Class.frostAuraBlockTurret = {
     PARENT: "genericTank",
     INDEPENDENT: true,
-    COLOR: 17,
+    COLOR: "darkGrey",
     CONTROLLERS: ["nearestDifferentMaster"],
     LABEL: "",
     BODY: {
@@ -1082,7 +1082,7 @@ Class.frostBossBigAura = addIcosphereAura(1.5, 1.45, 0.3, "Large");
 Class.frostBossAutoTurret = {
     PARENT: "autoTankGun",
     INDEPENDENT: true,
-    COLOR: 17,
+    COLOR: "darkGrey",
     GUNS: [
         {
             POSITION: [17, 14, 1, 0, 0, 0, 0],
@@ -1176,7 +1176,7 @@ Class.frostBoss = {
         ...weaponArray({
             // Speed
             POSITION: [8, 14.5, 0.001, 9.5, 0, 0, 0],
-            PROPERTIES: {COLOR: 9}
+            PROPERTIES: {COLOR: "black"}
         }, 6),
         ...weaponArray([
             { // Heavy Snipers
@@ -1438,7 +1438,7 @@ Class.toothlessBoss = {
 };
 
 // AESports
-Class.MKAura = makeAura(5, 0, 0.1, 42);
+Class.MKAura = makeAura(5, 0, 0.1, "aeBoss_magenta");
 Class.MKDoneAura = makeAura(2, 1, 0.3, "#ff1000");
 Class.MKFactoryAura = makeAura(2.6, 1, 0.3, "trans");
 Class.MKCarrierAura = makeAura(2.1, 1, 0.3, 1);
@@ -1481,7 +1481,7 @@ Class.MKTurretFactory = {
     PARENT: "genericTank",
     LABEL: "MKTurret factory",
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    COLOR: 16,
+    COLOR: "grey",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
     GUNS: [
@@ -1535,7 +1535,7 @@ Class.MKTurretCarrier = {
         }
     ],
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    COLOR: 16,
+    COLOR: "grey",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false
 };
@@ -1559,7 +1559,7 @@ Class.MKTurretThruster = {
     FACING_TYPE: "toTarget",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: [{
         POSITION: [14, 12, 1, 4, 0, 180, 0],
         PROPERTIES: {
@@ -1580,7 +1580,7 @@ Class.MKTurret = {
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
     LABEL: "MKTurret",
-    COLOR: 16,
+    COLOR: "grey",
     SHAPE: 5,
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
     TURRETS: [
@@ -1723,8 +1723,8 @@ Class.AEMKShipBoss = {
 Class.helenaBossBaseAura = makeAura(2, 2, 0);
 Class.helenaBossBase = {
     PARENT: "genericTank",
-    COLOR: "crasher",
-    UPGRADE_COLOR: "crasher",
+    COLOR: "pink",
+    UPGRADE_COLOR: "pink",
     UPGRADE_LABEL: "CMX-2048-XX", //CrasherMachinery X 2048-bit Xtra Xtra
     LABEL: "CMX-2048-XX",
     NAME: "Helena",
@@ -1736,7 +1736,7 @@ Class.helenaBossBase = {
     MAX_CHILDREN: 65536, //memory limit
     GLOW: {
         RADIUS: 9,
-        COLOR: "crasher",
+        COLOR: "pink",
         ALPHA: 1,
         RECURSION: 3
     },
@@ -1756,24 +1756,24 @@ Class.helenaBossBase = {
         }
     ]
 };
-Class.helenaDpProp = makeHat(3.5, { color: "crasher" });
+Class.helenaDpProp = makeHat(3.5, { color: "pink" });
 Class.helenaBossDpProp2 = makeHat(3.5, { color: "black" });
 Class.helenaBossDpPropArmed = {
     PARENT: "genericTank",
-    COLOR: "crasher",
+    COLOR: "pink",
     SHAPE: 3,
     GUNS: weaponArray(
         {
             POSITION: [15, 8, 1, 0, 0, 60, 0],
             PROPERTIES: {
-                COLOR: "crasher"
+                COLOR: "pink"
             }
         }, 3
     )
 };
 Class.helenaBossProp = makeHat(3.5, { color: "darkGrey" });
 Class.helenaBossPropMiddle = makeHat(3.5, { color: "white" });
-Class.helenaBossProp2 = makeHat(3.5, { color: "crasher" });
+Class.helenaBossProp2 = makeHat(3.5, { color: "pink" });
 Class.helenaBossMinionProp = makeHat(3.5, { color: "black" });
 Class.helenaBossMinion = {
     PARENT: "minion",
@@ -1809,7 +1809,7 @@ Class.helenaBossMinion = {
         )
     ]
 };
-Class.helenaBossAuraBulletAura = makeAura(0.32, 1.5, 0.3, "crasher");
+Class.helenaBossAuraBulletAura = makeAura(0.32, 1.5, 0.3, "pink");
 Class.helenaBossAuraBullet = {
     PARENT: "swarm",
     SHAPE: 0,
@@ -1946,7 +1946,7 @@ Class.helenaBoss = {
                     PROPERTIES: {
                         SHOOT_SETTINGS: combineStats([g.basic, g.single, g.fake, { reload: 1.32 }]),
                         TYPE: "bullet",
-                        COLOR: "crasher"
+                        COLOR: "pink"
                     }
                 }
             ], 3)

@@ -18,7 +18,7 @@ var color = {
         "purple": "#8d6adf", // Pentagons
         "aqua": "#7adbba", // Hexagons
         "pink": "#ef99c3", // Crashers
-        "lavender": "#b58efd", // Nest
+        "lavender": "#b58efd",
         "lgrey": "#a4a4ad", // Maze Walls (#aa9f9e is old lgrey (todo: reassign this as beige))
 
         "lgreen": "#b9e87e", // Health Bars, Shiny Polygons
@@ -51,7 +51,7 @@ var color = {
         "purple": "#9673e8", // Pentagons
         "aqua": "#62caa7", // Hexagons
         "pink": "#d153cc", // Crashers
-        "lavender": "#7d56c5", // Nest
+        "lavender": "#7d56c5",
         "lgrey": "#3c3a3a", // Maze Walls
 
         "lgreen": "#26bf57", // Health Bars, Shiny Polygons
@@ -110,7 +110,7 @@ var color = {
         "purple": "#768dfc", // Pentagons
         "aqua": "#72eacf", // Hexagons (#8543ff is more accurate to diep)
         "pink": "#f177dd", // Crashers
-        "lavender": "#b58eff", // Nest
+        "lavender": "#b58eff",
         "lgrey": "#bbbbbb", // Maze Walls (#aa9f9e is old lgrey (todo: reassign this as beige))
 
         "lgreen": "#85e37d", // Health Bars, Shiny Polygons
@@ -143,7 +143,7 @@ var color = {
         "purple": "#8053a0", // Pentagons
         "aqua": "#76aac1", // Hexagons
         "pink": "#d87fb2", // Crashers
-        "lavender": "#939fff", // Nest
+        "lavender": "#939fff",
         "lgrey": "#998f8f", // Maze Walls (#aa9f9e is old lgrey (todo: reassign this as beige))
 
         "lgreen": "#aad35d", // Health Bars, Shiny Polygons
@@ -175,7 +175,7 @@ var color = {
         "purple": "#5c79ff", // Pentagons
         "aqua": "#3fd5c8", // Hexagons
         "pink": "#ff68ff", // Crashers
-        "lavender": "#b58eff", // Nest
+        "lavender": "#b58eff",
         "lgrey": "#999999", // Maze Walls
 
         "lgreen": "#29b399", // Health Bars, Shiny Polygons
@@ -208,7 +208,7 @@ var color = {
         "purple": "#743784", // Pentagons
         "aqua": "#7e2816", // Hexagons
         "pink": "#a85c90", // Crashers
-        "lavender": "#89778e", // Nest
+        "lavender": "#89778e",
         "lgrey": "#555555", // Maze Walls
 
         "lgreen": "#4baa5d", // Health Bars, Shiny Polygons
@@ -241,7 +241,7 @@ var color = {
         "purple": "#678cb1", // Pentagons
         "aqua": "#2aa198", // Hexagons
         "pink": "#d33682", // Crashers
-        "lavender": "#eee8d5", // Nest
+        "lavender": "#eee8d5",
         "lgrey": "#839496", // Maze Walls
 
         "lgreen": "#2aa198", // Health Bars, Shiny Polygons
@@ -274,7 +274,7 @@ var color = {
         "purple": "#1e616a", // Pentagons
         "aqua": "#123e43", // Hexagons
         "pink": "#e72c76", // Crashers
-        "lavender": "#eee8d5", // Nest
+        "lavender": "#eee8d5",
         "lgrey": "#839496", // Maze Walls
 
         "lgreen": "#06bf3b", // Health Bars, Shiny Polygons
@@ -307,7 +307,7 @@ var color = {
         "purple": "#c3c3d8", // Pentagons
         "aqua": "#8b8ba9", // Hexagons
         "pink": "#646de5", // Crashers
-        "lavender": "#939fff", // Nest
+        "lavender": "#939fff",
         "lgrey": "#cccccc", // Maze Walls
 
         "lgreen": "#b5d17d", // Health Bars, Shiny Polygons
@@ -340,7 +340,7 @@ var color = {
         "purple": "#ce2960", // Pentagons
         "aqua": "#9b033a", // Hexagons
         "pink": "#ef99c3", // Crashers
-        "lavender": "#7d56c5", // Nest
+        "lavender": "#7d56c5",
         "lgrey": "#9c8993", // Maze Walls
 
         "lgreen": "#c20644", // Health Bars, Shiny Polygons
@@ -373,7 +373,7 @@ var color = {
         "purple": "#7b4bab", // Pentagons
         "aqua": "#50c0d3", // Hexagons
         "pink": "#fa8072", // Crashers
-        "lavender": "#dc3388", // Nest
+        "lavender": "#dc3388",
         "lgrey": "#656884", // Maze Walls
 
         "lgreen": "#41aa78", // Health Bars, Shiny Polygons
@@ -406,7 +406,7 @@ var color = {
         "purple": "#417b58", // Pentagons
         "aqua": "#525c73", // Hexagons
         "pink": "#d3869b", // Crashers
-        "lavender": "#d3869b", // Nest
+        "lavender": "#d3869b",
         "lgrey": "#928374", // Maze Walls
 
         "lgreen": "#8ec07c", // Health Bars, Shiny Polygons
@@ -439,7 +439,7 @@ var color = {
         "purple": "#815ba4", // Pentagons
         "aqua": "#5ac5ca", // Hexagons
         "pink": "#e96ba8", // Crashers
-        "lavender": "#e7e9db", // Nest
+        "lavender": "#e7e9db",
         "lgrey": "#b9b6b0", // Maze Walls
 
         "lgreen": "#78d4b6", // Health Bars, Shiny Polygons
@@ -472,7 +472,7 @@ var color = {
         "purple": "#6e78aa", // Pentagons
         "aqua": "#6ca8a4", // Hexagons
         "pink": "#b35757", // Crashers
-        "lavender": "#9e8171", // Nest
+        "lavender": "#9e8171",
         "lgrey": "#868788", // Maze Walls
 
         "lgreen": "#689168", // Health Bars, Shiny Polygons
@@ -505,7 +505,7 @@ var color = {
         "purple": "#757575", // Pentagons
         "aqua": "#adada6", // Hexagons
         "pink": "#696969", // Crashers
-        "lavender": "#b58efd", // Nest
+        "lavender": "#b58efd",
         "lgrey": "#787878", // Maze Walls
 
         "lgreen": "#931a1a", // Health Bars, Shiny Polygons
@@ -540,7 +540,7 @@ var color = {
         "purple": "#3100ff", // Pentagons
         "aqua": "#00ffff", // Hexagons
         "pink": "#ff3cbd", // Crashers
-        "lavender": "#ff24a7", // Nest
+        "lavender": "#ff24a7",
         "lgrey": "#838383", // Maze Walls
 
         "lgreen": "#00ff00", // Health Bars, Shiny Polygons
@@ -573,7 +573,7 @@ var color = {
         "purple": "#58cbec", // Pentagons
         "aqua": "#38b06e", // Hexagons
         "pink": "#df3e3e", // Crashers
-        "lavender": "#7d56c5", // Nest
+        "lavender": "#7d56c5",
         "lgrey": "#7e5713", // Maze Walls
 
         "lgreen": "#22882e", // Health Bars, Shiny Polygons
@@ -605,7 +605,7 @@ var color = {
         "purple": "#bac674", // Pentagons
         "aqua": "#884aa5", // Hexagons
         "pink": "#60294f", // Crashers
-        "lavender": "#499855", // Nest
+        "lavender": "#499855",
         "lgrey": "#998866", // Maze Walls
 
         "lgreen": "#8c9b3e", // Health Bars, Shiny Polygons
@@ -638,7 +638,7 @@ var color = {
         "purple": "#81654a", // Pentagons
         "aqua": "#ffff98", // Hexagons
         "pink": "#ff8dbd", // Crashers
-        "lavender": "#eee8d5", // Nest
+        "lavender": "#eee8d5",
         "lgrey": "#c1c1c1", // Maze Walls
 
         "lgreen": "#8affb2", // Health Bars, Shiny Polygons
@@ -671,7 +671,7 @@ var color = {
         "purple": "#878777", // Pentagons
         "aqua": "#95cecf", // Hexagons
         "pink": "#bd91c4", // Crashers
-        "lavender": "#000000", // Nest
+        "lavender": "#000000",
         "lgrey": "#c4bb9d", // Maze Walls
 
         "lgreen": "#ffa5ff", // Health Bars, Shiny Polygons
@@ -704,7 +704,7 @@ var color = {
         "purple": "#591c77", // Pentagons
         "aqua": "#f9cb9c", // Hexagons
         "pink": "#bd91c4", // Crashers
-        "lavender": "#b7b7b7", // Nest
+        "lavender": "#b7b7b7",
         "lgrey": "#2f1c16", // Maze Walls
 
         "lgreen": "#f1c232", // Health Bars, Shiny Polygons
@@ -737,7 +737,7 @@ var color = {
         "purple": "#1b713a", // Pentagons
         "aqua": "#1b713a", // Hexagons
         "pink": "#194417", // Crashers
-        "lavender": "#941100", // Nest
+        "lavender": "#941100",
         "lgrey": "#FFFFFF", // Maze Walls
 
         "lgreen": "#ff6347", // Health Bars, Shiny Polygons
@@ -781,6 +781,6 @@ var color = {
         "paletteSize": 20,
         "border": 0,
         "neon": false
-    },
+    }
 };
 export { color }

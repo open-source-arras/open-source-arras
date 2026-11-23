@@ -219,7 +219,7 @@ Class.menu_nesterBosses = makeMenu("Nester Bosses Menu", {
     ]
 });
 Class.menu_rogueBosses = makeMenu("Rogue Bosses Menu", {
-    color: "rogue",
+    color: "darkGrey",
     upgrades: [
         "roguePalisade",
         "rogueArmada"
@@ -232,8 +232,7 @@ Class.menu_mysticalBosses = makeMenu("Mystical Bosses Menu", {
         "summoner",
         "enchantress",
         "exorcistor",
-        "shaman",
-        "witch"
+        "shaman"
     ]
 });
 Class.menu_terrestrialBosses = makeMenu("Terrestrial Bosses Menu", {

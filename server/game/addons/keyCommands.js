@@ -291,18 +291,18 @@ function init() {
             permissionLevel: 1,
             run: ({ player }) => {
                 const colors = [
-                    "teal", "shiny", "triangle",
-                    "yellow", "lavender", "aqua",
-                    "crasher", "egg", "wall", 
+                    "teal", "lime", "orange",
+                    "yellow", "aqua", "pink",
+                    "veryLightGrey", "lightGrey", 
                     "pureWhite", "black", "blue",
-                    "green", "red", "square",
-                    "pentagon", "magenta", "grey",
-                    "rogue", "white", "pureBlack",
-                    "animatedBlueRed", "animatedBlueGrey", "animatedGreyBlue",
-                    "animatedRedGrey", "animatedGreyRed", "mustard",
+                    "green", "red", "gold",
+                    "purple", "magenta", "grey",
+                    "darkGrey", "white", "pureBlack",
+                    "flashBlueRed", "flashBlueGrey",
+                    "flashGreyBlue", "flashRedGrey",
+                    "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan", 
-                    "lesbian", "rainbow", "trans",
-                    "trueTrans", "bi", "animatedMagenta"
+                    "rainbow", "trans"
                 ];
                 let target = targetEntities(player);
                 if (target.length) {

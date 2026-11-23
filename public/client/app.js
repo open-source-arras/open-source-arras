@@ -149,7 +149,6 @@ const SIDE_BORDER = 0.5;
         util.retrieveFromLocalStorage("optBorders");
         util.retrieveFromLocalStorage("optBackgroundGrid");
         util.retrieveFromLocalStorage("optHexaGrid");
-        util.retrieveFromLocalStorage("optColoredNest");
         util.retrieveFromLocalStorage("optRenderKillbar");
         util.retrieveFromLocalStorage("separatedHealthbars");
         util.retrieveFromLocalStorage("autoLevelUp");
@@ -993,20 +992,16 @@ const SIDE_BORDER = 0.5;
                 content.guiblack,
             ]) {
                 if (!/^#[0-9a-fA-F]{6}$/.test(colorHex)) {
-                    if (!content.aqua) { // old themes don't have aqua, so just warn the user
-                        alert("Your theme does not an entry for \"aqua\" (the color used by Hexagons). A fallback has been provided.");
-                        content.aqua = content.teal;
-                    } else if (!content.lavender) { // same for lavender.
-                        alert("Your theme does not an entry for \"lavender\" (the color used by the nest). A fallback has been provided.");
-                        content.lavender = "#b58efd";
-                    } else {
-                        if (logError) {
-                            throw new Error("Unable to read the theme");
-                        } else return {
-                            name: "Unknown Theme",
-                            author: "?",
-                            content: null,
-                        }
+                    // Fallbacks for themes without these colours
+                    if (!content.aqua) content.aqua = content.teal;
+                    if (!content.lavender) content.lavender = "#b58efd";
+
+                    if (logError) {
+                        throw new Error("Unable to read the theme");
+                    } else return {
+                        name: "Unknown Theme",
+                        author: "?",
+                        content: null,
                     }
                 };
             }
@@ -1151,7 +1146,6 @@ const SIDE_BORDER = 0.5;
         config.graphical.force169AspectRatio = localStorage.getItem("optForce169AspectRatioChecked") === "true";
         config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
         config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
-        config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
         config.graphical.renderOldNest = localStorage.getItem("optRenderOldNestChecked") === "true";
         config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
         config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
@@ -1267,7 +1261,6 @@ const SIDE_BORDER = 0.5;
         util.submitToLocalStorage("optRenderKillbar");
         util.submitToLocalStorage("coloredHealthbars");
         util.submitToLocalStorage("separatedHealthbars");
-        util.submitToLocalStorage("optColoredNest");
         util.submitToLocalStorage("optBackgroundGrid");
         util.submitToLocalStorage("optHexaGrid");
         // GUI
@@ -3974,7 +3967,7 @@ const SIDE_BORDER = 0.5;
                             }
                             ctx[2].globalAlpha = 0.4;
                             ctx[2].fillStyle = gameDraw.getColor(color);
-                            if (gameDraw.getColor(color) !== color.white) {
+                            if (gameDraw.getColor(color) !== gameDraw.color.white) {
                                 drawGuiRect(minimapX, minimapY, cellWidth, cellHeight);
                             }
                         };
@@ -4287,9 +4280,9 @@ const SIDE_BORDER = 0.5;
             if (gui.dailyTank && gui.dailyTank.tank) {
                 let image = util.requestEntityImage(gui.dailyTank.tank, gui.color);
                 let hover = global.clickables.dailyTankUpgrade.check({ x: global.mouse.x, y: global.mouse.y });
-                image.upgradeColor = "36 0 1 0 false";
+                image.upgradeColor = "rainbow 0 1 0 false";
                 drawEntityIcon(image, xStart, initialY + height + internalSpacing + 50, len, height, 1, upgradeSpin, 0.4, 10, false, hover);
-                drawText("Daily Tank!", xStart + 50, initialY + height + internalSpacing + 67, 12, gameDraw.getColor(36), "center");
+                drawText("Daily Tank!", xStart + 50, initialY + height + internalSpacing + 67, 12, gameDraw.animatedColor.rainbow, "center");
                 global.clickables.dailyTankUpgrade.set(xStart * clickableRatio, (initialY + height + internalSpacing + 50) * clickableRatio, len * clickableRatio, height * clickableRatio);
                 gui.dailyTank.ads && drawButton(xStart + 50, initialY + height + internalSpacing + 160, m, h, 1, "rect", "Watch An Ad", textScale - 3.3, color.vlgrey, false, false, true, "dailyTankAd", clickableRatio, {
                     index: false
