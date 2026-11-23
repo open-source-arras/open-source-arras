@@ -173,10 +173,8 @@ var gameDraw = {
         );
     },
     animatedColor: {
-        lesbian: "",
         rainbow: "",
         rainbowTeams: [],
-        bi: "",
         trans: "",
         magenta: "",
         blue_red: "",
@@ -192,11 +190,6 @@ var gameDraw = {
         three_bars = Math.floor((now % 2000) * 3 / 2000),
         blinker = 150 > now % 300,
 
-        lesbian_magenta = "#a50062",
-        lesbian_oredange = "#d62900",
-        lesbian_white = "#FFFFFF",
-        lesbian_useSecondSet = five_bars < 2,
-
         rainbow_transition = (now / 6000) % 1,
 
         ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
@@ -207,7 +200,6 @@ var gameDraw = {
         trans_blue = "#55cdfc",
         trans_white = "#FFFFFF";
 
-        gameDraw.animatedColor.lesbian = gameDraw.getRainbow(lesbian_useSecondSet ? lesbian_oredange : lesbian_white, lesbian_useSecondSet ? lesbian_white : lesbian_magenta, (lesbian_useSecondSet ? five_bars : five_bars - 3) / 2);
         gameDraw.animatedColor.rainbow = gameDraw.hslToRgb(rainbow_transition, 0.75, 0.5);
         let teamCount = gameDraw.teamColors.length / 2;
         gameDraw.animatedColor.rainbowTeams = Array.from({ length: teamCount }, (_, i) =>
@@ -226,33 +218,13 @@ var gameDraw = {
         gameDraw.animatedColor.grey_red = blinker ? gameDraw.color.grey : gameDraw.color.red;
     },
     animatedColors: {
-        // police
-        20: true,
         flashBlueRed: true,
-
-        21: true,
         flashBlueGrey: true,
-
-        22: true,
         flashGreyBlue: true,
-
-        23: true,
         flashRedGrey: true,
-
-        24: true,
         flashGreyRed: true,
-
-        // lesbian
-        lesbian: true,
-
-        // rainbow
         rainbow: true,
-
-        // trans
         trans: true,
-
-        // bi
-        bi: true,
 
         // magenta
         42: true,
@@ -410,17 +382,11 @@ var gameDraw = {
             case "cyan":
                 return gameDraw.color.cyan;
 
-            case "lesbian":
-                return gameDraw.animatedColor.lesbian;
-
             case "rainbow":
                 return gameDraw.animatedColor.rainbow;
 
             case "trans":
                 return gameDraw.animatedColor.trans;
-
-            case "bi":
-                return gameDraw.animatedColor.bi;
 
             case 42:
             case "animatedMagenta":

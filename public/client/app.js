@@ -993,20 +993,16 @@ const SIDE_BORDER = 0.5;
                 content.guiblack,
             ]) {
                 if (!/^#[0-9a-fA-F]{6}$/.test(colorHex)) {
-                    if (!content.aqua) { // old themes don't have aqua, so just warn the user
-                        alert("Your theme does not an entry for \"aqua\" (the color used by Hexagons). A fallback has been provided.");
-                        content.aqua = content.teal;
-                    } else if (!content.lavender) { // same for lavender.
-                        alert("Your theme does not an entry for \"lavender\" (the color used by the nest). A fallback has been provided.");
-                        content.lavender = "#b58efd";
-                    } else {
-                        if (logError) {
-                            throw new Error("Unable to read the theme");
-                        } else return {
-                            name: "Unknown Theme",
-                            author: "?",
-                            content: null,
-                        }
+                    // Fallbacks for themes without these colours
+                    if (!content.aqua) content.aqua = content.teal;
+                    if (!content.lavender) content.lavender = "#b58efd";
+
+                    if (logError) {
+                        throw new Error("Unable to read the theme");
+                    } else return {
+                        name: "Unknown Theme",
+                        author: "?",
+                        content: null,
                     }
                 };
             }
