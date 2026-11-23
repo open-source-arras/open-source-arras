@@ -212,7 +212,7 @@ Class.genericSmasher = {
 Class.flag = {
     LABEL: "Flag",
     SIZE: 20,
-    COLOR: 3,
+    COLOR: "yellow",
     TURRETS: [
         {
             TYPE: "flagHat",
@@ -257,7 +257,7 @@ Class.genericObstacle = {
         STEALTH: 1
     },
     VALUE: 0,
-    COLOR: "lightGray",
+    COLOR: "lightGrey",
     ACCEPTS_SCORE: false,
     VARIES_IN_SIZE: true
 };

@@ -18,7 +18,7 @@ tileClass.normal = new Tile({
     INIT: (tile, room) => room.spawnableDefault.push(tile)
 });
 tileClass.nest = new Tile({
-    COLOR: "nest",
+    COLOR: "white",
     NAME: "Nest Tile",
     INIT: (tile, room) => {
         if (!room.spawnable[TEAM_ENEMIES]) room.spawnable[TEAM_ENEMIES] = [];

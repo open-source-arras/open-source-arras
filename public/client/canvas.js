@@ -37,7 +37,7 @@ class Canvas {
         this.cv.resize(innerWidth, innerHeight);
         this.reverseDirection = false;
         this.reverseSpam = [];
-        this.inverseMouse = false;
+        this.alternateControls = false;
         this.spinLock = false;
         this.mouseMoved = false;
         this.treeScrollSpeed = 0.5;
@@ -107,7 +107,7 @@ class Canvas {
         this.reverseSpam.push(now);
         if (this.reverseSpam.length >= 7) return global.createMessage("Please slow down!");
         this.reverseDirection = !this.reverseDirection;
-        global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
+        global.createMessage(`Reverse tank ${this.reverseDirection ? "enabled." : "disabled."}`);
     }
 
     wheel(event) {
@@ -254,35 +254,66 @@ class Canvas {
                 }
                 break;
 
-            case "ArrowUp":
+            case global.KEY_UP_ARROW:
+            case global.KEY_UP_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_UP:
+            case global.KEY_UP_ALT:
                 this.socket.cmd.set(0, true);
                 break;
-            case "ArrowDown":
+
+            case global.KEY_DOWN_ARROW:
+            case global.KEY_DOWN_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_DOWN:
+            case global.KEY_DOWN_ALT:
                 this.socket.cmd.set(1, true);
                 break;
-            case "ArrowLeft":
+
+            case global.KEY_LEFT_ARROW:
+            case global.KEY_LEFT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_LEFT:
+            case global.KEY_LEFT_ALT:
                 this.socket.cmd.set(2, true);
                 break;
-            case "ArrowRight":
+
+            case global.KEY_RIGHT_ARROW:
+            case global.KEY_RIGHT_ARROW_ALT:
                 if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
             case global.KEY_RIGHT:
+            case global.KEY_RIGHT_ALT:
                 this.socket.cmd.set(3, true);
                 break;
+
             case global.KEY_PRIMARY:
+            case global.KEY_PRIMARY_ALT:
+            case global.KEY_PRIMARY_MOUSE:
+            case global.KEY_PRIMARY_MOUSE_ALT:
                 this.socket.cmd.set(4, true);
                 break;
+
+            case global.KEY_SECONDARY:
+            case global.KEY_SECONDARY_ALT:
+            case global.KEY_SECONDARY_MOUSE:
+            case global.KEY_SECONDARY_MOUSE_ALT:
+                this.socket.cmd.set(6, true); //todo: switch 5 and 6
+                break;
+
             case global.KEY_TERTIARY:
+            case global.KEY_TERTIARY_ALT:
+            case global.KEY_TERTIARY_MOUSE:
+            case global.KEY_TERTIARY_MOUSE_ALT:
                 this.socket.cmd.set(5, true);
                 break;
-            case global.KEY_SECONDARY:
-                this.socket.cmd.set(6, true);
+
+            case global.KEY_SCOPE:
+            case global.KEY_SCOPE_ALT:
+            case global.KEY_SCOPE_MOUSE:
+            case global.KEY_SCOPE_MOUSE_ALT:
+                //this.socket.talk("scope");
                 break;
+
             case global.KEY_LEVEL_UP:
                 this.socket.talk("L");
                 break;
@@ -324,11 +355,11 @@ class Canvas {
                     break;
                 case global.KEY_SPIN_LOCK:
                     this.spinLock = !this.spinLock;
-                    global.createMessage(this.spinLock ? "Spinlock enabled." : "Spinlock disabled.");
+                    global.createMessage(`Spinlock ${this.spinLock ? "enabled." : "disabled."}`);
                     break;
                 case global.KEY_ALT_CONTROLS:
-                    this.inverseMouse = !this.inverseMouse;
-                    global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
+                    this.alternateControls = !this.alternateControls;
+                    global.createMessage(`Alternate controls ${this.alternateControls ? "enabled." : "disabled."}`);
                     break;
                 case global.KEY_REVERSE_TANK:
                     this.toggleReverse();
@@ -348,6 +379,9 @@ class Canvas {
                     break;
                 case global.KEY_PAUSE:
                     this.socket.talk("G");
+                    break;
+                case global.KEY_UPGRADE_CLASS:
+                    global.upgradingClass = true;
                     break;
             }
             const skill = [
@@ -379,7 +413,7 @@ class Canvas {
                         }
                     }
                 }
-            } else if (global.canSkill && skill >= 0) {
+            } else if (global.canSkill && skill >= 0 && !global.upgradingClass) {
                 this.socket.talk("x", skill, 1 * global.statMaxing);
             }
             // todo: map below to require a KEY_UPGRADE_CLASS press
@@ -392,9 +426,10 @@ class Canvas {
                 [global.KEY_UPGRADE_6]: 5,
                 [global.KEY_UPGRADE_7]: 6,
                 [global.KEY_UPGRADE_8]: 7,
-                [global.KEY_UPGRADE_9]: 8
+                [global.KEY_UPGRADE_9]: 8,
+                [global.KEY_UPGRADE_10]: 9
             }
-            if (global.canUpgrade && !global.died) {
+            if (global.canUpgrade && !global.died && global.upgradingClass) {
                 const i = upgradeMap[event.code];
                 if (i !== undefined) this.socket.talk("U", i, parseInt(gui.upgrades[i][0]));
             }
@@ -452,6 +487,9 @@ class Canvas {
             case global.KEY_SKILL_LOAD:
                 global.skillSavePressed = global.skillLoadPressed = false;
                 break;
+            case global.KEY_UPGRADE_CLASS:
+                global.upgradingClass = false;
+                break;
         }
         if (global.specialPressed) {
             let arrayCopy = global.specialKeysPressed.slice();
@@ -497,7 +535,7 @@ class Canvas {
     mouseDown(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.alternateControls) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         global.clickables.clicked = true;
         switch (mouse.button) {
             case 0:
@@ -532,7 +570,7 @@ class Canvas {
                 let upgradeCheck = global.clickables.upgrade.check(mpos);
                 let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    let box = global[global.optionsMenu_Anim.storageName[global.optionsMenu_Anim.activeTab]][optionsMenu_toggleBox];
                     if (box.type === "slidingBar") {
                         box.trigger?.(mpos, box);
                         global.optionsMenu_Anim.sliderMoving = box;
@@ -582,7 +620,7 @@ class Canvas {
    mouseUp(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.alternateControls) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         global.clickables.clicked = false;
         switch (mouse.button) {
             case 0:
@@ -622,7 +660,7 @@ class Canvas {
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTarget) global.optionsMenu_Anim.scrollTarget = 0;
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
@@ -652,11 +690,12 @@ class Canvas {
                     global.clickables.optionsMenu.toggleBoxes.hide();
                     global.clickables.optionsMenu.HoverBoxes.hide();
                     global.clickables.optionsMenu.optionBoxes.hide();
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
+                    if (global.optionsMenu_Anim.scrollTarget) global.optionsMenu_Anim.scrollTarget = 0;
                     break;
                 }
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    let box = global[global.optionsMenu_Anim.storageName[global.optionsMenu_Anim.activeTab]][optionsMenu_toggleBox];
+                    console.log(box)
                     if (box.placeholder) break;
                     if (box.type === "checkbox") {
                         let doc = document.getElementById(box.id);
@@ -664,6 +703,7 @@ class Canvas {
                         if (doc) doc.checked = box.value;
                         if (doc) util.submitToLocalStorage(box.id);
                         else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
+                        if (box.trigger) box.trigger(box);
                     }
                     break;
                 }

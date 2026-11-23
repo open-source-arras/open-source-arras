@@ -882,7 +882,7 @@ Class.imageShapeTest = {
 Class.screenShakeTest = {
     PARENT: "genericTank",
     LABEL: "Screen Shake Test",
-    COLOR: 36,
+    COLOR: "rainbow",
     SHAKE: [
         {
             CAMERA_SHAKE: {
@@ -1230,14 +1230,14 @@ Class.bulletSpawnTest = {
 Class.propTestProp = {
     PARENT: "genericTank",
     SHAPE: 6,
-    COLOR: 0,
+    COLOR: "teal",
     GUNS: [
         {
             POSITION: [20, 10, 1, 0, 0, 45, 0],
-            PROPERTIES: {COLOR: 13}
+            PROPERTIES: {COLOR: "gold"}
         }, {
             POSITION: [20, 10, 1, 0, 0, -45, 0],
-            PROPERTIES: {COLOR: 13}
+            PROPERTIES: {COLOR: "gold"}
         }
     ]
 };

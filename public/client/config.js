@@ -18,7 +18,6 @@ const config = {
         force169AspectRatio: false,
         oldUIStyle: false,
         renderSkins: true,
-        coloredNest: false,
         renderOldNest: false,
         colors: "normal",
         pointy: true,
@@ -31,6 +30,7 @@ const config = {
         threeDimensional: false,
         wireframes: false,
         alphaLarge: false,
+        debugHitboxes: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {
@@ -61,6 +61,7 @@ const config = {
         incognitoMode: false,
         rainbowTeamColors: false,
         dmcaMode: false,
+        keyboardDisplay: false,
     }
 };
 export { config }
