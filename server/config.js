@@ -1,16 +1,37 @@
 module.exports = {
-    // Public
-    index: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:8080", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 8080, // Which port to run the web server on.
+    /** PUBLIC **/
 
-    // Server
-    broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
-    entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
-    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. Useful for debugging, but may noticeably slow down server startup.
-    verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
-    visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
+    // Where the main menu is located (in the /public folder).
+    index: "index.html",
+
+    // Web server domain.
+    host: "localhost:8080",
+
+    // (TO BE REMOVED) Which port to run the web server on.
+    port: 8080,
+
+
+    /** SERVER **/
+
+    // How often to send entity/camera updates, in ticks. 1 = every tick.
+    broadcast_divisor: 1,
+
+    // Whether still, inert bodies (walls etc.) can skip per-tick work.
+    entity_sleep: true,
+
+    // Load every mockup when the server starts instead of only when they are needed.
+    // Useful for debugging, but may noticeably slow down server startup.
+    load_all_mockups: false,
+
+    // Enable detailed startup logs and log speed loop warnings in the terminal.
+    verbose_logs: false,
+
+    // How often to update the list of the entities that players can see. Has effects of when entities are activated.
+    visible_list_interval: 250,
+
+    // Compress websocket messages, saves a lot of bandwidth on big packets.
+    // Replace the object with "false" to disable.
+    per_message_deflate: {
         threshold: 1024, // Don't bother compressing messages smaller than this.
         concurrencyLimit: 10, // How many messages can be compressed at once.
         zlibDeflateOptions: {
@@ -18,11 +39,17 @@ module.exports = {
             memLevel: 8 // 1-9. Higher uses more memory per player for slightly smaller packets.
         }
     },
-    max_fov: 25000, // Hard cap for camera FOV sent to clients.
-    view_extra_margin: 150, // Extra margin beyond the visible viewport.
-    editor: true, // Enable the editor at '[host]/ext/editor'.
 
-    /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
+    // Hard cap for camera FOV sent to clients.
+    max_fov: 25000,
+
+    // Extra margin beyond the visible viewport.
+    view_extra_margin: 150,
+
+    // Enable the editor at '[host]/ext/editor'.
+    editor: true,
+
+    /** SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
         share_client_server - Forces your server to share the same host and port as the client.
         - Only one server at a time can have this enabled.
@@ -43,7 +70,7 @@ module.exports = {
 
         properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
     
-    */
+    **/
 
     servers: [
         {
@@ -196,45 +223,97 @@ module.exports = {
         }
     ],
 
-    // Web Server
-    allow_ACAO: false, // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
+    /** WEB SERVER **/
 
-    // Map
+    // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
+    allow_ACAO: false,
+
+
+    /** CHAT/POPUPS **/
+
+    // How wide/tall the map tiles are.
     map_tile_width: 420,
     map_tile_height: 420,
 
-    spawn_message: true, // Whether to send the popup message(s) that appear on spawn.
-    chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
-    popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
-    sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
-    broadcast_leader_usurped: false, // Broadcasts "The leader has been usurped by..." when the leader dies.
+    // Whether to send the popup message(s) that appear on spawn.
+    spawn_message: true,
 
-    // Seasonal
-    seasonal_events: true, // Enable seasonal events at specific times of the year
-    force_fireworks: false, // Forcefully enable fireworks (automatic around 4th of July (should be only in US region servers tbh))
-    force_spooky_theme: false, // Forcefully enable seasonal halloween theme (adds eyes to walls and replaces rocks with pumpkins)
-    force_thanksgiving: false, // Forcefully enable seasonal american thanksgiving theme (replaces Motherships with Turkeys)
+    // How long a chat message lasts in milliseconds.
+    chat_message_duration: 15_000,
 
-    // Gameplay
-    game_speed: 1, // General game speed.
-    run_speed: 1.5, // General multiplier for acceleration and max speeds.
-    max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
-    respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
-    instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
-    afk_key_commands: false, // Allow AFK players to use key commands.
+    // How long a popup message lasts in milliseconds.
+    popup_message_duration: 10_000,
 
-    upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
-    upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.
-    reverse_tank_cooldown: true, // Enable the "Please slow down!" cooldown when spamming Reverse Tank.
+    // If you don't want your players to color their messages.
+    // They get sanitized after mods interpret them, but before they're added to the chat message dictionary.
+    sanitize_chat_input: true,
 
-    bullet_spawn_offset: 1, // Where the bullet spawns, where 1 is fully outside the barrel and -1 is fully inside the barrel, and 0 is halfway between.
-    damage_multiplier: 1, // General damage multiplier everytime damage is dealt.
-    knockback_multiplier: 1.1, // General knockback multiplier everytime knockback is applied.
-    glass_health_factor: 2, // TODO: Figure out how the math behind this works.
-    room_bound_force: 0.01, // How strong the force is that confines entities to the map and portals apply to entities.
-    soft_max_skill: 0.59, // TODO: Find out what the intention behind the implementation of this configuration is.
+    // Broadcasts "The leader has been usurped by..." when the leader dies.
+    broadcast_leader_usurped: false,
 
-    mothership_time_limit: 0, // How long (in milliseconds) a player can have in control of their team's mothership. Set to 0 to disable.
+
+    /** SEASONAL **/
+
+    // Enable seasonal events at specific times of the year.
+    seasonal_events: true,
+
+    // Forcefully enable certain seasonal events outside of their designated time.
+    force_fireworks: false,
+    force_spooky_theme: false,
+    force_thanksgiving: false,
+
+
+    /** GAMEPLAY **/
+
+    // Game speed multiplier.
+    game_speed: 1,
+
+    // Multiplier for acceleration and max speeds.
+    run_speed: 1.5,
+
+    // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
+    max_heartbeat_interval: 300_000,
+
+    // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
+    respawn_delay: 0,
+
+    // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
+    instant_respawn: false,
+
+    // Allow AFK players to use key commands.
+    afk_key_commands: false,
+
+    // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
+    upgrade_delay: 3_000,
+
+    // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.
+    upgrade_delay_reminder: 20_000,
+
+    // Enable the "Please slow down!" cooldown when spamming Reverse Tank.
+    reverse_tank_cooldown: true,
+
+    // Where the bullet spawns relative to the barrel.
+    // 1 is fully outside the barrel and -1 is fully inside the barrel. 0 is halfway between.
+    bullet_spawn_offset: 1,
+
+    // Overall damage multiplier everytime damage is dealt.
+    damage_multiplier: 1,
+
+    // Overall knockback multiplier everytime knockback is applied.
+    knockback_multiplier: 1.1,
+
+    // TODO: Figure out how the math behind this works.
+    glass_health_factor: 2,
+
+    // How strong the force is that confines entities to the map and portals apply to entities.
+    room_bound_force: 0.01,
+
+    // TODO: Find out what the intention behind the implementation of this configuration is.
+    soft_max_skill: 0.59,
+
+    // How long (in milliseconds) a player can have in control of their team's mothership.
+    // Set to 0 to disable.
+    mothership_time_limit: 0,
 
     // When an entity reaches a level, this function is called and returns how many skill points that entity gets for reaching that level.
     defineLevelSkillPoints: level => {
@@ -244,20 +323,40 @@ module.exports = {
         return 0;
     },
 
-    level_cap: 45, // Maximum normally achievable level.
-    level_cap_cheat: 45, // Maximum level via the level-up key and auto-level-up.
+    // Maximum normally achievable level.
+    level_cap: 45,
 
-    skill_cap: 9, // Default skill caps.
-    skill_cap_soft: 0, // TODO: Figure out what this does.
-    tier_multiplier: 15, // Level difference between each upgrade tier.
+    // Maximum level via the level-up key and auto-level-up.
+    level_cap_cheat: 45,
 
-    // Bots
-    bot_cap: 0, // Maximum number of bots that can be on the server. Set to 0 to disable bots.
-    bot_xp_gain: 60, // How much XP bots get until they reach level_cap.
-    bot_start_level: 45, // How much XP bots will receive when first created.
-    bot_skill_upgrade_chances: [1, 1, 3, 4, 4, 4, 4, 2, 1, 1], // The chances of a bot upgrading a specific skill when skill upgrades are available.
-    bot_class_upgrade_chances: [1, 5, 20, 37, 37], // The chances of a bot upgrading a specific amount of times before it stops upgrading.
-    bot_name_prefix: "[AI] ", // This is prefixed before the bot's randomly chosen name.
+    // Default skill caps.
+    skill_cap: 9,
+
+    // TODO: Figure out what this does.
+    skill_cap_soft: 0,
+
+    // Level difference between each upgrade tier.
+    tier_multiplier: 15,
+
+    /** BOTS **/
+
+    // Maximum number of bots that can be on the server. Set to 0 to disable bots.
+    bot_cap: 0,
+
+    // How much XP bots get until they reach level_cap.
+    bot_xp_gain: 60,
+
+    // How much XP bots will receive when first created.
+    bot_start_level: 45,
+
+    // The chances of a bot upgrading a specific skill when skill upgrades are available.
+    bot_skill_upgrade_chances: [1, 1, 3, 4, 4, 4, 4, 2, 1, 1],
+
+    // The chances of a bot upgrading a specific amount of times before it stops upgrading.
+    bot_class_upgrade_chances: [1, 5, 20, 37, 37],
+
+    // This is prefixed before the bot's randomly chosen name.
+    bot_name_prefix: "[AI] ",
 
     // The class that players and bots spawn as.
     spawn_class: "basic",
@@ -265,15 +364,25 @@ module.exports = {
     // How every entity regenerates their health.
     regenerate_tick: 100,
 
-    // Food
-    enable_food: true, // Allows food to spawn.
-    food_cap: 150, // Maximum number of regular food at any time.
-    food_cap_nest: 15, // Maximum number of nest food at any time.
-    enemy_cap_nest: 10, // Maximum number of enemy nest food at any time.
-    food_group_cap: 6, // Number of foods that random food groups spawn with
+    /** FOOD **/
 
-    // Tiered Food
-    food_types: Array(3).fill().map((_, i, a) => [ // Possible food types outside the nest
+    // Allows food to spawn.
+    enable_food: true,
+
+    // Maximum number of regular food at any time.
+    food_cap: 150,
+
+    // Maximum number of nest food at any time.
+    food_cap_nest: 15,
+
+    // Maximum number of enemy nest food at any time.
+    enemy_cap_nest: 10,
+
+    // Number of foods that random food groups spawn with
+    food_group_cap: 6,
+
+    // These functions manage the possible food types inside and outside the nest.
+    food_types: Array(3).fill().map((_, i, a) => [
     // Chance of spawning in exponents of 4
         4 ** (a.length - i),
         // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
@@ -294,7 +403,7 @@ module.exports = {
             ])
         ])
     ]),
-    food_types_nest: Array(2).fill().map((_, i, a) => [ // Possible food types in the nest
+    food_types_nest: Array(2).fill().map((_, i, a) => [
     // Chance of spawning in exponents of 4
         4 ** (a.length - i),
         // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
@@ -316,9 +425,11 @@ module.exports = {
         ])
     ]),
 
-    // Classic Food
-    classic_food: false, // Enables classic (Old Dreadnoughts) food types.
-    classic_food_types: [ // Possible classic food types outside the nest
+    // Enables classic (Old Dreadnoughts) food types.
+    classic_food: false,
+
+    // These functions manage the possible classic food types inside and outside the nest.
+    classic_food_types: [
         [1, [
             [65, "egg"], [64, "square"], [45, "triangle"], [7, "pentagon"]
         ]],
@@ -329,12 +440,12 @@ module.exports = {
             [1296, "jewel"], [216, "legendarySquare"], [36, "legendaryTriangle"], [6, "legendaryPentagon"]
         ]]
     ],
-    classic_food_types_nest: [ // Possible classic food types in the nest
+    classic_food_types_nest: [
         [1, [
             [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]
         ]]
     ],
-    classic_enemy_types_nest: [ // Possible classic enemy food types in the nest
+    classic_enemy_types_nest: [
         [1, [
             [1, "crasher"]
         ]],
@@ -343,11 +454,21 @@ module.exports = {
         ]]
     ],
 
-    // Bosses
+    /** BOSSES **/
+
+    // Allow bosses to spawn.
     enable_bosses: true,
-    boss_control: false, // Allows players to control bosses like dominators and motherships.
-    boss_spawn_cooldown: 260, // The delay (in seconds) between boss spawns.
-    boss_spawn_delay: 6, // The delay (in seconds) between the boss spawn being announced and the boss(es) actually spawning.
+
+    // Allow players to control bosses like dominators and motherships.
+    boss_control: false,
+
+    // The delay (in seconds) between boss spawns.
+    boss_spawn_cooldown: 260,
+
+    // The delay (in seconds) between the boss spawn being announced and the boss(es) actually spawning.
+    boss_spawn_delay: 6,
+
+    // Bosses that may spawn, how many, and what chance they have of spawning.
     boss_types: [
         {
             bosses: ["eliteDestroyer", "eliteGunner", "eliteSprayer", "eliteBattleship", "eliteSpawner"],
@@ -380,15 +501,23 @@ module.exports = {
     // Check game/gamemodes/config to see how this works.
     team_weights: {},
 
-    // Fun
-    brain_damage: false, // Violently shakes your camera and tank if you name yourself 'Brain Damage'. Disabled by default for epilepsy concerns.
+
+    /** FUN **/
+
+    // Violently shakes your camera and tank if you name yourself 'Brain Damage'.
+    // Disabled by default for epilepsy concerns.
+    brain_damage: false,
+
+    // Gives all players and bots random colours.
     random_body_colors: false,
+
+    /** MISC **/
 
     // Room setup (don't change these unless you know what you're doing)
     room_setup: ["default"],
     round_arena: false,
     mode: "ffa",
 
-    // Development
-    dev_build: true // Whether this version is unstable and should be clearly marked as such.
+    // Development build marker.
+    dev_build: true
 };
