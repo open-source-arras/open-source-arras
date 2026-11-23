@@ -22,7 +22,7 @@ const U_COLOR_TABLE = [
     "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
     "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
     "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
-    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false",
+    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false"
 ];
 const FALLBACK_COLOR = U_COLOR_TABLE[1];
 const decodeColor = value => typeof value === "number" ? (U_COLOR_TABLE[value] ?? FALLBACK_COLOR) : value;
