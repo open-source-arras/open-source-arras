@@ -292,7 +292,7 @@ function init() {
             run: ({ player }) => {
                 const colors = [
                     "teal", "shiny", "triangle",
-                    "yellow", "lavender", "aqua",
+                    "yellow", "aqua",
                     "crasher", "egg", "wall", 
                     "pureWhite", "black", "blue",
                     "green", "red", "square",

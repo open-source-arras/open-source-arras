@@ -388,9 +388,6 @@ var gameDraw = {
             case "aeBoss_magenta":
                 return gameDraw.animatedColor.magenta;
 
-            case "nest":
-                return config.graphical.coloredNest ? gameDraw.color.purple : gameDraw.color.white;
-
             case "border":
                 return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);
         }
