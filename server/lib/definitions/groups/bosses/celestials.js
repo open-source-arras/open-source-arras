@@ -10,6 +10,7 @@ require("../projectiles.js");
 require("../tanks/main.js");
 require("../hats.js");
 require("../turrets.js");
+require("../obstacles.js");
 
 Class.celestial = {
     PARENT: "miniboss",
