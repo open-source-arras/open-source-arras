@@ -212,7 +212,7 @@ Class.genericSmasher = {
 Class.flag = {
     LABEL: "Flag",
     SIZE: 20,
-    COLOR: 3,
+    COLOR: "yellow",
     TURRETS: [
         {
             TYPE: "flagHat",

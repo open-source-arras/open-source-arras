@@ -239,7 +239,7 @@ Class.undertowEffect = {
     PARENT: "genericTank",
     TYPE: "undertowEffect",
     SIZE: 5,
-    COLOR: 1,
+    COLOR: "lime",
     HITS_OWN_TYPE: "never",
     GIVE_KILL_MESSAGE: false,
     ACCEPTS_SCORE: false,

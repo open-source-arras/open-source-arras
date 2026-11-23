@@ -167,7 +167,7 @@ Class.dropperTurret_dreadsV2 = {
     CONTROLLERS: [["spin", {speed: -0.035}]],
     INDEPENDENT: true,
     LABEL: "",
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray({ 
         POSITION: {
             LENGTH: 16,
@@ -231,7 +231,7 @@ Class.showerTurret_dreadsV2 = {
         FOV: 1.5
     },
     CONTROLLERS: [["spin", {speed: 0.03}]],
-    COLOR: 16,
+    COLOR: "grey",
     INDEPENDENT: true,
     MAX_CHILDREN: 4,
     GUNS: [
@@ -314,7 +314,7 @@ Class.gladiatorTritankMinion_dreadsV2 = {
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.basic, g.assassin, g.minionGun, {speed: 1.06, maxSpeed: 1.06, reload: 1.8, health: 1.3}]),
             WAIT_TO_CYCLE: true,
-            TYPE: ["bullet", {COLOR: 5}]
+            TYPE: ["bullet", {COLOR: "pink"}]
         }
     }, 3)
 };
@@ -339,7 +339,7 @@ Class.gladiatorTriswarmMinion_dreadsV2 = {
         POSITION: [7, 8.5, -1.5, 7, 0, 0, 0],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([g.swarm, g.flankGuard, g.minionGun, {speed: 1.1, maxSpeed: 1.1, reload: 1.6, size: 1.6, range: 1.15}]),
-            TYPE: ["swarm", {COLOR: 5}],
+            TYPE: ["swarm", {COLOR: "pink"}],
             STAT_CALCULATOR: "swarm"
         }
     }, 3)
@@ -422,7 +422,7 @@ Class.hexagonLeviathanTop_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [6, 10, 0.001, 9.5, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 6)
 };
 Class.hexagonLeviathanBottom_dreadsV2 = {
@@ -430,7 +430,7 @@ Class.hexagonLeviathanBottom_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [7, 13.5, 0.001, 9.5, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 6)
 };
 Class.pentagonLeviathanTop_dreadsV2 = {
@@ -438,7 +438,7 @@ Class.pentagonLeviathanTop_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [6, 13.5, 0.001, 9, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 5)
 };
 Class.pentagonLeviathanBottom_dreadsV2 = {
@@ -446,14 +446,14 @@ Class.pentagonLeviathanBottom_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [7, 17, 0.001, 9, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 5)
 };
 Class.titanTop_dreadsV2 = {
     PARENT: "genericTrinought",
     GUNS: weaponArray({
         POSITION: [5, 26, 0.001, 8, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 3)
 };
 
@@ -1817,7 +1817,7 @@ Class.moon_dreadsV2 = {
     PROPS: [
         {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["triangle", {COLOR: 9}]
+            TYPE: ["triangle", {COLOR: "black"}]
         }, {
             POSITION: [12, 0, 0, 180, 1],
             TYPE: "triangle"
@@ -1835,7 +1835,7 @@ Class.planet_dreadsV2 = {
     PROPS: [
         {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["triangle", {COLOR: 9}]
+            TYPE: ["triangle", {COLOR: "black"}]
         }, {
             POSITION: [12, 0, 0, 180, 1],
             TYPE: "triangle"
@@ -2281,7 +2281,7 @@ Class.astronomic_dreadsV2 = {
             TYPE: "pentagon"
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };
@@ -2292,10 +2292,10 @@ Class.behemoth_dreadsV2 = {
     PROPS: [
         {
             POSITION: [15, 0, 0, 180, 1],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };
@@ -2349,7 +2349,7 @@ Class.grandiose_dreadsV2 = {
             TYPE: "pentagon"
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };

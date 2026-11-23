@@ -1176,7 +1176,7 @@ Class.frostBoss = {
         ...weaponArray({
             // Speed
             POSITION: [8, 14.5, 0.001, 9.5, 0, 0, 0],
-            PROPERTIES: {COLOR: 9}
+            PROPERTIES: {COLOR: "black"}
         }, 6),
         ...weaponArray([
             { // Heavy Snipers
@@ -1481,7 +1481,7 @@ Class.MKTurretFactory = {
     PARENT: "genericTank",
     LABEL: "MKTurret factory",
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    COLOR: 16,
+    COLOR: "grey",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
     GUNS: [
@@ -1535,7 +1535,7 @@ Class.MKTurretCarrier = {
         }
     ],
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
-    COLOR: 16,
+    COLOR: "grey",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false
 };
@@ -1559,7 +1559,7 @@ Class.MKTurretThruster = {
     FACING_TYPE: "toTarget",
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: [{
         POSITION: [14, 12, 1, 4, 0, 180, 0],
         PROPERTIES: {
@@ -1580,7 +1580,7 @@ Class.MKTurret = {
     IGNORED_BY_AI: true,
     DAMAGE_EFFECTS: false,
     LABEL: "MKTurret",
-    COLOR: 16,
+    COLOR: "grey",
     SHAPE: 5,
     SKILL: [12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
     TURRETS: [

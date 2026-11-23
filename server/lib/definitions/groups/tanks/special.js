@@ -1605,12 +1605,12 @@ Class.flagship = {
     ]
 };
 Class.turkeyNose = {
-    COLOR: 19,
+    COLOR: "pureBlack",
     LABEL: "",
     SIZE: 6.45
 };
 Class.turkeyEye = {
-    COLOR: 18,
+    COLOR: "white",
     LABEL: "",
     TURRETS: [
         {
@@ -2037,7 +2037,7 @@ Class.arrasPolice = {
     PARENT: "undercoverCop",
     LABEL: "ARRAS POLICE",
     SIZE: 60,
-    COLOR: 16,
+    COLOR: "grey",
     UPGRADE_COLOR: "flashBlueRed"
 };
 Class.baseProtector = {

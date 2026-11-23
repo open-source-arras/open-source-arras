@@ -173,15 +173,15 @@ var gameDraw = {
         );
     },
     animatedColor: {
-        rainbow: "",
-        rainbowTeams: [],
-        trans: "",
-        magenta: "",
         blue_red: "",
         blue_grey: "",
         grey_blue: "",
         red_grey: "",
-        grey_red: ""
+        grey_red: "",
+        rainbow: "",
+        rainbowTeams: [],
+        trans: "",
+        magenta: ""
     },
     reanimateColors: () => {
         let now = Date.now(),

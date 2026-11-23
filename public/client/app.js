@@ -3967,7 +3967,7 @@ const SIDE_BORDER = 0.5;
                             }
                             ctx[2].globalAlpha = 0.4;
                             ctx[2].fillStyle = gameDraw.getColor(color);
-                            if (gameDraw.getColor(color) !== color.white) {
+                            if (gameDraw.getColor(color) !== gameDraw.color.white) {
                                 drawGuiRect(minimapX, minimapY, cellWidth, cellHeight);
                             }
                         };

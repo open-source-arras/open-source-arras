@@ -204,7 +204,7 @@ Class.medicareTurret = {
     LABEL: "Turret",
     FACING_TYPE: ["spin", {speed: 0.04}],
     INDEPENDENT: true,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray([
         {
             POSITION: [8, 9, -0.5, 12.5, 0, 0, 0]
@@ -227,7 +227,7 @@ Class.medicaidTurret = {
     LABEL: "Turret",
     FACING_TYPE: ["spin", {speed: 0.04}],
     INDEPENDENT: true,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray([
         {
             POSITION: [8, 9, -0.5, 12.5, 0, 0, 0]
