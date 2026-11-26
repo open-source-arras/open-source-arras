@@ -99,10 +99,11 @@ const getName = (name, data) => {
 // Here is our actual game server
 class gameServer {
     constructor(host, gamemode, region, location, webProperties, serverProperties, isfeatured, isHidden, isPrivate, parentPort, loaderGlobal) {
-    // Override the default settings in Config.js.
+        // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach(key => {
             Config[key] = serverProperties[key];
         });
+
         // Define host, port, gamemode, region, and publicly define webProperties, and serverProperties.
         this.host = host;
         this.port = Number(this.host.split(":")[1]);
@@ -123,6 +124,10 @@ class gameServer {
             }
         );
         this.loaderGlobal = loaderGlobal;
+        if (!Number.isInteger(this.port)) {
+            throw Error(`One of your servers (#${this.webProperties.id} at ${this.host}) does not have a valid port set!`);
+        };
+
         // Initalize.
         this.roomSpeed = Config.game_speed;
         this.runSpeed = Config.run_speed;

@@ -112,7 +112,7 @@ server = http.createServer((req, res) => {
         if (server.ip !== Config.host && server.ip) {
             let http = server.ip.startsWith("localhost") ? `http://${server.ip}` : `https://${server.ip}`;
             serversIP.push(http);
-        } 
+        }
     };
     if (Config.allow_ACAO || serversIP.includes(req.headers.origin)) {
         res.setHeader("Access-Control-Allow-Origin", "*");
