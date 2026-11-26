@@ -48,12 +48,12 @@ module.exports = {
     editor: true,
 
     /** SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
-
         host        - Server host location. (To emulate share_client_server, set to the same as the web server domain)
-        id          - (<host>/#<id>)
 
+        id          - (<host>/#<id>)
         region      - The region tab the server is sorted into on the main menu.
         location    - The location of the server in the server list tooltip.
+
         gamemode    - The selected gamemode.
         player_cap  - Not including bots. Set to 0 to disable.
 
@@ -67,10 +67,11 @@ module.exports = {
     servers: [
         {
             host: "localhost:8080",
-            id: "la",
 
+            id: "la",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["ffa"],
             player_cap: 80,
 
@@ -100,10 +101,11 @@ module.exports = {
         },
         {
             host: "localhost:3001",
-            id: "lb",
 
+            id: "lb",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["tdm"],
             player_cap: 80,
 
@@ -118,10 +120,11 @@ module.exports = {
         },
         {
             host: "localhost:3002",
-            id: "lc",
 
+            id: "lc",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["space", "open_tdm"],
             player_cap: 80,
 
@@ -149,10 +152,11 @@ module.exports = {
         },
         {
             host: "localhost:3003",
-            id: "ld",
 
+            id: "ld",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["domination"],
             player_cap: 80,
 
@@ -167,10 +171,11 @@ module.exports = {
         },
         {
             host: "localhost:3004",
-            id: "le",
 
+            id: "le",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["mothership"],
             player_cap: 80,
 
@@ -186,10 +191,11 @@ module.exports = {
         },
         {
             host: "localhost:3101",
-            id: "lpa",
 
+            id: "lpa",
             region: "Local",
             location: "Localhost",
+
             gamemode: ["sandbox"],
             player_cap: 80,
 
