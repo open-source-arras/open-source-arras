@@ -617,13 +617,13 @@ Class.sphere = {
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true,
     PROPS: [{
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -14 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -14 }, BORDERLESS: true }],
         POSITION: {
             SIZE: 17,
             LAYER: 1
         }
     }, {
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -9 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -9 }, BORDERLESS: true }],
         POSITION: {
             SIZE: 15,
             X: 1,
@@ -631,7 +631,7 @@ Class.sphere = {
             LAYER: 1
         }
     }, {
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -8 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -8 }, BORDERLESS: true }],
         POSITION: {
             SIZE: 13,
             X: 2,
@@ -639,7 +639,7 @@ Class.sphere = {
             LAYER: 1
         }
     }, {
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -3 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -3 }, BORDERLESS: true }],
         POSITION: {
             SIZE: 11,
             X: 3,
