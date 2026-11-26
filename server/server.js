@@ -259,9 +259,9 @@ server = http.createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
+function loadGameServer(host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
-    if (!loadViaMain) {
+    if (host !== Config.host) {
         let index = global.servers.length;
         global.servers.push({});
 
@@ -338,7 +338,6 @@ server.listen(webPort, () => {
     Config.servers.forEach(server => {
     // Load all of the servers.
         loadGameServer(
-            server.share_client_server ??= false,
             server.host,
             server.gamemode,
             server.region,

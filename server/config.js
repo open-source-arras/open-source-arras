@@ -49,12 +49,7 @@ module.exports = {
 
     /** SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
 
-        share_client_server - Forces your server to share the same host and port as the client.
-        - Only one server at a time can have this enabled.
-        - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
-
-        host        - Server host location.
-        port        - The port on the server.
+        host        - Server host location. (To emulate share_client_server, set to the same as the web server domain)
         id          - (<host>/#<id>)
 
         region      - The region tab the server is sorted into on the main menu.
@@ -67,13 +62,11 @@ module.exports = {
         private     - Whether the server requires a privileged token to join (except through server travel).
 
         properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
-    
     **/
 
     servers: [
         {
-            share_client_server: true,
-            host: "localhost:3000", // ignored since we're starting from client server
+            host: "localhost:8080",
             id: "la",
 
             region: "Local",
