@@ -74,9 +74,9 @@ module.exports = {
 
     servers: [
         {
-            share_client_server: false,
-            host: "localhost:3000",
-            port: 3000,
+            share_client_server: true,
+            host: "localhost:3000", // ignored since we're starting from client server
+            port: 3000, // ignored since we're starting from client server
             id: "la",
 
             region: "Local",
@@ -109,7 +109,6 @@ module.exports = {
             }
         },
         {
-            share_client_server: false,
             host: "localhost:3001",
             port: 3001,
             id: "lb",
@@ -129,7 +128,6 @@ module.exports = {
             }
         },
         {
-            share_client_server: false,
             host: "localhost:3002",
             port: 3002,
             id: "lc",
@@ -162,7 +160,6 @@ module.exports = {
             }
         },
         {
-            share_client_server: false,
             host: "localhost:3003",
             port: 3003,
             id: "ld",
@@ -182,7 +179,6 @@ module.exports = {
             }
         },
         {
-            share_client_server: false,
             host: "localhost:3004",
             port: 3004,
             id: "le",
@@ -203,7 +199,6 @@ module.exports = {
             }
         },
         {
-            share_client_server: false,
             host: "localhost:3101",
             port: 3101,
             id: "lpa",
