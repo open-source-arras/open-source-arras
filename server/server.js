@@ -259,7 +259,7 @@ server = http.createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
+function loadGameServer(loadViaMain = false, host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
     if (!loadViaMain) {
         let index = global.servers.length;
@@ -269,7 +269,6 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
         let worker = new Worker("./server/serverLoader.js", {
             workerData: {
                 host,
-                port,
                 gamemode,
                 region,
                 location,
@@ -308,13 +307,14 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Number(Config.host.split(":")[1]), gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
+            new (require("./game.js").gameServer)(Config.host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
         }, 10);
     }
 }
 
 // Server Loaded Callback
 let loadedServers = 0;
+const webPort = Number(Config.host.split(":")[1]);
 global.onServerLoaded = () => {
     loadedServers++;
     // Once all servers are loaded, log the status and routing table
@@ -329,18 +329,17 @@ global.onServerLoaded = () => {
         }
         let serverStartEndTime = performance.now();
         console.log(`Server loaded in ${util.rounder(serverStartEndTime, 4)} milliseconds.`);
-        console.log(`[WEB SERVER]: Server listening on port ${Number(Config.host.split(":")[1])}`);
+        console.log(`[WS] Listening on port ${webPort}`);
     }
 };
 
 // Start the HTTP Server & Load Game Servers
-server.listen(Number(Config.host.split(":")[1]), () => {
+server.listen(webPort, () => {
     Config.servers.forEach(server => {
     // Load all of the servers.
         loadGameServer(
             server.share_client_server ??= false,
             server.host,
-            Number(server.host.split(":")[1]),
             server.gamemode,
             server.region,
             server.location,

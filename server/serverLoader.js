@@ -6,7 +6,6 @@ let GLOBAL = require("./loaders/loader.js");
 // Create the game server
 new (require("./game.js").gameServer)(
     workerData.host,
-    workerData.port,
     workerData.gamemode,
     workerData.region,
     workerData.location,
