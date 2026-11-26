@@ -106,7 +106,7 @@ class gameServer {
 
         // Define host, port, gamemode, region, and publicly define webProperties, and serverProperties.
         this.host = host;
-        this.port = Number(this.host.split(":")[1]);
+        this.port = parseInt(this.host.split(":")[1]);
         this.gamemode = gamemode;
         this.region = region;
         this.location = location;
