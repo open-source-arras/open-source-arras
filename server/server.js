@@ -269,7 +269,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
         let worker = new Worker("./server/serverLoader.js", {
             workerData: {
                 host,
-                port: port, // Increment port for each server
+                port,
                 gamemode,
                 region,
                 location,
@@ -308,7 +308,7 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new (require("./game.js").gameServer)(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
+            new (require("./game.js").gameServer)(Config.host, Number(Config.host.split(":")[1]), gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
         }, 10);
     }
 }
@@ -329,18 +329,18 @@ global.onServerLoaded = () => {
         }
         let serverStartEndTime = performance.now();
         console.log(`Server loaded in ${util.rounder(serverStartEndTime, 4)} milliseconds.`);
-        console.log(`[WEB SERVER]: Server listening on port ${Config.port}`);
+        console.log(`[WEB SERVER]: Server listening on port ${Number(Config.host.split(":")[1])}`);
     }
 };
 
 // Start the HTTP Server & Load Game Servers
-server.listen(Config.port, () => {
+server.listen(Number(Config.host.split(":")[1]), () => {
     Config.servers.forEach(server => {
     // Load all of the servers.
         loadGameServer(
             server.share_client_server ??= false,
             server.host,
-            server.port,
+            Number(server.host.split(":")[1]),
             server.gamemode,
             server.region,
             server.location,

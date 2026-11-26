@@ -1,18 +1,16 @@
 module.exports = {
     /** PUBLIC **/
-
     // Where the main menu is located (in the /public folder).
     index: "index.html",
 
     // Web server domain.
     host: "localhost:8080",
 
-    // (TO BE REMOVED) Which port to run the web server on.
-    port: 8080,
+    // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
+    allow_ACAO: false,
 
 
     /** SERVER **/
-
     // How often to send entity/camera updates, in ticks. 1 = every tick.
     broadcast_divisor: 1,
 
@@ -76,7 +74,6 @@ module.exports = {
         {
             share_client_server: true,
             host: "localhost:3000", // ignored since we're starting from client server
-            port: 3000, // ignored since we're starting from client server
             id: "la",
 
             region: "Local",
@@ -110,7 +107,6 @@ module.exports = {
         },
         {
             host: "localhost:3001",
-            port: 3001,
             id: "lb",
 
             region: "Local",
@@ -129,7 +125,6 @@ module.exports = {
         },
         {
             host: "localhost:3002",
-            port: 3002,
             id: "lc",
 
             region: "Local",
@@ -161,7 +156,6 @@ module.exports = {
         },
         {
             host: "localhost:3003",
-            port: 3003,
             id: "ld",
 
             region: "Local",
@@ -180,7 +174,6 @@ module.exports = {
         },
         {
             host: "localhost:3004",
-            port: 3004,
             id: "le",
 
             region: "Local",
@@ -200,7 +193,6 @@ module.exports = {
         },
         {
             host: "localhost:3101",
-            port: 3101,
             id: "lpa",
 
             region: "Local",
@@ -218,14 +210,8 @@ module.exports = {
         }
     ],
 
-    /** WEB SERVER **/
-
-    // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
-    allow_ACAO: false,
-
 
     /** CHAT/POPUPS **/
-
     // How wide/tall the map tiles are.
     map_tile_width: 420,
     map_tile_height: 420,
@@ -248,7 +234,6 @@ module.exports = {
 
 
     /** SEASONAL **/
-
     // Enable seasonal events at specific times of the year.
     seasonal_events: true,
 
@@ -259,7 +244,6 @@ module.exports = {
 
 
     /** GAMEPLAY **/
-
     // Game speed multiplier.
     game_speed: 1,
 
@@ -333,8 +317,8 @@ module.exports = {
     // Level difference between each upgrade tier.
     tier_multiplier: 15,
 
-    /** BOTS **/
 
+    /** BOTS **/
     // Maximum number of bots that can be on the server. Set to 0 to disable bots.
     bot_cap: 0,
 
@@ -359,8 +343,8 @@ module.exports = {
     // How every entity regenerates their health.
     regenerate_tick: 100,
 
-    /** FOOD **/
 
+    /** FOOD **/
     // Allows food to spawn.
     enable_food: true,
 
@@ -449,8 +433,8 @@ module.exports = {
         ]]
     ],
 
-    /** BOSSES **/
 
+    /** BOSSES **/
     // Allow bosses to spawn.
     enable_bosses: true,
 
@@ -498,7 +482,6 @@ module.exports = {
 
 
     /** FUN **/
-
     // Violently shakes your camera and tank if you name yourself 'Brain Damage'.
     // Disabled by default for epilepsy concerns.
     brain_damage: false,
@@ -506,8 +489,8 @@ module.exports = {
     // Gives all players and bots random colours.
     random_body_colors: false,
 
-    /** MISC **/
 
+    /** MISC **/
     // Room setup (don't change these unless you know what you're doing)
     room_setup: ["default"],
     mode: "ffa",
