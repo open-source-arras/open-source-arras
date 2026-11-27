@@ -2082,3 +2082,25 @@ class LayeredBoss {
     }
 }
 exports.LayeredBoss = LayeredBoss;
+
+exports.makeRogueEgg = (sides = 6) => {
+    return {
+        PARENT: 'miniboss',
+        LABEL: "Rogue Egg",
+        DISPLAY_NAME: false,
+        COLOR: 'darkGrey',
+        UPGRADE_COLOR: 'darkGrey',
+        SHAPE: sides,
+        SIZE: 28,
+        VALUE: 5e5,
+        SKILL: [2, 6, 6, 6, 2, 0, 0, 9, 0, 0],
+        BODY: {
+            FOV: 1.3,
+            SPEED: 5.5 * 0.1,
+            HEALTH: 20 * 16,
+            SHIELD: 5.75 * 3,
+            REGEN: 0.01,
+            DAMAGE: 3 * 3,
+        },
+    };
+};
