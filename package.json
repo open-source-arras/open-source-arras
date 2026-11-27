@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --no-lazy index",
+    "start": "node index",
     "make-skin": "node tools/make-skin.js"
   },
   "dependencies": {
