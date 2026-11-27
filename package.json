@@ -1,23 +1,23 @@
 {
   "name": "open-source-arras",
   "version": "3.0.0",
-  "main": "index.js",
+  "main": "server/server.js",
   "scripts": {
-    "start": "node index",
+    "start": "node server/server.js",
     "make-skin": "node tools/make-skin.js"
   },
   "dependencies": {
-    "ws": "^8.18.3"
+    "ws": "latest"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
-  "license": "MIT License",
+  "license": "MIT",
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "@stylistic/eslint-plugin": "^5.10.0",
-    "eslint": "^10.10.0",
-    "globals": "^17.12.0",
-    "sharp": "^0.35.5"
+    "@eslint/js": "latest",
+    "@stylistic/eslint-plugin": "latest",
+    "eslint": "latest",
+    "globals": "latest",
+    "sharp": "latest"
   }
 }
