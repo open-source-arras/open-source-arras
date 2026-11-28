@@ -2351,6 +2351,13 @@ const SIDE_BORDER = 0.5;
             if (!borderless) context.stroke();
             context.lineWidth /= fill ? 1 : 0.5; // Maintain constant border width
             if (fill) context.fill();
+            if ((dx !== 0 || dy !== 0) && fill) {
+                context.beginPath();
+                for (const [px, py] of world) context.lineTo(px + dx, py + dy);
+                context.closePath();
+                if (!borderless) context.stroke();
+                if (fill) context.fill();
+            }
             context.globalAlpha = 1;
         },
         drawGunBox = (context, x, y, length, height, aspect, angle, position, pad) => {
@@ -2621,7 +2628,8 @@ const SIDE_BORDER = 0.5;
                             bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
                     }
                     drawBody(context, xx, yy, sizeRatio, m.shape, rot, bodyBorderless, bodyFill, m.imageInterpolation);
-                    if (skin) drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
+                    if (dir && bodyFill) drawBody(context, xx + sideX, yy + sideY, sizeRatio, m.shape, rot, bodyBorderless, true, m.imageInterpolation);
+                    if (skin) drawBody(context, xx + (dir ? sideX : 0), yy + (dir ? sideY : 0), 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
                 }
             }
 
