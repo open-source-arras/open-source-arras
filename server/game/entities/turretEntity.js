@@ -334,8 +334,8 @@ export class TurretEntity extends EventEmitter {
     }
     refreshBodyAttributes() {
         this.damage = this.DAMAGE * this.skill.atk;
-        this.penetration = 1 * (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
-        this.density = 1 * (1 + 0.08 * this.level) * this.DENSITY;
+        this.penetration = (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
+        this.density = (1 + 0.08 * this.level) * this.DENSITY;
         this.stealth = this.STEALTH;
         this.pushability = this.PUSHABILITY;
         this.knockback = this.KNOCKBACK ?? false;

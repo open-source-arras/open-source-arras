@@ -24,6 +24,7 @@ export default defineConfig([{
             allowEmptyCase: true
         }],
         "no-implicit-coercion": "error",
+        "no-return-assign": "error",
         "no-unreachable": "error",
         "no-unused-vars": ["error", {
             argsIgnorePattern: IDENTIFIER_IGNORE_PATTERN,

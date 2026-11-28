@@ -499,11 +499,11 @@ export class BulletEntity { // Basically an (Entity) but with heavy limitations 
         this.health.resist = 1 - 1 / Math.max(1, this.RESIST + this.skill.brst);
         this.shield.set(((this.settings.healthWithLevel ? 0.6 * this.level : 0) + this.SHIELD) * this.skill.shi, Math.max(0, ((this.settings.healthWithLevel ? 0.006 * this.level : 0) + 1) * this.REGEN * this.skill.rgn * 1));
         this.damage = this.DAMAGE * this.skill.atk;
-        this.penetration = 1 * (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
+        this.penetration = (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
         if (this.settings.diesAtRange || !this.range) {
             this.range = this.RANGE;
         }
-        this.density = 1 * (1 + 0.08 * this.level) * this.DENSITY;
+        this.density = (1 + 0.08 * this.level) * this.DENSITY;
         this.stealth = this.STEALTH;
         this.pushability = this.PUSHABILITY;
         this.knockback = this.KNOCKBACK ?? false;

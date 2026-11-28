@@ -49,7 +49,7 @@ const util = {
                 scale = global.UIscale;
             }
             return Math.max(global.screenWidth, 16 * global.screenHeight / 9) / scale;
-        } catch (e) {
+        } catch {
             document.getElementById("optUiScale").value = global.mobile ? "mobile" : "normal",
             util.submitToLocalStorage("optUiScale");
             location.reload();
@@ -186,8 +186,8 @@ const util = {
         const speed = b;
         const h = d;
         let time = Date.now();
-        let display;
-        let S = display = a;
+        let display = a;
+        let S = display;
         const set = (a) => {
             value !== a &&
                 ((S = get()), (value = a), (time = Date.now()));
@@ -402,10 +402,7 @@ const util = {
         const endPoints = [];
 
         function rounder(val) {
-            if (Math.abs(val) < 0.00001) {
-                val = 0;
-            }
-            return +val.toPrecision(6);
+            return Math.round(val * 10e6) / 10e6;
         }
 
         function getFurthestFrom(x, y) {

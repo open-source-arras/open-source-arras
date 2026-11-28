@@ -1267,7 +1267,7 @@ const incoming = async function(message, socket) {
                 util.pullTotalPlayers();
                 global.gameUpdate = true;
                 // Now we can ask for spawn.
-                socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, global.bodyID ? global.bodyID : false, 1 * config.game.incognitoMode);
+                socket.talk("s", global.playerName, 0, config.game.autoLevelUp, global.bodyID ? global.bodyID : false, config.game.incognitoMode);
                 global.bodyID = undefined;
             }
         } break;

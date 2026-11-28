@@ -199,7 +199,7 @@ class io_listenToPlayer extends IO {
         if (this.player.command.autospin && !this.player.body.settings.braindamagemode) {
             let kk = Math.atan2(this.body.control.target.y, this.body.control.target.x) + 0.04;
             if (this.body.autospinBoost) {
-                let thing = 0.05 * 1 * this.body.autospinBoost;
+                let thing = 0.05 * this.body.autospinBoost;
                 if (this.player.command.lmb) {
                     thing = thing * 1.5;
                 }
