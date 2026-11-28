@@ -5,7 +5,12 @@ import { Class } from "../../../../loaders/global.js";
 Class.gatlingAutoTankGun = makeTurret({
     GUNS: [
         {
-            POSITION: [16, 11, 1.3, 8, 0, 0, 0],
+            POSITION: {
+                LENGTH: 16,
+                WIDTH: 11,
+                ASPECT: 1.3,
+                X: 8
+            },
             PROPERTIES: {
                 SHOOT_SETTINGS: combineStats([basic, flankGuard, machineGun, gatlingGun, { speed: 0.7, maxSpeed: 0.7 }]),
                 TYPE: "bullet"

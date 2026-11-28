@@ -1,4 +1,12 @@
-import { clamp, error, log, remove, serverStartTime, time, warn } from "../../lib/util.js";
+import {
+    clamp,
+    error,
+    log,
+    remove,
+    serverStartTime,
+    time,
+    warn
+} from "../../lib/util.js";
 
 import * as crypto from "crypto";
 import * as net from "net";
@@ -11,39 +19,162 @@ import { Color } from "../../miscFiles/color.js";
 import { buildMockup } from "../../miscFiles/mockups.js";
 import { runKeyCommand } from "../addons/keyCommands.js";
 import { handleChatCommand } from "../chatCommands.js";
-import { gameManager, Config, entities, mockupData, ensureIsClass, servers, protocol, Class, getTeamColor, teamNames, chats, Events, key, setPermissionLevel, getSpawnableArea, getWeakestTeam, getRandomTeam, TEAM_RED, classMap, mockupMap, becomeBulletChildren } from "../../game.js";
+import {
+    gameManager,
+    Config,
+    entities,
+    mockupData,
+    ensureIsClass,
+    servers,
+    protocol,
+    Class,
+    getTeamColor,
+    teamNames,
+    chats,
+    Events,
+    key,
+    setPermissionLevel,
+    getSpawnableArea,
+    getWeakestTeam,
+    getRandomTeam,
+    TEAM_RED,
+    classMap,
+    mockupMap,
+    becomeBulletChildren
+} from "../../game.js";
 const PERMABAN_FILE = "./server/permanentBans.json";
 const bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
 const GUN_PHOTO_FIELDS = 15;
-const numIndex = (index) => (typeof index === "string" && /^\d+$/.test(index) && index.length < 10 ? parseInt(index, 10) : index);
+const numIndex = (index) =>
+    typeof index === "string" && /^\d+$/.test(index) && index.length < 10
+        ? parseInt(index, 10)
+        : index;
 const U_COLOR_TABLE = [
-    "grey 0 1 0 false", "16 0 1 0 false", "black 0 1 0 false", "blue 0 1 0 false",
-    "red 0 1 0 false", "green 0 1 0 false", "gold 0 1 0 false", "orange 0 1 0 false",
-    "purple 0 1 0 false", "aqua 0 1 0 false", "pink 0 1 0 false", "white 0 1 0 false",
-    "lightGray 0 1 0 false", "veryLightGrey 0 1 0 false", "lightGrey 0 1 0 false", "darkGrey 0 1 0 false",
-    "lavender 0 1 0 false", "yellow 0 1 0 false", "teal 0 1 0 false", "pureBlack 0 1 0 false",
-    "magenta 0 1 0 false", "mirror 0 1 0 false", "-1 0 1 0 false", "10 0 1 0 false",
-    "11 0 1 0 false", "12 0 1 0 false", "0 0 1 0 false", "13 0 1 0 false",
-    "36 0 1 0 false", "mustard 0 1 0 false", "tangerine 0 1 0 false", "brown 0 1 0 false",
-    "cyan 0 1 0 false", "dgrey 0 1 0 false", "gray 0 1 0 false", "darkGray 0 1 0 false",
-    "veryLightGray 0 1 0 false", "vlgrey 0 1 0 false", "lgrey 0 1 0 false", "lgreen 0 1 0 false",
-    "egg 0 1 0 false", "crasher 0 1 0 false", "triangle 0 1 0 false", "square 0 1 0 false",
-    "hexagon 0 1 0 false", "pentagon 0 1 0 false", "lime 0 1 0 false", "pureWhite 0 1 0 false",
-    "trans 0 1 0 false", "1 0 1 0 false", "2 0 1 0 false", "3 0 1 0 false",
-    "4 0 1 0 false", "5 0 1 0 false", "6 0 1 0 false", "7 0 1 0 false",
-    "8 0 1 0 false", "9 0 1 0 false", "14 0 1 0 false", "15 0 1 0 false",
-    "17 0 1 0 false", "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
-    "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
-    "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
-    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false"
+    "grey 0 1 0 false",
+    "16 0 1 0 false",
+    "black 0 1 0 false",
+    "blue 0 1 0 false",
+    "red 0 1 0 false",
+    "green 0 1 0 false",
+    "gold 0 1 0 false",
+    "orange 0 1 0 false",
+    "purple 0 1 0 false",
+    "aqua 0 1 0 false",
+    "pink 0 1 0 false",
+    "white 0 1 0 false",
+    "veryLightGrey 0 1 0 false",
+    "lightGrey 0 1 0 false",
+    "darkGrey 0 1 0 false",
+    "lavender 0 1 0 false",
+    "yellow 0 1 0 false",
+    "teal 0 1 0 false",
+    "pureBlack 0 1 0 false",
+    "magenta 0 1 0 false",
+    "mirror 0 1 0 false",
+    "-1 0 1 0 false",
+    "10 0 1 0 false",
+    "11 0 1 0 false",
+    "12 0 1 0 false",
+    "0 0 1 0 false",
+    "13 0 1 0 false",
+    "rainbow 0 1 0 false",
+    "mustard 0 1 0 false",
+    "tangerine 0 1 0 false",
+    "brown 0 1 0 false",
+    "cyan 0 1 0 false",
+    "dgrey 0 1 0 false",
+    "vlgrey 0 1 0 false",
+    "lgrey 0 1 0 false",
+    "lgreen 0 1 0 false",
+    "lime 0 1 0 false",
+    "pureWhite 0 1 0 false",
+    "trans 0 1 0 false",
+    "1 0 1 0 false",
+    "2 0 1 0 false",
+    "3 0 1 0 false",
+    "4 0 1 0 false",
+    "5 0 1 0 false",
+    "6 0 1 0 false",
+    "7 0 1 0 false",
+    "8 0 1 0 false",
+    "9 0 1 0 false",
+    "14 0 1 0 false",
+    "15 0 1 0 false",
+    "18 0 1 0 false",
+    "19 0 1 0 false",
+    "#000000 0 1 0 false",
+    "#96794E 0 1 0 false",
+    "#226ef6 0 1 0 false",
+    "#1c3766 0 1 0 false",
+    "#ff1000 0 1 0 false",
+    "#FFFFFF 0 1 0 false",
+    "#5C533F 0 1 0 false",
+    "#ff9000 0 1 0 false",
+    "#f6c6a2 0 1 0 false",
+    "#F49EFF 0 1 0 false",
+    "#fff 0 1 0 false",
+    "#FF0000 0 1 0 false"
 ];
 const U_COLOR_ID = new Map(U_COLOR_TABLE.map((color, id) => [color, id]));
 // Quantize floats to small ints for the wire; the client divides them back.
-const qnum = (v, k) => Number.isFinite(v) ? Math.round(v * k) : 0;
+const qnum = (v, k) => (Number.isFinite(v) ? Math.round(v * k) : 0);
 const qfrac = (v) => qnum(v || 0, 255);
 // Key table; must match the client.
-const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout", "censor"];
+const MOCKUP_KEYS = [
+    "index",
+    "name",
+    "x",
+    "y",
+    "color",
+    "strokeWidth",
+    "glow",
+    "radius",
+    "alpha",
+    "recursion",
+    "borderless",
+    "drawFill",
+    "shape",
+    "imageInterpolation",
+    "size",
+    "realSize",
+    "mirrorMasterAngle",
+    "sendAllMockups",
+    "position",
+    "axis",
+    "middle",
+    "rerootUpgradeTree",
+    "className",
+    "upgrades",
+    "tier",
+    "guns",
+    "offset",
+    "direction",
+    "length",
+    "width",
+    "aspect",
+    "angle",
+    "drawAbove",
+    "layer",
+    "turrets",
+    "props",
+    "statnames",
+    "body_damage",
+    "max_health",
+    "bullet_speed",
+    "bullet_health",
+    "bullet_pen",
+    "bullet_damage",
+    "reload",
+    "move_speed",
+    "shield_regen",
+    "shield_cap",
+    "sizeFactor",
+    "isProp",
+    "forceAngle",
+    "visibleOnBlackout",
+    "censor"
+];
 const MOCKUP_KEY_ID = new Map(MOCKUP_KEYS.map((k, i) => [k, i]));
 const encodeMockupVal = (v, colorOk) => {
     if (Array.isArray(v)) {
@@ -53,7 +184,11 @@ const encodeMockupVal = (v, colorOk) => {
         const o = ["o"];
         for (const k in v) {
             // Drop what JSON.stringify drops.
-            if (typeof v[k] === "function" || typeof v[k] === "undefined" || typeof v[k] === "symbol") {
+            if (
+                typeof v[k] === "function" ||
+        typeof v[k] === "undefined" ||
+        typeof v[k] === "symbol"
+            ) {
                 continue;
             }
             const id = MOCKUP_KEY_ID.get(k);
@@ -71,19 +206,23 @@ const encodeMockupVal = (v, colorOk) => {
             return id;
         }
     }
-    return typeof v === "number" && !Number.isInteger(v) ? Math.round(v * 1e4) / 1e4 : v;
+    return typeof v === "number" && !Number.isInteger(v)
+        ? Math.round(v * 1e4) / 1e4
+        : v;
 };
 const encodeMockup = (o) => JSON.stringify(encodeMockupVal(o, false));
 // Room grids go as run lengths over distinct cell forms.
 const encodeRoom = (grid, blackout) => {
-    const forms = [],
-        ids = new Map(),
-        runs = [];
+    const forms = [];
+    const ids = new Map();
+    const runs = [];
     let cols = 0;
     for (const row of grid) {
         cols = row.length;
         for (const t of row) {
-            const f = blackout ? [t.color, t.visibleOnBlackout ?? false, t.image ?? false] : [t.color, t.image ?? false];
+            const f = blackout
+                ? [t.color, t.visibleOnBlackout ?? false, t.image ?? false]
+                : [t.color, t.image ?? false];
             const k = f.join("\x00");
             let id = ids.get(k);
             if (id === undefined) {
@@ -101,13 +240,12 @@ const encodeRoom = (grid, blackout) => {
     return JSON.stringify([cols, forms, runs]);
 };
 
-
 const Delta = class {
     /**
-     *
-     * @param {number} dataLength
-     * @param {(any[]) => any[]} finder
-     */
+   *
+   * @param {number} dataLength
+   * @param {(any[]) => any[]} finder
+   */
     constructor(dataLength, finder) {
         this.dataLength = dataLength;
         this.finder = finder;
@@ -165,8 +303,8 @@ const Delta = class {
             updates.push(now[i].id, ...now[i].data);
             updatesLength++;
         }
-        const reset = [0, now.length],
-            update = [deletesLength, ...deletes, updatesLength, ...updates];
+        const reset = [0, now.length];
+        const update = [deletesLength, ...deletes, updatesLength, ...updates];
         for (const element of now) {
             reset.push(element.id, ...element.data);
         }
@@ -176,8 +314,8 @@ const Delta = class {
 const makeLeaderboardList = (list) => {
     const topTen = [];
     for (let i = 0; i < 10 && list.length; i++) {
-        let top,
-            is = 0;
+        let top;
+        let is = 0;
         for (let j = 0; j < list.length; j++) {
             const val = list[j].skill.score;
             if (val > is) {
@@ -189,8 +327,10 @@ const makeLeaderboardList = (list) => {
             break;
         }
         const entry = list[top];
-        const color = entry.leaderboardColor ? `${entry.leaderboardColor} 0 1 0 false`
-            : Config.groups || (Config.mode == "ffa" && !Config.tag) ? "11 0 1 0 false"
+        const color = entry.leaderboardColor
+            ? `${entry.leaderboardColor} 0 1 0 false`
+            : Config.groups || (Config.mode == "ffa" && !Config.tag)
+                ? "11 0 1 0 false"
                 : entry.color.compiled;
         topTen.push({
             id: entry.id,
@@ -198,7 +338,11 @@ const makeLeaderboardList = (list) => {
                 Math.round(entry.skill.score),
                 entry.index,
                 entry.name,
-                entry.leaderboardColor ? color : Config.mode == "ffa" && !Config.tag ? "12 0 1 0 false" : color,
+                entry.leaderboardColor
+                    ? color
+                    : Config.mode == "ffa" && !Config.tag
+                        ? "12 0 1 0 false"
+                        : color,
                 color,
                 entry.nameColor || "#FFFFFF",
                 entry.label,
@@ -213,8 +357,8 @@ const makeLeaderboardList = (list) => {
 const makeLeaderboardHPList = (list) => {
     const topTen = [];
     for (let i = 0; i < 10 && list.length; i++) {
-        let top,
-            is = 0;
+        let top;
+        let is = 0;
         for (let j = 0; j < list.length; j++) {
             const val = list[j].skill.score;
             if (val > is) {
@@ -244,25 +388,46 @@ const makeLeaderboardHPList = (list) => {
     gameManager.room.topPlayerID = topTen.length ? topTen[0].id : -1;
     return topTen.sort((a, b) => a.id - b.id);
 };
-// Deltas
+    // Deltas
 const minimapAll = new Delta(5, (_) => {
     const all = [];
     for (const my of entities.values()) {
-        if (my.allowedOnMinimap && (
-            my.alwaysShowOnMinimap ||
-                    (my.type === "wall" && my.alpha > 0.2) ||
-                    my.type === "miniboss" || my.type == "portal" ||
-                    my.isMothership
-        )) {
-            const x = Config.blackout ? Math.floor(Math.random() * gameManager.room.width - gameManager.room.width / 2) : my.x;
-            const y = Config.blackout ? Math.floor(Math.random() * gameManager.room.height - gameManager.room.height / 2) : my.y;
+        if (
+            my.allowedOnMinimap &&
+      (my.alwaysShowOnMinimap ||
+        (my.type === "wall" && my.alpha > 0.2) ||
+        my.type === "miniboss" ||
+        my.type == "portal" ||
+        my.isMothership)
+        ) {
+            const x = Config.blackout
+                ? Math.floor(
+                    Math.random() * gameManager.room.width - gameManager.room.width / 2
+                )
+                : my.x;
+            const y = Config.blackout
+                ? Math.floor(
+                    Math.random() * gameManager.room.height -
+              gameManager.room.height / 2
+                )
+                : my.y;
             all.push({
                 id: my.id,
                 data: [
-                    Config.blackout ? 0 : my.type === "wall" || my.isMothership ? my.shape === 4 ? 2 : 1 : 0,
+                    Config.blackout
+                        ? 0
+                        : my.type === "wall" || my.isMothership
+                            ? my.shape === 4
+                                ? 2
+                                : 1
+                            : 0,
                     clamp(Math.floor((256 * x) / gameManager.room.width), -128, 127),
                     clamp(Math.floor((256 * y) / gameManager.room.height), -128, 127),
-                    Config.blackout ? `${Config.blackout_minimap_color} 0 1 0 false` : my.minimapColor ? `${my.minimapColor} 0 1 0 false` : my.color.compiled,
+                    Config.blackout
+                        ? `${Config.blackout_minimap_color} 0 1 0 false`
+                        : my.minimapColor
+                            ? `${my.minimapColor} 0 1 0 false`
+                            : my.color.compiled,
                     Math.round(my.SIZE)
                 ]
             });
@@ -273,13 +438,25 @@ const minimapAll = new Delta(5, (_) => {
 const minimapTeams = new Delta(3, (args) => {
     const all = [];
     for (const my of entities.values()) {
-        if (my.type === "tank" && my.team === args[0] && my.master === my && my.allowedOnMinimap && !my.settings.fullyInvisible) {
+        if (
+            my.type === "tank" &&
+      my.team === args[0] &&
+      my.master === my &&
+      my.allowedOnMinimap &&
+      !my.settings.fullyInvisible
+        ) {
             all.push({
                 id: my.id,
                 data: [
                     clamp(Math.floor((256 * my.x) / gameManager.room.width), -128, 127),
                     clamp(Math.floor((256 * my.y) / gameManager.room.height), -128, 127),
-                    my.minimapColor ? `${my.minimapColor} 0 1 0 false` : Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag) ? "10 0 1 0 false" : my.color.compiled
+                    my.minimapColor
+                        ? `${my.minimapColor} 0 1 0 false`
+                        : Config.groups ||
+                Config.mode == "ffa" ||
+                (Config.mode == "clan" && !Config.tag)
+                            ? "10 0 1 0 false"
+                            : my.color.compiled
                 ]
             });
         }
@@ -289,13 +466,25 @@ const minimapTeams = new Delta(3, (args) => {
 const minimapAllTeams = new Delta(3, (_) => {
     const all = [];
     for (const my of entities.values()) {
-        if (my.type === "tank" && my.master === my && my.allowedOnMinimap && !my.lifetime && !my.settings.fullyInvisible) {
+        if (
+            my.type === "tank" &&
+      my.master === my &&
+      my.allowedOnMinimap &&
+      !my.lifetime &&
+      !my.settings.fullyInvisible
+        ) {
             all.push({
                 id: my.id,
                 data: [
                     clamp(Math.floor((256 * my.x) / gameManager.room.width), -128, 127),
                     clamp(Math.floor((256 * my.y) / gameManager.room.height), -128, 127),
-                    my.minimapColor ? `${my.minimapColor} 0 1 0 false` : Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag) ? "12 0 1 0 false" : my.color.compiled
+                    my.minimapColor
+                        ? `${my.minimapColor} 0 1 0 false`
+                        : Config.groups ||
+                Config.mode == "ffa" ||
+                (Config.mode == "clan" && !Config.tag)
+                            ? "12 0 1 0 false"
+                            : my.color.compiled
                 ]
             });
         }
@@ -346,13 +535,13 @@ const globalLeaderboard = new Delta(7, (_) => {
         return list;
     }
     for (const instance of entities.values()) {
-        if (instance.settings.leaderboardable &&
-                    instance.settings.drawShape &&
-                    !instance.incognito &&
-                    (instance.type === "tank" ||
-                     instance.killCount.solo ||
-                     instance.killCount.assists
-                    )
+        if (
+            instance.settings.leaderboardable &&
+      instance.settings.drawShape &&
+      !instance.incognito &&
+      (instance.type === "tank" ||
+        instance.killCount.solo ||
+        instance.killCount.assists)
         ) {
             list.push(instance);
         }
@@ -362,14 +551,14 @@ const globalLeaderboard = new Delta(7, (_) => {
 const defaultLeaderboard = new Delta(7, (_) => {
     const list = [];
     for (const instance of entities.values()) {
-        if (instance.settings.leaderboardable &&
-                    instance.settings.drawShape &&
-                    !instance.incognito &&
-                    instance.type !== "food" &&
-                    (instance.type === "tank" ||
-                     instance.killCount.solo ||
-                     instance.killCount.assists
-                    )
+        if (
+            instance.settings.leaderboardable &&
+      instance.settings.drawShape &&
+      !instance.incognito &&
+      instance.type !== "food" &&
+      (instance.type === "tank" ||
+        instance.killCount.solo ||
+        instance.killCount.assists)
         ) {
             list.push(instance);
         }
@@ -381,9 +570,9 @@ const playerLeaderboard = new Delta(7, (_) => {
     for (const instance of entities.values()) {
         if (
             instance.isPlayer &&
-                    !instance.incognito &&
-                    instance.settings.leaderboardable &&
-                    instance.settings.drawShape
+      !instance.incognito &&
+      instance.settings.leaderboardable &&
+      instance.settings.drawShape
         ) {
             list.push(instance);
         }
@@ -394,11 +583,9 @@ const bossLeaderboard = new Delta(7, (_) => {
     const list = [];
     for (const instance of entities.values()) {
         if (
-            (instance.isBoss ||
-                     instance.type == "miniboss"
-            ) &&
-                    instance.settings.leaderboardable &&
-                    instance.settings.drawShape
+            (instance.isBoss || instance.type == "miniboss") &&
+      instance.settings.leaderboardable &&
+      instance.settings.drawShape
         ) {
             list.push(instance);
         }
@@ -408,31 +595,45 @@ const bossLeaderboard = new Delta(7, (_) => {
 const subscribers = [];
 setInterval(() => {
     minimap.set();
-    let leaderboardUpdate,
-        minimapTeamUpdates;
-    const minimapUpdate = minimapAll.update(),
-        minimapAllTeamsUpdate = minimapAllTeams.update();
+    let leaderboardUpdate; let minimapTeamUpdates;
+    const minimapUpdate = minimapAll.update();
+    const minimapAllTeamsUpdate = minimapAllTeams.update();
     for (const socket of subscribers) {
-        minimapTeamUpdates = minimapTeams.update(socket.id, socket.player.body ? socket.player.body.team : socket.player.team);
+        minimapTeamUpdates = minimapTeams.update(
+            socket.id,
+            socket.player.body ? socket.player.body.team : socket.player.team
+        );
         if (!socket.status.selectedLeaderboard) {
             socket.status.selectedLeaderboard = "global";
         }
-        if (!socket.status.hasSpawned || socket.status.selectedLeaderboard == "stop") {
+        if (
+            !socket.status.hasSpawned ||
+      socket.status.selectedLeaderboard == "stop"
+        ) {
             continue;
         }
         const sl = socket.status.selectedLeaderboard;
         const getLeaderboard =
-            sl == "global" ? globalLeaderboard :
-                sl == "default" ? defaultLeaderboard :
-                    sl == "players" ? playerLeaderboard :
-                        sl == "bosses" ? bossLeaderboard :
-                            globalLeaderboard;
+            sl == "global"
+                ? globalLeaderboard
+                : sl == "default"
+                    ? defaultLeaderboard
+                    : sl == "players"
+                        ? playerLeaderboard
+                        : sl == "bosses"
+                            ? bossLeaderboard
+                            : globalLeaderboard;
 
         leaderboardUpdate = getLeaderboard.update(
             socket.id,
-            (Config.groups || (Config.mode == "ffa" && !Config.tag)) && socket.player.body ? socket.player.body.id : null
+            (Config.groups || (Config.mode == "ffa" && !Config.tag)) &&
+        socket.player.body
+                ? socket.player.body.id
+                : null
         );
-        const seesAllTeams = socket.status.seesAllTeams || Boolean(socket.player.body?.settings.canSeeInvisible);
+        const seesAllTeams =
+            socket.status.seesAllTeams ||
+      Boolean(socket.player.body?.settings.canSeeInvisible);
         if (seesAllTeams !== socket.status.seesAllTeamsOnMinimap) {
             socket.status.seesAllTeamsOnMinimap = seesAllTeams;
             socket.status.needsNewBroadcast = true;
@@ -508,12 +709,12 @@ export class SocketManager {
                 }
             }
         });
-    };
+    }
     broadcast(message) {
         for (let i = 0; i < this.clients.length; i++) {
             this.clients[i].talk("m", Config.popup_message_duration, message);
         }
-    };
+    }
     broadcastRoom() {
         const data = encodeRoom(global.gameManager.room.setup, false);
         for (let i = 0; i < this.clients.length; i++) {
@@ -524,18 +725,12 @@ export class SocketManager {
                 data
             );
         }
-    };
+    }
     broadcastRoomUpdate(gridX, gridY, color, image) {
         for (let i = 0; i < this.clients.length; i++) {
-            this.clients[i].talk(
-                "ru",
-                gridX,
-                gridY,
-                color,
-                image ?? false
-            );
+            this.clients[i].talk("ru", gridX, gridY, color, image ?? false);
         }
-    };
+    }
     ban(socket, reason) {
         const time = Date.now();
         warn(`${reason || "No reason given."} Temporarily banning.`);
@@ -558,7 +753,9 @@ export class SocketManager {
             id: Math.random().toString(36).substr(2, 9),
             ip: socket.ip,
             time: time,
-            name: (socket.player && socket.player.body && socket.player.body.name) || "Unnamed",
+            name:
+        (socket.player && socket.player.body && socket.player.body.name) ||
+        "Unnamed",
             reason: reason
         });
     }
@@ -583,7 +780,9 @@ export class SocketManager {
         permBans.push({
             ip: socket.ip,
             time: time,
-            name: (socket.player && socket.player.body && socket.player.body.name) || "Unnamed",
+            name:
+        (socket.player && socket.player.body && socket.player.body.name) ||
+        "Unnamed",
             reason: reason
         });
 
@@ -593,18 +792,27 @@ export class SocketManager {
     // clean up expired messages
         const now = Date.now();
         for (const i in chats) {
-            chats[i].messages = chats[i].messages.filter((chat) => chat.expires > now);
+            chats[i].messages = chats[i].messages.filter(
+                (chat) => chat.expires > now
+            );
         }
 
         // Send chat messages to everyone
         for (const view of gameManager.views) {
-            const nearby = view.getNearby(),
-                array = [];
+            const nearby = view.getNearby();
+            const array = [];
             const viewerChannel = view.socket.status.selectedChannel ?? "global";
             const viewerTeam = view.socket.player?.body?.team;
 
             for (const entity of nearby.values()) {
-                if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(view.socket.player.body && view.socket.player.body.settings.canSeeInvisible)) {
+                if (
+                    entity.settings.fullyInvisible &&
+          entity.alpha <= 0 &&
+          !(
+              view.socket.player.body &&
+            view.socket.player.body.settings.canSeeInvisible
+          )
+                ) {
                     continue;
                 }
                 const id = entity.id;
@@ -619,14 +827,22 @@ export class SocketManager {
                         if (chatChannel === "team" && chat.team !== viewerTeam) {
                             continue;
                         }
-                        array[index].messages.push({ text: chat.message, id: chat.id });
+                        array[index].messages.push({
+                            text: chat.message,
+                            id: chat.id
+                        });
                     }
                 }
             }
             if (view.socket.status.disablechat) {
-                view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array.map((o) => {
-                    return {id: o.id, messages: []};
-                })));
+                view.socket.talk(
+                    "CHAT_MESSAGE_ENTITY",
+                    JSON.stringify(
+                        array.map((o) => {
+                            return { id: o.id, messages: [] };
+                        })
+                    )
+                );
             } else {
                 view.socket.talk("CHAT_MESSAGE_ENTITY", JSON.stringify(array));
             }
@@ -635,8 +851,8 @@ export class SocketManager {
     close(socket) {
         socket.closed = true;
         // Figure out who the player was
-        const player = socket.player,
-            index = this.players.indexOf(player);
+        const player = socket.player;
+        const index = this.players.indexOf(player);
         // Remove it from any group if there was one...
         if (socket.group) {
             gameManager.removeMember(socket);
@@ -664,7 +880,10 @@ export class SocketManager {
                         if (player.body != null) {
                             player.body.kill();
                         }
-                        remove(this.disconnections, this.disconnections.indexOf(disconnection));
+                        remove(
+                            this.disconnections,
+                            this.disconnections.indexOf(disconnection)
+                        );
                     }, 60000);
                     const disconnection = {
                         body: player.body,
@@ -677,18 +896,31 @@ export class SocketManager {
                 }
             }
             // Disconnect everything
-            log(`[INFO]: ${player.body ? `User ${player.body.name == "" ? "A unnamed player" : player.body.name}` : "A user without an entity"} disconnected!`);
+            log(
+                `[INFO]: ${player.body ? `User ${player.body.name == "" ? "A unnamed player" : player.body.name}` : "A user without an entity"} disconnected!`
+            );
             remove(this.players, index);
         } else {
             log("[INFO]: A player disconnected before entering the game!");
         }
         // Free the view
-        remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
+        remove(
+            global.gameManager.views,
+            global.gameManager.views.indexOf(socket.view)
+        );
         // Remove the socket
         remove(this.clients, this.clients.indexOf(socket));
-        if (Config.sandbox && this.clients.length && !this.clients.some((c) => c.status.permissionLevel >= 3)) {
+        if (
+            Config.sandbox &&
+      this.clients.length &&
+      !this.clients.some((c) => c.status.permissionLevel >= 3)
+        ) {
             setPermissionLevel(this.clients[0], 3);
-            this.clients[0].talk("m", 8_000, `You have inherited the sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
+            this.clients[0].talk(
+                "m",
+                8_000,
+                `You have inherited the sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`
+            );
         }
         if (!global.gameManager.parentPort) {
             for (let i = 0; i < global.servers.length; i++) {
@@ -700,7 +932,9 @@ export class SocketManager {
         } else {
             global.gameManager.parentPort.postMessage([true, this.clients.length]);
         }
-        log(`[INFO]: The connection has closed. Views: ${global.gameManager.views.length}. Clients: ${this.clients.length}.`);
+        log(
+            `[INFO]: The connection has closed. Views: ${global.gameManager.views.length}. Clients: ${this.clients.length}.`
+        );
     }
     incoming(message, socket) {
         socket.status.requests++;
@@ -715,681 +949,877 @@ export class SocketManager {
         }
         const packetType = m.shift();
         switch (packetType) {
-            case "k": { // key verification
-                if (m.length > 2) {
-                    socket.kick("Ill-sized key request.");
-                    return 1;
-                }
-                if (socket.status.verified) {
-                    socket.kick("Duplicate player spawn attempt.");
-                    return 1;
-                }
-                // Optional capability flags: bit 0 = understands delta entity packets.
-                socket.talk("w", true, 1);
-                if (m.length >= 1) {
-                    const key = m[0].toString().trim();
-                    socket.permissions = Object.prototype.hasOwnProperty.call(this.permissionsDict, key) ? this.permissionsDict[key] : undefined;
-                    if (socket.permissions) {
-                        log(`[INFO]: A socket was verified with the token: ${key}`);
-                        if (socket.permissions.level >= 1) {
-                            socket.status.hasOperator = true;
-                        }
-                    } else {
-                        log(`[WARNING]: A socket failed to verify with the token: ${key}`);
+            case "k":
+                {
+                    // key verification
+                    if (m.length > 2) {
+                        socket.kick("Ill-sized key request.");
+                        return 1;
                     }
-                    socket.key = key;
-                    setPermissionLevel(socket, socket.permissions?.permissionLevel ?? 0);
+                    if (socket.status.verified) {
+                        socket.kick("Duplicate player spawn attempt.");
+                        return 1;
+                    }
+                    socket.talk("w", true);
+                    if (m.length >= 1) {
+                        const key = m[0].toString().trim();
+                        socket.permissions = Object.prototype.hasOwnProperty.call(
+                            this.permissionsDict,
+                            key
+                        )
+                            ? this.permissionsDict[key]
+                            : undefined;
+                        if (socket.permissions) {
+                            log(`[INFO]: A socket was verified with the token: ${key}`);
+                            if (socket.permissions.level >= 1) {
+                                socket.status.hasOperator = true;
+                            }
+                        } else {
+                            log(
+                                `[WARNING]: A socket failed to verify with the token: ${key}`
+                            );
+                        }
+                        socket.key = key;
+                        setPermissionLevel(
+                            socket,
+                            socket.permissions?.permissionLevel ?? 0
+                        );
+                    }
+                    socket.status.verified = true;
+                    if (this.clients.length == 1) {
+                        log(`[INFO]: ${this.clients.length} client connected`);
+                    } else {
+                        log(`[INFO]: ${this.clients.length} clients connected`);
+                    }
                 }
-                socket.status.verified = true;
-                if (this.clients.length == 1) {
-                    log(`[INFO]: ${this.clients.length} client connected`);
-                } else {
-                    log(`[INFO]: ${this.clients.length} clients connected`);
-                }
-            } break;
-            case "s": { // spawn request
-                if (socket.status.spawning || !socket.status.deceased) {
-                    socket.kick("Trying to spawn while already alive.");
-                    return 1;
-                }
-                socket.status.spawning = true;
-                if (global.gameManager.private && !socket.permissions) {
-                    return (
-                        socket.talk("message", "This server seems to be private."),
-                        socket.kick("Tried to join private server without valid token.")
-                    );
-                }
-                if (!global.gameManager.webProperties.maxPlayers < 1 && this.clients.length > global.gameManager.webProperties.maxPlayers) {
-                    return (
-                        socket.talk("message", "This server is full, please rejoin later."),
-                        socket.kick("Server full.")
-                    );
-                }
-                const b = bans.find((ban) => ban.ip === socket.ip);
-                if (b) {
-                    socket.talk(b.reason === "Ban Hammer" ? "tempModBan" : "temporaryBan");
-                    socket.kick("Temporarily banned player detected!");
-                    return 1;
-                }
-                const permB = permBans.find(
-                    (bannedIP) => bannedIP.ip === socket.ip
-                );
-                if (permB) {
-                    socket.talk("permanentBan");
-                    socket.permaban("Permanently banned player detected!");
-                    return 1;
-                }
-                // Get data
-                if (m.length < 4) {
-                    socket.kick("Ill-sized spawn request.");
-                    return 1;
-                }
-                let name = m[0];
-                const needsRoom = m[1];
-                const autoLVLup = m[2];
-                let transferbodyID = m[3];
-                const incognitoMode = m[4];
-                if (incognitoMode) {
-                    socket.status.incognito = true;
-                } else {
-                    socket.status.incognito = false;
-                }
-                if (global.gameManager.arenaClosed) {
+                break;
+            case "s":
+                {
+                    // spawn request
+                    if (socket.status.spawning || !socket.status.deceased) {
+                        socket.kick("Trying to spawn while already alive.");
+                        return 1;
+                    }
+                    socket.status.spawning = true;
+                    if (global.gameManager.private && !socket.permissions) {
+                        return (
+                            socket.talk("message", "This server seems to be private."),
+                            socket.kick("Tried to join private server without valid token.")
+                        );
+                    }
+                    if (
+                        !global.gameManager.webProperties.maxPlayers < 1 &&
+            this.clients.length > global.gameManager.webProperties.maxPlayers
+                    ) {
+                        return (
+                            socket.talk(
+                                "message",
+                                "This server is full, please rejoin later."
+                            ),
+                            socket.kick("Server full.")
+                        );
+                    }
+                    const b = bans.find((ban) => ban.ip === socket.ip);
+                    if (b) {
+                        socket.talk(
+                            b.reason === "Ban Hammer" ? "tempModBan" : "temporaryBan"
+                        );
+                        socket.kick("Temporarily banned player detected!");
+                        return 1;
+                    }
+                    const permB = permBans.find((bannedIP) => bannedIP.ip === socket.ip);
+                    if (permB) {
+                        socket.talk("permanentBan");
+                        socket.permaban("Permanently banned player detected!");
+                        return 1;
+                    }
+                    // Get data
+                    if (m.length < 4) {
+                        socket.kick("Ill-sized spawn request.");
+                        return 1;
+                    }
+                    let name = m[0];
+                    const needsRoom = m[1];
+                    const autoLVLup = m[2];
+                    let transferbodyID = m[3];
+                    const incognitoMode = m[4];
+                    if (incognitoMode) {
+                        socket.status.incognito = true;
+                    } else {
+                        socket.status.incognito = false;
+                    }
+                    if (global.gameManager.arenaClosed) {
+                        if (needsRoom) {
+                            socket.talk(
+                                "message",
+                                "Arena closed. Wait a minute or try another server."
+                            );
+                            socket.terminate("Bad spawn while arena closed.");
+                        } else {
+                            socket.talk("m", 5_000, "Arena Closed.");
+                        }
+                        return;
+                    }
+                    // Verify it
+                    if (typeof name != "string") {
+                        socket.kick("Bad spawn request. (name)");
+                        return 1;
+                    }
+                    if (encodeURI(name).split(/%..|./).length > 48) {
+                        socket.kick("Shorten your name!");
+                        return 1;
+                    }
+                    if (typeof m[1] !== "number") {
+                        socket.kick("Bad spawn request. (needsRoom)");
+                        return 1;
+                    }
+                    if (typeof autoLVLup !== "number") {
+                        socket.kick("Bad spawn request. (autoLVLup)");
+                        return 1;
+                    }
+                    if (typeof incognitoMode !== "number") {
+                        socket.kick("Bad spawn request. (incognito)");
+                        return 1;
+                    }
+                    if (transferbodyID && typeof transferbodyID != "string") {
+                        socket.kick("Bad body transfer. (transferbodyID)");
+                        return 1;
+                    }
+                    if (transferbodyID) {
+                        transferbodyID = transferbodyID.replace(name, "");
+                    }
+
+                    // Get rid of the banned characters
+                    name = name.replace(Config.banned_characters, "");
+
+                    // Give it the room state and move the camera.
                     if (needsRoom) {
-                        socket.talk("message", "Arena closed. Wait a minute or try another server.");
-                        socket.terminate("Bad spawn while arena closed.");
-                    } else {
-                        socket.talk("m", 5_000, "Arena Closed.");
-                    }
-                    return;
-                };
-                // Verify it
-                if (typeof name != "string") {
-                    socket.kick("Bad spawn request. (name)");
-                    return 1;
-                }
-                if (encodeURI(name).split(/%..|./).length > 48) {
-                    socket.kick("Shorten your name!");
-                    return 1;
-                }
-                if (typeof m[1] !== "number") {
-                    socket.kick("Bad spawn request. (needsRoom)");
-                    return 1;
-                }
-                if (typeof autoLVLup !== "number") {
-                    socket.kick("Bad spawn request. (autoLVLup)");
-                    return 1;
-                }
-                if (typeof incognitoMode !== "number") {
-                    socket.kick("Bad spawn request. (incognito)");
-                    return 1;
-                }
-                if (transferbodyID && typeof transferbodyID != "string") {
-                    socket.kick("Bad body transfer. (transferbodyID)");
-                    return 1;
-                }
-                if (transferbodyID) {
-                    transferbodyID = transferbodyID.replace(name, "");
-                }
-
-                // Get rid of the banned characters
-                name = name.replace(Config.banned_characters, "");
-
-                // Give it the room state and move the camera.
-                if (needsRoom) {
-                    socket.status.spawning = false;
-                    if (Config.hidden) {
-                        return socket.close();
-                    } // If the server is hidden then just kick the client.
-                    this.newPlayer(socket);
-                    socket.talk(
-                        "R",
-                        global.gameManager.room.width,
-                        global.gameManager.room.height,
-                        encodeRoom(global.gameManager.room.setup, true),
-                        JSON.stringify(serverStartTime),
-                        global.gameManager.roomSpeed,
-                        JSON.stringify({
-                            active: Config.blackout,
-                            color: Config.blackout_fog
-                        }),
-                        Config.round_arena,
-                        Config.instant_respawn
-                    );
-                    return;
-                }
-                const loop = setInterval(() => {
-                    // You can put your code here to prevent players from spawning.
-                    if (!global.cannotRespawn && !global.gameManager.arenaClosed && socket.status.readyToSpawn && !socket.closed) {
-                        clearInterval(loop);
-                        const epackage = {};
-                        epackage.name = name;
-                        epackage.autoLVLup = autoLVLup;
-                        epackage.transferbodyID = transferbodyID;
-                        // Easter eggs
-                        epackage.braindamagemode = false;
-                        if (Config.brain_damage && name.toLowerCase().includes("brain damage")) {
-                            epackage.braindamagemode = true;
-                        }
-                        this.initalizePlayer(epackage, socket);
                         socket.status.spawning = false;
+                        if (Config.hidden) {
+                            return socket.close();
+                        } // If the server is hidden then just kick the client.
+                        this.newPlayer(socket);
+                        socket.talk(
+                            "R",
+                            global.gameManager.room.width,
+                            global.gameManager.room.height,
+                            encodeRoom(global.gameManager.room.setup, true),
+                            JSON.stringify(serverStartTime),
+                            global.gameManager.roomSpeed,
+                            JSON.stringify({
+                                active: Config.blackout,
+                                color: Config.blackout_fog
+                            }),
+                            (Config.round_arena ??= false),
+                            Config.instant_respawn
+                        );
+                        return;
                     }
-                }, 20);
-            } break;
-            case "S": { // clock syncing
-                if (m.length !== 1) {
-                    socket.kick("Ill-sized sync packet.");
-                    return 1;
+                    const loop = setInterval(() => {
+                        // You can put your code here to prevent players from spawning.
+                        if (
+                            !global.cannotRespawn &&
+              !global.gameManager.arenaClosed &&
+              socket.status.readyToSpawn &&
+              !socket.closed
+                        ) {
+                            clearInterval(loop);
+                            const epackage = {};
+                            epackage.name = name;
+                            epackage.autoLVLup = autoLVLup;
+                            epackage.transferbodyID = transferbodyID;
+                            // Easter eggs
+                            epackage.braindamagemode = false;
+                            if (
+                                Config.brain_damage &&
+                name.toLowerCase().includes("brain damage")
+                            ) {
+                                epackage.braindamagemode = true;
+                            }
+                            this.initalizePlayer(epackage, socket);
+                            socket.status.spawning = false;
+                        }
+                    }, 20);
                 }
-                // Get data
-                const synctick = m[0];
-                // Verify it
-                if (typeof synctick !== "number") {
-                    socket.kick("Weird sync packet.");
-                    return 1;
+                break;
+            case "S":
+                {
+                    // clock syncing
+                    if (m.length !== 1) {
+                        socket.kick("Ill-sized sync packet.");
+                        return 1;
+                    }
+                    // Get data
+                    const synctick = m[0];
+                    // Verify it
+                    if (typeof synctick !== "number") {
+                        socket.kick("Weird sync packet.");
+                        return 1;
+                    }
+                    // Bounce it back
+                    socket.talk("S", synctick, time());
                 }
-                // Bounce it back
-                socket.talk("S", synctick, time());
-            } break;
-            case "p": { // ping
-                if (m.length !== 1) {
-                    socket.kick("Ill-sized ping.");
-                    return 1;
+                break;
+            case "p":
+                {
+                    // ping
+                    if (m.length !== 1) {
+                        socket.kick("Ill-sized ping.");
+                        return 1;
+                    }
+                    // Get data
+                    const ping = m[0];
+                    // Verify it
+                    if (typeof ping !== "number") {
+                        socket.kick("Weird ping.");
+                        return 1;
+                    }
+                    // Pong
+                    socket.talk("p", ping.toFixed(1)); // Just pong it right back
+                    socket.status.lastHeartbeat = time();
                 }
-                // Get data
-                const ping = m[0];
-                // Verify it
-                if (typeof ping !== "number") {
-                    socket.kick("Weird ping.");
-                    return 1;
+                break;
+            case "d":
+                {
+                    // downlink
+                    if (m.length !== 1) {
+                        socket.kick("Ill-sized downlink.");
+                        return 1;
+                    }
+                    // Get data
+                    const time = m[0];
+                    // Verify data
+                    if (typeof time !== "number") {
+                        socket.kick("Bad downlink.");
+                        return 1;
+                    }
+                    // The downlink indicates that the client has received an update and is now ready to receive more.
+                    socket.status.receiving = 0;
+                    socket.camera.ping = time() - time;
+                    socket.camera.lastDowndate = time();
                 }
-                // Pong
-                socket.talk("p", ping.toFixed(1)); // Just pong it right back
-                socket.status.lastHeartbeat = time();
-            } break;
-            case "d": {
-                // downlink
-                if (m.length !== 1) {
-                    socket.kick("Ill-sized downlink.");
-                    return 1;
-                }
-                // Get data
-                const time = m[0];
-                // Verify data
-                if (typeof time !== "number") {
-                    socket.kick("Bad downlink.");
-                    return 1;
-                }
-                // The downlink indicates that the client has received an update and is now ready to receive more.
-                socket.status.receiving = 0;
-                socket.camera.ping = time() - time;
-                socket.camera.lastDowndate = time();
-            } break;
-            case "C": {
-                // command packet
-                if (m.length !== 4) {
-                    socket.kick("Ill-sized command packet.");
-                    return 1;
-                }
-                // Get data
-                let reverseTank = m[2];
-                const target = {
+                break;
+            case "C":
+                {
+                    // command packet
+                    if (m.length !== 4) {
+                        socket.kick("Ill-sized command packet.");
+                        return 1;
+                    }
+                    // Get data
+                    let reverseTank = m[2];
+                    const target = {
                         x: m[0],
                         y: m[1]
-                    },
-                    commands = m[3];
-                // Verify data
-                if (
-                    typeof target.x !== "number" ||
-                    typeof target.y !== "number" ||
-                    typeof commands !== "number"
-                ) {
-                    socket.kick("Weird downlink.");
-                    return 1;
-                }
-                if (commands > 255) {
-                    socket.kick("Malformed command packet.");
-                    return 1;
-                }
-                if (player.body == null) {
-                    return;
-                }
-                // Put the new target in
-                if (!socket.player.body.eastereggs.braindamage) {
-                    player.target = target;
-                }
-                // Reverse the tank's facing if we want.
-                if (Config.reverse_tank_cooldown && reverseTank !== player.body.reverseTank && reverseTank !== socket.status.lastReverseTank) {
-                    socket.status.reverseSpam = (socket.status.reverseSpam || 0) + 1;
-                    setTimeout(() => socket.status.reverseSpam--, 10_000);
-                    if (socket.status.reverseSpam >= 7) {
-                        player.body.sendMessage("Please slow down!");
-                        reverseTank = player.body.reverseTank;
-                    }
-                }
-                socket.status.lastReverseTank = m[2];
-                player.body.reverseTank = reverseTank;
-                // Process the commands
-                if (player.command != null) {
-                    player.command.up = commands & 1;
-                    player.command.down = (commands & 2) >> 1;
-                    player.command.left = (commands & 4) >> 2;
-                    player.command.right = (commands & 8) >> 3;
-                    player.command.lmb = (commands & 16) >> 4;
-                    player.command.mmb = (commands & 32) >> 5;
-                    player.command.rmb = (commands & 64) >> 6;
-                    if (socket.status.isAFK) {
-                        // AFK players may rotate but cannot move or shoot themselves.
-                        player.command.up = player.command.down = player.command.left = player.command.right = 0;
-                        player.command.lmb = player.command.mmb = player.command.rmb = 0;
-                    }
-                }
-            } break;
-            case "#": {
-                // AFK players cannot use operator actions
-                if (!Config.afk_key_commands && socket.status.isAFK && player.body != null) {
-                    player.body.sendMessage("Exit AFK mode before using operator actions.");
-                    return;
-                }
-                try {
-                    runKeyCommand(socket, m);
-                } catch (e) {
-                    console.error(e);
-                }
-            } break;
-            case "t": {
-                // player toggle
-                if (m.length !== 2) {
-                    socket.kick("Ill-sized toggle.");
-                    return 1;
-                }
-                // Get data
-                const tog = m[0];
-                // Verify request
-                if (typeof tog !== "number") {
-                    socket.kick("Weird toggle.");
-                    return 1;
-                }
-                const sendMessage = m[1];
-                // ...what are we supposed to do?
-                const given = [
-                    "autospin",
-                    "autofire",
-                    "override",
-                    "autoalt"
-                ][tog];
-
-                // Kick if it sent us shit.
-                if (!given) {
-                    socket.kick("Bad toggle.");
-                    return 1;
-                }
-                // AFK players may only toggle autospin.
-                if (socket.status.isAFK && given !== "autospin") {
-                    return;
-                }
-                // Apply a good request.
-                if (player.command != null && player.body != null) {
-                    player.command[given] = !player.command[given];
-                    // Send a message.
-                    if (sendMessage) {
-                        player.body.sendMessage(given.charAt(0).toUpperCase() + given.slice(1) + (player.command[given] ? " enabled." : " disabled."));
-                    }
-                }
-            } break;
-            case "U": {
-                // upgrade request
-                if (m.length !== 2) {
-                    socket.kick("Ill-sized upgrade request.");
-                    return 1;
-                }
-                // Get data
-                const upgrade = m[0];
-                const branchId = m[1];
-                if (player.body == null) {
-                    return;
-                }
-                if (upgrade === 0 && branchId === -1) { // If client sends an daily tank request then we execute that
-                    if (!Config.daily_tank) {
-                        return socket.kick("Bad daily tank upgrade request (there is no daily tanks set up)");
-                    }
-                    player.body.upgrade(upgrade, branchId, false, true); // Ask to upgrade (daily tank request)
-                    return;
-                }
-                // Verify the request
-                if (typeof upgrade != "number" || !isFinite(upgrade) || upgrade < 0 || typeof branchId != "number" || !isFinite(branchId) || branchId < 0) {
-                    socket.kick("Bad upgrade request.");
-                    return 1;
-                }
-                if (upgrade >= player.body.upgrades.length) {
-                    return;
-                }
-                // Upgrade it
-                if (player.body != null) {
-                    player.body.upgrade(upgrade, branchId); // Ask to upgrade
-                }
-            } break;
-            case "x": {
-                // skill upgrade request
-                if (m.length !== 2) {
-                    socket.kick("Ill-sized skill request.");
-                    return 1;
-                }
-                const number = m[0],
-                    max = m[1],
-                    stat = ["atk", "hlt", "spd", "str", "pen", "dam", "rld", "mob", "rgn", "shi"][number];
-
-                if (typeof number != "number") {
-                    socket.kick("Weird stat upgrade request number.");
-                    return 1;
-                }
-                if (typeof max != "number") {
-                    socket.kick("Weird stat upgrade request max boolean.");
-                    return 1;
-                }
-                if (max !== 0 && 1 !== max) {
-                    socket.kick("invalid upgrade request max boolean.");
-                    return 1;
-                }
-
-                if (!stat) {
-                    socket.kick("Unknown stat upgrade request.");
-                    return 1;
-                }
-
-                if (player.body != null) {
-                    let limit = 256;
-                    do {
-                        player.body.skillUp(stat);
-                    } while (limit-- && max && player.body.skill.points && player.body.skill.amount(stat) < player.body.skill.cap(stat));
-                }
-
-            } break;
-            case "L": {
-                // level up cheat
-                if (m.length !== 0) {
-                    socket.kick("Ill-sized level-up request.");
-                    return 1;
-                }
-                // cheatingbois
-                if (player.body == null || player.body.underControl) {
-                    return;
-                }
-                if (player.body.skill.level < Config.level_cap_cheat || (socket.permissions && socket.permissions.infiniteLevelUp)) {
-                    player.body.skill.score += player.body.skill.levelScore;
-                    player.body.skill.maintain();
-                    player.body.refreshBodyAttributes();
-                }
-            } break;
-            case "1": {
-                //suicide squad
-                if (player.body != null && !player.body.underControl && player.body.invuln) {
-                    for (const instance of entities.values()) {
-                        if (instance.settings.clearOnMasterUpgrade && instance.master.id === player.body.id) {
-                            instance.kill();
-                        }
-                    }
-                    player.body.sendMessage("You have self-destructed.");
-                    player.body.destroy();
-                    if (Config.tag) {
-                        Config.tag_data.removeFromTeam(-player.body.team);
-                    }
-                }
-            } break;
-            case "H": {
-                if (player.body == null) {
-                    return 1;
-                }
-                const ent = [];
-                const body = player.body;
-                for (const e of entities.values()) {
-                    if (e.isDominator || e.isMothership || e.isBoss) {
-                        ent.push(e);
-                    }
-                }
-                body.emit("control", { body });
-                if (body.underControl) {
-                    const relinquishedControlMessage =
-                        body.isDominator ? "dominator" :
-                            body.isMothership ? "mothership" :
-                                body.isBoss ? "visitor" :
-                                    "special tank";
-                    player.body.sendMessage(`You have relinquished control of the ${relinquishedControlMessage}.`);
-                    body.giveUp(player);
-                    return 1;
-                }
-                if (Config.mothership) {
-                    const motherships = ent.map((entry) => {
-                        if (entry.isMothership && entry.team === player.body.team && !entry.underControl) {
-                            return entry;
-                        }
-                    }).filter((instance) => instance);
-                    if (!motherships.length) {
-                        player.body.sendMessage("There are no motherships available that are on your team or not already controlled by a player.");
-                        return 1;
                     };
-                    const mothership = motherships.shift();
-                    mothership.controllers = [];
-                    mothership.underControl = true;
-                    player.body = mothership;
-                    player.body.become(player);
-                    body.kill();
-                    if (!player.body.dontIncreaseFov) {
-                        player.body.FOV += 0.5;
+                    const commands = m[3];
+                    // Verify data
+                    if (
+                        typeof target.x !== "number" ||
+            typeof target.y !== "number" ||
+            typeof commands !== "number"
+                    ) {
+                        socket.kick("Weird downlink.");
+                        return 1;
                     }
-                    player.body.dontIncreaseFov = true;
-                    player.body.skill.points = 0;
-                    player.body.refreshBodyAttributes();
-                    player.body.name = body.name;
-                    player.body.sendMessage("You are now controlling the mothership.");
-                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the mothership.`);
-                    if (Config.mothership_time_limit != 0) {
-                        if (Config.mothership_time_limit <= 10_000) {
-                            if (player.body == null) {
-                                return;
+                    if (commands > 255) {
+                        socket.kick("Malformed command packet.");
+                        return 1;
+                    }
+                    if (player.body == null) {
+                        return;
+                    }
+                    // Put the new target in
+                    if (!socket.player.body.eastereggs.braindamage) {
+                        player.target = target;
+                    }
+                    // Reverse the tank's facing if we want.
+                    if (
+                        Config.reverse_tank_cooldown &&
+            reverseTank !== player.body.reverseTank &&
+            reverseTank !== socket.status.lastReverseTank
+                    ) {
+                        socket.status.reverseSpam = (socket.status.reverseSpam || 0) + 1;
+                        setTimeout(() => socket.status.reverseSpam--, 10_000);
+                        if (socket.status.reverseSpam >= 7) {
+                            player.body.sendMessage("Please slow down!");
+                            reverseTank = player.body.reverseTank;
+                        }
+                    }
+                    socket.status.lastReverseTank = m[2];
+                    player.body.reverseTank = reverseTank;
+                    // Process the commands
+                    if (player.command != null) {
+                        player.command.up = commands & 1;
+                        player.command.down = (commands & 2) >> 1;
+                        player.command.left = (commands & 4) >> 2;
+                        player.command.right = (commands & 8) >> 3;
+                        player.command.lmb = (commands & 16) >> 4;
+                        player.command.mmb = (commands & 32) >> 5;
+                        player.command.rmb = (commands & 64) >> 6;
+                        if (socket.status.isAFK) {
+                            // AFK players may rotate but cannot move or shoot themselves.
+                            player.command.up =
+                                player.command.down =
+                                    player.command.left =
+                                        player.command.right =
+                                            0;
+                            player.command.lmb = player.command.mmb = player.command.rmb = 0;
+                        }
+                    }
+                }
+                break;
+            case "#":
+                {
+                    // AFK players cannot use operator actions
+                    if (
+                        !Config.afk_key_commands &&
+            socket.status.isAFK &&
+            player.body != null
+                    ) {
+                        player.body.sendMessage(
+                            "Exit AFK mode before using operator actions."
+                        );
+                        return;
+                    }
+                    try {
+                        runKeyCommand(socket, m);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                }
+                break;
+            case "t":
+                {
+                    // player toggle
+                    if (m.length !== 2) {
+                        socket.kick("Ill-sized toggle.");
+                        return 1;
+                    }
+                    // Get data
+                    const tog = m[0];
+                    // Verify request
+                    if (typeof tog !== "number") {
+                        socket.kick("Weird toggle.");
+                        return 1;
+                    }
+                    const sendMessage = m[1];
+                    // ...what are we supposed to do?
+                    const given = ["autospin", "autofire", "override", "autoalt"][tog];
+
+                    // Kick if it sent us shit.
+                    if (!given) {
+                        socket.kick("Bad toggle.");
+                        return 1;
+                    }
+                    // AFK players may only toggle autospin.
+                    if (socket.status.isAFK && given !== "autospin") {
+                        return;
+                    }
+                    // Apply a good request.
+                    if (player.command != null && player.body != null) {
+                        player.command[given] = !player.command[given];
+                        // Send a message.
+                        if (sendMessage) {
+                            player.body.sendMessage(
+                                given.charAt(0).toUpperCase() +
+                  given.slice(1) +
+                  (player.command[given] ? " enabled." : " disabled.")
+                            );
+                        }
+                    }
+                }
+                break;
+            case "U":
+                {
+                    // upgrade request
+                    if (m.length !== 2) {
+                        socket.kick("Ill-sized upgrade request.");
+                        return 1;
+                    }
+                    // Get data
+                    const upgrade = m[0];
+                    const branchId = m[1];
+                    if (player.body == null) {
+                        return;
+                    }
+                    if (upgrade === 0 && branchId === -1) {
+                        // If client sends an daily tank request then we execute that
+                        if (!Config.daily_tank) {
+                            return socket.kick(
+                                "Bad daily tank upgrade request (there is no daily tanks set up)"
+                            );
+                        }
+                        player.body.upgrade(upgrade, branchId, false, true); // Ask to upgrade (daily tank request)
+                        return;
+                    }
+                    // Verify the request
+                    if (
+                        typeof upgrade != "number" ||
+            !isFinite(upgrade) ||
+            upgrade < 0 ||
+            typeof branchId != "number" ||
+            !isFinite(branchId) ||
+            branchId < 0
+                    ) {
+                        socket.kick("Bad upgrade request.");
+                        return 1;
+                    }
+                    if (upgrade >= player.body.upgrades.length) {
+                        return;
+                    }
+                    // Upgrade it
+                    if (player.body != null) {
+                        player.body.upgrade(upgrade, branchId); // Ask to upgrade
+                    }
+                }
+                break;
+            case "x":
+                {
+                    // skill upgrade request
+                    if (m.length !== 2) {
+                        socket.kick("Ill-sized skill request.");
+                        return 1;
+                    }
+                    const number = m[0];
+                    const max = m[1];
+                    const stat = [
+                        "atk",
+                        "hlt",
+                        "spd",
+                        "str",
+                        "pen",
+                        "dam",
+                        "rld",
+                        "mob",
+                        "rgn",
+                        "shi"
+                    ][number];
+
+                    if (typeof number != "number") {
+                        socket.kick("Weird stat upgrade request number.");
+                        return 1;
+                    }
+                    if (typeof max != "number") {
+                        socket.kick("Weird stat upgrade request max boolean.");
+                        return 1;
+                    }
+                    if (max !== 0 && 1 !== max) {
+                        socket.kick("invalid upgrade request max boolean.");
+                        return 1;
+                    }
+
+                    if (!stat) {
+                        socket.kick("Unknown stat upgrade request.");
+                        return 1;
+                    }
+
+                    if (player.body != null) {
+                        let limit = 256;
+                        do {
+                            player.body.skillUp(stat);
+                        } while (
+                            limit-- &&
+              max &&
+              player.body.skill.points &&
+              player.body.skill.amount(stat) < player.body.skill.cap(stat)
+                        );
+                    }
+                }
+                break;
+            case "L":
+                {
+                    // level up cheat
+                    if (m.length !== 0) {
+                        socket.kick("Ill-sized level-up request.");
+                        return 1;
+                    }
+                    // cheatingbois
+                    if (player.body == null || player.body.underControl) {
+                        return;
+                    }
+                    if (
+                        player.body.skill.level < Config.level_cap_cheat ||
+            (socket.permissions && socket.permissions.infiniteLevelUp)
+                    ) {
+                        player.body.skill.score += player.body.skill.levelScore;
+                        player.body.skill.maintain();
+                        player.body.refreshBodyAttributes();
+                    }
+                }
+                break;
+            case "1":
+                {
+                    //suicide squad
+                    if (
+                        player.body != null &&
+            !player.body.underControl &&
+            player.body.invuln
+                    ) {
+                        for (const instance of entities.values()) {
+                            if (
+                                instance.settings.clearOnMasterUpgrade &&
+                instance.master.id === player.body.id
+                            ) {
+                                instance.kill();
                             }
-                            player.body.sendMessage(`You only have ${Math.floor(Config.mothership_time_limit / 1000)} second${Math.floor(Config.mothership_time_limit / 1000) == 1 ? "" : "s"} in control of the mothership!`);
-                            setTimeout(function() {
+                        }
+                        player.body.sendMessage("You have self-destructed.");
+                        player.body.destroy();
+                        if (Config.tag) {
+                            Config.tag_data.removeFromTeam(-player.body.team);
+                        }
+                    }
+                }
+                break;
+            case "H":
+                {
+                    if (player.body == null) {
+                        return 1;
+                    }
+                    const ent = [];
+                    const body = player.body;
+                    for (const e of entities.values()) {
+                        if (e.isDominator || e.isMothership || e.isBoss) {
+                            ent.push(e);
+                        }
+                    }
+                    body.emit("control", { body });
+                    if (body.underControl) {
+                        let relinquishedControlMessage = "special tank";
+                        if (body.isDominator) {
+                            relinquishedControlMessage = "dominator";
+                        }
+                        if (body.isMothership) {
+                            relinquishedControlMessage = "mothership";
+                        }
+                        if (body.isBoss) {
+                            relinquishedControlMessage = "visitor";
+                        }
+                        player.body.sendMessage(
+                            `You have relinquished control of the ${relinquishedControlMessage}.`
+                        );
+                        body.giveUp(player);
+                        return 1;
+                    }
+                    if (Config.mothership) {
+                        const motherships = ent
+                            .map((entry) => {
+                                if (
+                                    entry.isMothership &&
+                  entry.team === player.body.team &&
+                  !entry.underControl
+                                ) {
+                                    return entry;
+                                }
+                            })
+                            .filter((instance) => instance);
+                        if (!motherships.length) {
+                            player.body.sendMessage(
+                                "There are no motherships available that are on your team or not already controlled by a player."
+                            );
+                            return 1;
+                        }
+                        const mothership = motherships.shift();
+                        mothership.controllers = [];
+                        mothership.underControl = true;
+                        player.body = mothership;
+                        player.body.become(player);
+                        body.kill();
+                        if (!player.body.dontIncreaseFov) {
+                            player.body.FOV += 0.5;
+                        }
+                        player.body.dontIncreaseFov = true;
+                        player.body.skill.points = 0;
+                        player.body.refreshBodyAttributes();
+                        player.body.name = body.name;
+                        player.body.sendMessage("You are now controlling the mothership.");
+                        player.body.sendMessage(
+                            `Press ${key("ability")} to relinquish control of the mothership.`
+                        );
+                        if (Config.mothership_time_limit != 0) {
+                            if (Config.mothership_time_limit <= 10_000) {
                                 if (player.body == null) {
                                     return;
                                 }
-                                player.body.sendMessage("You have lost control of the mothership.");
-                                body.giveUp(player, body.isDominator ? "" : undefined);
-                            }, Config.mothership_time_limit);
-                        } else {
-                            setTimeout(function() {
-                                if (player.body == null) {
-                                    return;
-                                }
-                                player.body.sendMessage("You only have 10 seconds left in control of the mothership!");
+                                player.body.sendMessage(
+                                    `You only have ${Math.floor(Config.mothership_time_limit / 1000)} second${Math.floor(Config.mothership_time_limit / 1000) == 1 ? "" : "s"} in control of the mothership!`
+                                );
                                 setTimeout(function() {
                                     if (player.body == null) {
                                         return;
                                     }
-                                    player.body.sendMessage("You have lost control of the mothership.");
+                                    player.body.sendMessage(
+                                        "You have lost control of the mothership."
+                                    );
                                     body.giveUp(player, body.isDominator ? "" : undefined);
-                                }, 10_000);
-                            }, Config.mothership_time_limit - 10_000);
+                                }, Config.mothership_time_limit);
+                            } else {
+                                setTimeout(function() {
+                                    if (player.body == null) {
+                                        return;
+                                    }
+                                    player.body.sendMessage(
+                                        "You only have 10 seconds left in control of the mothership!"
+                                    );
+                                    setTimeout(function() {
+                                        if (player.body == null) {
+                                            return;
+                                        }
+                                        player.body.sendMessage(
+                                            "You have lost control of the mothership."
+                                        );
+                                        body.giveUp(player, body.isDominator ? "" : undefined);
+                                    }, 10_000);
+                                }, Config.mothership_time_limit - 10_000);
+                            }
                         }
-                    }
-                } else if (Config.domination) {
-                    const dominators = ent.map((entry) => {
-                        if (entry.isDominator && entry.team === player.body.team && !entry.underControl) {
-                            return entry;
+                    } else if (Config.domination) {
+                        const dominators = ent
+                            .map((entry) => {
+                                if (
+                                    entry.isDominator &&
+                  entry.team === player.body.team &&
+                  !entry.underControl
+                                ) {
+                                    return entry;
+                                }
+                            })
+                            .filter((x) => x);
+                        if (!dominators.length) {
+                            player.body.sendMessage(
+                                "There are no dominators available that are on your team or not already controlled by a player."
+                            );
+                            return 1;
                         }
-                    }).filter((x) => x);
-                    if (!dominators.length) {
-                        player.body.sendMessage("There are no dominators available that are on your team or not already controlled by a player.");
-                        return 1;
-                    };
-                    const dominator = dominators.shift();
-                    dominator.controllers = [];
-                    dominator.underControl = true;
-                    player.body = dominator;
-                    player.body.become(player, true);
-                    body.dontSendDeathMessage = true;
-                    body.kill();
-                    if (!player.body.dontIncreaseFov) {
-                        player.body.FOV += 0.5;
-                    }
-                    player.body.dontIncreaseFov = true;
-                    player.body.skill.points = 0;
-                    player.body.refreshBodyAttributes();
-                    player.body.name = body.name;
-                    player.body.sendMessage("You are now controlling the dominator.");
-                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the dominator.`);
-                } else if (Config.boss_control) {
-                    const bosses = ent.map((entry) => {
-                        if (entry.isBoss && !entry.underControl) {
-                            return entry;
+                        const dominator = dominators.shift();
+                        dominator.controllers = [];
+                        dominator.underControl = true;
+                        player.body = dominator;
+                        player.body.become(player, true);
+                        body.dontSendDeathMessage = true;
+                        body.kill();
+                        if (!player.body.dontIncreaseFov) {
+                            player.body.FOV += 0.5;
                         }
-                    }).filter((instance) => instance);
-                    if (!bosses.length) {
-                        player.body.sendMessage("There are no visitors available that are not already controlled by a player.");
-                        return 1;
-                    };
-                    const boss = bosses.shift();
-                    boss.controllers = [];
-                    boss.underControl = true;
-                    player.body = boss;
-                    player.body.become(player);
-                    body.kill();
-                    if (!player.body.dontIncreaseFov) {
-                        player.body.FOV += 0.5;
-                    }
-                    player.body.dontIncreaseFov = true;
-                    player.body.skill.points = 0;
-                    player.body.refreshBodyAttributes();
-                    player.body.name = body.name;
-                    player.body.sendMessage("You are now controlling the visitor.");
-                    player.body.sendMessage(`Press ${key("ability")} to relinquish control of the visitor.`);
-                }/* else {
+                        player.body.dontIncreaseFov = true;
+                        player.body.skill.points = 0;
+                        player.body.refreshBodyAttributes();
+                        player.body.name = body.name;
+                        player.body.sendMessage("You are now controlling the dominator.");
+                        player.body.sendMessage(
+                            `Press ${key("ability")} to relinquish control of the dominator.`
+                        );
+                    } else if (Config.boss_control) {
+                        const bosses = ent
+                            .map((entry) => {
+                                if (entry.isBoss && !entry.underControl) {
+                                    return entry;
+                                }
+                            })
+                            .filter((instance) => instance);
+                        if (!bosses.length) {
+                            player.body.sendMessage(
+                                "There are no visitors available that are not already controlled by a player."
+                            );
+                            return 1;
+                        }
+                        const boss = bosses.shift();
+                        boss.controllers = [];
+                        boss.underControl = true;
+                        player.body = boss;
+                        player.body.become(player);
+                        body.kill();
+                        if (!player.body.dontIncreaseFov) {
+                            player.body.FOV += 0.5;
+                        }
+                        player.body.dontIncreaseFov = true;
+                        player.body.skill.points = 0;
+                        player.body.refreshBodyAttributes();
+                        player.body.name = body.name;
+                        player.body.sendMessage("You are now controlling the visitor.");
+                        player.body.sendMessage(
+                            `Press ${key("ability")} to relinquish control of the visitor.`
+                        );
+                    } /* else {
                     player.body.sendMessage("There are no special tanks in this mode that you can control.");
                 }*/
-            } break;
-            case "M": {
-                if (player.body == null) {
-                    return 1;
                 }
-                let abort,
-                    message = m[0],
-                    original = m[0];
+                break;
+            case "M":
+                {
+                    if (player.body == null) {
+                        return 1;
+                    }
+                    let abort;
+                    let message = m[0];
+                    let original = m[0];
 
-                if ("string" !== typeof message) {
-                    socket.kick("Non-string chat message.");
-                    return 1;
+                    if ("string" !== typeof message) {
+                        socket.kick("Non-string chat message.");
+                        return 1;
+                    }
+
+                    log(`${player.body.name}: ${original}`);
+
+                    if (Config.sanitize_chat_input) {
+                        // I thought it should be "§§" but it only works if you do "§§§§"?
+                        message = message.replace(/§/g, "§§§§");
+                        original = original.replace(/§/g, "§§§§");
+                    }
+
+                    if (handleChatCommand(socket, message)) {
+                        break;
+                    }
+
+                    Events.emit("chatMessage", {
+                        gameManager: gameManager,
+                        message: original,
+                        socket,
+                        preventDefault: () => (abort = true),
+                        setMessage: (str) => (message = str)
+                    });
+
+                    // we are not anti-choice here.
+                    if (abort) {
+                        break;
+                    }
+
+                    if (message !== original) {
+                        log(`Filtered message "${original}" changed to "${message}"`);
+                    }
+
+                    const id = player.body.id;
+                    if (!chats[id]) {
+                        chats[id] = {};
+                        chats[id].messages = [];
+                    }
+
+                    chats[id].messages.unshift({
+                        message,
+                        channel: socket.status.selectedChannel ?? "global",
+                        team: player.body.team,
+                        expires: Date.now() + Config.chat_message_duration,
+                        id: Entity.chatId++
+                    });
+
+                    // do one tick of the chat loop so they don't need to wait 100ms to receive it.
+                    this.chatLoop();
                 }
-
-                log(`${player.body.name}: ${original}`);
-
-                if (Config.sanitize_chat_input) {
-                    // I thought it should be "§§" but it only works if you do "§§§§"?
-                    message = message.replace(/§/g, "§§§§");
-                    original = original.replace(/§/g, "§§§§");
-                }
-
-                if (handleChatCommand(socket, message)) {
-                    break;
-                }
-
-                Events.emit("chatMessage", { gameManager: gameManager, message: original, socket, preventDefault: () => abort = true, setMessage: (str) => message = str });
-
-                // we are not anti-choice here.
-                if (abort) {
-                    break;
-                }
-
-                if (message !== original) {
-                    log(`Filtered message "${original}" changed to "${message}"`);
-                }
-
-                const id = player.body.id;
-                if (!chats[id]) {
-                    chats[id] = {};
-                    chats[id].messages = [];
-                }
-
-                chats[id].messages.unshift({ message, channel: socket.status.selectedChannel ?? "global", team: player.body.team, expires: Date.now() + Config.chat_message_duration, id: Entity.chatId++ });
-
-                // do one tick of the chat loop so they don't need to wait 100ms to receive it.
-                this.chatLoop();
-            } break;
-            case "T": {
-                // Send the class tree mockups
-                if (player.body && socket.status.lastTank != player.body.index) {
-                    socket.status.lastTank = player.body.index;
-                    this.sendMockup(player.body.index, socket);
-                    const allRoots = [],
-                        rerootUpgradeTree = [];
-                    for (const i of player.body.index.split("-")) {
-                        const mockup = mockupData.find((o) => o.index === `${i}`);
-                        if (mockup.rerootUpgradeTree) {
-                            allRoots.push(...mockup.rerootUpgradeTree.split("\\/"));
+                break;
+            case "T":
+                {
+                    // Send the class tree mockups
+                    if (player.body && socket.status.lastTank != player.body.index) {
+                        socket.status.lastTank = player.body.index;
+                        this.sendMockup(player.body.index, socket);
+                        const allRoots = [];
+                        const rerootUpgradeTree = [];
+                        for (const i of player.body.index.split("-")) {
+                            const mockup = mockupData.find((o) => o.index === `${i}`);
+                            if (mockup.rerootUpgradeTree) {
+                                allRoots.push(...mockup.rerootUpgradeTree.split("\\/"));
+                            }
+                        }
+                        for (const root of allRoots) {
+                            if (!rerootUpgradeTree.includes(root)) {
+                                rerootUpgradeTree.push(root);
+                            }
+                        }
+                        for (const i of rerootUpgradeTree) {
+                            const ind = Class[i].index;
+                            this.sendMockupUpgrades(ind, socket);
                         }
                     }
-                    for (const root of allRoots) {
-                        if (!rerootUpgradeTree.includes(root)) {
-                            rerootUpgradeTree.push(root);
-                        }
-                    }
-                    for (const i of rerootUpgradeTree) {
-                        const ind = Class[i].index;
-                        this.sendMockupUpgrades(ind, socket);
-                    }
+                    socket.talk("T");
                 }
-                socket.talk("T");
-            } break;
-            case "DTA": {
-                if (!Config.daily_tank) {
-                    return socket.kick("Bad daily tank ad request");
-                }
-                if (player.body && player.body.skill.level >= Config.tier_multiplier * Config.daily_tank.tier && Config.daily_tank.ads && !socket.status.daily_tank_watched_ad) {
-                    const chosenAd = choose(Config.daily_tank.ad_sources);
-                    const isImage = chosenAd.file.endsWith(".png") || chosenAd.file.endsWith(".jpg") || chosenAd.file.endsWith(".jpeg");
-                    socket.talk("DTA", JSON.stringify({src: chosenAd.file, normalAdSize: chosenAd.use_regular_ad_size ?? true, waitTime: isImage ? chosenAd.image_wait_time : "isVideo"}));
-                    if (isImage) {
-                        setTimeout(() => {
+                break;
+            case "DTA":
+                {
+                    if (!Config.daily_tank) {
+                        return socket.kick("Bad daily tank ad request");
+                    }
+                    if (
+                        player.body &&
+            player.body.skill.level >=
+              Config.tier_multiplier * Config.daily_tank.tier &&
+            Config.daily_tank.ads &&
+            !socket.status.daily_tank_watched_ad
+                    ) {
+                        const chosenAd = choose(Config.daily_tank.ad_sources);
+                        const isImage =
+                            chosenAd.file.endsWith(".png") ||
+              chosenAd.file.endsWith(".jpg") ||
+              chosenAd.file.endsWith(".jpeg");
+                        socket.talk(
+                            "DTA",
+                            JSON.stringify({
+                                src: chosenAd.file,
+                                normalAdSize: chosenAd.use_regular_ad_size ?? true,
+                                waitTime: isImage ? chosenAd.image_wait_time : "isVideo"
+                            })
+                        );
+                        if (isImage) {
                             setTimeout(() => {
-                                socket.status.daily_tank_watched_ad_client = true;
-                            }, `${chosenAd.image_wait_time ?? "3"}000`);
-                        }, socket.camera.ping); // make the counter accurate sycned as possible with the client.
+                                setTimeout(
+                                    () => {
+                                        socket.status.daily_tank_watched_ad_client = true;
+                                    },
+                                    `${chosenAd.image_wait_time ?? "3"}000`
+                                );
+                            }, socket.camera.ping); // make the counter accurate sycned as possible with the client.
+                        }
                     }
                 }
-            } break;
-            case "DTAD": {
-                if (!Config.daily_tank) {
-                    return socket.kick("Bad daily tank ad request");
+                break;
+            case "DTAD":
+                {
+                    if (!Config.daily_tank) {
+                        return socket.kick("Bad daily tank ad request");
+                    }
+                    if (socket.status.daily_tank_watched_ad_client) {
+                        socket.status.daily_tank_watched_ad = true;
+                        socket.talk("DTAD");
+                    }
                 }
-                if (socket.status.daily_tank_watched_ad_client) {
-                    socket.status.daily_tank_watched_ad = true;
-                    socket.talk("DTAD");
-                }
-            } break;
-            case "DTAST": {
-                if (!Config.daily_tank) {
-                    return socket.kick("Bad daily tank ad request");
-                }
-                const time = String(m[0]).split(".")[0];
-                socket.talk("DTAST");
-                setTimeout(() => {
+                break;
+            case "DTAST":
+                {
+                    if (!Config.daily_tank) {
+                        return socket.kick("Bad daily tank ad request");
+                    }
+                    const time = String(m[0]).split(".")[0];
+                    socket.talk("DTAST");
                     setTimeout(() => {
-                        socket.status.daily_tank_watched_ad_client = true;
-                    }, `${time}000`);
-                }, socket.camera.ping);
-                socket.status.forceNewBroadcast = true;
-            } break;
-            case "NWB": {
-                socket.status.forceNewBroadcast = true;
-            } break;
-            case "G": {
-                // TODO: Actually make this do something
-                socket.talk("m", Config.popup_message_duration, "Score saving is WIP.");
-            } break;
-            default: {
-                console.log(`Unknown packet type: ${packetType}`);
-            } break;
+                        setTimeout(() => {
+                            socket.status.daily_tank_watched_ad_client = true;
+                        }, `${time}000`);
+                    }, socket.camera.ping);
+                    socket.status.forceNewBroadcast = true;
+                }
+                break;
+            case "NWB":
+                {
+                    socket.status.forceNewBroadcast = true;
+                }
+                break;
+            case "G":
+                {
+                    // TODO: Actually make this do something
+                    socket.talk(
+                        "m",
+                        Config.popup_message_duration,
+                        "Score saving is WIP."
+                    );
+                }
+                break;
+            default:
+                {
+                    console.log(`Unknown packet type: ${packetType}`);
+                }
+                break;
         }
-    };
+    }
     spectateEntity(possible, socket) {
         const entries = [];
         for (const entry of entities.values()) {
@@ -1417,7 +1847,10 @@ export class SocketManager {
         // This function wiSl be called in the slow loop
         return () => {
             // Kick if it's d/c'd
-            if (time() - socket.status.lastHeartbeat > Config.max_heartbeat_interval) {
+            if (
+                time() - socket.status.lastHeartbeat >
+        Config.max_heartbeat_interval
+            ) {
                 socket.kick("Heartbeat lost.");
                 return 0;
             }
@@ -1493,9 +1926,20 @@ export class SocketManager {
     }
     container(player) {
         let out = [];
-        const vars = [],
-            skills = player.body.skill,
-            statnames = ["atk", "hlt", "spd", "str", "pen", "dam", "rld", "mob", "rgn", "shi"];
+        const vars = [];
+        const skills = player.body.skill;
+        const statnames = [
+            "atk",
+            "hlt",
+            "spd",
+            "str",
+            "pen",
+            "dam",
+            "rld",
+            "mob",
+            "rgn",
+            "shi"
+        ];
         // Load everything (b/c I'm too lazy to do it manually)
         for (let i = 0; i < statnames.length; i++) {
             vars.push(this.floppy());
@@ -1504,8 +1948,8 @@ export class SocketManager {
         }
         return {
             update: () => {
-                let needsupdate = false,
-                    i = 0;
+                let needsupdate = false;
+                let i = 0;
                 // Update the things
                 for (let j = 0; j < statnames.length; j++) {
                     const a = statnames[j];
@@ -1514,11 +1958,11 @@ export class SocketManager {
                     vars[i++].update(skills.cap(a, true));
                 }
                 /* This is a for and not a find because we need
-                 * each floppy cyles or if there's multiple changes
-                 * (there will be), we'll end up pushing a bunch of
-                 * excessive updates long after the first and only
-                 * needed one as it slowly hits each updated value
-                 */
+         * each floppy cyles or if there's multiple changes
+         * (there will be), we'll end up pushing a bunch of
+         * excessive updates long after the first and only
+         * needed one as it slowly hits each updated value
+         */
                 for (let j = 0; j < vars.length; j++) {
                     if (vars[j].publish() != null) {
                         needsupdate = true;
@@ -1535,13 +1979,13 @@ export class SocketManager {
                 }
             },
             /* The reason these are separate is that if we
-             * can only update when the body exists, we might have
-             * a situation where we update, and it's non-trivial
-             * so we need to publish but then the body dies and so
-             * we're forever sending repeated data when we don't
-             * need to. This way we can flag it as already sent
-             * regardless of if we had an update cycle.
-             */
+       * can only update when the body exists, we might have
+       * a situation where we update, and it's non-trivial
+       * so we need to publish but then the body dies and so
+       * we're forever sending repeated data when we don't
+       * need to. This way we can flag it as already sent
+       * regardless of if we had an update cycle.
+       */
             publish: () => {
                 if (out.length) {
                     const o = out.splice(0, out.length);
@@ -1575,10 +2019,19 @@ export class SocketManager {
         gui.bodyid = b.id;
         let dailyTank = null;
         // Update most things
-        gui.fps.update(Math.min(1, (global.fps / global.gameManager.roomSpeed / 1000) * 30));
+        gui.fps.update(
+            Math.min(1, (global.fps / global.gameManager.roomSpeed / 1000) * 30)
+        );
         gui.color.update(gui.master.teamColor);
         gui.label.update(b.index);
-        gui.score.update(JSON.stringify([b.skill.score, b.killCount.solo, b.killCount.assists, b.killCount.bosses]));
+        gui.score.update(
+            JSON.stringify([
+                b.skill.score,
+                b.killCount.solo,
+                b.killCount.assists,
+                b.killCount.bosses
+            ])
+        );
         gui.points.update(b.skill.points);
         // Update the upgrades
         if (!b.upgradePending) {
@@ -1587,7 +2040,9 @@ export class SocketManager {
             for (let i = 0; i < b.upgrades.length; i++) {
                 const upgrade = b.upgrades[i];
                 if (b.skill.level >= b.upgrades[i].level) {
-                    upgrades.push(`${upgrade.branch.toString()}_${upgrade.branchLabel}_${upgrade.index}`);
+                    upgrades.push(
+                        `${upgrade.branch.toString()}_${upgrade.branchLabel}_${upgrade.index}`
+                    );
                 } else {
                     if (upgrade.branch >= skippedUpgrades.length) {
                         skippedUpgrades[upgrade.branch] = 1;
@@ -1603,10 +2058,20 @@ export class SocketManager {
         }
         // Update daily tank
         if (Config.daily_tank) {
-            if (b.skill.level >= Config.tier_multiplier * Config.daily_tank.tier && b.defs.includes(Config.spawn_class)) {
+            if (
+                b.skill.level >= Config.tier_multiplier * Config.daily_tank.tier &&
+        b.defs.includes(Config.spawn_class)
+            ) {
                 dailyTank = Config.daily_tank_INDEX;
             }
-            gui.dailyTank.update(JSON.stringify([dailyTank, Config.daily_tank.ads && !b.socket.status.daily_tank_watched_ad ? true : false]));
+            gui.dailyTank.update(
+                JSON.stringify([
+                    dailyTank,
+                    Config.daily_tank.ads && !b.socket.status.daily_tank_watched_ad
+                        ? true
+                        : false
+                ])
+            );
         } else {
             gui.dailyTank.update(JSON.stringify([false]));
         }
@@ -1638,7 +2103,7 @@ export class SocketManager {
             visibleName: gui.visibleName.publish(),
             dailyTank: gui.dailyTank.publish()
         };
-        // Encode which we'll be updating and capture those values only
+            // Encode which we'll be updating and capture those values only
         const oo = [0];
         if (o.fps != null) {
             oo[0] += 0x0001;
@@ -1738,8 +2203,12 @@ export class SocketManager {
             if (!this.players.length) {
                 if (socket.status.permissionLevel < 3) {
                     setPermissionLevel(socket, 3);
-                };
-                socket.talk("m", 8_000, `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`);
+                }
+                socket.talk(
+                    "m",
+                    8_000,
+                    `You have created a new sandbox. Press ${key("sandbox")} + ¹ or ${key("sandbox")} + ${key("help")} for help.`
+                );
             } else {
                 socket.talk("m", 8_000, "You have joined a sandbox.");
             }
@@ -1750,24 +2219,33 @@ export class SocketManager {
         }
         // Free the old view
         if (global.gameManager.views.indexOf(socket.view) != -1) {
-            remove(global.gameManager.views, global.gameManager.views.indexOf(socket.view));
+            remove(
+                global.gameManager.views,
+                global.gameManager.views.indexOf(socket.view)
+            );
             socket.makeView();
         }
 
         let spawn = true;
 
         if (transferbodyID) {
-            const bodyInfo = global.travellingPlayers.find((i) => i.id === transferbodyID);
+            const bodyInfo = global.travellingPlayers.find(
+                (i) => i.id === transferbodyID
+            );
             if (bodyInfo) {
                 spawn = false;
                 socket.player = socket.spawn(name);
                 socket.player.body.importBody(bodyInfo);
-                remove(global.travellingPlayers, global.travellingPlayers.indexOf(bodyInfo));
+                remove(
+                    global.travellingPlayers,
+                    global.travellingPlayers.indexOf(bodyInfo)
+                );
             }
         }
         if (spawn) {
             socket.player = socket.spawn(name);
-            setTimeout(() => { // Give the entity a small time to prepare.
+            setTimeout(() => {
+                // Give the entity a small time to prepare.
                 // Trigger easter eggs if needed.
                 if (!socket.player) {
                     return;
@@ -1795,11 +2273,17 @@ export class SocketManager {
                     socket.player.body.refreshBodyAttributes();
                 }
             } else {
-                socket.talk("m", 5_000, "You have auto-level up disabled. Enable auto-level up in the options menu to get level 45.");
+                socket.talk(
+                    "m",
+                    5_000,
+                    "You have auto-level up disabled. Enable auto-level up in the options menu to get level 45."
+                );
             }
         }
         // Log it
-        log(`[INFO]: ${name == "" ? "An unnamed player" : name} has spawned into the game on team ${socket.player.body.team}! Players: ${this.players.length}`);
+        log(
+            `[INFO]: ${name == "" ? "An unnamed player" : name} has spawned into the game on team ${socket.player.body.team}! Players: ${this.players.length}`
+        );
         // Stop the timeout
         socket.timeout.stop();
     }
@@ -1821,15 +2305,21 @@ export class SocketManager {
         player.team = rememberedTeam;
         if (Config.clan_wars && name) {
             Config.clan_wars_ft.add(name);
-            return { player: Config.clan_wars_ft.getPlayerInfo(name), loc: Config.clan_wars_ft.getSpawn(name) };
+            return {
+                player: Config.clan_wars_ft.getPlayerInfo(name),
+                loc: Config.clan_wars_ft.getSpawn(name)
+            };
         }
         if (Config.mode == "tdm" || Config.tag) {
             const team = getWeakestTeam(global.gameManager);
             // Choose from one of the least ones
-            if (player.team == null || (player.team !== team && global.defeatedTeams.includes(player.team))) {
+            if (
+                player.team == null ||
+        (player.team !== team && global.defeatedTeams.includes(player.team))
+            ) {
                 player.team = team;
             }
-        };
+        }
         if (!global.spawnPoint) {
             loc = getSpawnableArea(player.team, global.gameManager);
         }
@@ -1844,13 +2334,20 @@ export class SocketManager {
         }
         // Create and bind a body for the player host
         let body;
-        const filter = this.disconnections.filter((r) => r.ip === socket.ip && r.body && !r.body.isDead());
+        const filter = this.disconnections.filter(
+            (r) => r.ip === socket.ip && r.body && !r.body.isDead()
+        );
         if (filter.length) {
             const recover = filter[0];
             remove(this.disconnections, this.disconnections.indexOf(recover));
             clearTimeout(recover.timeout);
             body = recover.body;
-            remove(body.controllers, body.controllers.indexOf(body.controllers.find((rer) => rer instanceof ioTypes.listenToPlayer)));
+            remove(
+                body.controllers,
+                body.controllers.indexOf(
+                    body.controllers.find((rer) => rer instanceof ioTypes.listenToPlayer)
+                )
+            );
             body.become(player);
             player.team = body.team;
             socket.rememberedTeam = body.team;
@@ -1879,44 +2376,67 @@ export class SocketManager {
         // Decide how to color and team the body
         if (!filter.length) {
             switch (Config.mode) {
-                case "tdm": {
-                    body.team = player.team;
-                    body.color.base = global.getTeamColor(player.body.team);
-                    socket.rememberedTeam = body.team;
-                } break;
-                case "tag": {
-                    body.team = player.team;
-                    body.color.base = global.getTeamColor(player.body.team);
-                    socket.rememberedTeam = body.team;
-                    Config.tag_data.addPlayer(body);
-                } break;
-                case "clan": {
-                    body.team = player.team;
-                    body.originalName = body.name;
-                    body.clan = player.clan;
-                    body.color.base = getTeamColor(TEAM_RED);
-                    socket.rememberedTeam = body.team;
-                    Config.clan_wars_ft.add(name, body);
-                    if (!body.clan) {
-                        const loop = setInterval(() => {
-                            for (const e of Config.clan_wars_ft.getClans()) {
-                                if (body.team !== e.team || body.team !== -101 || body.team !== -1 || body.team !== -2 || body.team !== -3 || body.team !== -4) {
-                                    clearInterval(loop);
-                                } else {
-                                    body.team = getRandomTeam();
-                                }
-                            }
-                        });
+                case "tdm":
+                    {
+                        body.team = player.team;
+                        body.color.base = global.getTeamColor(player.body.team);
+                        socket.rememberedTeam = body.team;
                     }
-                } break;
+                    break;
+                case "tag":
+                    {
+                        body.team = player.team;
+                        body.color.base = global.getTeamColor(player.body.team);
+                        socket.rememberedTeam = body.team;
+                        Config.tag_data.addPlayer(body);
+                    }
+                    break;
+                case "clan":
+                    {
+                        body.team = player.team;
+                        body.originalName = body.name;
+                        body.clan = player.clan;
+                        body.color.base = getTeamColor(TEAM_RED);
+                        socket.rememberedTeam = body.team;
+                        Config.clan_wars_ft.add(name, body);
+                        if (!body.clan) {
+                            const loop = setInterval(() => {
+                                for (const e of Config.clan_wars_ft.getClans()) {
+                                    if (
+                                        body.team !== e.team ||
+                    body.team !== -101 ||
+                    body.team !== -1 ||
+                    body.team !== -2 ||
+                    body.team !== -3 ||
+                    body.team !== -4
+                                    ) {
+                                        clearInterval(loop);
+                                    } else {
+                                        body.team = getRandomTeam();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                    break;
                 default: {
                     const team = filter.length ? player.team : getRandomTeam();
                     body.team = team;
-                    body.color.base = Config.random_body_colors ?
-                        choose([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]) : getTeamColor(TEAM_RED);
+                    body.color.base = Config.random_body_colors
+                        ? choose([
+                            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+                        ])
+                        : getTeamColor(TEAM_RED);
                     const loop = setInterval(() => {
                         for (const e of entities.values()) {
-                            if (body.team !== e.team || body.team !== -101 || body.team !== -1 || body.team !== -2 || body.team !== -3 || body.team !== -4) {
+                            if (
+                                body.team !== e.team ||
+                body.team !== -101 ||
+                body.team !== -1 ||
+                body.team !== -2 ||
+                body.team !== -3 ||
+                body.team !== -4
+                            ) {
                                 clearInterval(loop);
                             } else {
                                 body.team = team;
@@ -1932,7 +2452,14 @@ export class SocketManager {
 
     preparePlayer(socket, player, body, doNotTakeAction = {}) {
     // Decide what to do about colors when sending updates and stuff
-        player.teamColor = new Color(!Config.random_body_colors && (Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag)) ? 10 : global.getTeamColor(body.team)).compiled; // blue
+        player.teamColor = new Color(
+            !Config.random_body_colors &&
+        (Config.groups ||
+          Config.mode == "ffa" ||
+          (Config.mode == "clan" && !Config.tag))
+                ? 10
+                : global.getTeamColor(body.team)
+        ).compiled; // blue
         // Set up the targeting structure
         player.target = { x: 0, y: 0 };
         // Set up the command structure
@@ -1980,13 +2507,19 @@ export class SocketManager {
         //send the welcome message
         if (Config.spawn_message) {
             if (Config.tartarus) {
-                body.sendMessage("You have been warped to Tartarus.\nYou will receive your divine punishment soon!");
+                body.sendMessage(
+                    "You have been warped to Tartarus.\nYou will receive your divine punishment soon!"
+                );
             } else {
                 body.sendMessage("You have spawned! Welcome to the game.");
                 body.sendMessage("You will be invulnerable until you move or shoot.");
             }
             if (Config.dev_build) {
-                socket.talk("m", 60_000, "This server is running a development build of Open Source Arras. Please report any bugs you encounter!");
+                socket.talk(
+                    "m",
+                    60_000,
+                    "This server is running a development build of Open Source Arras. Please report any bugs you encounter!"
+                );
             }
         }
         // Move the client camera
@@ -1995,7 +2528,16 @@ export class SocketManager {
         socket.status.readyToBroadcast = true;
     }
     flatten(data) {
-        for (const k of ["x", "y", "vx", "vy", "size", "realSize", "facing", "vfacing"]) {
+        for (const k of [
+            "x",
+            "y",
+            "vx",
+            "vy",
+            "size",
+            "realSize",
+            "facing",
+            "vfacing"
+        ]) {
             if (typeof data[k] === "number") {
                 data[k] = Math.fround(data[k]);
             }
@@ -2056,12 +2598,9 @@ export class SocketManager {
                 /* 20 */ data.hit
             );
             if (data.type & 0x04) {
-                output.push(
-                    /* 17 */ data.name,
-                    /* 18 */ data.score
-                );
+                output.push(/* 17 */ data.name, /* 18 */ data.score);
             }
-        };
+        }
         // Add the gun data to the array
         output.push(data.guns.length);
         for (let i = 0; i < data.guns.length; i++) {
@@ -2177,7 +2716,12 @@ export class SocketManager {
             if (prev[18] !== now[18]) {
                 mask |= 0x0020;
             }
-            if (prev[10] !== now[10] || prev[13] !== now[13] || prev[14] !== now[14] || prev[15] !== now[15]) {
+            if (
+                prev[10] !== now[10] ||
+        prev[13] !== now[13] ||
+        prev[14] !== now[14] ||
+        prev[15] !== now[15]
+            ) {
                 mask |= 0x0040;
             }
             if (prev[12] !== now[12]) {
@@ -2199,7 +2743,7 @@ export class SocketManager {
             }
         }
         // Guns come next. Only send the fields that actually changed per gun.
-        const gunStart = limited ? 16 : ((type & 0x04) ? 22 : 20);
+        const gunStart = limited ? 16 : type & 0x04 ? 22 : 20;
         const gunLen = now[gunStart];
         const countChanged = prev[gunStart] !== gunLen;
         let anyGunChanged = countChanged;
@@ -2222,7 +2766,10 @@ export class SocketManager {
         }
         // Turret records are inlined into the tail, so the whole tail is the block.
         const turretStart = gunStart + 1 + gunLen * GUN_PHOTO_FIELDS;
-        const turretsChanged = prev.length !== now.length || prev[turretStart] !== now[turretStart] || !this.sameRange(prev, now, turretStart + 1, now.length);
+        const turretsChanged =
+            prev.length !== now.length ||
+      prev[turretStart] !== now[turretStart] ||
+      !this.sameRange(prev, now, turretStart + 1, now.length);
         if (turretsChanged) {
             mask |= 0x1000;
         }
@@ -2250,7 +2797,12 @@ export class SocketManager {
             out.push(limited ? now[14] : now[18]);
         }
         if (mask & 0x0040) {
-            out.push((now[10] ? 1 : 0) | (now[15] ? 2 : 0) | (now[13] ? 4 : 0) | (now[14] ? 8 : 0));
+            out.push(
+                (now[10] ? 1 : 0) |
+          (now[15] ? 2 : 0) |
+          (now[13] ? 4 : 0) |
+          (now[14] ? 8 : 0)
+            );
         }
         if (mask & 0x0080) {
             out.push(limited ? now[11] : now[12]);
@@ -2274,7 +2826,7 @@ export class SocketManager {
                 } else {
                     for (let f = 0; f < GUN_PHOTO_FIELDS; f++) {
                         if (prev[off + f] !== now[off + f]) {
-                            gunMask |= (1 << f);
+                            gunMask |= 1 << f;
                         }
                     }
                     if (gunMask & 1) {
@@ -2305,17 +2857,20 @@ export class SocketManager {
             } else {
                 // Same layout: skip identical turrets, send only a new facing
                 // for turrets that merely rotated, full records for the rest.
-                const prevTurretStart = gunStart + 1 + prev[gunStart] * GUN_PHOTO_FIELDS;
-                let p = prevTurretStart + 1,
-                    q = turretStart + 1;
+                const prevTurretStart =
+                    gunStart + 1 + prev[gunStart] * GUN_PHOTO_FIELDS;
+                let p = prevTurretStart + 1;
+                let q = turretStart + 1;
                 for (let k = 0; k < count; k++) {
-                    const pe = this.recordEnd(prev, p),
-                        qe = this.recordEnd(now, q);
+                    const pe = this.recordEnd(prev, p);
+                    const qe = this.recordEnd(now, q);
                     if (qe - q === pe - p && this.spansEqual(prev, p, now, q, qe - q)) {
                         out.push(0);
                     } else if (
-                        now[q] & 0x01 && qe - q === pe - p && prev[p] === now[q] &&
-                        this.spansEqual(prev, p + 2, now, q + 2, qe - q - 2)
+                        now[q] & 0x01 &&
+            qe - q === pe - p &&
+            prev[p] === now[q] &&
+            this.spansEqual(prev, p + 2, now, q + 2, qe - q - 2)
                     ) {
                         out.push(1, now[q + 1]);
                     } else {
@@ -2348,7 +2903,7 @@ export class SocketManager {
     recordEnd(a, from) {
         let i = from + 1;
         const type = a[from];
-        i += (type & 0x01) ? 11 : ((type & 0x10) ? 15 : 19 + ((type & 0x04) ? 2 : 0));
+        i += type & 0x01 ? 11 : type & 0x10 ? 15 : 19 + (type & 0x04 ? 2 : 0);
         i += 1 + a[i] * GUN_PHOTO_FIELDS;
         const turrets = a[i++];
         for (let k = 0; k < turrets; k++) {
@@ -2374,12 +2929,16 @@ export class SocketManager {
                 alpha = other.alpha ? other.alpha * 0.55 + 0.45 : 0.45;
             } else if (!other.settings.fullyInvisible) {
                 const range = 300;
-                const dist = Math.sqrt((player.body.x - other.x) ** 2 + (player.body.y - other.y) ** 2);
+                const dist = Math.sqrt(
+                    (player.body.x - other.x) ** 2 + (player.body.y - other.y) ** 2
+                );
                 if (dist >= range) {
                     alpha = other.alpha;
                 } else {
-                    const rangeAlpha = 1 - (dist / range);
-                    alpha = other.alpha ? other.alpha + rangeAlpha * 0.45 : rangeAlpha * 0.45;
+                    const rangeAlpha = 1 - dist / range;
+                    alpha = other.alpha
+                        ? other.alpha + rangeAlpha * 0.45
+                        : rangeAlpha * 0.45;
                 }
             } else {
                 alpha = other.alpha;
@@ -2395,7 +2954,14 @@ export class SocketManager {
             if (player.body.id === e.master.id) {
                 data = data.slice(); // So we don't mess up references to the original
                 // Set the proper color if it's on our team and decide what to do about colors when sending updates and stuff
-                player.teamColor = new Color(!Config.random_body_colors && (Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag)) ? 10 : global.getTeamColor(player.body.team)).compiled; // blue
+                player.teamColor = new Color(
+                    !Config.random_body_colors &&
+            (Config.groups ||
+              Config.mode == "ffa" ||
+              (Config.mode == "clan" && !Config.tag))
+                        ? 10
+                        : global.getTeamColor(player.body.team)
+                ).compiled; // blue
                 // And make it force to our mouse if it ought to
                 if (player.command.autospin) {
                     data[10] = 1;
@@ -2403,7 +2969,11 @@ export class SocketManager {
             }
             if (player.body.settings.canSeeInvisible) {
                 data = data.slice();
-                const alpha = this.getInvisEntityAlpha(player, e, player.body.settings.canSeeInvisible);
+                const alpha = this.getInvisEntityAlpha(
+                    player,
+                    e,
+                    player.body.settings.canSeeInvisible
+                );
                 if (e.limited) {
                     data[14] = qfrac(alpha);
                 } else {
@@ -2412,15 +2982,19 @@ export class SocketManager {
             }
             if (e.master?.socket?.status?.isAFK && player.body.id !== e.master.id) {
                 data = data.slice();
-                const dist = Math.sqrt((player.body.x - e.x) ** 2 + (player.body.y - e.y) ** 2),
-                    fade = Math.max(0, (200 - dist) / 160),
-                    alpha = Math.max(0.5, 1 - 0.625 * fade ** 2.25),
-                    i = e.limited ? 14 : 18;
+                const dist = Math.sqrt(
+                    (player.body.x - e.x) ** 2 + (player.body.y - e.y) ** 2
+                );
+                const fade = Math.max(0, (200 - dist) / 160);
+                const alpha = Math.max(0.5, 1 - 0.625 * fade ** 2.25);
+                const i = e.limited ? 14 : 18;
                 data[i] = qfrac(Math.min(data[i] / 255, alpha));
             }
             if (
                 player.body.team === e.source.team &&
-                (Config.groups || (Config.mode == "ffa" || Config.mode == "clan" && !Config.tag))
+        (Config.groups ||
+          Config.mode == "ffa" ||
+          (Config.mode == "clan" && !Config.tag))
             ) {
                 // groups
                 data = data.slice();
@@ -2458,7 +3032,8 @@ export class SocketManager {
             const index = parseInt(splittedIndex); // Parse it, without this wont work for some reason.
             // Now we need to find the mockup.
             let mockup = mockupData[mockupMap[index]];
-            if (!mockup) { // If not, then make one.
+            if (!mockup) {
+                // If not, then make one.
                 mockup = this.generateMockup(index);
             }
             // Send the mockup to the client.
@@ -2472,10 +3047,12 @@ export class SocketManager {
                 // Run the same function but it targets the turret mockups.
                 this.sendMockup(turrets.index, socket);
             }
-            if (mockup.sendAllMockups) { // Send all of its upgrades if needed to prevent bugs.
+            if (mockup.sendAllMockups) {
+                // Send all of its upgrades if needed to prevent bugs.
                 // Target the upgrades
                 for (const upgrades of mockup.upgrades) {
-                    for (const i of upgrades.index.split("-")) { // Split the indexes.
+                    for (const i of upgrades.index.split("-")) {
+                        // Split the indexes.
                         this.sendMockupUpgrades(i, socket);
                     }
                 }
@@ -2484,7 +3061,11 @@ export class SocketManager {
     }
     sendMockupUpgrades(index, socket) {
         for (const splittedIndex of index.toString().split("-")) {
-            if (socket.status.mockupData.receivedUpgradePackIndexes.includes(splittedIndex)) {
+            if (
+                socket.status.mockupData.receivedUpgradePackIndexes.includes(
+                    splittedIndex
+                )
+            ) {
                 continue;
             } // Do NOT continue if we have the mockup already.
             this.sendMockup(index, socket);
@@ -2505,17 +3086,24 @@ export class SocketManager {
     }
     eyes(socket) {
         const check = (camera, obj) => {
-            const fov = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
-            return Math.abs(obj.x - camera.x) < fov / 2 + Config.view_extra_margin + 1.5 * obj.size &&
-                Math.abs(obj.y - camera.y) < fov * 9 / 32 + Config.view_extra_margin + 1.5 * obj.size;
+            const fov =
+                Math.min(camera.fov, Config.max_fov) *
+        (global.gameManager.arenaClosed ? 1.6 : 1);
+            return (
+                Math.abs(obj.x - camera.x) <
+          fov / 2 + Config.view_extra_margin + 1.5 * obj.size &&
+        Math.abs(obj.y - camera.y) <
+          (fov * 9) / 32 + Config.view_extra_margin + 1.5 * obj.size
+            );
         };
-        let lastVisibleUpdate = 0,
-            lastNearX = socket.camera.x,
-            lastNearY = socket.camera.y;
+        let lastVisibleUpdate = 0;
+        let lastNearX = socket.camera.x;
+        let lastNearY = socket.camera.y;
         const nearby = new Map();
         const visible = [];
         const msg = [];
-        const sent = socket.status.entitySent || (socket.status.entitySent = new Map());
+        const sent =
+            socket.status.entitySent || (socket.status.entitySent = new Map());
         const o = {
             socket,
             getNearby: () => nearby,
@@ -2539,25 +3127,29 @@ export class SocketManager {
                 // Receive it!
                 socket.status.receiving++;
                 // Prepare to emit data to send to the client to render.
-                const player = socket.player, // Quick Define player
-                    camera = socket.camera; // Quick Define camera
+                const player = socket.player; // Quick Define player
+                const camera = socket.camera; // Quick Define camera
                 let fovNow = camera.fov;
                 // If we are alive, update the camera.
                 if (player.body != null) {
                     // If we are dead, then let the client know.
                     if (player.body.isDead()) {
-                        const purge = () => player.body = null; // Remove our bonded body.
-                        if (player.body.store && player.body.store.dragInterval) { // If we are still dragging a entity, clear it and delete it.
+                        const purge = () => (player.body = null); // Remove our bonded body.
+                        if (player.body.store && player.body.store.dragInterval) {
+                            // If we are still dragging a entity, clear it and delete it.
                             clearInterval(player.body.store.dragInterval);
                             delete player.body.store.dragInterval;
                         }
-                        const die = () => { // The only reason this exist is because of bacteria's abilities.
+                        const die = () => {
+                            // The only reason this exist is because of bacteria's abilities.
                             socket.status.deceased = true;
                             socket.status.isAFK = false;
-                            const delay = (Config.instant_respawn ? 0 : 3000) + Config.respawn_delay * 1000;
+                            const delay =
+                                (Config.instant_respawn ? 0 : 3000) +
+                Config.respawn_delay * 1000;
                             if (delay > 0) {
                                 socket.status.readyToSpawn = false;
-                                setTimeout(() => socket.status.readyToSpawn = true, delay);
+                                setTimeout(() => (socket.status.readyToSpawn = true), delay);
                             }
                             // Leave the clan party if clan wars is active
                             if (Config.clan_wars) {
@@ -2573,17 +3165,25 @@ export class SocketManager {
                                 socket.permaban("Player died in Tartarus.");
                             }
                         };
-                        if (player.body.master.label == "Bacteria") { // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
+                        if (player.body.master.label == "Bacteria") {
+                            // Why not trigger bacteria's abilities :) // (WHY IS THIS A LABEL CHECK)
                             const exit = () => die();
                             const newgui = (player) => this.newgui(player);
                             becomeBulletChildren(socket, player, exit, newgui);
                         } else {
                             die();
                         }
-                    } else if (player.body.photo) { // If we are alive, update camera's position.
+                    } else if (player.body.photo) {
+                        // If we are alive, update camera's position.
                         // Define X and Y and update the camera's X and Y.
-                        const x = player.body.cameraOverrideX === null ? player.body.photo.x : player.body.cameraOverrideX,
-                            y = player.body.cameraOverrideY === null ? player.body.photo.y : player.body.cameraOverrideY;
+                        const x =
+                            player.body.cameraOverrideX === null
+                                ? player.body.photo.x
+                                : player.body.cameraOverrideX;
+                        const y =
+                            player.body.cameraOverrideY === null
+                                ? player.body.photo.y
+                                : player.body.cameraOverrideY;
 
                         camera.x = x;
                         camera.y = y;
@@ -2596,10 +3196,12 @@ export class SocketManager {
                         player.viewId = player.body.id;
                     }
                 }
-                if (player.body == null) { // if we have no body, then u dead bro.
+                if (player.body == null) {
+                    // if we have no body, then u dead bro.
                     fovNow = 2000;
                     camera.scoping = false; // No scoping bugs!
-                    if (socket.spectateEntity != null) { // If we want to spectate someone, we spectate it.
+                    if (socket.spectateEntity != null) {
+                        // If we want to spectate someone, we spectate it.
                         if (socket.spectateEntity) {
                             camera.x = socket.spectateEntity.x;
                             camera.y = socket.spectateEntity.y;
@@ -2617,28 +3219,40 @@ export class SocketManager {
 
                 // Grab entities that we can see
                 // Re-query when due or the camera jumped.
-                const dx = camera.x - lastNearX,
-                    dy = camera.y - lastNearY;
-                if (camera.lastUpdate - lastVisibleUpdate > Config.visible_list_interval || dx * dx + dy * dy > 250 * 250) {
+                const dx = camera.x - lastNearX;
+                const dy = camera.y - lastNearY;
+                if (
+                    camera.lastUpdate - lastVisibleUpdate >
+            Config.visible_list_interval ||
+          dx * dx + dy * dy > 250 * 250
+                ) {
                     lastVisibleUpdate = camera.lastUpdate;
                     lastNearX = camera.x;
                     lastNearY = camera.y;
                     nearby.clear();
-                    const camFovBroad = Math.min(camera.fov, Config.max_fov) * (global.gameManager.arenaClosed ? 1.6 : 1);
+                    const camFovBroad =
+                        Math.min(camera.fov, Config.max_fov) *
+            (global.gameManager.arenaClosed ? 1.6 : 1);
                     const camXBound = camFovBroad / 2 + Config.view_extra_margin + 250;
-                    const camYBound = camFovBroad * 9 / 32 + Config.view_extra_margin + 250;
-                    for (const entity of global.viewGrid.query(camera.x - camXBound, camera.y - camYBound, camera.x + camXBound, camera.y + camYBound)) {
+                    const camYBound =
+                        (camFovBroad * 9) / 32 + Config.view_extra_margin + 250;
+                    for (const entity of global.viewGrid.query(
+                        camera.x - camXBound,
+                        camera.y - camYBound,
+                        camera.x + camXBound,
+                        camera.y + camYBound
+                    )) {
                         nearby.set(entity.id, entity);
                     }
                 }
 
                 visible.length = 0;
 
-                const camX = camera.x,
-                    camY = camera.y,
-                    camFov = Math.min(camera.fov, Config.max_fov);
+                const camX = camera.x;
+                const camY = camera.y;
+                const camFov = Math.min(camera.fov, Config.max_fov);
                 const fovDiv = camFov / 2 + Config.view_extra_margin;
-                const fovDivY = camFov * 9 / 32 + Config.view_extra_margin;
+                const fovDivY = (camFov * 9) / 32 + Config.view_extra_margin;
                 const mockupsToSend = new Set();
 
                 for (const entity of nearby.values()) {
@@ -2646,15 +3260,23 @@ export class SocketManager {
                     // per-socket nearby cache until its refresh, and re-sending it
                     // as created resurrects it client-side as a ghost.
                     // Removals still flow, so the death fade still plays once.
-                    if (entity.isGhost || (typeof entity.isDead === "function" && entity.isDead())) {
+                    if (
+                        entity.isGhost ||
+            (typeof entity.isDead === "function" && entity.isDead())
+                    ) {
                         continue;
                     }
-                    if (entity.settings.fullyInvisible && entity.alpha <= 0 && !(player.body && player.body.settings.canSeeInvisible)) {
+                    if (
+                        entity.settings.fullyInvisible &&
+            entity.alpha <= 0 &&
+            !(player.body && player.body.settings.canSeeInvisible)
+                    ) {
                         continue;
                     }
-                    if (entity.photo &&
-                        Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
-                        Math.abs(entity.y - camY) < fovDivY + 1.5 * entity.size
+                    if (
+                        entity.photo &&
+            Math.abs(entity.x - camX) < fovDiv + 1.5 * entity.size &&
+            Math.abs(entity.y - camY) < fovDivY + 1.5 * entity.size
                     ) {
                         if (!Config.load_all_mockups && entity.index) {
                             mockupsToSend.add(entity.index);
@@ -2662,7 +3284,9 @@ export class SocketManager {
                         if (!entity.flattenedPhoto) {
                             entity.flattenedPhoto = this.flatten(entity.photo);
                         }
-                        visible.push(this.perspective(entity, player, entity.flattenedPhoto));
+                        visible.push(
+                            this.perspective(entity, player, entity.flattenedPhoto)
+                        );
                     }
                 }
                 if (!Config.load_all_mockups && mockupsToSend.size > 0) {
@@ -2671,19 +3295,14 @@ export class SocketManager {
                     }
                 }
                 if (!Config.load_all_mockups) {
-                    for (const upgrade of (player.body?.upgrades || [])) {
+                    for (const upgrade of player.body?.upgrades || []) {
                         if (player.body.skill.level >= upgrade.level) {
                             this.sendMockup(upgrade.index, socket);
                         }
                     }
                 }
                 if (updateCam) {
-                    socket.talk(
-                        "u",
-                        true,
-                        camera.x,
-                        camera.y
-                    );
+                    socket.talk("u", true, camera.x, camera.y);
                 } else {
                     // Update the gui
                     player.gui.update();
@@ -2714,7 +3333,7 @@ export class SocketManager {
         return o;
     }
 
-    deltaHandler =  {
+    deltaHandler = {
         subscribe: (socket) => broadcast.add(socket),
         unsubscribe: (socket) => broadcast.remove(socket)
     };
@@ -2724,13 +3343,17 @@ export class SocketManager {
             return;
         }
         socket.status.transferred = true;
-        const id = Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, "0");
+        const id = Math.floor(Math.random() * 0xffffffff)
+            .toString(16)
+            .padStart(8, "0");
         fetch(`${server}/api/sendPlayer?api_key=${process.env.API_KEY}`, {
             method: "POST",
             body: JSON.stringify({
                 id: id,
                 name: socket.player.body.name,
-                definition: socket.player.body.defs.map((d) => Object.keys(Class).find((k) => Class[k] === d) || d),
+                definition: socket.player.body.defs.map(
+                    (d) => Object.keys(Class).find((k) => Class[k] === d) || d
+                ),
                 score: socket.player.body.skill.score,
                 killCount: socket.player.body.killCount,
                 level: socket.player.body.skill.level,
@@ -2738,15 +3361,21 @@ export class SocketManager {
                 skill: socket.player.body.skill.raw,
                 points: socket.player.body.skill.points
             })
-        }).then(async (r) => {
-            if (r.status === 200) {
-                socket.talk("t", server.replace("http://", "").replace("https://", ""), id);
-            }
-        }).catch((e) => {
-            console.log(e);
-            socket.status.transferred = false;
-        });
-    };
+        })
+            .then(async (r) => {
+                if (r.status === 200) {
+                    socket.talk(
+                        "t",
+                        server.replace("http://", "").replace("https://", ""),
+                        id
+                    );
+                }
+            })
+            .catch((e) => {
+                console.log(e);
+                socket.status.transferred = false;
+            });
+    }
     connect(socket, req) {
         log("[INFO]: A client wants to connect...");
         socket.player = { camera: {} };
@@ -2768,9 +3397,10 @@ export class SocketManager {
                     if (lines.length > 1 && lines[lines.length - 1] === "") {
                         lines.pop();
                     }
-                    message = lines.length > 1
-                        ? ["Em", message[1], JSON.stringify(lines)]
-                        : ["m", message[1], lines[0]];
+                    message =
+                        lines.length > 1
+                            ? ["Em", message[1], JSON.stringify(lines)]
+                            : ["m", message[1], lines[0]];
                 }
                 for (let i = 0; i < message.length; i++) {
                     if (typeof message[i] === "string") {
@@ -2818,7 +3448,9 @@ export class SocketManager {
                 requestMockups: []
             };
         };
-        socket.messageManager = socket.on("message", (message) => this.incoming(message, socket));
+        socket.messageManager = socket.on("message", (message) =>
+            this.incoming(message, socket)
+        );
         socket.connectedTo = gameManager.name;
         let timer = 0;
         socket.timeout = {
@@ -2889,9 +3521,15 @@ export class SocketManager {
 
         // Account for proxies
         // Very simplified reimplementation of what the forwarded-for npm package does
-        const store = req.headers["fastly-client-ip"] || req.headers["cf-connecting-ip"] || req.headers["x-forwarded-for"] || req.headers["z-forwarded-for"] ||
-                    req.headers["forwarded"] || req.headers["x-real-ip"] || req.connection.remoteAddress,
-            ips = store.split(",");
+        const store =
+            req.headers["fastly-client-ip"] ||
+        req.headers["cf-connecting-ip"] ||
+        req.headers["x-forwarded-for"] ||
+        req.headers["z-forwarded-for"] ||
+        req.headers["forwarded"] ||
+        req.headers["x-real-ip"] ||
+        req.connection.remoteAddress;
+        const ips = store.split(",");
 
         if (!ips) {
             return socket.kick(`Missing IP: ${store}`);
@@ -2948,18 +3586,21 @@ export class SocketManager {
             const tank = ensureIsClass(Config.daily_tank.tank);
             if (tank) {
                 Config.daily_tank_INDEX = tank.index.toString();
-                !Config.load_all_mockups && this.sendMockup(Config.daily_tank_INDEX, socket);
+                !Config.load_all_mockups &&
+          this.sendMockup(Config.daily_tank_INDEX, socket);
             }
         }
 
         // Let the client know that we are connected.
         socket.talk("W", true);
-    };
+    }
     disconnect(socket) {
         const check = this.clients.find((o) => o.id === socket.id);
         if (check) {
             check.loops.terminate();
-            log(`[INFO]: ${check.player.body ? check.player.body.name : "A Client"} has disconnected!`);
+            log(
+                `[INFO]: ${check.player.body ? check.player.body.name : "A Client"} has disconnected!`
+            );
             // Free the view
             remove(gameManager.views, gameManager.views.indexOf(socket.view));
             // Remove the client from the server.

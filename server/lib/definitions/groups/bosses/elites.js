@@ -773,8 +773,8 @@ Class.legionaryCrasherFix = {
 Class.eliteSkimmer = {
     PARENT: "elite",
     LABEL: "Elite Skimmer",
-    COLOR: "triangle",
-    UPGRADE_COLOR: "triangle",
+    COLOR: "orange",
+    UPGRADE_COLOR: "orange",
     TURRETS: weaponArray({
         TYPE: "hyperSkimmerTurret",
         POSITION: {

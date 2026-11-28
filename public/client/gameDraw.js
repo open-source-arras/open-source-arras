@@ -39,7 +39,9 @@ var gameDraw = {
     },
 
     hslToRgb: (h, s, l) => {
-        let r, g, b;
+        let r;
+        let g;
+        let b;
         if (s === 0) {
             r = g = b = l; // achromatic
         } else {
@@ -55,15 +57,18 @@ var gameDraw = {
         }${Math.round(b * 255).toString(16).padStart(2, "0")}`;
     },
     rgbToHsl: (rgb) => {
-        let r, g, b, h, s, l;
-
-        r = parseInt(rgb.substring(1, 3), 16) / 255;
-        g = parseInt(rgb.substring(3, 5), 16) / 255;
-        b = parseInt(rgb.substring(5, 7), 16) / 255;
+        const r = parseInt(rgb.substring(1, 3), 16) / 255;
+        const g = parseInt(rgb.substring(3, 5), 16) / 255;
+        const b = parseInt(rgb.substring(5, 7), 16) / 255;
+        let h;
+        let s;
 
         const cmax = Math.max(r, g, b);
         const cmin = Math.min(r, g, b);
         const deltaC = cmax - cmin;
+
+        // Brightness
+        const l = (cmax + cmin) / 2;
 
         // Hue
         switch (true) {
@@ -80,8 +85,6 @@ var gameDraw = {
                 h = 1 / 6 * ((r - g) / deltaC + 4);
                 break;
         }
-        // Brightness
-        l = (cmax + cmin) / 2;
         // Saturation
         if (deltaC == 0) {
             s = 0;
@@ -118,14 +121,14 @@ var gameDraw = {
     getRainbowTeamColor: (colorNumber) => {
         const index = gameDraw.teamColors.indexOf(util.isNumeric(colorNumber) ? parseInt(colorNumber) : colorNumber);
         if (index < 0) {
-            return gameDraw.animatedColor.gay;
+            return gameDraw.animatedColor.rainbow;
         }
         return gameDraw.animatedColor.rainbowTeams[index % (gameDraw.teamColors.length / 2)];
     },
     modifyColor: (color, base = "16 0 1 0 false") => {
         // Split into array
-        const colorDetails = color.split(" "),
-            baseDetails = base.split(" ");
+        const colorDetails = color.split(" ");
+        const baseDetails = base.split(" ");
 
         // Color mirroring
         if (colorDetails[0] === "-1" || colorDetails[0] === "mirror") {
@@ -149,15 +152,15 @@ var gameDraw = {
         const baseColor = gameDraw.rgbToHsl(gameDraw.getColor(colorDetails[0]) ?? colorDetails[0]);
 
         // Get color config
-        const hueShift = parseFloat(colorDetails[1]) / 360,
-            saturationShift = parseFloat(colorDetails[2]),
-            brightnessShift = parseFloat(colorDetails[3]) / 100,
-            allowBrightnessInvert = colorDetails[4] == "true";
+        const hueShift = parseFloat(colorDetails[1]) / 360;
+        const saturationShift = parseFloat(colorDetails[2]);
+        const brightnessShift = parseFloat(colorDetails[3]) / 100;
+        const allowBrightnessInvert = colorDetails[4] == "true";
 
         // Apply config
-        let finalHue = (baseColor[0] + hueShift) % 1,
-            finalSaturation = gameDraw.clamp(baseColor[1] * saturationShift, 0, 1),
-            finalBrightness = baseColor[2] + brightnessShift;
+        const finalHue = (baseColor[0] + hueShift) % 1;
+        const finalSaturation = gameDraw.clamp(baseColor[1] * saturationShift, 0, 1);
+        let finalBrightness = baseColor[2] + brightnessShift;
 
         if (allowBrightnessInvert && (finalBrightness > 1 || finalBrightness < 0)) {
             finalBrightness -= brightnessShift * 2;
@@ -194,48 +197,47 @@ var gameDraw = {
         );
     },
     animatedColor: {
-        lesbian: "",
-        gay: "",
-        rainbowTeams: [],
-        bi: "",
-        trans: "",
-        magenta: "",
         blue_red: "",
         blue_grey: "",
         grey_blue: "",
         red_grey: "",
-        grey_red: ""
+        grey_red: "",
+        rainbow: "",
+        rainbowTeams: [],
+        trans: "",
+        magenta: ""
     },
     reanimateColors: () => {
-        const now = Date.now(),
+        const now = Date.now();
 
-            five_bars = Math.floor((now % 2000) / 400),
-            three_bars = Math.floor((now % 2000) * 3 / 2000),
-            blinker = 150 > now % 300,
+        const five_bars = Math.floor((now % 2000) / 400);
+        // const three_bars = Math.floor((now % 2000) * 3 / 2000);
+        const blinker = 150 > now % 300;
 
-            lesbian_magenta = "#a50062",
-            lesbian_oredange = "#d62900",
-            lesbian_white = "#FFFFFF",
-            lesbian_useSecondSet = five_bars < 2,
+        const lesbian_magenta = "#a50062";
+        const lesbian_oredange = "#d62900";
+        const lesbian_white = "#FFFFFF";
+        const lesbian_useSecondSet = five_bars < 2;
 
-            gay_transition = (now / 6000) % 1,
+        const gay_transition = (now / 6000) % 1;
+        const rainbow_transition = (now / 6000) % 1;
 
-            ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5,
-            light_purple = { h: 258 / 360, s: 1, l: 0.84 },
-            purple = { h: 265 / 360, s: 0.69, l: 0.47 },
+        const ratio = (Math.sin(now / 2000 * Math.PI)) / 2 + 0.5;
+        const light_purple = { h: 258 / 360, s: 1, l: 0.84 };
+        const purple = { h: 265 / 360, s: 0.69, l: 0.47 };
 
-            trans_pink = "#f7a8b8",
-            trans_blue = "#55cdfc",
-            trans_white = "#FFFFFF";
+        const trans_pink = "#f7a8b8";
+        const trans_blue = "#55cdfc";
+        const trans_white = "#FFFFFF";
 
         gameDraw.animatedColor.lesbian = gameDraw.getRainbow(lesbian_useSecondSet ? lesbian_oredange : lesbian_white, lesbian_useSecondSet ? lesbian_white : lesbian_magenta, (lesbian_useSecondSet ? five_bars : five_bars - 3) / 2);
         gameDraw.animatedColor.gay = gameDraw.hslToRgb(gay_transition, 0.75, 0.5);
+        gameDraw.animatedColor.rainbow = gameDraw.hslToRgb(rainbow_transition, 0.75, 0.5);
         const teamCount = gameDraw.teamColors.length / 2;
         gameDraw.animatedColor.rainbowTeams = Array.from({ length: teamCount }, (_, i) =>
-            gameDraw.hslToRgb((gay_transition + i / teamCount) % 1, 0.75, 0.5)
+            gameDraw.hslToRgb((rainbow_transition + i / teamCount) % 1, 0.75, 0.5)
         );
         gameDraw.animatedColor.trans = gameDraw.mixColors(trans_white, 2000 > now % 4000 ? trans_blue : trans_pink, Math.max(Math.min(5 * Math.sin(now % 2000 / 2000 * Math.PI) - 2, 1), 0));
-        gameDraw.animatedColor.trueTrans = [trans_blue, trans_pink, trans_white, trans_pink, trans_blue][five_bars];
         gameDraw.animatedColor.magenta = gameDraw.hslToRgb(
             light_purple.h + (purple.h - light_purple.h) * ratio,
             light_purple.s + (purple.s - light_purple.s) * ratio,
@@ -248,35 +250,12 @@ var gameDraw = {
         gameDraw.animatedColor.grey_red = blinker ? gameDraw.color.grey : gameDraw.color.red;
     },
     animatedColors: {
-        // police
-        20: true,
         flashBlueRed: true,
-
-        21: true,
         flashBlueGrey: true,
-        flashBlueGray: true,
-
-        22: true,
         flashGreyBlue: true,
-        flashGrayBlue: true,
-
-        23: true,
         flashRedGrey: true,
-        flashRedGray: true,
-
-        24: true,
         flashGreyRed: true,
-        flashGrayRed: true,
-
-        // lesbian
-        lesbian: true,
-
-        // rainbow
-        36: true,
         rainbow: true,
-
-        // trans
-        37: true,
         trans: true,
         trueTrans: true,
 
@@ -285,7 +264,8 @@ var gameDraw = {
 
         // magenta
         42: true,
-        animatedMagenta: true
+        animatedMagenta: true,
+        aeBoss_magenta: true
     },
     getColor: (colorNumber, ctx, x1, y1, x2, y2) => {
         if (colorNumber == undefined || colorNumber == null) {
@@ -316,29 +296,25 @@ var gameDraw = {
                     gradient.addColorStop(i, gameDraw.getColor(colorNumber.asset[i].color));
                 }
                 return gradient;
-            } catch (e) {
+            } catch {
                 return gameDraw.color.black;
             }
         }
         switch (colorNumber) {
             case 0:
             case "teal":
-            case "legendary":
                 return gameDraw.color.teal;
 
             case 1:
-            case "shiny":
             case "lime":
             case "lightGreen":
                 return gameDraw.color.lgreen;
 
             case 2:
-            case "triangle":
             case "orange":
                 return gameDraw.color.orange;
 
             case 3:
-            case "neutral":
             case "yellow":
                 return gameDraw.color.yellow;
 
@@ -346,26 +322,19 @@ var gameDraw = {
                 return gameDraw.color.lavender;
 
             case 4:
-            case "hexagon":
             case "aqua":
                 return gameDraw.color.aqua;
 
             case 5:
-            case "crasher":
             case "pink":
                 return gameDraw.color.pink;
 
             case 6:
-            case "egg":
-            case "circle":
             case "veryLightGrey":
-            case "veryLightGray":
                 return gameDraw.color.vlgrey;
 
             case 7:
-            case "wall":
             case "lightGrey":
-            case "lightGray":
                 return gameDraw.color.lgrey;
 
             case 8:
@@ -389,12 +358,10 @@ var gameDraw = {
                 return gameDraw.color.red;
 
             case 13:
-            case "square":
             case "gold":
                 return gameDraw.color.gold;
 
             case 14:
-            case "pentagon":
             case "purple":
                 return gameDraw.color.purple;
 
@@ -404,13 +371,10 @@ var gameDraw = {
 
             case 16:
             case "grey":
-            case "gray":
                 return gameDraw.color.grey;
 
             case 17:
-            case "rogue":
             case "darkGrey":
-            case "darkGray":
                 return gameDraw.color.dgrey;
 
             case 18:
@@ -421,37 +385,19 @@ var gameDraw = {
             case "pureBlack":
                 return gameDraw.color.guiblack;
 
-            case 20:
-            case "animatedBlueRed":
             case "flashBlueRed":
                 return gameDraw.animatedColor.blue_red;
 
-            case 21:
-            case "animatedBlueGrey":
-            case "animatedBlueGray":
             case "flashBlueGrey":
-            case "flashBlueGray":
                 return gameDraw.animatedColor.blue_grey;
 
-            case 22:
-            case "animatedGreyBlue":
-            case "animatedGrayBlue":
             case "flashGreyBlue":
-            case "flashGrayBlue":
                 return gameDraw.animatedColor.grey_blue;
 
-            case 23:
-            case "animatedRedGrey":
-            case "animatedRedGray":
             case "flashRedGrey":
-            case "flashRedGray":
                 return gameDraw.animatedColor.red_grey;
 
-            case 24:
-            case "animatedGreyRed":
-            case "animatedGrayRed":
             case "flashGreyRed":
-            case "flashGrayRed":
                 return gameDraw.animatedColor.grey_red;
 
             case 25:
@@ -468,33 +414,16 @@ var gameDraw = {
 
             case 28:
             case "cyan":
-            case "turquoise":
                 return gameDraw.color.cyan;
 
-            case "lesbian":
-                return gameDraw.animatedColor.lesbian;
-
-            case 36:
-            case "gay":
             case "rainbow":
-                return gameDraw.animatedColor.gay;
+                return gameDraw.animatedColor.rainbow;
 
-            case 37:
             case "trans":
                 return gameDraw.animatedColor.trans;
 
-            case "trueTrans":
-                return gameDraw.animatedColor.trueTrans;
-
-            case "bi":
-                return gameDraw.animatedColor.bi;
-
-            case 42:
-            case "animatedMagenta":
+            case "aeBoss_magenta":
                 return gameDraw.animatedColor.magenta;
-
-            case "nest":
-                return config.graphical.coloredNest ? gameDraw.color.purple : gameDraw.color.white;
 
             case "border":
                 return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);

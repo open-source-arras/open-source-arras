@@ -8,19 +8,17 @@ const U_COLOR_TABLE = [
     "grey 0 1 0 false", "16 0 1 0 false", "black 0 1 0 false", "blue 0 1 0 false",
     "red 0 1 0 false", "green 0 1 0 false", "gold 0 1 0 false", "orange 0 1 0 false",
     "purple 0 1 0 false", "aqua 0 1 0 false", "pink 0 1 0 false", "white 0 1 0 false",
-    "lightGray 0 1 0 false", "veryLightGrey 0 1 0 false", "lightGrey 0 1 0 false", "darkGrey 0 1 0 false",
+    "veryLightGrey 0 1 0 false", "lightGrey 0 1 0 false", "darkGrey 0 1 0 false",
     "lavender 0 1 0 false", "yellow 0 1 0 false", "teal 0 1 0 false", "pureBlack 0 1 0 false",
     "magenta 0 1 0 false", "mirror 0 1 0 false", "-1 0 1 0 false", "10 0 1 0 false",
     "11 0 1 0 false", "12 0 1 0 false", "0 0 1 0 false", "13 0 1 0 false",
-    "36 0 1 0 false", "mustard 0 1 0 false", "tangerine 0 1 0 false", "brown 0 1 0 false",
-    "cyan 0 1 0 false", "dgrey 0 1 0 false", "gray 0 1 0 false", "darkGray 0 1 0 false",
-    "veryLightGray 0 1 0 false", "vlgrey 0 1 0 false", "lgrey 0 1 0 false", "lgreen 0 1 0 false",
-    "egg 0 1 0 false", "crasher 0 1 0 false", "triangle 0 1 0 false", "square 0 1 0 false",
-    "hexagon 0 1 0 false", "pentagon 0 1 0 false", "lime 0 1 0 false", "pureWhite 0 1 0 false",
+    "rainbow 0 1 0 false", "mustard 0 1 0 false", "tangerine 0 1 0 false", "brown 0 1 0 false",
+    "cyan 0 1 0 false", "dgrey 0 1 0 false", "vlgrey 0 1 0 false", "lgrey 0 1 0 false", "lgreen 0 1 0 false",
+    "lime 0 1 0 false", "pureWhite 0 1 0 false",
     "trans 0 1 0 false", "1 0 1 0 false", "2 0 1 0 false", "3 0 1 0 false",
     "4 0 1 0 false", "5 0 1 0 false", "6 0 1 0 false", "7 0 1 0 false",
     "8 0 1 0 false", "9 0 1 0 false", "14 0 1 0 false", "15 0 1 0 false",
-    "17 0 1 0 false", "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
+    "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
     "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
     "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
     "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false"
@@ -1131,7 +1129,7 @@ const incoming = async function(message, socket) {
         case "W": {
             if (m[0]) {
                 global.message = "";
-                socket.talk("k", global.playerKey, 1);
+                socket.talk("k", global.playerKey);
                 // define a pinging function
                 socket.ping = (payload) => {
                     socket.talk("p", payload);
@@ -1683,6 +1681,15 @@ const socketInit = () => {
         getMotion: () => ({
             x: commands[3] - commands[2],
             y: commands[1] - commands[0]
+        }),
+        getInputs: () => ({
+            up: commands[0],
+            down: commands[1],
+            left: commands[2],
+            right: commands[3],
+            lmb: commands[4],
+            mmb: commands[5],
+            rmb: commands[6],
         }),
         reactNow: () => {
             flag = true;

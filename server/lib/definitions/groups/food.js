@@ -614,23 +614,51 @@ Class.sphere = {
     DRAW_HEALTH: true,
     GIVE_KILL_MESSAGE: true,
     PROPS: [{
-        POSITION: [17, 0, 0, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -14 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -14 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 17,
+            LAYER: 1
+        }
     }, {
-        POSITION: [15, 1, -1, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -9 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -9 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 15,
+            X: 1,
+            Y: -1,
+            LAYER: 1
+        }
     }, {
-        POSITION: [13, 2, -2, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -8 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -8 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 13,
+            X: 2,
+            Y: -2,
+            LAYER: 1
+        }
     }, {
-        POSITION: [11, 3, -3, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -3 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: -3 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 11,
+            X: 3,
+            Y: -3,
+            LAYER: 1
+        }
     }, {
-        POSITION: [8, 3.25, -3.25, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: 3 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: 3 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 8,
+            X: 3.25,
+            Y: -3.25,
+            LAYER: 1
+        }
     }, {
-        POSITION: [6, 3, -3, 0, 1],
-        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: 9 }, BORDERLESS: true }]
+        TYPE: ["egg", { COLOR: { BRIGHTNESS_SHIFT: 9 }, BORDERLESS: true }],
+        POSITION: {
+            SIZE: 6,
+            X: 3,
+            Y: -3,
+            LAYER: 1
+        }
     }]
 };
 Class.cube = {

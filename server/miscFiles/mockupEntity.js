@@ -433,6 +433,7 @@ export class MockupEntity {
                         const e = ensureIsClass(k);
                         index += `${e.index}-`;
                     }
+                    let i = parseInt(prop.split("_")[2]);
                     this.upgrades.push({
                         class: trueUpgrades,
                         level: Config.tier_multiplier * i,

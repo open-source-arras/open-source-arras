@@ -16,8 +16,6 @@ const THEME_PALETTE_KEYS = [
     "grey", "dgrey", "white", "guiblack"
 ];
 const THEME_V1_MAGIC = "\x6a\xba\xda\xb3\xf0";
-const SHADOW_DEPTH = 0.6;
-const SIDE_BORDER = 0.5;
 
 const { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow } = socketStuff;
 // Get the changelog
@@ -89,10 +87,10 @@ global.message = "";
 global.time = 0;
 global.guntime = 0;
 
-var upgradeSpin = 0,
-    lastPing = 0,
-    lasttick = 0,
-    fovlasttick = 0;
+var upgradeSpin = 0;
+var lastPing = 0;
+var lasttick = 0;
+var fovlasttick = 0;
 
 // Tips setup :D
 const tips = global.tips[Math.floor(Math.random() * global.tips.length)];
@@ -103,6 +101,7 @@ global.mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.user
 global.mobile && document.body.classList.add("mobile");
 !global.mobile && document.body.classList.add("not-mobile");
 if (global.mobile) {
+    document.getElementById("tabAppearance").style.height = "84.5%";
     document.getElementById("tabOptions").style.height = "84.5%";
     document.getElementById("tabAbout").style.height = "84.5%";
     document.getElementById("tabAddons").style.height = "84.5%";
@@ -154,7 +153,7 @@ window.onload = async () => {
     util.retrieveFromLocalStorage("optLerpAnim");
     util.retrieveFromLocalStorage("optOptimizeMode");
     util.retrieveFromLocalStorage("optBorders");
-    util.retrieveFromLocalStorage("optBackgroundGrid");
+    util.retrieveFromLocalStorage("optNoGrid");
     util.retrieveFromLocalStorage("optHexaGrid");
     util.retrieveFromLocalStorage("optColoredNest");
     util.retrieveFromLocalStorage("optRenderKillbar");
@@ -162,6 +161,7 @@ window.onload = async () => {
     util.retrieveFromLocalStorage("autoLevelUp");
     util.retrieveFromLocalStorage("optMobile");
     // GUI
+    util.retrieveFromLocalStorage("optRenderGui");
     util.retrieveFromLocalStorage("optRenderLeaderboard");
     util.retrieveFromLocalStorage("optRenderUpgrades");
     util.retrieveFromLocalStorage("optRenderMinimap");
@@ -169,16 +169,18 @@ window.onload = async () => {
     util.retrieveFromLocalStorage("optRenderHealth");
     util.retrieveFromLocalStorage("optRenderScores");
     util.retrieveFromLocalStorage("optRenderPlayerBars");
-    util.retrieveFromLocalStorage("optExtraInfo");
+    util.retrieveFromLocalStorage("optReducedInfo");
     util.retrieveFromLocalStorage("showCrosshair");
     util.retrieveFromLocalStorage("showJoystick");
     util.retrieveFromLocalStorage("optFullHD");
     util.retrieveFromLocalStorage("optUiScale");
     util.retrieveFromLocalStorage("optNames");
     util.retrieveFromLocalStorage("optCanvas");
+    util.retrieveFromLocalStorage("optAllowIngameOptions");
     util.retrieveFromLocalStorage("optOldUiStyle");
     // Game
     util.retrieveFromLocalStorage("optIncognitoMode");
+    util.retrieveFromLocalStorage("optDeltaEntities");
     // Default to true
     if (localStorage.getItem("optRenderKillbarChecked") === null) {
         document.getElementById("optRenderKillbar").checked = true;
@@ -188,6 +190,11 @@ window.onload = async () => {
     const savedBorderChunk = parseFloat(localStorage.getItem("strokeThicknessValue"));
     if (!isNaN(savedBorderChunk)) {
         config.graphical.borderChunk = savedBorderChunk;
+    }
+    // Default to true
+    if (localStorage.getItem("optDeltaEntitiesChecked") === null) {
+        document.getElementById("optDeltaEntities").checked = true;
+        util.submitToLocalStorage("optDeltaEntities");
     }
     if (localStorage.getItem("optAutoReconnectChecked") === null) {
         localStorage.setItem("optAutoReconnectChecked", "false");
@@ -212,6 +219,7 @@ window.onload = async () => {
     // If we are loaded for the first time then load the default options settings.
     if (!localStorage.getItem("loadedForFirstTime")) {
         [
+            "optRenderGui",
             "optRenderLeaderboard",
             "optRenderUpgrades",
             "optRenderMinimap",
@@ -224,9 +232,9 @@ window.onload = async () => {
             "optLerpAnim",
             "optFancy",
             "autoLevelUp",
-            "optAutoReconnect",
-            "optBackgroundGrid",
-            "optExtraInfo"
+            "optDeltaEntities",
+            "optAllowIngameOptions",
+            "optAutoReconnect"
         ].forEach((i) => {
             document.getElementById(i).checked = true;
             util.submitToLocalStorage(i);
@@ -247,7 +255,7 @@ window.onload = async () => {
         localStorage.setItem("uiScaleSettings", "true");
     }
     if (!document.getElementById("optNames").value) {
-        document.getElementById("optNames").value = "inappropriate";
+        document.getElementById("optNames").value = "offense";
     }
     if (!document.getElementById("optCanvas").value) {
         document.getElementById("optCanvas").value = "auto";
@@ -259,18 +267,61 @@ window.onload = async () => {
     keybinderHandler.initalize("sandboxSkillControlSettings", "resetSandboxSkillControls", "sandboxskillkeybinds"); // Sandbox command keys (Skill)
     keybinderHandler.initalize("sandboxAttributeControlSettings", "resetSandboxAttributeControls", "sandboxattributekeybinds"); // Sandbox command keys (Attribute)
 
-    // Addon info handler
-    try {
-        fetch("/version").then((json) => json.json()).then(async (ve) => {
-            global.version = ve.ver;
-            const keyValue = localStorage.getItem("playerKeyInputValue");
-            const A_response = await fetch(`/api/getAddonAuthors?token=${keyValue}`);
-            const A_data = await A_response.json().catch(() => false);
-            if (A_data && Array.isArray(A_data)) {
-                initalizeAddonAuthors(A_data);
+    // Tab menu creater
+    global.createTabMenu = (text, type, addDismissButton = false) => {
+        const allowedType = [
+            "warning",
+            "critical",
+            "discord",
+            "stat",
+            "achieve"
+        ];
+        if (allowedType.includes(type)) {
+            const b = document.getElementById("menuTabs");
+            b.style.textAlign = "center";
+            const d = document.createElement("span");
+            d.classList.add("menuTab");
+            d.classList.add(type);
+            d.appendChild(document.createTextNode(`${text}${addDismissButton ? "\xa0\xa0\xa0" : ""}`));
+            if (addDismissButton) {
+                text = document.createElement("text");
+                text.style.textDecoration = "underline";
+                text.href = "javascript:;";
+                text.appendChild(document.createTextNode("Dismiss"));
+                text.addEventListener("click", () => d.remove());
+                d.appendChild(text);
             }
+            b.appendChild(d);
+            return d;
+        } else {
+            throw new Error("Invalid menu tab type.");
+        }
+    };
+    try {
+        fetch("/version").then((json) => json.json()).then((ve) => {
+            global.version = ve.ver;
+            if (ve.dev_build) {
+                global.dev_build = true;
+                global.createTabMenu(`Open Source Arras ${global.version} (dev build)`, "warning", true);
+            }
+            // Addon info handler
+            const keyValue = localStorage.getItem("playerKeyInputValue");
+            (async function() {
+                const A_response = await fetch(`/api/getAddonAuthors?token=${keyValue}`);
+                const A_data = await A_response.json().catch(() => false);
+                if (A_data && Array.isArray(A_data)) {
+                    initalizeAddonAuthors(A_data);
+                }
+            })();
         });
-    } catch { };
+    } catch { /* empty */ };
+    // Warn the users to turn their phones into landscape.
+    if (global.mobile && window.innerHeight > 1.1 * window.innerWidth) {
+        const tabMenu = global.createTabMenu("Please turn your device to landscape mode.", "warning", true);
+        window.addEventListener("orientationchange", () => {
+            window.innerHeight > 1.1 * window.innerWidth || tabMenu.remove();
+        });
+    };
 
     // Game start stuff
     document.getElementById("startButton").onclick = () => startGame();
@@ -290,21 +341,21 @@ window.onload = async () => {
 
 // Sliding between options menu.
 function toggleOptionsMenu() {
-    let clicked = false,
-        a = document.getElementById("startMenuSlidingTrigger"), // Trigger ID
-        c = document.getElementById("optionArrow"), // Arrow
-        h = document.getElementById("viewOptionText"), // Text (view options)
-        u = document.getElementsByClassName("sliderHolder")[0], // Sliding.
-        y = document.getElementsByClassName("slider"), // For animations things.
-        toggle = () => {
-            c.style.transform = c.style.webkitTransform = clicked // Rotate the arrow.
-                ? "translate(2px, -2px) rotate(45deg)"
-                : "rotate(-45deg)";
-            h.innerText = clicked ? "close options (deprecated!)" : "view options (deprecated!)"; // Change the text.
-            clicked ? u.classList.add(global.uncappedMenu ? "slided2" : "slided") : u.classList.remove(global.uncappedMenu ? "slided2" : "slided"); // Slide it up.
-            y[0].style.opacity = clicked ? 0 : 1; // Fade it away.
-            y[2].style.opacity = clicked ? 1 : 0; // same for this.
-        };
+    let clicked = false;
+    const a = document.getElementById("startMenuSlidingTrigger"); // Trigger ID
+    const c = document.getElementById("optionArrow"); // Arrow
+    const h = document.getElementById("viewOptionText"); // Text (view options)
+    const u = document.getElementsByClassName("sliderHolder")[0]; // Sliding.
+    const y = document.getElementsByClassName("slider"); // For animations things.
+    const toggle = () => {
+        c.style.transform = c.style.webkitTransform = clicked // Rotate the arrow.
+            ? "translate(2px, -2px) rotate(45deg)"
+            : "rotate(-45deg)";
+        h.innerText = clicked ? "close options" : "view options"; // Change the text.
+        clicked ? u.classList.add(global.uncappedMenu ? "slided2" : "slided") : u.classList.remove(global.uncappedMenu ? "slided2" : "slided"); // Slide it up.
+        y[0].style.opacity = clicked ? 0 : 1; // Fade it away.
+        y[2].style.opacity = clicked ? 1 : 0; // same for this.
+    };
     a.onclick = () => { // When the button is triggered, This code runs.
         clicked = !clicked;
         global.optionsMenuToggle = clicked;
@@ -317,13 +368,14 @@ function toggleOptionsMenu() {
 
 // Tab options
 function tabOptionsMenuSwitcher() {
-    const buttonTabs = document.getElementById("optionMenuTabs"),
-        tabOptions = [
-            document.getElementById("tabOptions"),
-            document.getElementById("tabControls"),
-            document.getElementById("tabAbout"),
-            document.getElementById("tabAddons")
-        ];
+    const buttonTabs = document.getElementById("optionMenuTabs");
+    const tabOptions = [
+        document.getElementById("tabAppearance"),
+        document.getElementById("tabOptions"),
+        document.getElementById("tabControls"),
+        document.getElementById("tabAbout"),
+        document.getElementById("tabAddons")
+    ];
     for (let g = 1; g < tabOptions.length; g++) {
         tabOptions[g].style.display = "none";
     }
@@ -340,11 +392,11 @@ function tabOptionsMenuSwitcher() {
     }
 }
 function tabControlsMenuSwitcher() {
-    const buttonTabs = document.getElementById("controlsMenuTabs"),
-        tabOptions = [
-            document.getElementById("tabGameplay"),
-            document.getElementById("tabSandbox")
-        ];
+    const buttonTabs = document.getElementById("controlsMenuTabs");
+    const tabOptions = [
+        document.getElementById("tabGameplay"),
+        document.getElementById("tabSandbox")
+    ];
     for (let g = 1; g < tabOptions.length; g++) {
         tabOptions[g].style.display = "none";
     }
@@ -361,12 +413,12 @@ function tabControlsMenuSwitcher() {
     }
 }
 function tabSandboxControlsMenuSwitcher() {
-    const buttonTabs = document.getElementById("sandboxControlsMenuTabs"),
-        tabOptions = [
-            document.getElementById("tabSandboxMain"),
-            document.getElementById("tabSandboxSkill"),
-            document.getElementById("tabSandboxAttribute")
-        ];
+    const buttonTabs = document.getElementById("sandboxControlsMenuTabs");
+    const tabOptions = [
+        document.getElementById("tabSandboxMain"),
+        document.getElementById("tabSandboxSkill"),
+        document.getElementById("tabSandboxAttribute")
+    ];
     for (let g = 1; g < tabOptions.length; g++) {
         tabOptions[g].style.display = "none";
     }
@@ -500,7 +552,7 @@ function menuSettingsHandler() {
                 }
                 switch (docs) {
                     case ".mainWrapper":
-                        doc.style.padding = "28px";
+                        doc.style.padding = "0px";
                         setHeight(doc, "calc(100% - 55px)");
                         break;
                     case "#startMenuWrapper":
@@ -634,135 +686,135 @@ function customThemeDisplayHandler() {
 }
 
 function snowAndFireworkEffects() {
-    const currentDate = new Date(),
-        snowAmount = global.mobile
-            ? 0
-            : Math.max(
-                0,
-                1 -
+    const currentDate = new Date();
+    const snowAmount = global.mobile
+        ? 0
+        : Math.max(
+            0,
+            1 -
                 Math.abs(
                     currentDate.getTime() -
                     new Date(currentDate.getFullYear() - (6 > currentDate.getMonth() ? 1 : 0), 11, 25)
                 ) / 20736e5
-            );
+        );
     if (snowAmount) {
         const snowCanvas = document.createElement("canvas");
         snowCanvas.style.position = "absolute";
         snowCanvas.style.top = "0";
         document.body.insertBefore(snowCanvas, document.body.firstChild);
-        let b = snowCanvas.getContext("2d"),
-            snows = [],
-            updateSnow = () => {
-                snowCanvas.width !== window.innerWidth && (snowCanvas.width = window.innerWidth);
-                snowCanvas.height !== window.innerHeight && (snowCanvas.height = window.innerHeight);
-                b.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
-                b.fillStyle = "#FFFFFF";
-                for (const snow of snows) {
-                    snow.x += 5 / snow.speed + Math.random();
-                    snow.y += 12.5 / snow.speed + Math.random();
-                    const fade = 2 * Math.min(0.4, 1 - snow.y / snowCanvas.height);
-                    0 < fade
-                        ? ((b.globalAlpha = fade),
-                        b.beginPath(),
-                        b.arc(snow.x, snow.y, snow.speed, 0, 2 * Math.PI),
-                        b.fill())
-                        : (snow.vanished = true);
-                }
-                0.001 * snowCanvas.width * snowAmount > Math.random() &&
+        const b = snowCanvas.getContext("2d");
+        let snows = [];
+        const updateSnow = () => {
+            snowCanvas.width !== window.innerWidth && (snowCanvas.width = window.innerWidth);
+            snowCanvas.height !== window.innerHeight && (snowCanvas.height = window.innerHeight);
+            b.clearRect(0, 0, snowCanvas.width, snowCanvas.height);
+            b.fillStyle = "#FFFFFF";
+            for (const snow of snows) {
+                snow.x += 5 / snow.speed + Math.random();
+                snow.y += 12.5 / snow.speed + Math.random();
+                const fade = 2 * Math.min(0.4, 1 - snow.y / snowCanvas.height);
+                0 < fade
+                    ? ((b.globalAlpha = fade),
+                    b.beginPath(),
+                    b.arc(snow.x, snow.y, snow.speed, 0, 2 * Math.PI),
+                    b.fill())
+                    : (snow.vanished = true);
+            }
+            0.001 * snowCanvas.width * snowAmount > Math.random() &&
                 snows.push({
                     x: snowCanvas.width * (1.5 * Math.random() - 0.5),
                     y: -50 - 100 * Math.random(),
                     speed: 2 + Math.random() * Math.random() * 7
                 });
-                if (global.gameStart) {
-                    snowCanvas.remove();
-                } else {
-                    requestAnimationFrame(updateSnow);
-                }
-            };
+            if (global.gameStart) {
+                snowCanvas.remove();
+            } else {
+                requestAnimationFrame(updateSnow);
+            }
+        };
         setInterval(() => {
             snows = snows.filter((g) => !g.vanished);
         }, 2e3);
         updateSnow();
     }
     // Firework event for new year
-    const Gd = "en-US" === navigator.language && -7 <= global.timezoneLocation && -4 >= global.timezoneLocation,
-        Hd = 6 === currentDate.getMonth() && 4 === currentDate.getDate(),
-        Id =
-            (11 === currentDate.getMonth() && 31 === currentDate.getDate()) ||
+    const Gd = "en-US" === navigator.language && -7 <= global.timezoneLocation && -4 >= global.timezoneLocation;
+    const Hd = 6 === currentDate.getMonth() && 4 === currentDate.getDate();
+    const Id =
+        (11 === currentDate.getMonth() && 31 === currentDate.getDate()) ||
             (0 === currentDate.getMonth() && 3 >= currentDate.getDate());
     if (!global.mobile && ((Hd && Gd) || Id)) {
         const fireworkCanvas = document.createElement("canvas");
         fireworkCanvas.style.position = "absolute";
         fireworkCanvas.style.top = "0";
         document.body.insertBefore(fireworkCanvas, document.body.firstChild);
-        let b = fireworkCanvas.getContext("2d"),
-            d = () => {
-                const k =
-                    "164,14,14 230,80,0 230,119,0 47,127,51 23,78,166 123,31,163".split(
-                        " "
-                    );
-                return k[Math.floor(Math.random() * k.length)];
-            },
-            fireworks = [],
-            updateFireworks = () => {
-                if (fireworkCanvas.width !== window.innerWidth || fireworkCanvas.height !== window.innerHeight) {
-                    (fireworkCanvas.width = window.innerWidth),
-                    (fireworkCanvas.height = window.innerHeight),
-                    (fireworks = []),
-                    b.clearRect(0, 0, fireworkCanvas.width, fireworkCanvas.height),
-                    (b.fillStyle = "rgba(255,255,255,0.01)"),
-                    b.fillRect(0, 0, fireworkCanvas.width, fireworkCanvas.height),
-                    (b.lineWidth = 2.5),
-                    (b.lineCap = "round");
-                }
-                b.globalCompositeOperation = "destination-out";
-                b.fillStyle = "rgba(0,0,0,0.15)";
-                b.fillRect(0, 0, fireworkCanvas.width, fireworkCanvas.height);
-                b.globalCompositeOperation = "lighter";
-                for (var firework of fireworks) {
-                    var l = firework.x,
-                        t = firework.y;
-                    firework.H += 0.2;
-                    firework.x += firework.M;
-                    firework.y += firework.H;
-                    firework.H *= 0.99;
-                    firework.M *= 0.99;
-                    firework.time--;
-                    var f = 0 < firework.time ? (firework.Oa ? 1 : 10 <= firework.time ? 1 : firework.time / 10) : 0;
-                    if (0 < f) {
-                        b.strokeStyle = `rgba(${firework.color},${f})`;
-                        b.beginPath();
-                        b.moveTo(l, t);
-                        b.lineTo(firework.x, firework.y);
-                        b.stroke();
-                    } else {
-                        if (firework.Oa && !firework.vanished) {
-                            l = Math.floor(5 * Math.random()) + 30;
-                            t = 0.5 * Math.random() + 3;
-                            f = 25 + 5 * Math.random();
-                            for (var h = 0; 2 > h; h++) {
-                                const p = d();
-                                for (let r = 0; r < l; r++) {
-                                    const v = ((r + Math.random()) / l) * Math.PI * 2,
-                                        P = t + 0.5 * Math.random();
-                                    fireworks.push({
-                                        color: p,
-                                        x: firework.x,
-                                        y: firework.y,
-                                        M: Math.cos(v) * P,
-                                        H: -0.8 + Math.sin(v) * P,
-                                        time: f + 2 * Math.random(),
-                                        Oa: false,
-                                        vanished: false
-                                    });
-                                }
+        const b = fireworkCanvas.getContext("2d");
+        const d = () => {
+            const k =
+                "164,14,14 230,80,0 230,119,0 47,127,51 23,78,166 123,31,163".split(
+                    " "
+                );
+            return k[Math.floor(Math.random() * k.length)];
+        };
+        let fireworks = [];
+        const updateFireworks = () => {
+            if (fireworkCanvas.width !== window.innerWidth || fireworkCanvas.height !== window.innerHeight) {
+                (fireworkCanvas.width = window.innerWidth),
+                (fireworkCanvas.height = window.innerHeight),
+                (fireworks = []),
+                b.clearRect(0, 0, fireworkCanvas.width, fireworkCanvas.height),
+                (b.fillStyle = "rgba(255,255,255,0.01)"),
+                b.fillRect(0, 0, fireworkCanvas.width, fireworkCanvas.height),
+                (b.lineWidth = 2.5),
+                (b.lineCap = "round");
+            }
+            b.globalCompositeOperation = "destination-out";
+            b.fillStyle = "rgba(0,0,0,0.15)";
+            b.fillRect(0, 0, fireworkCanvas.width, fireworkCanvas.height);
+            b.globalCompositeOperation = "lighter";
+            for (var firework of fireworks) {
+                var l = firework.x;
+                var t = firework.y;
+                firework.H += 0.2;
+                firework.x += firework.M;
+                firework.y += firework.H;
+                firework.H *= 0.99;
+                firework.M *= 0.99;
+                firework.time--;
+                var f = 0 < firework.time ? (firework.Oa ? 1 : 10 <= firework.time ? 1 : firework.time / 10) : 0;
+                if (0 < f) {
+                    b.strokeStyle = `rgba(${firework.color},${f})`;
+                    b.beginPath();
+                    b.moveTo(l, t);
+                    b.lineTo(firework.x, firework.y);
+                    b.stroke();
+                } else {
+                    if (firework.Oa && !firework.vanished) {
+                        l = Math.floor(5 * Math.random()) + 30;
+                        t = 0.5 * Math.random() + 3;
+                        f = 25 + 5 * Math.random();
+                        for (var h = 0; 2 > h; h++) {
+                            const p = d();
+                            for (let r = 0; r < l; r++) {
+                                const v = ((r + Math.random()) / l) * Math.PI * 2;
+                                const P = t + 0.5 * Math.random();
+                                fireworks.push({
+                                    color: p,
+                                    x: firework.x,
+                                    y: firework.y,
+                                    M: Math.cos(v) * P,
+                                    H: -0.8 + Math.sin(v) * P,
+                                    time: f + 2 * Math.random(),
+                                    Oa: false,
+                                    vanished: false
+                                });
                             }
                         }
-                        firework.vanished = true;
                     }
+                    firework.vanished = true;
                 }
-                3e-5 * fireworkCanvas.width > Math.random() &&
+            }
+            3e-5 * fireworkCanvas.width > Math.random() &&
                 ((firework = fireworkCanvas.width * Math.random()),
                 (l = fireworkCanvas.height - 10),
                 (t = 4 * Math.random() - 2),
@@ -778,12 +830,12 @@ function snowAndFireworkEffects() {
                     Oa: true,
                     vanished: false
                 }));
-                if (global.gameStart) {
-                    a.remove();
-                } else {
-                    requestAnimationFrame(updateFireworks);
-                }
-            };
+            if (global.gameStart) {
+                a.remove();
+            } else {
+                requestAnimationFrame(updateFireworks);
+            }
+        };
         setInterval(() => {
             fireworks = fireworks.filter((k) => !k.vanished);
         }, 2e3);
@@ -816,7 +868,7 @@ function resizeEvent() {
 window.resizeEvent = resizeEvent;
 global.canvas = new Canvas();
 var c = global.canvas.cv;
-var fullScreenWidth = global.screenWidth,
+var fullScreenWidth = global.screenWidth; var
     fullScreenHeight = global.screenHeight;
 var ctx = [
     document.getElementById("gameCanvas-background").getContext("2d"),
@@ -896,51 +948,51 @@ function calculateTarget() {
     return global.target;
 };
 
-const CalcScreenSize = () => Math.max(global.vscreenSize, (16 / 9) * global.vscreenSizey) / global.player.renderv,
-    handleScreenDistance = (alpha, instance, fade = true) => {
-        const indexes = instance.index.split("-"),
-            m = global.mockups[parseInt(indexes[0])] ?? global.missingno[0];
-        switch (fade) {
-            case true:
-                GetScreenDistance(instance.render.x - global.player.loc.x, instance.render.y - global.player.loc.y, instance.size) ||
+const CalcScreenSize = () => Math.max(global.vscreenSize, (16 / 9) * global.vscreenSizey) / global.player.renderv;
+const handleScreenDistance = (alpha, instance, fade = true) => {
+    const indexes = instance.index.split("-");
+    const m = global.mockups[parseInt(indexes[0])] ?? global.missingno[0];
+    switch (fade) {
+        case true:
+            GetScreenDistance(instance.render.x - global.player.loc.x, instance.render.y - global.player.loc.y, instance.size) ||
                     (alpha *= GetScreenDistanceF(instance.render.x - global.player.loc.x, instance.size));
-                (alpha *= GetScreenDistanceV(instance.render.y - global.player.loc.y, instance.size));
-                break;
-            case false:
-                let size = instance.size;
-                size *= m.position.axis;
-                const realSize = size.toFixed(0);
-                alpha *= GetScreenDistance(instance.render.x - global.player.loc.x, instance.render.y - global.player.loc.y, parseInt(realSize));
-                break;
-        }
-        return alpha;
-    },
-    GetScreenDistance = (a, b, d) => {
-        d += 6;
-        const e = 2 * CalcScreenSize();
-        return (
-            (a + d) * e > -global.vscreenSize &&
+            (alpha *= GetScreenDistanceV(instance.render.y - global.player.loc.y, instance.size));
+            break;
+        case false:
+            let size = instance.size;
+            size *= m.position.axis;
+            const realSize = size.toFixed(0);
+            alpha *= GetScreenDistance(instance.render.x - global.player.loc.x, instance.render.y - global.player.loc.y, parseInt(realSize));
+            break;
+    }
+    return alpha;
+};
+const GetScreenDistance = (a, b, d) => {
+    d += 6;
+    const e = 2 * CalcScreenSize();
+    return (
+        (a + d) * e > -global.vscreenSize &&
                 (a - d) * e < global.vscreenSize &&
                 (b + d) * e > -global.vscreenSizey &&
                 (b - d) * e < global.vscreenSizey
-        );
-    },
-    GetScreenDistanceF = (a, b) => {
-        b += 6;
-        const d = 2 * CalcScreenSize();
-        return Math.max(
-            0,
-            Math.min(1, 2 + (-a + global.vscreenSize / d) / b, 2 + (a + global.vscreenSize / d) / b)
-        );
-    },
-    GetScreenDistanceV = (a, b) => {
-        b += 6;
-        const d = 2 * CalcScreenSize();
-        return Math.max(
-            0,
-            Math.min(1, 2 + (a + global.vscreenSizey / d) / b, 2 + (-a + global.vscreenSizey / d) / b)
-        );
-    };
+    );
+};
+const GetScreenDistanceF = (a, b) => {
+    b += 6;
+    const d = 2 * CalcScreenSize();
+    return Math.max(
+        0,
+        Math.min(1, 2 + (-a + global.vscreenSize / d) / b, 2 + (a + global.vscreenSize / d) / b)
+    );
+};
+const GetScreenDistanceV = (a, b) => {
+    b += 6;
+    const d = 2 * CalcScreenSize();
+    return Math.max(
+        0,
+        Math.min(1, 2 + (a + global.vscreenSizey / d) / b, 2 + (-a + global.vscreenSizey / d) / b)
+    );
+};
 
 function parseThemeV1(string) {
     const data = atob(string.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/"));
@@ -989,14 +1041,14 @@ function parseTheme(string, logError = true) {
         if (v1) {
             return v1;
         }
-    } catch { }
+    } catch { /* empty */ }
     // Decode from base64
     try {
         var stripped = string.replace(/\s+/g, "");
         2 == stripped.length % 4 ? (stripped += "==") : 3 == stripped.length % 4 && (stripped += "=");
         let data = atob(stripped);
-        let name = "Unknown Theme",
-            author = "";
+        let name = "Unknown Theme";
+        let author = "";
         let index = data.indexOf("\x00");
         if (index === -1) {
             return null;
@@ -1136,26 +1188,30 @@ function getThemeDisplayName(doc) {
     }
 }
 function addChangelog(b, a = null) { // From CX Client (Modified) + decoded;
-    const changelogTabsElement = document.getElementById("changelogTabs"),
-        patchNotesElement = document.getElementById("patchNotes"),
-        triggerChangelog = {};
-    let firstTabElement = changelogTabsElement.firstElementChild;
-    for (let g = 0; g < changelogTabsElement.children.length; g++) {
-        const k = changelogTabsElement.children[g],
-            l = k.dataset.type;
-        triggerChangelog[l] = () => {
-            if (k !== firstTabElement) {
-                var u = firstTabElement.dataset.type;
-                firstTabElement.classList.remove("active");
-                k.classList.add("active");
-                patchNotesElement.classList.remove(u);
-                patchNotesElement.classList.add(l);
-                firstTabElement = k;
+    const triggerChangelog = (() => {
+        const a = document.getElementById("changelogTabs");
+        let b = a.firstElementChild;
+        const d = document.getElementById("patchNotes");
+        const e = {};
+        for (let g = 0; g < a.children.length; g++) {
+            const k = a.children[g];
+            const l = k.dataset.type;
+            e[l] = () => {
+                if (k !== b) {
+                    var u = b.dataset.type;
+                    b.classList.remove("active");
+                    k.classList.add("active");
+                    d.classList.remove(u);
+                    d.classList.add(l);
+                    b = k;
+                }
             }
+            ;
+            k.addEventListener("click", e[l]);
         }
-        ;
-        k.addEventListener("click", triggerChangelog[l]);
+        return e;
     }
+    )();
     var sa = document.getElementById("patchNotes");
     var c = b[0];
     if (c) {
@@ -1166,22 +1222,22 @@ function addChangelog(b, a = null) { // From CX Client (Modified) + decoded;
             null
         ];
         var h = c[1] ? {
-                "Announcement": "announcement",
-                "Balance": "balance",
-                "Balance Update": "balance-update",
-                "Balance Update Details": "balance",
-                "Event": "event",
-                "Event Poll": "poll",
-                "Gamemode": "event",
-                "Gamemode Poll": "poll",
-                "Patch": "patch",
-                "Poll": "poll",
-                "Update": "update"
-            } [c[1]] : null,
-            d = document.createElement("div");
+            "Announcement": "announcement",
+            "Balance": "balance",
+            "Balance Update": "balance-update",
+            "Balance Update Details": "balance",
+            "Event": "event",
+            "Event Poll": "poll",
+            "Gamemode": "event",
+            "Gamemode Poll": "poll",
+            "Patch": "patch",
+            "Poll": "poll",
+            "Update": "update"
+        } [c[1]] : null;
+        var d = document.createElement("div");
         h && d.classList.add(h);
-        var y = document.createElement("b"),
-            f = [c[1]];
+        var y = document.createElement("b");
+        var f = [c[1]];
         if (c[2]) {
             var e = +new Date(`${c[2]}T00:00:00Z`) + 252e5;
             if (null != a && e + a < Date.now()) {
@@ -1250,13 +1306,13 @@ function loadSettings() {
     config.graphical.separatedHealthbars = document.getElementById("separatedHealthbars").checked;
     config.graphical.lowResolution = document.getElementById("optLowResolution").checked;
     config.graphical.force169AspectRatio = localStorage.getItem("optForce169AspectRatioChecked") === "true";
-    config.graphical.showGrid = document.getElementById("optBackgroundGrid").checked;
+    config.graphical.showGrid = !document.getElementById("optNoGrid").checked;
     config.graphical.hexaGrid = document.getElementById("optHexaGrid").checked;
     config.graphical.coloredNest = document.getElementById("optColoredNest").checked;
-    config.graphical.renderOldNest = localStorage.getItem("optRenderOldNestChecked") === "true";
     config.graphical.slowerFOV = document.getElementById("optSlowerFOV").checked;
     config.graphical.optimizeMode = document.getElementById("optOptimizeMode").checked;
     // GUI
+    global.GUIStatus.renderGUI = document.getElementById("optRenderGui").checked;
     global.GUIStatus.renderLeaderboard = document.getElementById("optRenderLeaderboard").checked;
     global.GUIStatus.renderUpgrades = document.getElementById("optRenderUpgrades").checked;
     global.GUIStatus.renderMinimap = document.getElementById("optRenderMinimap").checked;
@@ -1266,16 +1322,15 @@ function loadSettings() {
     global.GUIStatus.renderPlayerBars = document.getElementById("optRenderPlayerBars").checked;
     global.GUIStatus.renderPlayerKillbar = document.getElementById("optRenderKillbar").checked;
     global.GUIStatus.renderhealth = document.getElementById("optRenderHealth").checked;
-    global.GUIStatus.minimapReducedInfo = !document.getElementById("optExtraInfo").checked;
+    global.GUIStatus.minimapReducedInfo = document.getElementById("optReducedInfo").checked;
     global.GUIStatus.fullHDMode = document.getElementById("optFullHD").checked;
+    global.GUIStatus.renderIngameOptions = document.getElementById("optAllowIngameOptions").checked;
     global.mobileStatus.enableCrosshair = document.getElementById("showCrosshair").checked;
     global.mobileStatus.showJoysticks = document.getElementById("showJoystick").checked;
     config.graphical.oldUIStyle = document.getElementById("optOldUiStyle").checked;
-    config.graphical.threeDimensional = localStorage.getItem("opt3DModeChecked") === "true";
-    config.graphical.wireframes = localStorage.getItem("optWireframesChecked") === "true";
-    config.graphical.alphaLarge = localStorage.getItem("optFadeLargeEntitiesChecked") === "true";
     // Game
     config.game.incognitoMode = document.getElementById("optIncognitoMode").checked;
+    config.game.deltaEntities = document.getElementById("optDeltaEntities").checked;
     switch (document.getElementById("optBorders").value) {
         case "normal":
             config.graphical.darkBorders = config.graphical.neon = false;
@@ -1373,9 +1428,10 @@ function startGame() {
     util.submitToLocalStorage("coloredHealthbars");
     util.submitToLocalStorage("separatedHealthbars");
     util.submitToLocalStorage("optColoredNest");
-    util.submitToLocalStorage("optBackgroundGrid");
+    util.submitToLocalStorage("optNoGrid");
     util.submitToLocalStorage("optHexaGrid");
     // GUI
+    util.submitToLocalStorage("optRenderGui");
     util.submitToLocalStorage("optRenderLeaderboard");
     util.submitToLocalStorage("optRenderUpgrades");
     util.submitToLocalStorage("optRenderMinimap");
@@ -1383,16 +1439,18 @@ function startGame() {
     util.submitToLocalStorage("optRenderHealth");
     util.submitToLocalStorage("optRenderScores");
     util.submitToLocalStorage("optRenderPlayerBars");
-    util.submitToLocalStorage("optExtraInfo");
+    util.submitToLocalStorage("optReducedInfo");
     util.submitToLocalStorage("showCrosshair");
     util.submitToLocalStorage("showJoystick");
     util.submitToLocalStorage("optFullHD");
     util.submitToLocalStorage("optUiScale");
     util.submitToLocalStorage("optNames");
     util.submitToLocalStorage("optCanvas");
+    util.submitToLocalStorage("optAllowIngameOptions");
     util.submitToLocalStorage("optOldUiStyle");
     // Game
     util.submitToLocalStorage("optIncognitoMode");
+    util.submitToLocalStorage("optDeltaEntities");
     loadSettings();
     global.optionsCheckboxes = undefined;
     // Other more important stuff
@@ -1457,10 +1515,10 @@ function graph() {
             data.splice(0, 1);
         }
         // Get scale
-        const min = Math.min(...data),
-            max = Math.max(...data),
-            range = max - min;
-            // Draw zero
+        const min = Math.min(...data);
+        const max = Math.max(...data);
+        const range = max - min;
+        // Draw zero
         if (max > 0 && min < 0) {
             drawBar(x, x + w, y + (h * max) / range, 2, colors.guiwhite);
         }
@@ -1502,10 +1560,10 @@ function angleDifference(sourceA, targetA) {
 // Lag compensation functions
 const compensation = () => {
     // Protected vars
-    let t = 0,
-        tt = 0,
-        ts = 0;
-        // Methods
+    let t = 0;
+    let tt = 0;
+    let ts = 0;
+    // Methods
     return {
         set: (
             time = global.player.time,
@@ -1536,9 +1594,9 @@ const compensation = () => {
 };
 
 // Make graphs
-const timingGraph = graph(),
-    lagGraph = graph(),
-    gapGraph = graph();
+const timingGraph = graph();
+const lagGraph = graph();
+const gapGraph = graph();
 
 // The skill bar dividers
 const skas = [];
@@ -1632,60 +1690,60 @@ function getKeybind(keybind) {
     return truncateKeybind(key);
 };
 
-let tiles,
-    branches,
-    tankTree,
-    measureSize = (x, y, colorIndex, { index, tier = 0 }) => {
-        tiles.push({ x, y, colorIndex, index });
-        let { upgrades } = global.mockups[parseInt(index)],
-            xStart = x,
-            cumulativeWidth = 1,
-            maxHeight = 1,
-            hasUpgrades = [],
-            noUpgrades = [];
-        for (let i = 0; i < upgrades.length; i++) {
-            const upgrade = upgrades[i];
-            if (global.mockups[upgrade.index].upgrades.length) {
-                hasUpgrades.push(upgrade);
-            } else {
-                noUpgrades.push(upgrade);
-            }
+let tiles;
+let branches;
+let tankTree;
+const measureSize = (x, y, colorIndex, { index, tier = 0 }) => {
+    tiles.push({ x, y, colorIndex, index });
+    const { upgrades } = global.mockups[parseInt(index)];
+    const xStart = x;
+    let cumulativeWidth = 1;
+    let maxHeight = 1;
+    const hasUpgrades = [];
+    const noUpgrades = [];
+    for (let i = 0; i < upgrades.length; i++) {
+        const upgrade = upgrades[i];
+        if (global.mockups[upgrade.index].upgrades.length) {
+            hasUpgrades.push(upgrade);
+        } else {
+            noUpgrades.push(upgrade);
         }
-        for (let i = 0; i < hasUpgrades.length; i++) {
-            const upgrade = hasUpgrades[i],
-                spacing = 2 * Math.max(1, upgrade.tier - tier),
-                measure = measureSize(x, y + spacing, upgrade.upgradeColor ?? i, upgrade);
-            branches.push([{ x, y: y + Math.sign(i) }, { x, y: y + spacing + 1 }]);
-            if (i === hasUpgrades.length - 1 && !noUpgrades.length) {
-                branches.push([{ x: xStart, y: y + 1 }, { x, y: y + 1 }]);
-            }
-            x += measure.width;
-            cumulativeWidth += measure.width;
-            if (maxHeight < measure.height) {
-                maxHeight = measure.height;
-            }
+    }
+    for (let i = 0; i < hasUpgrades.length; i++) {
+        const upgrade = hasUpgrades[i];
+        const spacing = 2 * Math.max(1, upgrade.tier - tier);
+        const measure = measureSize(x, y + spacing, upgrade.upgradeColor ?? i, upgrade);
+        branches.push([{ x, y: y + Math.sign(i) }, { x, y: y + spacing + 1 }]);
+        if (i === hasUpgrades.length - 1 && !noUpgrades.length) {
+            branches.push([{ x: xStart, y: y + 1 }, { x, y: y + 1 }]);
         }
-        y++;
-        for (let i = 0; i < noUpgrades.length; i++) {
-            const upgrade = noUpgrades[i],
-                height = 2 + upgrades.length;
-            measureSize(x, y + 1 + i + Math.sign(hasUpgrades.length) * 2, upgrade.upgradeColor ?? i, upgrade);
-            if (i === noUpgrades.length - 1) {
-                if (hasUpgrades.length > 1) {
-                    cumulativeWidth++;
-                }
-                branches.push([{ x: xStart, y }, { x, y }]);
-                branches.push([{ x, y }, { x, y: y + noUpgrades.length + Math.sign(hasUpgrades.length) * 2 }]);
-            }
-            if (maxHeight < height) {
-                maxHeight = height;
-            }
+        x += measure.width;
+        cumulativeWidth += measure.width;
+        if (maxHeight < measure.height) {
+            maxHeight = measure.height;
         }
-        return {
-            width: cumulativeWidth,
-            height: 2 + maxHeight
-        };
+    }
+    y++;
+    for (let i = 0; i < noUpgrades.length; i++) {
+        const upgrade = noUpgrades[i];
+        const height = 2 + upgrades.length;
+        measureSize(x, y + 1 + i + Math.sign(hasUpgrades.length) * 2, upgrade.upgradeColor ?? i, upgrade);
+        if (i === noUpgrades.length - 1) {
+            if (hasUpgrades.length > 1) {
+                cumulativeWidth++;
+            }
+            branches.push([{ x: xStart, y }, { x, y }]);
+            branches.push([{ x, y }, { x, y: y + noUpgrades.length + Math.sign(hasUpgrades.length) * 2 }]);
+        }
+        if (maxHeight < height) {
+            maxHeight = height;
+        }
+    }
+    return {
+        width: cumulativeWidth,
+        height: 2 + maxHeight
     };
+};
 
 function generateTankTree(indexes) {
     tiles = [];
@@ -1727,8 +1785,8 @@ function arrayifyText(rawText) {
     // string with double §           txt   col   txt                      txt
     // "...§text§§text§..." => [..., "text", "", "text", ...] => [..., "text§text", ...]
     // this code is balanced on tight threads, holy shit
-    const textArrayRaw = rawText.split("§"),
-        textArray = [];
+    const textArrayRaw = rawText.split("§");
+    const textArray = [];
     if (!(textArrayRaw.length & 1)) {
         textArrayRaw.unshift("");
     }
@@ -1749,8 +1807,8 @@ function arrayifyText(rawText) {
 function drawText(rawText, x, y, size, defaultFillStyle, align = "left", center = false, fade = 1, stroke = true, context = ctx[2]) {
     const lines = (`${rawText}`).split(/\r?\n/);
     if (lines.length > 1) {
-        const s = size + config.graphical.fontSizeBoost,
-            lineHeight = s + 2 * (s / 5);
+        const s = size + config.graphical.fontSizeBoost;
+        const lineHeight = s + 2 * (s / 5);
         for (let l = 0; l < lines.length; l++) {
             drawText(lines[l], x, y + l * lineHeight, size, defaultFillStyle, align, center, fade, stroke, context);
         }
@@ -1758,19 +1816,19 @@ function drawText(rawText, x, y, size, defaultFillStyle, align = "left", center 
     }
     size += config.graphical.fontSizeBoost;
     // Get text dimensions and resize/reset the canvas
-    const offset = size / 5,
-        ratio = 1,
-        textArray = arrayifyText(rawText),
-        renderedFullText = textArray.reduce((a, b, i) => (i & 1) ? a : a + b, "");
+    const offset = size / 5;
+    const ratio = 1;
+    const textArray = arrayifyText(rawText);
+    const renderedFullText = textArray.reduce((a, b, i) => (i & 1) ? a : a + b, "");
 
     if (ratio !== 1) {
         size *= ratio;
     }
     context.font = `bold ${size}px Ubuntu`;
 
-    let Xoffset = offset,
-        Yoffset = (size + 2 * offset) / 2,
-        alignMultiplier = 0;
+    let Xoffset = offset;
+    let Yoffset = (size + 2 * offset) / 2;
+    let alignMultiplier = 0;
 
     switch (align) {
         //case "left":
@@ -1881,7 +1939,6 @@ function drawBar(x1, x2, y, width, color, context = ctx[2]) {
     context.stroke();
 }
 
-
 function drawBarStroke(x1, y, width, color, h2) {
     ctx[2].lineWidth = 2.5;
     ctx[2].strokeStyle = color;
@@ -1972,15 +2029,14 @@ function drawButton(x, y, width, height, alpha, type = "rect", text, textSize, c
         drawBarStroke(x - width / 2, y, width, color3 ? color3 : colors.black, height);
     }
 }
-const drawPolyImgs = [],
-    drawPoly3D = new Map(),
-    drawPoly4D = new Map(),
-    outlineX = new Float32Array(384),
-    outlineY = new Float32Array(384),
-    outlineVis = new Uint8Array(384),
-    cameraFor3dProjection = { x: 0, y: 0, z: -1 },
-    cameraFor4dProjection = { x: 0, y: 0, z: 0, w: -1 },
-    projectPoint3d = (p) => {
+// Entity drawing (this is a function that makes a function)
+const drawEntity = (() => {
+    const drawPolyImgs = [];
+    const drawPoly3D = new Map();
+    const drawPoly4D = new Map();
+    const cameraFor3dProjection = { x: 0, y: 0, z: -1 };
+    const cameraFor4dProjection = { x: 0, y: 0, z: 0, w: -1 };
+    const projectPoint3d = (p) => {
         if (p.z == 0) {
             return p;
         }
@@ -1988,8 +2044,8 @@ const drawPolyImgs = [],
         p.y /= p.z - cameraFor3dProjection.z;
         p.z = 0;
         return p;
-    },
-    projectPoint4d = (p) => {
+    };
+    const projectPoint4d = (p) => {
         if (p.w == 0) {
             return projectPoint3d(p);
         }
@@ -1998,8 +2054,8 @@ const drawPolyImgs = [],
         p.z /= p.w - cameraFor4dProjection.w;
         p.w = 0;
         return projectPoint3d(p);
-    },
-    rotatePointXY = (p, angle) => {
+    };
+    const rotatePointXY = (p, angle) => {
         const q = {
             x: 0,
             y: 0,
@@ -2012,8 +2068,8 @@ const drawPolyImgs = [],
         q.y = p.y * cos - q.z * sin;
         q.z = p.y * sin + q.z * cos;
         return q;
-    },
-    rotatePointXYZ = (p, angle) => {
+    };
+    const rotatePointXYZ = (p, angle) => {
         const q = {
             x: 0,
             y: 0,
@@ -2033,25 +2089,25 @@ const drawPolyImgs = [],
         q.z = z * cos - p.w * sin;
         q.w = z * sin + p.w * cos;
         return q;
-    },
-    distanceBetweenPointsSquared3d = (a, b) => {
-        const dx = b.x - a.x,
-            dy = b.y - a.y,
-            dz = b.z - a.z;
+    };
+    const distanceBetweenPointsSquared3d = (a, b) => {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dz = b.z - a.z;
         return dx * dx + dy * dy + dz * dz;
-    },
-    distanceBetweenPointsSquared4d = (a, b) => {
-        const dx = b.x - a.x,
-            dy = b.y - a.y,
-            dz = b.z - a.z,
-            dw = b.w - a.w;
+    };
+    const distanceBetweenPointsSquared4d = (a, b) => {
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dz = b.z - a.z;
+        const dw = b.w - a.w;
         return dx * dx + dy * dy + dz * dz + dw * dw;
-    },
-    sortSides3d = (arr, a, b) => {
-        let aAvgZ = 0,
-            bAvgZ = 0,
-            aDist = 0,
-            bDist = 0;
+    };
+    const sortSides3d = (arr, a, b) => {
+        let aAvgZ = 0;
+        let bAvgZ = 0;
+        let aDist = 0;
+        let bDist = 0;
         for (let i = 0; i < a.length; ++i) {
             aAvgZ += arr[a[i]].z;
             aDist += distanceBetweenPointsSquared3d(
@@ -2071,12 +2127,12 @@ const drawPolyImgs = [],
         aDist /= a.length * a.length;
         bDist /= b.length * b.length;
         return (bAvgZ - aAvgZ) * 1e3 + (bDist - aDist);
-    },
-    sortSides4d = (arr, a, b) => {
-        let aAvgW = 0,
-            bAvgW = 0,
-            aDist = 0,
-            bDist = 0;
+    };
+    const sortSides4d = (arr, a, b) => {
+        let aAvgW = 0;
+        let bAvgW = 0;
+        let aDist = 0;
+        let bDist = 0;
         for (let i = 0; i < a.length; ++i) {
             aAvgW += arr[a[i]].w;
             aDist += distanceBetweenPointsSquared4d(
@@ -2099,8 +2155,8 @@ const drawPolyImgs = [],
             ((bAvgW - aAvgW) * 1e3 + (bDist - aDist)) * 1e3 +
                 sortSides3d(arr, a, b)
         );
-    },
-    drawEntityAsImageCheck = (assignedContext, Alpha, shape, glow, gunLength, turretsLength) => {
+    };
+    const DEAIC = (assignedContext, Alpha, shape, glow, gunLength, turretsLength) => { // AKA: Draw entity as image check
         if (global.gameUpdate && config.graphical.fancyAnimations && Alpha < 1 && assignedContext != ctx2) {
             if (config.graphical.optimizeMode) {
                 if (gunLength > 0 || turretsLength > 0 || glow.radius) {
@@ -2112,11 +2168,9 @@ const drawPolyImgs = [],
             }
         }
         return false;
-    },
-    // Draw body function, (AKA: drawPoly)
-    drawBody = (context, centerX, centerY, radius, sides, angle = 0, borderless, fill, imageInterpolation, hasGlow = false) => {
-        const wireframes = config.graphical.wireframes;
-        fill = fill && !wireframes;
+    };
+        // Draw body function, (AKA: drawPoly)
+    const drawBody = (context, centerX, centerY, radius, sides, angle = 0, borderless, fill, imageInterpolation, hasGlow = false) => {
         try {
             // Start drawing
             context.beginPath();
@@ -2140,7 +2194,7 @@ const drawPolyImgs = [],
                             img = drawPolyImgs[sides] = new Image();
                             img.src =
                                 defaultDirectory ?
-                                    `${sides.slice(6)}` :
+                                    `img${sides.slice(6)}` :
                                     clientRootDirectory || onlineDirectory ?
                                         `${onlineDirectory ? sides.slice(6) : sides.slice(7)}` :
                                         "img/missingno.png";
@@ -2354,21 +2408,17 @@ const drawPolyImgs = [],
                         }
                         break;
                     default:
-                        context.arc(centerX, centerY, radius + (wireframes ? 0 : context.lineWidth / borderRadius), 0, 2 * Math.PI);
+                        context.arc(centerX, centerY, radius + context.lineWidth / borderRadius, 0, 2 * Math.PI);
                         context.fillStyle = strokecolor;
                         context.lineWidth /= 2; // Maintain constant border width
                         if (!borderless) {
-                            if (wireframes) {
-                                context.stroke();
-                            } else {
-                                switch (context.globalAlpha) {
-                                    case 1:
-                                        context.fill();
-                                        break;
-                                    default:
-                                        context.stroke();
-                                        break;
-                                }
+                            switch (context.globalAlpha) {
+                                case 1:
+                                    context.fill();
+                                    break;
+                                default:
+                                    context.stroke();
+                                    break;
                             }
                         }
                         break;
@@ -2394,12 +2444,12 @@ const drawPolyImgs = [],
                 context.moveTo(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
                 context.lineWidth *= fill ? 1 : 0.5; // Maintain constant border width
                 for (let i = 0; i < sides; i++) {
-                    const htheta = ((i + 0.5) / sides) * 2 * Math.PI + angle,
-                        theta = ((i + 1) / sides) * 2 * Math.PI + angle,
-                        cx = centerX + radius * dip * Math.cos(htheta),
-                        cy = centerY + radius * dip * Math.sin(htheta),
-                        px = centerX + radius * Math.cos(theta),
-                        py = centerY + radius * Math.sin(theta);
+                    const htheta = ((i + 0.5) / sides) * 2 * Math.PI + angle;
+                    const theta = ((i + 1) / sides) * 2 * Math.PI + angle;
+                    const cx = centerX + radius * dip * Math.cos(htheta);
+                    const cy = centerY + radius * dip * Math.sin(htheta);
+                    const px = centerX + radius * Math.cos(theta);
+                    const py = centerY + radius * Math.sin(theta);
                     if (config.graphical.curvyTraps) {
                         context.quadraticCurveTo(cx, cy, px, py);
                     } else {
@@ -2429,186 +2479,32 @@ const drawPolyImgs = [],
             resizeEvent();
             console.error(`CanvasRenderingContext2D error: ${e}`);
         }
-    },
-    outline = (x, y, radius, sides, angle) => {
-        let n = 0;
-        const push = (u, v) => {
-            outlineX[n] = x + u * radius;
-            outlineY[n] = y + v * radius;
-            n++;
-        };
-        if (sides instanceof Array) {
-            const cosA = Math.cos(angle),
-                sinA = Math.sin(angle);
-            for (const [px, py] of sides) {
-                push(px * cosA - py * sinA, py * cosA + px * sinA);
-            }
-            return n;
-        }
-        if (!sides) { // circle: fewer segments when it is small
-            const steps = radius > 30 ? 24 : radius > 14 ? 16 : 10;
-            for (let i = 0; i < steps; i++) {
-                const t = (i / steps) * Math.PI * 2;
-                push(Math.cos(t), Math.sin(t));
-            }
-            return n;
-        }
-        angle += sides % 2 ? 0 : Math.PI / sides; // same half-step as drawBody
-        if (sides < 0) { // star
-            sides = -sides;
-            angle += (sides % 1) * Math.PI * 2;
-            sides = Math.floor(sides);
-            const dip = 1 - 6 / (sides ** 2);
-            push(Math.cos(angle), Math.sin(angle));
-            for (let i = 0; i < sides; i++) {
-                const htheta = ((i + 0.5) / sides) * 2 * Math.PI + angle;
-                const theta = ((i + 1) / sides) * 2 * Math.PI + angle;
-                push(dip * Math.cos(htheta), dip * Math.sin(htheta));
-                push(Math.cos(theta), Math.sin(theta));
-            }
-            return n - 1; // the closing point repeats the first
-        }
-        angle += (sides % 1) * Math.PI * 2;
-        for (let i = 0, c = Math.floor(sides); i < c; i++) {
-            const theta = (i / c) * 2 * Math.PI + angle;
-            push(Math.cos(theta), Math.sin(theta));
-        }
-        return n;
-    },
-    towardsPlayer = (x, y) => {
-        const px = global.screenWidth / 2 + (global.player.screenx || 0),
-            py = global.screenHeight / 2 + (global.player.screeny || 0),
-            dx = px - x,
-            dy = py - y,
-            len = Math.hypot(dx, dy);
-        return len > 1 ? [dx / len, dy / len] : null;
-    },
-    sweepSide = (context, x, y, radius, sides, angle, dx, dy, fill, stroke, width, alpha, borderless = false) => {
-        const len = Math.sqrt(dx * dx + dy * dy);
-        if (len < 1.5 || typeof fill !== "string") {
-            return;
-        }
-        const n = outline(x, y, radius, sides, angle);
-        if (n < 3) {
-            return;
-        }
-        const ux = dx / len,
-            uy = dy / len;
-        let area = 0,
-            visible = false,
-            minX = 1e9,
-            minY = 1e9,
-            maxX = -1e9,
-            maxY = -1e9;
-        for (let i = 0, j = n - 1; i < n; j = i++) {
-            area += outlineX[j] * outlineY[i] - outlineX[i] * outlineY[j];
-        }
-        const flip = area > 0 ? 1 : -1; // outward normal = flip·(dy, -dx)
-        for (let i = 0; i < n; i++) {
-            const j = i + 1 === n ? 0 : i + 1;
-            const ex = outlineX[j] - outlineX[i],
-                ey = outlineY[j] - outlineY[i];
-            const facing = (flip * ey * ux - flip * ex * uy) / (Math.sqrt(ex * ex + ey * ey) || 1) > 0;
-            outlineVis[i] = facing ? 1 : 0;
-            if (facing) {
-                visible = true;
-            }
-            minX = Math.min(minX, outlineX[i]);
-            maxX = Math.max(maxX, outlineX[i]);
-            minY = Math.min(minY, outlineY[i]);
-            maxY = Math.max(maxY, outlineY[i]);
-        }
-        if (!visible) {
-            return;
-        }
-        if (maxX + dx < 0 || minX + dx > context.canvas.width) {
-            return;
-        } // off screen
-        if (maxY + dy < 0 || minY + dy > context.canvas.height) {
-            return;
-        }
-
-        context.save();
-        context.globalAlpha = alpha;
-        context.fillStyle = fill;
-        context.strokeStyle = stroke;
-        context.lineWidth = Math.max(1, width * SIDE_BORDER);
-        context.lineJoin = context.lineCap = config.graphical.sharpEdges ? "miter" : "round";
-
-        context.beginPath();
-        for (let i = 0; i < n; i++) {
-            if (!outlineVis[i]) {
-                continue;
-            }
-            const j = i + 1 === n ? 0 : i + 1;
-            context.moveTo(outlineX[i], outlineY[i]);
-            context.lineTo(outlineX[j], outlineY[j]);
-            context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
-            context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
-            context.closePath();
-        }
-        context.fill();
-
-        if (!borderless) {
-            for (let i = 0; i < n; i++) {
-                if (!outlineVis[i] || outlineVis[i === 0 ? n - 1 : i - 1]) {
-                    continue;
-                }
-                context.beginPath();
-                context.moveTo(outlineX[i], outlineY[i]);
-                context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
-                let k = 0;
-                for (; k < n && outlineVis[(i + k) % n]; k++) {
-                    const j = (i + k + 1) % n;
-                    context.lineTo(outlineX[j] + dx, outlineY[j] + dy);
-                }
-                const e = (i + k) % n;
-                context.lineTo(outlineX[e], outlineY[e]);
-                context.stroke();
-            }
-            if (len > 5 && (sides instanceof Array || Boolean(sides))) { // creases
-                context.beginPath();
-                for (let i = 0; i < n; i++) {
-                    if (!outlineVis[i] || !outlineVis[i === 0 ? n - 1 : i - 1]) {
-                        continue;
-                    }
-                    context.moveTo(outlineX[i], outlineY[i]);
-                    context.lineTo(outlineX[i] + dx, outlineY[i] + dy);
-                }
-                context.stroke();
-            }
-        }
-        context.restore();
-    },
-    // Draw gun function, (AKA: drawTrapezoid)
-    drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position, dx = 0, dy = 0, sideContext = null) => {
+    };
+        // Draw gun function, (AKA: drawTrapezoid)
+    const drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position) => {
         let h = [];
         h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
-        fill = fill && !config.graphical.wireframes;
 
         // Construct a trapezoid at angle 0
-        const points = [],
-            sinT = Math.sin(angle),
-            cosT = Math.cos(angle);
+        const points = [];
+        const sinT = Math.sin(angle);
+        const cosT = Math.cos(angle);
         points.push([-position, h[1]]);
         points.push([length * 2 - position, h[0]]);
         points.push([length * 2 - position, -h[0]]);
         points.push([-position, -h[1]]);
         context.globalAlpha = alpha;
-        context.lineWidth *= strokeWidth;
-        context.lineWidth *= fill ? 1 : 0.5; // Maintain constant border width
 
-        const world = points.map(([px, py]) => [px * cosT - py * sinT + x, px * sinT + py * cosT + y]);
-        if ((dx !== 0 || dy !== 0) && fill) {
-            sweepSide(sideContext || context, 0, 0, 1, world, 0, dx, dy,
-                context.fillStyle, context.strokeStyle, context.lineWidth, alpha, Boolean(borderless));
-        }
-
+        // Rotate it to the new angle via vector rotation
         context.beginPath();
-        for (const [px, py] of world) {
-            context.lineTo(px, py);
+        for (const point of points) {
+            const newX = point[0] * cosT - point[1] * sinT + x;
+            const newY = point[0] * sinT + point[1] * cosT + y;
+            context.lineTo(newX, newY);
         }
         context.closePath();
+        context.lineWidth *= strokeWidth;
+        context.lineWidth *= fill ? 1 : 0.5; // Maintain constant border width
         if (!borderless) {
             context.stroke();
         }
@@ -2617,372 +2513,342 @@ const drawPolyImgs = [],
             context.fill();
         }
         context.globalAlpha = 1;
-    },
-    drawGunBox = (context, x, y, length, height, aspect, angle, position, pad) => {
-        const h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect],
-            cos = Math.cos(angle),
-            sin = Math.sin(angle),
-            points = [[-position, h[1]], [length * 2 - position, h[0]], [length * 2 - position, -h[0]], [-position, -h[1]]]
-                .map(([a, b]) => [x + a * cos - b * sin, y + a * sin + b * cos]),
-            xs = points.map((p) => p[0]),
-            ys = points.map((p) => p[1]),
-            left = Math.min(...xs) - pad,
-            top = Math.min(...ys) - pad;
+    };
+    const drawGunBox = (context, x, y, length, height, aspect, angle, position, pad) => {
+        const h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
+        const cos = Math.cos(angle);
+        const sin = Math.sin(angle);
+        const points = [[-position, h[1]], [length * 2 - position, h[0]], [length * 2 - position, -h[0]], [-position, -h[1]]]
+            .map(([a, b]) => [x + a * cos - b * sin, y + a * sin + b * cos]);
+        const xs = points.map((p) => p[0]);
+        const ys = points.map((p) => p[1]);
+        const left = Math.min(...xs) - pad;
+        const top = Math.min(...ys) - pad;
         context.fillRect(left, top, Math.max(...xs) - left + pad, Math.max(...ys) - top + pad);
     };
-function drawEntity(baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false, flat = false, shadow = null) {
-    // --- Fast early exit for invisible objects ---
-    const fade = turretInfo ? 1 : render.status.getFade();
-    if (fade === 0 || alpha === 0) {
-        return;
-    }
-
-    const alphaFade = fade * alpha * (config.graphical.alphaLarge && !assignedContext ? Math.min(1, Math.max(0.2, 120 / instance.size)) : 1);
-    if (!global.gameUpdate && alphaFade < 0.5) {
-        return;
-    }
-
-    // --- Context setup with minimal state changes ---
-    let context = assignedContext || ctx[1];
-    const indexStr = instance.index;
-    const indexes = indexStr.split("-");
-    const mockupIndex = +indexes[0];
-    const m = global.mockups[mockupIndex] || global.missingno[0];
-    const dmcaDesign = config.game.dmcaMode && (m.censor & 2);
-    const source = turretInfo === false ? instance : turretInfo;
-    const hasHighLayer = (m.turrets || []).some((t) => t.layer > 0) || (m.props || []).some((p) => p.layer > 0);
-    const skin = instance.nameplate && !hasHighLayer && skinShape(instance.name);
-
-    // --- Size calculations with cached values ---
-    const instSize = instance.size;
-    let drawSize = smoothsize ? scale * ratio * smoothsize : scale * ratio * instSize;
-
-    if (global.gameUpdate && fade !== 1) {
-        drawSize *= config.graphical.fancyAnimations ?
-            (1 + 0.5 * (1 - fade)) :
-            (1 - 2 * (1 - fade));
-
-        if (drawSize < 0) {
-            drawSize = scale * ratio * instSize;
+        // The actual drawEntity function
+    return (baseColor, x, y, instance, ratio, alpha = 1, scale = 1, lineWidthMult = 1, rot = 0, turretsObeyRot = false, assignedContext = false, turretInfo = false, render = instance.render, smoothsize = false) => {
+        // --- Fast early exit for invisible objects ---
+        const fade = turretInfo ? 1 : render.status.getFade();
+        if (fade === 0 || alpha === 0) {
+            return;
         }
-    }
 
-    // --- Early optimization for small or distant objects ---
-    if (drawSize < 0.1) {
-        return;
-    }
-
-    // --- Find upper turrets and props with optimized loop ---
-    const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
-    if (m.props) {
-        turrets.sort((a, b) => a.layer - b.layer);
-    }
-
-    // --- Gun positions with single update ---
-    source.guns.update();
-
-    // --- Fancy canvas with reduced state setup ---
-    let xx = x,
-        yy = y;
-    // --- 3D mode ---
-    const sizeRatio = (drawSize / m.size) * m.realSize;
-    const isPlayer = instance.id === gui.playerid;
-    let dir = null;
-    if (config.graphical.threeDimensional && !flat && !dmcaDesign && !isPlayer && shadow !== false &&
-                (typeof m.shape === "number" || m.shape instanceof Array)) {
-        dir = shadow || towardsPlayer(x, y);
-    }
-    const depth = shadow && shadow.length > 2 ? shadow[2] : sizeRatio * SHADOW_DEPTH;
-    const sideX = dir ? dir[0] * depth : 0;
-    const sideY = dir ? dir[1] * depth : 0;
-    const useFancyCanvas = !dmcaDesign && drawEntityAsImageCheck(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
-
-    if (useFancyCanvas) {
-        context = ctx2;
-        context.canvas.width = context.canvas.height = drawSize * m.position.axis + (ratio * 20 + (dir ? sizeRatio * (SHADOW_DEPTH + 0.2) : 0)) * m.position.axis;
-        xx = context.canvas.width / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.cos(rot)) / 4;
-        yy = context.canvas.height / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.sin(rot)) / 4;
-        context.translate(0.5, 0.5);
-    } else if (alphaFade < 0.5 && !config.graphical.fancyAnimations) {
-        return;
-    }
-
-    // --- Batch context property settings ---
-    const sharp = config.graphical.sharpEdges;
-    const minBorder = config.graphical.mininumBorderChunk;
-    const borderChunk = config.graphical.borderChunk;
-    const initStrokeWidth = lineWidthMult * Math.max(minBorder, ratio * borderChunk);
-
-    context.lineCap = sharp ? "miter" : "round";
-    context.lineJoin = sharp ? "miter" : "round";
-    context.lineWidth = initStrokeWidth;
-
-    // 3D side layer
-    const sideContext = useFancyCanvas || (global.advanced && global.advanced.blackout.active) ? context : ctx[0];
-    const sideAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
-
-    const dmcaZoom = ratio;
-    if (dmcaDesign) {
-        context.fillStyle = "#000000";
-        context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
-    }
-
-    // --- Draw turrets beneath with cached values ---
-    for (let i = 0; i < turrets.length; i++) {
-        let t = turrets[i];
-        if (t.isProp) {
-            t = util.requestEntityImage(t);
+        const alphaFade = fade * alpha;
+        if (!global.gameUpdate && alphaFade < 0.5) {
+            return;
         }
-        // Cache facing calculation
-        if (t.lerpedFacing === undefined) {
-            t.lerpedFacing = t.facing;
-        } else {
-            t.lerpedFacing = util.lerpAngle(t.lerpedFacing, t.facing, 0.1, true);
-        }
-        t.invuln = instance.invuln;
-        if (!t.layer) {
-            const ang = t.direction + t.angle + rot;
-            const len = t.offset * drawSize;
-            const facing = t.forceAngle === null || t.forceAngle === undefined ? (t.mirrorMasterAngle || turretsObeyRot) ? rot + t.angle : t.lerpedFacing : t.angle;
-            const cosAng = Math.cos(ang);
-            const sinAng = Math.sin(ang);
 
-            context.lineWidth = initStrokeWidth * t.strokeWidth;
+        // --- Context setup with minimal state changes ---
+        let context = assignedContext || ctx[1];
+        const indexStr = instance.index;
+        const indexes = indexStr.split("-");
+        const mockupIndex = +indexes[0];
+        const m = global.mockups[mockupIndex] || global.missingno[0];
+        const dmcaDesign = config.game.dmcaMode && (m.censor & 2);
+        const source = turretInfo === false ? instance : turretInfo;
+        const hasHighLayer = (m.turrets || []).some((t) => t.layer > 0) || (m.props || []).some((p) => p.layer > 0);
+        const skin = instance.nameplate && !hasHighLayer && skinShape(instance.name);
 
-            drawEntity(
-                baseColor,
-                xx + len * cosAng,
-                yy + len * sinAng,
-                t,
-                ratio,
-                1,
-                (drawSize / ratio / t.size) * t.sizeFactor,
-                lineWidthMult,
-                facing,
-                turretsObeyRot,
-                context,
-                t,
-                render,
-                false,
-                flat,
-                t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false // cores flat, children inherit direction only
-            );
-        }
-    }
+        // --- Size calculations with cached values ---
+        const instSize = instance.size;
+        let drawSize = smoothsize ? scale * ratio * smoothsize : scale * ratio * instSize;
 
-    // --- Gun positions/config with minimal property access ---
-    const positions = source.guns.getPositions();
-    const gunConfig = source.guns.getConfig();
-    const statusColor = render.status.getColor();
-    const blend = render.status.getBlend();
+        if (global.gameUpdate && fade !== 1) {
+            drawSize *= config.graphical.fancyAnimations ?
+                (1 + 0.5 * (1 - fade)) :
+                (1 - 2 * (1 - fade));
 
-    const sourceGuns = source.guns;
-    const gunLength = sourceGuns.length;
-
-    for (let drawAbove = 0; drawAbove < 2; ++drawAbove) {
-        // Draw guns for current layer
-        for (let i = 0; i < gunLength; ++i) {
-            const g = gunConfig[i];
-
-            // Skip guns not in current drawing pass
-            if ((drawAbove === 0 && g.drawAbove) || (drawAbove === 1 && !g.drawAbove)) {
-                continue;
+            if (drawSize < 0) {
+                drawSize = scale * ratio * instSize;
             }
-
-            context.lineWidth = initStrokeWidth;
-
-            // Cache angle calculations
-            const gAngle = g.angle + rot;
-            const gunAngle = g.direction + gAngle;
-            const cosGunAngle = Math.cos(gunAngle);
-            const sinGunAngle = Math.sin(gunAngle);
-
-            const gx = g.offset * cosGunAngle;
-            const gy = g.offset * sinGunAngle;
-
-            if (dmcaDesign) {
-                context.fillStyle = "#000000";
-                drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
-                continue;
-            }
-
-            // Minimize color calculations
-            const gunColor = g.color == null ? colors.grey : gameDraw.modifyColor(g.color, baseColor);
-            const gunAlpha = g.alpha === undefined ? 1 : g.alpha;
-            let mixedColor = gameDraw.mixColors(gunColor, statusColor, blend);
-            global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((mixedColor = gameDraw.mixColors(gunColor, gameDraw.getColor(6), 0.3)));
-            gameDraw.setColor(context, mixedColor);
-
-            // Draw gun with precalculated values
-            const gunDepth = drawSize * g.width / 2 * SHADOW_DEPTH;
-            drawGun(
-                context,
-                xx + drawSize * gx,
-                yy + drawSize * gy,
-                drawSize * g.length / 2,
-                drawSize * g.width / 2,
-                g.aspect,
-                gAngle,
-                g.borderless,
-                g.drawFill,
-                gunAlpha,
-                g.strokeWidth,
-                drawSize * positions[i],
-                dir ? dir[0] * gunDepth : 0,
-                dir ? dir[1] * gunDepth : 0,
-                sideContext
-            );
         }
 
-        // Draw body between gun layers
-        if (drawAbove === 0 && dmcaDesign) {
-            const half = sizeRatio + 11 * dmcaZoom;
+        // --- Early optimization for small or distant objects ---
+        if (drawSize < 0.1) {
+            return;
+        }
+
+        // --- Find upper turrets and props with optimized loop ---
+        const turrets = instance.isImage ? source.turrets : [...source.turrets, ...m.props];
+        if (m.props) {
+            turrets.sort((a, b) => a.layer - b.layer);
+        }
+
+        // --- Gun positions with single update ---
+        source.guns.update();
+
+        // --- Fancy canvas with reduced state setup ---
+        let xx = x; let
+            yy = y;
+        const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
+
+        if (useFancyCanvas) {
+            context = ctx2;
+            context.canvas.width = context.canvas.height = drawSize * m.position.axis + ratio * 20 * m.position.axis;
+            xx = context.canvas.width / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.cos(rot)) / 4;
+            yy = context.canvas.height / 2 - (drawSize * m.position.axis * m.position.middle.x * Math.sin(rot)) / 4;
+            context.translate(0.5, 0.5);
+        } else if (alphaFade < 0.5 && !config.graphical.fancyAnimations) {
+            return;
+        }
+
+        // --- Batch context property settings ---
+        const sharp = config.graphical.sharpEdges;
+        const minBorder = config.graphical.mininumBorderChunk;
+        const borderChunk = config.graphical.borderChunk;
+        const initStrokeWidth = lineWidthMult * Math.max(minBorder, ratio * borderChunk);
+
+        context.lineCap = sharp ? "miter" : "round";
+        context.lineJoin = sharp ? "miter" : "round";
+        context.lineWidth = initStrokeWidth;
+
+        // --- Size ratio cached for body drawing ---
+        const sizeRatio = (drawSize / m.size) * m.realSize;
+
+        const dmcaZoom = ratio;
+        if (dmcaDesign) {
             context.fillStyle = "#000000";
-            context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
-        } else if (drawAbove === 0) {
-            context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
-            context.lineWidth = initStrokeWidth * m.strokeWidth;
+            context.globalAlpha = alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
+        }
 
-            // Precalculate body color
-            let bodyColor = gameDraw.mixColors(
-                gameDraw.modifyColor(instance.color, baseColor),
-                statusColor,
-                blend
-            );
-            global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((bodyColor = gameDraw.mixColors(gameDraw.modifyColor(instance.color, baseColor), gameDraw.getColor(6), 0.3)));
-            gameDraw.setColor(context, bodyColor);
+        // --- Draw turrets beneath with cached values ---
+        for (let i = 0; i < turrets.length; i++) {
+            let t = turrets[i];
+            if (t.isProp) {
+                t = util.requestEntityImage(t);
+            }
+            // Cache facing calculation
+            if (t.lerpedFacing === undefined) {
+                t.lerpedFacing = t.facing;
+            } else {
+                t.lerpedFacing = util.lerpAngle(t.lerpedFacing, t.facing, 0.1, true);
+            }
+            t.invuln = instance.invuln;
+            if (!t.layer) {
+                const ang = t.direction + t.angle + rot;
+                const len = t.offset * drawSize;
+                const facing = t.forceAngle === null || t.forceAngle === undefined ? (t.mirrorMasterAngle || turretsObeyRot) ? rot + t.angle : t.lerpedFacing : t.angle;
+                const cosAng = Math.cos(ang);
+                const sinAng = Math.sin(ang);
 
-            // Optimized glow effect
-            const glow = m.glow;
-            const glowRadius = glow.radius;
+                context.lineWidth = initStrokeWidth * t.strokeWidth;
 
-            if (glowRadius > 0) {
-                // Calculate glow color once
-                context.shadowColor = glow.color != null
-                    ? gameDraw.modifyColor(glow.color)
-                    : gameDraw.mixColors(
-                        gameDraw.modifyColor(instance.color),
-                        statusColor,
-                        0
-                    );
+                drawEntity(
+                    baseColor,
+                    xx + len * cosAng,
+                    yy + len * sinAng,
+                    t,
+                    ratio,
+                    1,
+                    (drawSize / ratio / t.size) * t.sizeFactor,
+                    lineWidthMult,
+                    facing,
+                    turretsObeyRot,
+                    context,
+                    t,
+                    render
+                );
+            }
+        }
 
-                const glowSize = glowRadius * sizeRatio;
-                context.shadowBlur = glowSize;
-                context.shadowOffsetX = 0;
-                context.shadowOffsetY = 0;
-                context.globalAlpha = glow.alpha;
+        // --- Gun positions/config with minimal property access ---
+        const positions = source.guns.getPositions();
+        const gunConfig = source.guns.getConfig();
+        const statusColor = render.status.getColor();
+        const blend = render.status.getBlend();
 
-                const recursion = glow.recursion;
-                const shape = m.shape;
+        const sourceGuns = source.guns;
+        const gunLength = sourceGuns.length;
 
-                // Draw glow with minimal state changes
-                for (let i = 0; i < recursion; ++i) {
-                    drawBody(context, xx, yy, sizeRatio, shape, rot, true, m.drawFill, false, true);
+        for (let drawAbove = 0; drawAbove < 2; ++drawAbove) {
+            // Draw guns for current layer
+            for (let i = 0; i < gunLength; ++i) {
+                const g = gunConfig[i];
+
+                // Skip guns not in current drawing pass
+                if ((drawAbove === 0 && g.drawAbove) || (drawAbove === 1 && !g.drawAbove)) {
+                    continue;
                 }
 
-                context.globalAlpha = 1;
-            }
+                context.lineWidth = initStrokeWidth;
 
-            // Reset shadow properties in bulk
-            if (glowRadius > 0) {
-                context.shadowBlur = 0;
-                context.shadowOffsetX = 0;
-                context.shadowOffsetY = 0;
-            }
+                // Cache angle calculations
+                const gAngle = g.angle + rot;
+                const gunAngle = g.direction + gAngle;
+                const cosGunAngle = Math.cos(gunAngle);
+                const sinGunAngle = Math.sin(gunAngle);
 
-            const bodyBorderless = instance.isProp ? instance.borderless : m.borderless;
-            const bodyFill = (instance.isProp ? instance.drawFill : m.drawFill) && !config.graphical.wireframes;
-            if (dir && bodyFill) {
-                // drawBody halves the width for circles and unfilled bodies
-                const width = context.lineWidth * (!m.shape ? 0.5 : m.shape instanceof Array || bodyFill ? 1 : 0.5);
-                if (global.probe) {
-                    global.probe[sideContext === ctx[0] ? 0 : 1]++;
+                const gx = g.offset * cosGunAngle;
+                const gy = g.offset * sinGunAngle;
+
+                if (dmcaDesign) {
+                    context.fillStyle = "#000000";
+                    drawGunBox(context, xx + drawSize * gx, yy + drawSize * gy, drawSize * g.length / 2, drawSize * g.width / 2, g.aspect, gAngle, drawSize * positions[i], 5 * dmcaZoom);
+                    continue;
                 }
-                sweepSide(sideContext, xx, yy, sizeRatio, m.shape, rot, sideX, sideY,
-                    bodyColor, gameDraw.getColorDark(bodyColor), width, sideAlpha, bodyBorderless);
+
+                // Minimize color calculations
+                const gunColor = g.color == null ? colors.grey : gameDraw.modifyColor(g.color, baseColor);
+                const gunAlpha = g.alpha === undefined ? 1 : g.alpha;
+                let mixedColor = gameDraw.mixColors(gunColor, statusColor, blend);
+                global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((mixedColor = gameDraw.mixColors(gunColor, gameDraw.getColor(6), 0.3)));
+                gameDraw.setColor(context, mixedColor);
+
+                // Draw gun with precalculated values
+                drawGun(
+                    context,
+                    xx + drawSize * gx,
+                    yy + drawSize * gy,
+                    drawSize * g.length / 2,
+                    drawSize * g.width / 2,
+                    g.aspect,
+                    gAngle,
+                    g.borderless,
+                    g.drawFill,
+                    gunAlpha,
+                    g.strokeWidth,
+                    drawSize * positions[i]
+                );
             }
-            drawBody(context, xx, yy, sizeRatio, m.shape, rot, bodyBorderless, bodyFill, m.imageInterpolation);
-            if (skin) {
-                drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
+
+            // Draw body between gun layers
+            if (drawAbove === 0 && dmcaDesign) {
+                const half = sizeRatio + 11 * dmcaZoom;
+                context.fillStyle = "#000000";
+                context.fillRect(xx - half, yy - half, 2 * half, 2 * half);
+            } else if (drawAbove === 0) {
+                context.globalAlpha = !useFancyCanvas && alphaFade < 1 && config.graphical.fancyAnimations ? alphaFade : 1;
+                context.lineWidth = initStrokeWidth * m.strokeWidth;
+
+                // Precalculate body color
+                let bodyColor = gameDraw.mixColors(
+                    gameDraw.modifyColor(instance.color, baseColor),
+                    statusColor,
+                    blend
+                );
+                global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((bodyColor = gameDraw.mixColors(gameDraw.modifyColor(instance.color, baseColor), gameDraw.getColor(6), 0.3)));
+                gameDraw.setColor(context, bodyColor);
+
+                // Optimized glow effect
+                const glow = m.glow;
+                const glowRadius = glow.radius;
+
+                if (glowRadius > 0) {
+                    // Calculate glow color once
+                    context.shadowColor = glow.color != null
+                        ? gameDraw.modifyColor(glow.color)
+                        : gameDraw.mixColors(
+                            gameDraw.modifyColor(instance.color),
+                            statusColor,
+                            0
+                        );
+
+                    const glowSize = glowRadius * sizeRatio;
+                    context.shadowBlur = glowSize;
+                    context.shadowOffsetX = 0;
+                    context.shadowOffsetY = 0;
+                    context.globalAlpha = glow.alpha;
+
+                    const recursion = glow.recursion;
+                    const shape = m.shape;
+
+                    // Draw glow with minimal state changes
+                    for (let i = 0; i < recursion; ++i) {
+                        drawBody(context, xx, yy, sizeRatio, shape, rot, true, m.drawFill, false, true);
+                    }
+
+                    context.globalAlpha = 1;
+                }
+
+                // Reset shadow properties in bulk
+                if (glowRadius > 0) {
+                    context.shadowBlur = 0;
+                    context.shadowOffsetX = 0;
+                    context.shadowOffsetY = 0;
+                }
+
+                // Draw the body, then overlay the skin.
+                drawBody(context, xx, yy, sizeRatio, m.shape, rot, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, m.imageInterpolation);
+                if (skin) {
+                    drawBody(context, xx, yy, 0.9 * (drawSize - 3 * ratio), skin, 0, instance.isProp ? instance.borderless : m.borderless, instance.isProp ? instance.drawFill : m.drawFill, true);
+                }
             }
         }
-    }
 
-    if (dmcaDesign) {
-        const textSize = 0.65 * sizeRatio;
-        context.save();
-        context.font = `bold ${textSize}px Ubuntu`;
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillStyle = "#FFFFFF";
-        context.fillText("DMCA'd", xx, yy - 0.35 * sizeRatio);
-        context.fillText("by Diep", xx, yy + 0.35 * sizeRatio);
-        context.restore();
-        context.globalAlpha = 1;
-    }
-
-    // --- Draw turrets above with cached trig values ---
-    for (let i = 0; i < turrets.length; i++) {
-        let t = turrets[i];
-        if (t.isProp) {
-            t = util.requestEntityImage(t);
+        if (dmcaDesign) {
+            const textSize = 0.65 * sizeRatio;
+            context.save();
+            context.font = `bold ${textSize}px Ubuntu`;
+            context.textAlign = "center";
+            context.textBaseline = "middle";
+            context.fillStyle = "#FFFFFF";
+            context.fillText("DMCA'd", xx, yy - 0.35 * sizeRatio);
+            context.fillText("by Diep", xx, yy + 0.35 * sizeRatio);
+            context.restore();
+            context.globalAlpha = 1;
         }
-        // Cache facing calculation
-        if (t.lerpedFacing === undefined) {
-            t.lerpedFacing = t.facing;
-        } else {
-            t.lerpedFacing = util.lerpAngle(t.lerpedFacing, t.facing, 0.1, true);
+
+        // --- Draw turrets above with cached trig values ---
+        for (let i = 0; i < turrets.length; i++) {
+            let t = turrets[i];
+            if (t.isProp) {
+                t = util.requestEntityImage(t);
+            }
+            // Cache facing calculation
+            if (t.lerpedFacing === undefined) {
+                t.lerpedFacing = t.facing;
+            } else {
+                t.lerpedFacing = util.lerpAngle(t.lerpedFacing, t.facing, 0.1, true);
+            }
+            t.invuln = instance.invuln;
+            if (t.layer) {
+                const ang = t.direction + t.angle + rot;
+                const len = t.offset * drawSize;
+                const facing = t.forceAngle === null || t.forceAngle === undefined ? (t.mirrorMasterAngle || turretsObeyRot) ? rot + t.angle : t.lerpedFacing : t.angle;
+                const cosAng = Math.cos(ang);
+                const sinAng = Math.sin(ang);
+
+                context.lineWidth = initStrokeWidth * t.strokeWidth;
+
+                drawEntity(
+                    baseColor,
+                    xx + len * cosAng,
+                    yy + len * sinAng,
+                    t,
+                    ratio,
+                    1,
+                    (drawSize / ratio / t.size) * t.sizeFactor,
+                    lineWidthMult,
+                    facing,
+                    turretsObeyRot,
+                    context,
+                    t,
+                    render
+                );
+            }
         }
-        t.invuln = instance.invuln;
-        if (t.layer) {
-            const ang = t.direction + t.angle + rot;
-            const len = t.offset * drawSize;
-            const facing = t.forceAngle === null || t.forceAngle === undefined ? (t.mirrorMasterAngle || turretsObeyRot) ? rot + t.angle : t.lerpedFacing : t.angle;
-            const cosAng = Math.cos(ang);
-            const sinAng = Math.sin(ang);
 
-            context.lineWidth = initStrokeWidth * t.strokeWidth;
+        // --- Optimized fancy canvas drawing ---
+        if (!assignedContext && context !== ctx[1] && context.canvas.width > 0 && context.canvas.height > 0) {
+            ctx[1].save();
 
-            drawEntity(
-                baseColor,
-                xx + len * cosAng,
-                yy + len * sinAng,
-                t,
-                ratio,
-                1,
-                (drawSize / ratio / t.size) * t.sizeFactor,
-                lineWidthMult,
-                facing,
-                turretsObeyRot,
-                context,
-                t,
-                render,
-                false,
-                flat,
-                t.offset ? (dir && dir.length > 2 ? [dir[0], dir[1]] : dir || false) : false
-            );
+            // Apply alpha in one operation
+            ctx[1].globalAlpha = alphaFade;
+            ctx[1].imageSmoothingEnabled = false;
+
+            // Draw in one operation
+            ctx[1].drawImage(context.canvas, x - xx, y - yy);
+            ctx[1].restore();
         }
-    }
 
-    // --- Optimized fancy canvas drawing ---
-    if (!assignedContext && context !== ctx[1] && context.canvas.width > 0 && context.canvas.height > 0) {
-        ctx[1].save();
-
-        // Apply alpha in one operation
-        ctx[1].globalAlpha = alphaFade;
-        ctx[1].imageSmoothingEnabled = false;
-
-        // Draw in one operation
-        ctx[1].drawImage(context.canvas, x - xx, y - yy);
-        ctx[1].restore();
-    }
-
-    // --- Minimal context reset ---
-    if (sharp) {
-        context.lineCap = "round";
-        context.lineJoin = "round";
-    }
-};
+        // --- Minimal context reset ---
+        if (sharp) {
+            context.lineCap = "round";
+            context.lineJoin = "round";
+        }
+    };
+})();
 
 function getIconColor(index) {
     const colors = [10, 11, 12, 15, 13, 2, 14, 4, 5, 1, 0, 3];
@@ -3011,21 +2877,23 @@ function colorBlend(color1, color2, d = 0.5) {
 }
 function getOldIconColor(index) {
     let color = gameDraw.getColor((index % 9) + 10);
-    9 <= index && (color = colorBlend(color, gameDraw.getColor(((index + Math.floor(index / 9)) % 9) + 10)));
+    if (9 <= index) {
+        color = colorBlend(color, gameDraw.getColor(((index + Math.floor(index / 9)) % 9) + 10));
+    }
     return color;
 }
 
 function drawEntityIcon(model, x, y, len, height, lineWidthMult, angle, alpha, colorIndex, upgradeKey, hover = false, extraScale = 1) {
-    let picture = (typeof model == "object") ? model : util.getEntityImageFromMockup(model, gui.color),
-        position = picture.position,
-        scale = (0.6 * len * extraScale) / position.axis,
-        entityX = x + 0.5 * len,
-        entityY = y + 0.5 * height,
-        baseColor = picture.color;
+    const picture = (typeof model == "object") ? model : util.getEntityImageFromMockup(model, gui.color);
+    const position = picture.position;
+    const scale = (0.6 * len * extraScale) / position.axis;
+    let entityX = x + 0.5 * len;
+    let entityY = y + 0.5 * height;
+    const baseColor = picture.color;
 
     // Find x and y shift for the entity image
-    const xShift = position.middle.x * Math.cos(angle) - position.middle.y * Math.sin(angle),
-        yShift = position.middle.x * Math.sin(angle) + position.middle.y * Math.cos(angle);
+    const xShift = position.middle.x * Math.cos(angle) - position.middle.y * Math.sin(angle);
+    const yShift = position.middle.x * Math.sin(angle) + position.middle.y * Math.cos(angle);
     entityX -= scale * xShift;
     entityY -= scale * yShift;
 
@@ -3052,10 +2920,10 @@ function drawEntityIcon(model, x, y, len, height, lineWidthMult, angle, alpha, c
     ctx[2].globalAlpha = 1;
 
     // Draw Tank
-    drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2], false, picture.render, false, true);
+    drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2]);
 
     // Tank name
-    drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.825 * len : len) / 2, y + height * 0.94, height / 10.25, colors.guiwhite, "center");
+    drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.925 * len : len) / 2, y + height * 0.94, height / 10.25, colors.guiwhite, "center");
 
     // Upgrade key
     if (upgradeKey) {
@@ -3066,12 +2934,16 @@ function drawEntityIcon(model, x, y, len, height, lineWidthMult, angle, alpha, c
     drawGuiRect(x, y, len, height, true); // Border
 }
 
-const SQRT3 = Math.sqrt(3);
-const HEXAGON = [];
-for (let i = 0; i < Math.PI * 2; i += Math.PI / 3) {
-    HEXAGON.push([Math.sin(i) / SQRT3, Math.cos(i) / SQRT3]);
-}
-
+const HEXAGON = (function() {
+    const SQRT3 = Math.sqrt(3);
+    const output = [];
+    for (let i = 0; i < Math.PI * 2; i += Math.PI / 3) {
+        // rotated by 90deg
+        output.push([Math.sin(i) / SQRT3, Math.cos(i) / SQRT3]);
+    }
+    return output;
+})();
+    // Draw Game functions
 function drawHexagon(x, y, size) {
     ctx[0].moveTo(x + size * HEXAGON[0][0], y + size * HEXAGON[0][1]);
     ctx[0].lineTo(x + size * HEXAGON[0][0], y + size * HEXAGON[0][1]);
@@ -3081,7 +2953,6 @@ function drawHexagon(x, y, size) {
     ctx[0].lineTo(x + size * HEXAGON[4][0], y + size * HEXAGON[4][1]);
     ctx[0].lineTo(x + size * HEXAGON[5][0], y + size * HEXAGON[5][1]);
 }
-
 function drawFloor(px, py, ratio, tick) {
     // Clear the background + draw grid
     clearScreen(colors.white, 1, ctx[0]);
@@ -3094,10 +2965,10 @@ function drawFloor(px, py, ratio, tick) {
     ctx[0].globalAlpha = 1;
     ctx[0].fillStyle = colors.white;
     // Draw the room
-    const roomX = -px + global.screenWidth / 2 - ratio * gameWidth / 2,
-        roomY = -py + global.screenHeight / 2 - ratio * gameHeight / 2,
-        roomWidth = ratio * gameWidth,
-        roomHeight = ratio * gameHeight;
+    const roomX = -px + global.screenWidth / 2 - ratio * gameWidth / 2;
+    const roomY = -py + global.screenHeight / 2 - ratio * gameHeight / 2;
+    const roomWidth = ratio * gameWidth;
+    const roomHeight = ratio * gameHeight;
     if (global.advanced.roundArena) {
         ctx[0].save();
         ctx[0].beginPath();
@@ -3111,23 +2982,18 @@ function drawFloor(px, py, ratio, tick) {
         ctx[0].clip();
     }
     ctx[0].fillRect(roomX, roomY, roomWidth, roomHeight);
-    if (config.graphical.renderOldNest) {
-        ctx[0].fillStyle = gameDraw.getColor("purple");
-        ctx[0].globalAlpha = 0.25;
-        ctx[0].fillRect(roomX + roomWidth / 3, roomY + roomHeight / 3, roomWidth / 3, roomHeight / 3);
-    }
     if (global.roomSetup.length) {
-        const W = global.roomSetup[0].length,
-            H = global.roomSetup.length;
+        const W = global.roomSetup[0].length;
+        const H = global.roomSetup.length;
 
         for (let f = 0; f < H; f++) {
             const e = global.roomSetup[f];
             for (let h = 0; h < W; h++) {
                 const tile = e[h];
-                const top = ratio * h * gameWidth / W - px + global.screenWidth / 2 - ratio * gameWidth / 2,
-                    bottom = ratio * f * gameHeight / H - py + global.screenHeight / 2 - ratio * gameHeight / 2,
-                    left = ratio * (h + 1) * gameWidth / W - px + global.screenWidth / 2 - ratio * gameWidth / 2,
-                    right = ratio * (f + 1) * gameHeight / H - py + global.screenHeight / 2 - ratio * gameHeight / 2;
+                const top = ratio * h * gameWidth / W - px + global.screenWidth / 2 - ratio * gameWidth / 2;
+                const bottom = ratio * f * gameHeight / H - py + global.screenHeight / 2 - ratio * gameHeight / 2;
+                const left = ratio * (h + 1) * gameWidth / W - px + global.screenWidth / 2 - ratio * gameWidth / 2;
+                const right = ratio * (f + 1) * gameHeight / H - py + global.screenHeight / 2 - ratio * gameHeight / 2;
                 if (tile.image) { // if a tile is a image, then get the image and render it.
                     ctx[0].globalAlpha = 1;
                     if (!tile.renderImage) {
@@ -3195,74 +3061,11 @@ function drawFloor(px, py, ratio, tick) {
     }
 }
 
-let wallGroups = null,
-    wallGroupsAt = 0;
-function updateWallShadows(ratio) {
-    if (!config.graphical.threeDimensional) {
-        return;
-    }
-    if (!wallGroups || Date.now() - wallGroupsAt > 300) {
-        wallGroupsAt = Date.now();
-        wallGroups = [];
-        const blocks = global.entities.filter((e) => {
-            const m = global.mockups[+String(e.index).split("-")[0]];
-            return m && e.id !== gui.playerid && (m.shape === 4 || (m.shape instanceof Array && m.shape.length === 4));
-        });
-        for (const entity of global.entities) {
-            entity.render.shadow3d = null;
-        }
-        const taken = new Set();
-        for (const block of blocks) {
-            if (taken.has(block)) {
-                continue;
-            }
-            taken.add(block);
-            const group = [block];
-            for (let i = 0; i < group.length; i++) {
-                const a = group[i];
-                for (const b of blocks) {
-                    if (taken.has(b)) {
-                        continue;
-                    }
-                    if (Math.abs(a.x - b.x) > a.size + b.size + 2) {
-                        continue;
-                    }
-                    if (Math.abs(a.y - b.y) > a.size + b.size + 2) {
-                        continue;
-                    }
-                    taken.add(b);
-                    group.push(b);
-                }
-            }
-            const m = global.mockups[+String(block.index).split("-")[0]];
-            wallGroups.push({
-                blocks: group,
-                x: group.reduce((sum, e) => sum + e.render.x, 0) / group.length,
-                y: group.reduce((sum, e) => sum + e.render.y, 0) / group.length,
-                depth: (block.size / m.size) * m.realSize,
-                shadow: [0.7071, 0.7071, 0]
-            });
-        }
-    }
-    for (const wall of wallGroups) {
-        const dx = global.player.renderx - wall.x,
-            dy = global.player.rendery - wall.y,
-            len = Math.hypot(dx, dy);
-        if (len > 1) {
-            wall.shadow[0] = dx / len; wall.shadow[1] = dy / len;
-        }
-        wall.shadow[2] = ratio * SHADOW_DEPTH * wall.depth;
-        for (const entity of wall.blocks) {
-            entity.render.shadow3d = wall.shadow;
-        }
-    }
-}
-
 function drawEntities(px, py, ratio, tick) {
     if (global.advanced.blackout.active) {
         document.getElementById("gameCanvas-background").style.display = "none";
-        const offsetX = (global.screenWidth - fullScreenWidth) / 2,
-            offsetY = (global.screenHeight - fullScreenHeight) / 2;
+        const offsetX = (global.screenWidth - fullScreenWidth) / 2;
+        const offsetY = (global.screenHeight - fullScreenHeight) / 2;
         ctx[1].drawImage(ctx[0].canvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
         if (global.glCanvas) {
             ctx[1].drawImage(global.glCanvas, offsetX, offsetY, fullScreenWidth, fullScreenHeight);
@@ -3270,7 +3073,6 @@ function drawEntities(px, py, ratio, tick) {
     } else if (document.getElementById("gameCanvas-background").style.display === "none") {
         document.getElementById("gameCanvas-background").style.display = "block";
     }
-    updateWallShadows(ratio);
     // Draw things
     for (const instance of global.entities) {
         if (!instance.render.draws) {
@@ -3312,9 +3114,9 @@ function drawEntities(px, py, ratio, tick) {
                 !global.died ?
             instance.render.f = Math.atan2(global.target.y * global.reverseTank, global.target.x * global.reverseTank) : 0;
 
-        let x = ratio * instance.render.x - px,
-            y = ratio * instance.render.y - py,
-            baseColor = instance.color;
+        let x = ratio * instance.render.x - px;
+        let y = ratio * instance.render.y - py;
+        const baseColor = instance.color;
         if (instance.id === gui.playerid) {
             const scoped = global.player.isScoping || getNow() < global.player.scopeSettle;
             x = !config.graphical.smoothcamera && !scoped && config.graphical.shakeProperties.CameraShake.shakeStartTime == -1 && !global.died ? 0 : x;
@@ -3327,13 +3129,13 @@ function drawEntities(px, py, ratio, tick) {
         y += global.screenHeight / 2;
         let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
         alpha = handleScreenDistance(alpha, instance, false);
-        drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize, false, instance.render.shadow3d || null);
+        drawEntity(baseColor, x, y, instance, ratio, instance.alpha * alpha, 1, 1, instance.render.f, false, false, false, instance.render, isize);
     }
     for (const instance of global.entities) {
         let alpha = instance.id === gui.playerid ? 1 : instance.alpha;
         alpha = handleScreenDistance(alpha, instance);
-        const x = instance.id === gui.playerid ? global.player.screenx : ratio * instance.render.x - px,
-            y = instance.id === gui.playerid ? global.player.screeny : ratio * instance.render.y - py;
+        const x = instance.id === gui.playerid ? global.player.screenx : ratio * instance.render.x - px;
+        const y = instance.id === gui.playerid ? global.player.screeny : ratio * instance.render.y - py;
         drawHealth(x, y, instance, ratio, gui.visibleEntities ? 1 : alpha, instance.size);
         drawName(x, y, instance, ratio, gui.visibleEntities ? alpha * 0.75 + 0.25 : alpha, instance.size);
         drawChatMessages(x, false, py, instance, ratio, gui.visibleEntities ? 1 : alpha, instance.size, px, py);
@@ -3343,18 +3145,18 @@ function drawEntities(px, py, ratio, tick) {
         const entity = global.entities.find((u) => u.id === gui.playerid);
         if (entity) {
             ctx[1].beginPath();
-            const x = global.screenWidth / 2 - px + ratio * 0,
-                y = global.screenHeight / 2 - py + ratio * 0,
-                kt = ratio * global.gameWidth,
-                ky = ratio * global.gameHeight,
-                G = global.roomSetup[0].length,
-                L = global.roomSetup.length;
+            const x = global.screenWidth / 2 - px + ratio * 0;
+            const y = global.screenHeight / 2 - py + ratio * 0;
+            const kt = ratio * global.gameWidth;
+            const ky = ratio * global.gameHeight;
+            const G = global.roomSetup[0].length;
+            const L = global.roomSetup.length;
 
             for (let S = 0; S < L; S++) {
                 for (let ea = 0; ea < G; ea++) {
-                    const Pc = x + ((ea + 0.5) / G) * kt - kt / 2,
-                        Qc = y + ((S + 0.5) / L) * ky - ky / 2,
-                        tile = global.roomSetup[S][ea];
+                    const Pc = x + ((ea + 0.5) / G) * kt - kt / 2;
+                    const Qc = y + ((S + 0.5) / L) * ky - ky / 2;
+                    const tile = global.roomSetup[S][ea];
 
                     if (tile.visibleOnBlackout) {
                         ctx[1].moveTo(Pc + ((0.5) / G) * kt, Qc);
@@ -3363,10 +3165,10 @@ function drawEntities(px, py, ratio, tick) {
                 }
             }
             for (const entity of global.entities) {
-                let x = ratio * entity.render.x - px,
-                    y = ratio * entity.render.y - py,
-                    indexes = entity.index.split("-"),
-                    m = global.mockups[parseInt(indexes[0])] ?? global.missingno[0];
+                let x = ratio * entity.render.x - px;
+                let y = ratio * entity.render.y - py;
+                const indexes = entity.index.split("-");
+                const m = global.mockups[parseInt(indexes[0])] ?? global.missingno[0];
 
                 x += global.screenWidth / 2;
                 y += global.screenHeight / 2;
@@ -3381,9 +3183,9 @@ function drawEntities(px, py, ratio, tick) {
                         ctx[1].arc(x, y, entity.size * ratio * 24, na - 0.3, na + 0.3);
                     }
                     for (const gun of m.guns) {
-                        const facing = entity.render.f,
-                            tx = x + gun.offset * Math.cos(gun.direction + gun.angle + facing) + (gun.length / 2) * Math.cos(gun.angle + facing),
-                            ty = y + gun.offset * Math.sin(gun.direction + gun.angle + facing) + (gun.length / 2) * Math.sin(gun.angle + facing);
+                        const facing = entity.render.f;
+                        const tx = x + gun.offset * Math.cos(gun.direction + gun.angle + facing) + (gun.length / 2) * Math.cos(gun.angle + facing);
+                        const ty = y + gun.offset * Math.sin(gun.direction + gun.angle + facing) + (gun.length / 2) * Math.sin(gun.angle + facing);
                         ctx[1].moveTo(tx, ty);
                         const Ia = facing + gun.angle;
                         ctx[1].arc(tx, ty, entity.size * ratio * gun.length * 6, Ia - 0.3, Ia + 0.3);
@@ -3523,9 +3325,9 @@ global.searchTankByName = searchTankByName;
 function drawUpgradeTree(spacing, alcoveSize) {
     if (lastGuiType != gui.type || global.generateTankTree) {
         try {
-            const m = util.requestEntityImage(gui.type),
-                rootName = m.rerootUpgradeTree,
-                rootIndex = [];
+            const m = util.requestEntityImage(gui.type);
+            const rootName = m.rerootUpgradeTree;
+            const rootIndex = [];
             for (const name of rootName) {
                 const mockup = global.mockups.find((i) => i && i.className === name);
                 const ind = name == undefined || !mockup ? -1 : mockup.index;
@@ -3556,14 +3358,14 @@ function drawUpgradeTree(spacing, alcoveSize) {
 
     // Render the class tree if ready.
     if (global.renderTankTree) {
-        const tileSize = alcoveSize / 2,
-            size = tileSize - 4,
-            spaceBetween = 10,
-            screenDivisor = (spaceBetween + tileSize) * 2 * global.treeScale,
-            padding = tileSize / screenDivisor,
-            dividedWidth = global.screenWidth / screenDivisor,
-            dividedHeight = global.screenHeight / screenDivisor,
-            treeFactor = 1 + spaceBetween / tileSize;
+        const tileSize = alcoveSize / 2;
+        const size = tileSize - 4;
+        const spaceBetween = 10;
+        const screenDivisor = (spaceBetween + tileSize) * 2 * global.treeScale;
+        const padding = tileSize / screenDivisor;
+        const dividedWidth = global.screenWidth / screenDivisor;
+        const dividedHeight = global.screenHeight / screenDivisor;
+        const treeFactor = 1 + spaceBetween / tileSize;
 
         // Apply momentum decay with optimization
         if (!classTreeDrag.isDragging) {
@@ -3624,10 +3426,10 @@ function drawUpgradeTree(spacing, alcoveSize) {
         ctx[2].beginPath();
 
         for (const [start, end] of branches) {
-            const sx = ((start.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth,
-                sy = ((start.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight,
-                ex = ((end.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth,
-                ey = ((end.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight;
+            const sx = ((start.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth;
+            const sy = ((start.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight;
+            const ex = ((end.x - global.scrollX) * tileSpacing + 1 + halfSize) * global.treeScale + halfWidth;
+            const ey = ((end.y - global.scrollY) * tileSpacing + 1 + halfSize) * global.treeScale + halfHeight;
 
             // Culling check with margin
             if (ex < -CULL_MARGIN || sx > global.screenWidth + CULL_MARGIN ||
@@ -3645,8 +3447,8 @@ function drawUpgradeTree(spacing, alcoveSize) {
         const scaledTileSize = tileSize * global.treeScale;
 
         for (const { x, y, colorIndex, index } of tilesToRender) {
-            const ax = (x - global.scrollX) * scaledSpacing + halfWidth,
-                ay = (y - global.scrollY) * scaledSpacing + halfHeight;
+            const ax = (x - global.scrollX) * scaledSpacing + halfWidth;
+            const ay = (y - global.scrollY) * scaledSpacing + halfHeight;
 
             // Culling check with margin
             if (ax < -scaledTileSize - CULL_MARGIN || ax > global.screenWidth + CULL_MARGIN ||
@@ -3815,11 +3617,11 @@ function drawMessages(spacing, alcoveSize) {
     var Bd = Date.now();
     var yy = config.animationSettings.ScaleBar;
     for (let i = global.messages.length - 1; i >= 0; i--) {
-        const msg = global.messages[i],
-            txt = msg.text,
-            time = Bd - msg.time,
-            duration = msg.duration - time,
-            text = txt;
+        const msg = global.messages[i];
+        const txt = msg.text;
+        const time = Bd - msg.time;
+        const duration = msg.duration - time;
+        const text = txt;
 
         if (0 >= duration) {
             global.messages.splice(i, 1);
@@ -3870,8 +3672,8 @@ function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
     if (!(instance.id === gui.playerid) && instance.alpha < 0.25) {
         return;
     }
-    const size = isize * ratio,
-        g = Math.max(20, size);
+    const size = isize * ratio;
+    const g = Math.max(20, size);
 
     if (!y) {
         y = instance.id === gui.playerid
@@ -3898,12 +3700,12 @@ function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
     // Draw all the messages
     for (let i = 0; i < messages.length; i++) {
         const chatIndex = messages.length - 1 - i;
-        const chat = messages[chatIndex],
-            text = censorChat(chat.text, document.getElementById("optNames").value),
-            msgLengthHalf = measureText(text, 0.5 * g) / 2,
-            barScale = global.GUIStatus.renderPlayerScores ? 2.66 : 2.26,
-            textScale = global.GUIStatus.renderPlayerScores ? 2.45 : 2.05,
-            valpha = chat.alpha.get();
+        const chat = messages[chatIndex];
+        const text = censorChat(chat.text, document.getElementById("optNames").value);
+        const msgLengthHalf = measureText(text, 0.5 * g) / 2;
+        const barScale = global.GUIStatus.renderPlayerScores ? 2.66 : 2.26;
+        const textScale = global.GUIStatus.renderPlayerScores ? 2.45 : 2.05;
+        const valpha = chat.alpha.get();
 
         if (chat.erased && valpha === 0) {
             util.remove(global.chats[instance.id], chatIndex); // Remove the chat object
@@ -3939,17 +3741,17 @@ function drawHealth(x, y, instance, ratio, alpha, isize) {
         fade *= fade;
         ctx[1].globalAlpha = fade;
 
-        let size = isize * ratio,
-            indexes = instance.index.split("-"),
-            m = global.mockups[parseInt(indexes[0])];
+        const size = isize * ratio;
+        const indexes = instance.index.split("-");
+        let m = global.mockups[parseInt(indexes[0])];
         if (!m) {
             m = global.missingno[0];
         }
         const realSize = (size / m.size) * m.realSize;
 
         if (instance.drawsHealth) {
-            const health = instance.render.health.get(),
-                shield = instance.render.shield.get();
+            const health = instance.render.health.get();
+            const shield = instance.render.shield.get();
 
             x += global.screenWidth / 2;
             y += global.screenHeight / 2;
@@ -4038,21 +3840,21 @@ function drawSkillBars(spacing, alcoveSize) {
     for (let i = 0; i < gui.skills.length; i++) {
         ticker--;
         //information about the bar
-        const skill = gui.skills[i],
-            name = namedata[ticker - 1],
-            level = skill.amount,
-            col = colors[skill.color],
-            cap = skill.softcap,
-            maxLevel = skill.cap;
+        const skill = gui.skills[i];
+        const name = namedata[ticker - 1];
+        const level = skill.amount;
+        const col = colors[skill.color];
+        const cap = skill.softcap;
+        const maxLevel = skill.cap;
 
         if (!cap) {
             continue;
         }
 
         len = save;
-        let max = 0,
-            extension = cap > max,
-            blocking = cap < maxLevel;
+        let max = 0;
+        const extension = cap > max;
+        const blocking = cap < maxLevel;
         if (extension) {
             max = cap;
         }
@@ -4085,7 +3887,7 @@ function drawSkillBars(spacing, alcoveSize) {
         drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
         // Skill key
-        drawText(`[${getKeybind(`KEY_UPGRADE_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
+        drawText(`[${getKeybind(`KEY_SKILL_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
         if (textcolor === colors.guiwhite) {
             // If it's active
             global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
@@ -4112,12 +3914,12 @@ function drawSelfInfo(max) {
         return;
     }
     //rendering information
-    let width = 440,
-        scorewidth = 70,
-        scorelength = 0,
-        height = 25.5,
-        x = (global.screenWidth - width) / 2,
-        y = global.screenHeight - 22 - height;
+    let width = 440;
+    let scorewidth = 70;
+    let scorelength = 0;
+    let height = 25.5;
+    let x = (global.screenWidth - width) / 2;
+    let y = global.screenHeight - 22 - height;
     if (config.graphical.oldUIStyle) {
         y += 2.5;
         width -= 90;
@@ -4147,7 +3949,7 @@ function drawSelfInfo(max) {
         }
         drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, colors.black);
         drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, colors.grey);
-        drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (1 ? Math.min(1, gui.__s.getKills()[0] / 1) : 1)), y + height / 2, height - extraHeight - 0.5, (gui.__s.getScore() / gui.__s.getKills()[0] <= 40000) ? colors.teal : colors.purple);
+        drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * Math.min(1, gui.__s.getKills()[0] / 1)), y + height / 2, height - extraHeight - 0.5, (gui.__s.getScore() / gui.__s.getKills()[0] <= 40000) ? colors.teal : colors.purple);
         extraHeight = config.graphical.oldUIStyle ? 5 : 6;
         drawText(`Kills: ${util.formatKills(...gui.__s.getKills())}`, x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12 : 13, colors.guiwhite, "center");
         extraHeight = config.graphical.oldUIStyle ? 5 : 3;
@@ -4187,7 +3989,6 @@ function handleSpeedMonitor() {
         global.serverStats.mspt_color = colors.guiwhite;
     }
 }
-const xc = { cc: 0, dc: 0 };
 function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
     // Draw minimap and FPS monitors
     // Minimap stuff starts here
@@ -4219,9 +4020,9 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
         ctx[2].clip();
 
         if (global.roomSetup.length) {
-            let W = global.roomSetup[0].length,
-                H = global.roomSetup.length,
-                i = 0;
+            const W = global.roomSetup[0].length;
+            const H = global.roomSetup.length;
+            let i = 0;
 
             // Use the rendered camera, not the unsmoothed position.
             const playerWorldX = global.player.camX;
@@ -4282,16 +4083,16 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
 
             switch (entity.type) {
                 case 2:
-                    // Draw wall entities
-                    const trueSize = (entity.size + 2) / 1.1283791671;
+                // Draw wall entities
+                { const trueSize = (entity.size + 2) / 1.1283791671;
                     const sizeOnMap = (trueSize / global.gameWidth) * len;
                     drawGuiRect(minimapX - sizeOnMap, minimapY - sizeOnMap, sizeOnMap * 2, sizeOnMap * 2);
-                    break;
+                    break; }
                 case 1:
-                    // Draw rock/other entities
-                    const entitySize = (entity.size / global.gameWidth) * len;
+                // Draw rock/other entities
+                { const entitySize = (entity.size / global.gameWidth) * len;
                     drawGuiCircle(minimapX, minimapY, entitySize);
-                    break;
+                    break; }
                 case 0:
                     // Draw other players
                     if (entity.id !== gui.playerid) {
@@ -4503,9 +4304,9 @@ function drawLeaderboard(spacing, alcoveSize, max) {
 
             // Mini-image
             if (entry.renderEntity) {
-                const xx = entryX - 1.5 * height - scale * entry.position.middle.x * Math.SQRT1_2,
-                    yy = entryY + 0.5 * height - scale * entry.position.middle.y * Math.SQRT1_2,
-                    baseColor = entry.color;
+                const xx = entryX - 1.5 * height - scale * entry.position.middle.x * Math.SQRT1_2;
+                const yy = entryY + 0.5 * height - scale * entry.position.middle.y * Math.SQRT1_2;
+                const baseColor = entry.color;
                 drawEntity(baseColor, xx, yy, entry.image, 1 / scale, 1, (scale * scale) / entry.image.size, (scale * scale) / entry.image.size / 8.5, -Math.PI / 4, true, ctx[2], false, entry.image.render, false, true);
             }
         }
@@ -4583,13 +4384,7 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
             }
             rowWidth = x;
             !global.optionsMenu_Anim.isOpened && global.clickables.upgrade.place(i, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
-
-            const upgradeSubkey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
-
-            let upgradeKey = `${getKeybind("KEY_UPGRADE_CLASS")}+${upgradeSubkey}`;
-            if (!upgradeSubkey) {
-                upgradeKey = undefined;
-            }
+            const upgradeKey = getKeybind(`KEY_UPGRADE_${upgradeNum + 1}`);
 
             drawEntityIcon(model, x, y, len, height, 1, upgradeSpin, 0.6, colorIndex++, !global.mobile ? upgradeKey : false, !global.mobile ? upgradeNum == upgradeHoverIndex : false);
 
@@ -4598,12 +4393,12 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
         }
 
         // Draw dont upgrade button
-        const h = 20,
-            textScale = (h - 0.9) - 6,
-            msg = "Don't Upgrade",
-            m = measureText(msg, textScale),
-            buttonX = initialX + (rowWidth + len - initialX) / 2,
-            buttonY = initialY + height + internalSpacing - 5;
+        const h = 20;
+        const textScale = (h - 0.9) - 6;
+        const msg = "Don't Upgrade";
+        const m = measureText(msg, textScale);
+        const buttonX = initialX + (rowWidth + len - initialX) / 2;
+        const buttonY = initialY + height + internalSpacing - 5;
 
         drawButton(buttonX, buttonY, m, h, 1, config.graphical.oldUIStyle ? "bar" : "rect", msg, textScale - 3.3, colors.vlgrey, false, false, true, "skipUpgrades", clickableRatio, {
             index: 0
@@ -4625,12 +4420,12 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
         if (upgradeHoverIndex > -1 && upgradeHoverIndex < gui.upgrades.length && !global.mobile) {
             const picture = gui.upgrades[upgradeHoverIndex][2];
             if (picture.upgradeTooltip.length > 0) {
-                let boxWidth = measureText(picture.name, alcoveSize / 10),
-                    boxX = global.mouse.x * global.screenWidth / global.canvas.width + 2,
-                    boxY = global.mouse.y * global.screenHeight / global.canvas.height + 2,
-                    boxPadding = 6,
-                    splitTooltip = picture.upgradeTooltip.split("\n"),
-                    textY = boxY + boxPadding + alcoveSize / 10;
+                let boxWidth = measureText(picture.name, alcoveSize / 10);
+                const boxX = global.mouse.x * global.screenWidth / global.canvas.width + 2;
+                const boxY = global.mouse.y * global.screenHeight / global.canvas.height + 2;
+                const boxPadding = 6;
+                const splitTooltip = picture.upgradeTooltip.split("\n");
+                let textY = boxY + boxPadding + alcoveSize / 10;
 
                 // Tooltip box width
                 for (const line of splitTooltip) {
@@ -4817,8 +4612,7 @@ function drawMobileButtons(spacing, alcoveSize) {
     };
 
     const makeButtons = (buttons, startX, startY, baseSize, clickableRatio, spacing) => {
-        let x = startX,
-            y = startY,
+        let x = startX; let y = startY; let
             index = 0;
 
         for (let row = 0; row < buttons.length; row++) {
@@ -4880,11 +4674,11 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
     statMenu.set(global.canSkill || global.showSkill || global.disconnected ? 1 : 0);
     const n = statMenu.get();
     global.clickables.stat.hide();
-    let t = alcoveSize / 2,
-        q = alcoveSize / 3,
-        x = 2 * n * spacing - spacing,
-        statNames,
-        clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
+    const t = alcoveSize / 2;
+    const q = alcoveSize / 3;
+    let x = 2 * n * spacing - spacing;
+    let statNames;
+    const clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
 
     try {
         statNames = gui.getStatNames(global.mockups[parseInt(gui.type.split("-")[0])].statnames);
@@ -4894,19 +4688,19 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
 
     if (global.canSkill || global.showSkill) {
         for (let i = 0; i < gui.skills.length; i++) {
-            const skill = gui.skills[i],
-                softcap = skill.softcap;
+            const skill = gui.skills[i];
+            const softcap = skill.softcap;
 
             if (softcap <= 0) {
                 continue;
             }
 
-            const amount = skill.amount,
-                skillColor = colors[skill.color],
-                cap = skill.cap,
-                name = statNames[9 - i].split(/\s+/),
-                halfNameLength = Math.floor(name.length / 2),
-                [name1, name2] = name.length === 1 ? [name[0], null] : [name.slice(0, halfNameLength).join(" "), name.slice(halfNameLength).join(" ")];
+            const amount = skill.amount;
+            const skillColor = colors[skill.color];
+            const cap = skill.cap;
+            const name = statNames[9 - i].split(/\s+/);
+            const halfNameLength = Math.floor(name.length / 2);
+            const [name1, name2] = name.length === 1 ? [name[0], null] : [name.slice(0, halfNameLength).join(" "), name.slice(halfNameLength).join(" ")];
 
             ctx[2].globalAlpha = 0.5;
             ctx[2].fillStyle = skillColor;
@@ -4964,8 +4758,8 @@ function drawChatInput(x, y, instance, ratio, isize) {
         return;
     }
     if (instance.id === gui.playerid) {
-        const size = isize * ratio,
-            g = Math.max(20, size);
+        const size = isize * ratio;
+        const g = Math.max(20, size);
 
         if (!global.showChat) {
             if (ichatInput === 0) {
@@ -5070,12 +4864,12 @@ const drawAdScreen = () => {
 
 const getKills = () => {
     const finalKills = {
-            " kills": [Math.round(global.finalKills[0].get()), 1],
-            " assists": [Math.round(global.finalKills[1].get()), 0.5],
-            " visitors defeated": [Math.round(global.finalKills[2].get()), 3],
-            " polygons destroyed": [Math.round(global.finalKills[3].get()), 0.05]
-        },
-        killCountTexts = [];
+        " kills": [Math.round(global.finalKills[0].get()), 1],
+        " assists": [Math.round(global.finalKills[1].get()), 0.5],
+        " visitors defeated": [Math.round(global.finalKills[2].get()), 3],
+        " polygons destroyed": [Math.round(global.finalKills[3].get()), 0.05]
+    };
+    const killCountTexts = [];
     let destruction = 0;
     for (const key in finalKills) {
         if (finalKills[key][0]) {
@@ -5128,22 +4922,22 @@ const getTips = () => {
 
 const gameDrawDead = () => {
     const glide = global.deathAnimation.get();
-    const x = global.screenWidth / 2,
-        y = Math.min(global.screenHeight / 2 - 60, global.screenHeight - 500) - 800 * (1 - global.lerp(0, 1, glide)),
-        len = 140,
-        position = global.mockups[parseInt(gui.type.split("-")[0])].position,
-        scale = len / position.axis,
-        xx = global.screenWidth / 2 - scale * position.middle.x * 0.707,
-        yy = y + scale * position.middle.y * Math.SQRT1_2,
-        picture = util.getEntityImageFromMockup(gui.type, gui.color),
-        baseColor = picture.color,
-        name = global.player.name.substring(7, global.player.name.length + 1),
-        timestamp = Math.floor(global.deathTimestamp || Date.now());
+    const x = global.screenWidth / 2;
+    const y = Math.min(global.screenHeight / 2 - 60, global.screenHeight - 500) - 800 * (1 - global.lerp(0, 1, glide));
+    const len = 140;
+    const position = global.mockups[parseInt(gui.type.split("-")[0])].position;
+    const scale = len / position.axis;
+    const xx = global.screenWidth / 2 - scale * position.middle.x * 0.707;
+    const yy = y + scale * position.middle.y * Math.SQRT1_2;
+    const picture = util.getEntityImageFromMockup(gui.type, gui.color);
+    const baseColor = picture.color;
+    const name = global.player.name.substring(7, global.player.name.length + 1);
+    const timestamp = Math.floor(global.deathTimestamp || Date.now());
 
     clearScreen(colors.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
-    drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2], false, picture.render, false, true);
+    drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
     drawText(`Level ${gui.__s.getLevel()}`, x - 270, y + 100, 12, colors.guiwhite, "center");
     drawText(picture.name, x - 270, y + 125, 18, colors.guiwhite, "center");
     drawText(`${new Date(timestamp).toISOString()}`, x, y - 164, 8.125, colors.guiwhite, "center");
@@ -5264,8 +5058,8 @@ const drawGameplay = (tick, ratio) => {
     // Use the camera the world is drawn with for the minimap so the two can't desync.
     global.player.cx.animX = global.player.camX = global.player.renderx;
     global.player.cy.animY = global.player.camY = global.player.rendery;
-    const px = ratio * global.player.renderx,
-        py = ratio * global.player.rendery;
+    const px = ratio * global.player.renderx;
+    const py = ratio * global.player.rendery;
 
     const spacing = 20;
     //draw the in game stuff
@@ -5298,18 +5092,22 @@ const drawGUI = (tick, scaleRatio) => {
     if (global.gamepadMode) {
         drawCrosshair();
     }
-    drawMessages(spacing, alcoveSize);
-    if (global.GUIStatus.renderUpgrades) {
-        drawSkillBars(spacing, alcoveSize);
-    }
-    if (global.GUIStatus.renderPlayerBars) {
-        drawSelfInfo(max);
-    }
-    drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
-    if (global.GUIStatus.renderLeaderboard) {
-        drawLeaderboard(spacing, alcoveSize, max);
-    }
-    if (global.GUIStatus.renderUpgrades) {
+    if (global.GUIStatus.renderGUI) {
+        drawMessages(spacing, alcoveSize);
+        if (global.GUIStatus.renderUpgrades) {
+            drawSkillBars(spacing, alcoveSize);
+        }
+        if (global.GUIStatus.renderPlayerBars) {
+            drawSelfInfo(max);
+        }
+        drawMinimapAndDebug(spacing, alcoveSize, global.GRAPHDATA, tick);
+        if (global.GUIStatus.renderLeaderboard) {
+            drawLeaderboard(spacing, alcoveSize, max);
+        }
+        if (global.GUIStatus.renderUpgrades) {
+            drawAvailableUpgrades(spacing, alcoveSize);
+        }
+    } else if (global.GUIStatus.renderUpgrades) {
         drawAvailableUpgrades(spacing, alcoveSize);
     }
     if (global.showTree) {
@@ -5454,38 +5252,28 @@ const THEME_SWATCHES = [
     ["black", "Borders", "The borders of all text, bars, and other UI elements, as well as the color of shells (ID 9)\nNote: It's highly recommended for this color to be a dark color and contrast the text color."]
 ];
 
-const OV_ROW1 = 41,
-    OV_ROW2 = 81,
+const OV_ROW1 = 41; const OV_ROW2 = 81; const
     OV_ROW3 = 121;
-const OV_COLORS_HEAD = 183,
-    OV_GRID_TOP = 201,
+const OV_COLORS_HEAD = 183; const OV_GRID_TOP = 201; const
     OV_GRID_PITCH = 40;
-const OV_BORDERS_HEAD = 503,
-    OV_SLIDER_TOP = 524,
+const OV_BORDERS_HEAD = 503; const OV_SLIDER_TOP = 524; const
     OV_NEON_TOP = 561;
-const OV_CTRL_H = 28,
-    OV_SWATCH = 28,
-    OV_GAP = 13,
-    OV_COL_PITCH = 145,
+const OV_CTRL_H = 28; const OV_SWATCH = 28; const OV_GAP = 13; const OV_COL_PITCH = 145; const
     OV_BADGE = 26;
-const OV_INSET_L = 24,
-    OV_INSET_R = 18,
-    OV_CODE_GAP = 11,
+const OV_INSET_L = 24; const OV_INSET_R = 18; const OV_CODE_GAP = 11; const
     OV_REMOVE_W = 98;
-const OV_SLIDER_W = 152,
+const OV_SLIDER_W = 152; const
     OV_TITLE_TOP = 30;
 const THEME_PANEL_H = 608;
-const KB_ROW_TOP = 47,
+const KB_ROW_TOP = 47; const
     KB_ROW_PITCH = 39;
 const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
-const SUPER_SECRET_SECTION_EXTRA = 120;
 const SECRET_SECTION_LAYOUT = {
-    secret: { title: "Secret Options",       titleY: 30,  rowTop: 45 },
-    super:  { title: "Super Secret Options", titleY: 310, rowTop: 325 },
-    beta:   { title: "Beta Options",         titleY: 350, rowTop: 365 },
-    legacy: { title: "Legacy Options",       titleY: 430, rowTop: 445 }
+    secret: { title: "Secret Options", titleY: 30,  rowTop: 45 },
+    beta:   { title: "Beta Options",   titleY: 230, rowTop: 245 },
+    legacy: { title: "Legacy Options", titleY: 310, rowTop: 325 }
 };
-const isSecretSection = (section) => section === "secret" || section === "super" || section === "beta" || section === "legacy";
+const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
 
 const LEGACY_THEMES = [
     ["bleach", "Bleach", "definitelynot."],
@@ -5535,6 +5323,12 @@ function savePersonalThemes(list) {
 }
 
 let _keybindEntries = null;
+function updateSecretKeybindRows() {
+    const enabled = localStorage.getItem("optSaveSkillUpgradesChecked") === "true";
+    document.querySelectorAll("#controlSettings tr[data-secret]").forEach((row) => row.classList.toggle("hidden", !enabled));
+    _keybindEntries = null;
+}
+updateSecretKeybindRows();
 function getKeybindEntries() {
     if (_keybindEntries) {
         return _keybindEntries;
@@ -6000,8 +5794,7 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     const r = clickableRatio;
     const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[1]
         ? global.optionsMenu_Anim.scrollOffsets[1].get() : 0;
-    const L = PANEL_X + OV_INSET_L,
-        W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R,
+    const L = PANEL_X + OV_INSET_L; const W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R; const
         T = PANEL_Y - scrollY;
     const hw = (W - OV_GAP) / 2;
     const put = (el, x, y, w, h) => {
@@ -6017,14 +5810,14 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
     put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
     put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
-    const bcx = L + 2 * OV_COL_PITCH,
+    const bcx = L + 2 * OV_COL_PITCH; const
         bcy = T + OV_SLIDER_TOP - 2;
     put(o.borderColor, bcx, bcy, OV_SWATCH, OV_SWATCH);
     put(o.borderHit, bcx + OV_SWATCH, bcy, 9 + measureText("Borders", 13.5), OV_SWATCH);
     o.swatches.forEach((inp, i) => {
-        const col = i % 3,
+        const col = i % 3; const
             row = (i / 3) | 0;
-        const x = L + col * OV_COL_PITCH,
+        const x = L + col * OV_COL_PITCH; const
             y = T + OV_GRID_TOP + row * OV_GRID_PITCH;
         put(inp, x, y, OV_SWATCH, OV_SWATCH);
         put(o.hits[i], x + OV_SWATCH, y, 9 + measureText(THEME_SWATCHES[i][1], 13.5), OV_SWATCH);
@@ -6045,9 +5838,7 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, colors.guiwhite, "center", true);
     drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, colors.guiwhite, "center", true);
 
-    const sx = L,
-        sy = T + OV_SLIDER_TOP,
-        SW = OV_SLIDER_W,
+    const sx = L; const sy = T + OV_SLIDER_TOP; const SW = OV_SLIDER_W; const
         SH = 20;
     const sv = themeBlend();
     ctx[2].fillStyle = colors.guiwhite;
@@ -6068,7 +5859,7 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     drawText("Blend Ratio", sx + SW + 8, midY, 13.5, colors.guiwhite, "left", true);
     drawText("Borders", sx + 2 * OV_COL_PITCH + OV_SWATCH + 9, midY, 13.5, colors.guiwhite, "left", true);
 
-    const nx = L,
+    const nx = L; const
         ny = T + OV_NEON_TOP;
     const on = Boolean(config.graphical.neon);
     ctx[2].lineWidth = 3;
@@ -6095,7 +5886,7 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
         ts.x = bcx * r;
         ts.y = (bcy + OV_SWATCH + 10) * r;
     } else if (hover >= 0) {
-        const col = hover % 3,
+        const col = hover % 3; const
             row = (hover / 3) | 0;
         ts.text = THEME_SWATCHES[hover][2];
         ts.x = (L + col * OV_COL_PITCH) * r;
@@ -6116,7 +5907,7 @@ function drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     global.ingameThemeNeon = null;
     const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[2]
         ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
-    const L = PANEL_X + 22,
+    const L = PANEL_X + 22; const
         W = PANEL_WIDTH - 44;
     const T = PANEL_Y - scrollY;
     const cr = clickableRatio * global.ratio;
@@ -6128,7 +5919,7 @@ function drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
 
     const rects = [];
     entries.forEach((e, i) => {
-        const col = i % 2,
+        const col = i % 2; const
             row = (i / 2) | 0;
         const x = L + col * colW;
         const y = T + KB_ROW_TOP + row * KB_ROW_PITCH;
@@ -6202,7 +5993,7 @@ global.applyCrosshairCursor = () => {
 };
 global.applyCrosshairCursor();
 
-function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked) {
+function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked) {
     if (global.themeOverlay) {
         global.themeOverlay.style.display = "none";
     }
@@ -6214,20 +6005,16 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnloc
     global.clickables.optionsMenu.toggleBoxes.hide();
     global.clickables.optionsMenu.HoverBoxes.hide();
     const secretTooltips = [];
-    const superExtra = superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0;
-    const sectionOffset = (section) => (section === "beta" || section === "legacy") ? superExtra : 0;
+    const fullExtra = fullUnlocked ? 40 : 0;
     for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-        if (section === "super" && !superUnlocked) {
-            continue;
-        }
-        drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + sectionOffset(section), 15.5, colors.guiwhite, "center");
+        drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, colors.guiwhite, "center");
     }
     for (let i = 0; i < global.optionsCheckboxes.length; i++) {
         const cb = global.optionsCheckboxes[i];
         if (!isSecretSection(cb.section)) {
             continue;
         }
-        if (cb.section === "super" && !superUnlocked) {
+        if (cb.fullSecret && !fullUnlocked) {
             if (cb.tooltipService) {
                 cb.tooltipService.targetAlpha = 0;
             }
@@ -6235,7 +6022,7 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnloc
         }
         const layout = SECRET_SECTION_LAYOUT[cb.section];
         const x = cb.column === 0 ? PANEL_X + 20 : PANEL_X + PANEL_WIDTH / 2 + 7.5;
-        const y = PANEL_Y + layout.rowTop + sectionOffset(cb.section) + cb.row * LINE_HEIGHT;
+        const y = PANEL_Y + layout.rowTop + (cb.section === "secret" ? 0 : fullExtra) + cb.row * LINE_HEIGHT;
         const hitSize = BOX_SIZE * clickableRatio;
         if (!cb.tooltipService) {
             cb.tooltipService = {
@@ -6268,29 +6055,14 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnloc
             if (cb.id === "optSelfCenteredMinimap") {
                 config.game.centeredMinimap = Boolean(cb.value);
             }
-            if (cb.id === "opt3DMode") {
-                config.graphical.threeDimensional = Boolean(cb.value);
-            }
             if (cb.id === "optForce169AspectRatio") {
                 config.graphical.force169AspectRatio = Boolean(cb.value);
-            }
-            if (cb.id === "optRenderOldNest") {
-                config.graphical.renderOldNest = Boolean(cb.value);
-            }
-            if (cb.id === "optWireframes") {
-                config.graphical.wireframes = Boolean(cb.value);
-            }
-            if (cb.id === "optFadeLargeEntities") {
-                config.graphical.alphaLarge = Boolean(cb.value);
             }
             if (cb.id === "optLegacyThemes") {
                 global.refreshSecretThemes();
             }
-            if (cb.id === "optListAllServers") {
-                global.loadServerSelector(global.servers);
-            }
-            if (cb.id === "optServerUptime") {
-                global.loadServerSelector(global.servers);
+            if (cb.id === "optSaveSkillUpgrades") {
+                updateSecretKeybindRows();
             }
             if (cb.id === "optShowLocalhost") {
                 if (cb.value) {
@@ -6475,9 +6247,9 @@ function drawOptionsMenu() {
     const PANEL_VISIBLE_X = mainMenuAnim;
     const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
     const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-    const superBox = (global.optionsCheckboxes || []).find((cb) => cb.id === "optSuperSecretOptions");
-    const superUnlocked = superBox ? Boolean(superBox.value) : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
-    const secretPanelH = SECRET_PANEL_H + (superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0);
+    const fullBox = (global.optionsCheckboxes || []).find((cb) => cb.id === "optSuperSecretOptions");
+    const fullUnlocked = fullBox ? Boolean(fullBox.value) : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
+    const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
     const TAB_CONTENT_HEIGHTS = [
         (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
         THEME_PANEL_H,
@@ -6648,7 +6420,7 @@ function drawOptionsMenu() {
                 // Game Appearance
                 { type: "checkbox",   id: "optRenderNames",         label: "Player Names",          column: 0, row: 0, section: "appearance", tooltip: "Show player names." },
                 { type: "checkbox",   id: "optRenderScores",        label: "Player Scores",         column: 0, row: 1, section: "appearance", tooltip: "Show player scores." },
-                { type: "checkbox",   id: "optBackgroundGrid",      label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid." },
+                { type: "checkbox",   id: "optNoGrid",              label: "Background Grid",       column: 0, row: 2, section: "appearance", tooltip: "Show the background grid.", reverseCheck: true },
                 { type: "checkbox",   id: "optPointy",              label: "Sharp Traps",           column: 0, row: 3, section: "appearance", tooltip: "Sharpen the corners of traps." },
                 { type: "checkbox",   id: "optSharpEdges",          label: "Sharp Polygons",        column: 0, row: 4, section: "appearance", tooltip: "Sharpen the corners of all polygons.\n" + "May slightly lower the frame rate." },
                 //{ type: "checkbox",   id: "coloredHealthbars",      label: "Colored Health Bars",   column: 0, row: 5, section: "appearance", tooltip: "Make the health and shield bar(s) of entities match their body color." },
@@ -6688,7 +6460,7 @@ function drawOptionsMenu() {
 
                 { type: "checkbox", id: "optRenderLeaderboard",   label: "Leaderboard",           column: 1, row: 0, section: "ui", tooltip: "Toggle the visibility of the leaderboard." },
                 { type: "checkbox", id: "optRenderMinimap",       label: "Minimap",               column: 1, row: 1, section: "ui", tooltip: "Toggle the visibility of the minimap." },
-                { type: "checkbox", id: "optExtraInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner." },
+                { type: "checkbox", id: "optReducedInfo",         label: "Extra Info",            column: 1, row: 2, section: "ui", tooltip: "Show various extra information in the bottom right corner.", reverseCheck: true },
 
                 // Extra
                 { type: "option",    id: "optUiScale",             label: "",                      column: 0, row: 0, section: "extra", tooltip: "Configure the size of the user interface.",
@@ -6724,6 +6496,7 @@ function drawOptionsMenu() {
                 { type: "checkbox",  id: "optIncognitoMode",       label: "Incognito Mode",        column: 1, row: 2, section: "extra", tooltip: "Hide you from the leaderboard and make your score appear low to other players." },
 
                 // Performance
+                //{ type: "checkbox",  id: "optDeltaEntities",       label: "Delta Entities",        column: 0, row: 0, section: "perf", tooltip: "Support delta entity updates from the server.\nTakes effect on next connection." },
                 { type: "option",    id: "optCanvas",              label: "",                      column: 0, row: 0, section: "perf", tooltip: "[WIP] Select which canvas rendering driver to use.\nMay affect the frame rate.",
                     optionData: Array.from(document.getElementById("optCanvas").options).map((option) => ({ value: option.value, label: option.textContent })),
                     width: 202.5,
@@ -6745,25 +6518,16 @@ function drawOptionsMenu() {
                 { type: "checkbox", id: "optForce169AspectRatio", label: "Force 16:9 Aspect Ratio", column: 1, row: 1, section: "secret", tooltip: "Always use a 16:9 aspect ratio to render the game." },
                 { type: "checkbox", id: "optSelfCenteredMinimap", label: "Self Centered Minimap",   column: 0, row: 2, section: "secret", tooltip: "Make yourself always centered on the minimap." },
                 { type: "checkbox", id: "optBrainrotFilter",      label: "\"Brainrot\" Filter",       column: 1, row: 2, section: "secret", tooltip: "Add the option to filter \"brainrot\" words." },
-                { type: "checkbox", id: "optRenderOldNest",       label: "Render Old Nest",         column: 0, row: 3, section: "secret", tooltip: "Color the middle third of the arena purple.\nNote: This does not accurately show where the nest is." },
-                { type: "checkbox", id: "optWireframes",          label: "Wireframes",              column: 1, row: 3, section: "secret", tooltip: "Skip entity fills, leaving only their borders." },
-                { type: "checkbox", id: "optFadeLargeEntities",   label: "Fade Large Entities",     column: 0, row: 4, section: "secret", tooltip: "Make large entities transparent." },
-                { type: "checkbox", id: "optListAllServers",      label: "List All Servers",        column: 1, row: 4, section: "secret", tooltip: "List all servers, including normally hidden servers, in the server list." },
-                { type: "checkbox", id: "optDebugHitboxes",       label: "Debug Hitboxes",          column: 0, row: 5, section: "secret", placeholder: true, tooltip: "[WIP] Show hitboxes." },
-
-                // Super Secret Options
-                { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 0, section: "super", tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
-                { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 0, section: "super", tooltip: "Display wss://localhost:5000 as one of the servers." },
-                { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
-                { type: "checkbox", id: "optKeyboardDisplay",     label: "Keyboard Display",        column: 1, row: 1, section: "super", placeholder: true, tooltip: "[WIP] Display movement and mouse control inputs beside the minimap." },
-                { type: "checkbox", id: "optUnreleasedFeatures",  label: "Additional Unreleased Features", column: 0, row: 2, section: "super", placeholder: true, tooltip: "[WIP] Enable the experimental server selector and changelog." },
+                { type: "checkbox", id: "optShowLocalhost",       label: "Show Localhost",          column: 1, row: 3, section: "secret", fullSecret: true, tooltip: "Display wss://localhost:5000 as one of the servers." },
+                { type: "checkbox", id: "optDmcaMode",            label: "DMCA Mode",               column: 0, row: 3, section: "secret", fullSecret: true, tooltip: "Censor the names and designs of all tanks which also appear in diep.io to comply with 3AM Experiences LLC's DMCA notices." },
+                { type: "checkbox", id: "optDebugBoxes",          label: "Debug Boxes",             column: 0, row: 4, section: "secret", fullSecret: true, placeholder: true, tooltip: "[WIP] Show debug boxes.\nNote: This option only works when debug assertions are enabled." },
 
                 // Beta
-                { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 0, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with." }, // [sic], same reason as above
-                { type: "checkbox", id: "optServerUptime",        label: "Server Uptime",           column: 1, row: 0, section: "beta", tooltip: "Show how long each server has been up for." },
+                { type: "checkbox", id: "optSaveSkillUpgrades",   label: "Save Skill Upgrades",     column: 0, row: 0, section: "beta", tooltip: "Add the ability save and load up to 10 sets of skill upgrades." }, // [sic], misspelling exists in arras.io too
+                { type: "checkbox", id: "optPlayerListPreview",   label: "Player List",             column: 1, row: 0, section: "beta", placeholder: true, tooltip: "[WIP] Display a list of players you have recently interacted with\nNote: Players reports are not yet fully implemented." }, // [sic], same reason as above
 
                 // Legacy
-                { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
+                { type: "checkbox", id: "opt3DMode",                label: "3D Mode",                  column: 0, row: 0, section: "legacy", placeholder: true, tooltip: `[WIP] Make arras.io 3D.\nMay lower the frame rate.${legacyOptionNotice}` },
                 { type: "checkbox", id: "optLegacyThemes",          label: "Legacy Themes",            column: 1, row: 0, section: "legacy", tooltip: `Display legacy themes in the options menu.${legacyOptionNotice}` },
                 { type: "checkbox", id: "optUncappedFrameRate",     label: "Uncapped Frame Rate",      column: 0, row: 1, section: "legacy", tooltip: "Attempt to render as many frames as possible, regardless of your monitor FPS.\nNote that this option is unlikely to actually improve game performance, and may cause crashes or significant lag on weaker devices." },
                 { type: "checkbox", id: "optUnscaledOldSpawnPanel", label: "Unscaled Old Spawn Panel", column: 1, row: 1, section: "legacy", placeholder: true, tooltip: "[WIP] Scale the original spawn panel to look the same regardless of display size." }
@@ -7097,7 +6861,7 @@ function drawOptionsMenu() {
     ctx[2].globalAlpha *= fadeSecret;
     ctx[2].translate(0, -scrollY);
     if (fadeSecret > 0.01 && activeTab === 3 && secretUnlocked) {
-        drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, superUnlocked);
+        drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlocked);
     }
     ctx[2].restore();
 
@@ -7292,10 +7056,10 @@ function animloop(tick) {
     fullScreenWidth = global.screenWidth;
     fullScreenHeight = global.screenHeight;
     const force169 = config.graphical.force169AspectRatio;
-    const viewHeight = force169 ? Math.min(fullScreenHeight, fullScreenWidth * 9 / 16) : fullScreenHeight,
-        viewWidth = force169 ? viewHeight * 16 / 9 : fullScreenWidth,
-        viewX = (fullScreenWidth - viewWidth) / 2,
-        viewY = (fullScreenHeight - viewHeight) / 2;
+    const viewHeight = force169 ? Math.min(fullScreenHeight, fullScreenWidth * 9 / 16) : fullScreenHeight;
+    const viewWidth = force169 ? viewHeight * 16 / 9 : fullScreenWidth;
+    const viewX = (fullScreenWidth - viewWidth) / 2;
+    const viewY = (fullScreenHeight - viewHeight) / 2;
     if (force169) {
         ctx[0].globalAlpha = 1;
         ctx[0].fillStyle = colors.grey;
@@ -7341,7 +7105,11 @@ function animloop(tick) {
         if (global.dailyTankAd.renderUI) {
             drawAdScreen();
         }
-        drawOptionsMenu(tick, 20, util.getScreenRatio());
+        if (global.GUIStatus.renderIngameOptions) {
+            drawOptionsMenu(tick, 20, util.getScreenRatio());
+        } else if (global.themeOverlay && global.themeOverlay.style.display !== "none") {
+            global.themeOverlay.style.display = "none";
+        }
         if (global.GUIStatus.fullHDMode) {
             ctx[2].translate(-0.5, -0.5);
         }
@@ -7350,7 +7118,7 @@ function animloop(tick) {
     } catch (e) {
 
         //hold on....
-        drawErrorScreen();
+        drawErrorScreen(); // Draw the error screen.
         if (global.GUIStatus.fullHDMode) {
             ctx[2].translate(-0.5, -0.5);
         }

@@ -6,7 +6,6 @@ import GLOBAL from "./loaders/loader.js";
 // Create the game server
 import("./game.js").then(({gameServer}) => new gameServer(
     workerData.host,
-    workerData.port,
     workerData.gamemode,
     workerData.region,
     workerData.location,

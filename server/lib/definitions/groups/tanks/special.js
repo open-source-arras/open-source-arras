@@ -1219,7 +1219,7 @@ Class.undercoverCop = {
     GUNS: Class.booster.GUNS,
     TURRETS: [
         {
-            TYPE: ["hexagonHat", { COLOR: 21 }],
+            TYPE: ["hexagonHat", { COLOR: "flashBlueGrey" }],
             POSITION: {
                 SIZE: 6,
                 Y: 8,
@@ -1227,7 +1227,7 @@ Class.undercoverCop = {
             }
         },
         {
-            TYPE: ["hexagonHat", { COLOR: 24 }],
+            TYPE: ["hexagonHat", { COLOR: "flashGreyRed" }],
             POSITION: {
                 SIZE: 6,
                 Y: -8,
@@ -1235,7 +1235,7 @@ Class.undercoverCop = {
             }
         },
         {
-            TYPE: ["squareHat", { COLOR: 22 }],
+            TYPE: ["squareHat", { COLOR: "flashGreyBlue" }],
             POSITION: {
                 SIZE: 6,
                 Y: 3,
@@ -1243,7 +1243,7 @@ Class.undercoverCop = {
             }
         },
         {
-            TYPE: ["squareHat", { COLOR: 23 }],
+            TYPE: ["squareHat", { COLOR: "flashRedGrey" }],
             POSITION: {
                 SIZE: 6,
                 Y: -3,
@@ -1606,12 +1606,12 @@ Class.flagship = {
     ]
 };
 Class.turkeyNose = {
-    COLOR: 19,
+    COLOR: "pureBlack",
     LABEL: "",
     SIZE: 6.45
 };
 Class.turkeyEye = {
-    COLOR: 18,
+    COLOR: "white",
     LABEL: "",
     TURRETS: [
         {
@@ -2050,8 +2050,8 @@ Class.arrasPolice = {
     PARENT: "undercoverCop",
     LABEL: "ARRAS POLICE",
     SIZE: 60,
-    COLOR: 16,
-    UPGRADE_COLOR: 20
+    COLOR: "grey",
+    UPGRADE_COLOR: "flashBlueRed"
 };
 Class.baseProtector = {
     PARENT: "genericTank",

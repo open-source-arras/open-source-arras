@@ -242,7 +242,7 @@ Class.undertowEffect = {
     PARENT: "genericTank",
     TYPE: "undertowEffect",
     SIZE: 5,
-    COLOR: 1,
+    COLOR: "lime",
     HITS_OWN_TYPE: "never",
     GIVE_KILL_MESSAGE: false,
     ACCEPTS_SCORE: false,
@@ -655,9 +655,6 @@ Class.sorcererDrone = {...Class.summonerDrone, SHAPE: 0};
 Class.enchantressDrone = {...Class.summonerDrone, SHAPE: 3};
 Class.exorcistorDrone = {...Class.summonerDrone, SHAPE: 5};
 Class.shamanDrone = {...Class.summonerDrone, SHAPE: 6};
-Class.sangomaDrone = {...Class.summonerDrone, SHAPE: 7};
-Class.preacherDrone = {...Class.summonerDrone, SHAPE: 8};
-Class.herbalistDrone = {...Class.summonerDrone, SHAPE: 9};
 
 // Minions
 Class.genericMinion = {

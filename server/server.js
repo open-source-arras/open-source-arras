@@ -1,4 +1,4 @@
-import { log, rounder, saveToLog, time, warn } from "./lib/util.js";
+import { log, saveToLog, time, warn } from "./lib/util.js";
 import { addonAuthorInfos, loadAllMockups, servers, travellingPlayers } from "./loaders/global.js";
 import { DefinitionCombiner } from "./lib/definitions/combined.js";
 
@@ -51,25 +51,25 @@ console.log("Successfully loaded all files.");
 console.log(`Created on date ${creationDate} at timestamp ${creationTime}`);
 
 // Define the public directory for static files
-const publicRoot = join(__dirname, "../public/"),
-    mimeSet = {
-        js: "application/javascript",
-        json: "application/json",
-        css: "text/css",
-        html: "text/html",
-        md: "text/markdown",
-        png: "image/png",
-        svg: "image/svg+xml"
-    };
+const publicRoot = join(__dirname, "../public/");
+const mimeSet = {
+    js: "application/javascript",
+    json: "application/json",
+    css: "text/css",
+    html: "text/html",
+    md: "text/markdown",
+    png: "image/png",
+    svg: "image/svg+xml"
+};
 
 const wsServer = WebSocketServer;
 
 const formatUptime = (ms) => {
     const seconds = Math.floor(ms / 1000);
-    const d = Math.floor(seconds / 86400),
-        h = Math.floor((seconds % 86400) / 3600),
-        m = Math.floor((seconds % 3600) / 60),
-        s = seconds % 60;
+    const d = Math.floor(seconds / 86400);
+    const h = Math.floor((seconds % 86400) / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
     return [d > 0 && `${d}d`, (h > 0 || d > 0) && `${h}h`, (m > 0 || h > 0 || d > 0) && `${m}m`, `${s}s`].filter(Boolean).join(" ");
 };
 
@@ -265,9 +265,9 @@ const server = createServer((req, res) => {
 });
 
 // Loads a game server
-function loadGameServer(loadViaMain = false, host, port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
+function loadGameServer(host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate) {
     // Determine the new server index and initialize an empty object in the global servers array
-    if (!loadViaMain) {
+    if (host !== Config.host) {
         const index = servers.length;
         servers.push({});
 
@@ -275,7 +275,6 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
         const worker = new Worker("./server/serverLoader.js", {
             workerData: {
                 host,
-                port: port, // Increment port for each server
                 gamemode,
                 region,
                 location,
@@ -314,13 +313,14 @@ function loadGameServer(loadViaMain = false, host, port, gamemode, region, locat
                 process.exit(1);
             }
             global.launchedOnMainServer = true;
-            new GameServer(Config.host, Config.port, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
+            new GameServer(Config.host, gamemode, region, location, webProperties, properties, isFeatured, isHidden, isPrivate, false);
         }, 10);
     }
 }
 
 // Server Loaded Callback
 let loadedServers = 0;
+const webPort = parseInt(Config.host.split(":")[1]);
 function onServerLoaded() {
     loadedServers++;
     // Once all servers are loaded, log the status and routing table
@@ -334,21 +334,19 @@ function onServerLoaded() {
             console.log("\n");
         }
         const serverStartEndTime = performance.now();
-        console.log(`Server loaded in ${rounder(serverStartEndTime, 4)} milliseconds.`);
-        console.log(`[WEB SERVER]: Server listening on port ${Config.port}`);
+        console.log(`Server loaded in ${util.rounder(serverStartEndTime, 4)} milliseconds.`);
+        console.log(`[WS] Listening on port ${webPort}`);
     }
 };
 
 export default {onServerLoaded};
 
 // Start the HTTP Server & Load Game Servers
-server.listen(Config.port, () => {
+server.listen(webPort, () => {
     Config.servers.forEach((server) => {
     // Load all of the servers.
         loadGameServer(
-            server.share_client_server,
             server.host,
-            server.port,
             server.gamemode,
             server.region,
             server.location,
@@ -381,7 +379,7 @@ server.on("upgrade", (req, socket, head) => {
 const bunLoop = setInterval(() => {
     try {
         Bun.gc(true);
-    } catch (_) {
+    } catch {
         // If Bun.gc fails, clear the interval
         clearInterval(bunLoop);
     }

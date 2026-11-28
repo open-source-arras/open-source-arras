@@ -14,7 +14,7 @@ function getSkillSaves() {
     }
 }
 
-class Canvas {
+export class Canvas {
     constructor() {
         this.directionLock = false;
         this.target = global.target;
@@ -40,6 +40,7 @@ class Canvas {
             }
             this[id].value = "";
         };
+        this.optMobile = document.getElementById("optMobile");
         this.cv = document.getElementById("gameCanvas");
         this.cvb = document.getElementById("gameCanvas-background");
         this.cvg = document.getElementById("gameCanvas-gameplay");
@@ -64,7 +65,7 @@ class Canvas {
         global.canvas = this;
     }
     init() {
-        global.mobile && optMobile.value == "mobile" || optMobile.value == "mobileWithBigJoysticks" ? ( // Mobile
+        global.mobile && this.optMobile.value == "mobile" || this.optMobile.value == "mobileWithBigJoysticks" ? ( // Mobile
             this.mobilecv = this.cv,
             this.controlTouch = null,
             this.movementTouch = null,
@@ -144,9 +145,7 @@ class Canvas {
                 let kb = {};
                 try {
                     kb = JSON.parse(localStorage.getItem("keybinds") || "{}");
-                } catch (e) {
-                    kb = {};
-                }
+                } catch { /* dont do jack */ }
                 kb[el.dataset.key] = [name, event.code];
                 localStorage.setItem("keybinds", JSON.stringify(kb));
             }
@@ -156,11 +155,11 @@ class Canvas {
             }
             global.ingameRebind = null;
         }, true);
-        window.addEventListener("gamepadconnected", (e) => {
+        window.addEventListener("gamepadconnected", () => {
             global.createMessage("Controller detected! Initalizing Gamepad mode...");
             this.runGamepad();
         });
-        window.addEventListener("gamepaddisconnected", (e) => {
+        window.addEventListener("gamepaddisconnected", () => {
             global.createMessage("Controller disconnected! Gamepad mode terminated.");
             this.stopGamepad();
         });
@@ -230,7 +229,7 @@ class Canvas {
     }
     respawn() {
         if (global.died && global.readyToRespawn && !global.cannotRespawn) {
-            this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, false, 1 * config.game.incognitoMode);
+            this.socket.talk("s", global.playerName, 0, config.game.autoLevelUp, false, config.game.incognitoMode);
             global.died = false;
             if (config.game.instantRespawn) {
                 global.cannotRespawn = false;
@@ -246,7 +245,6 @@ class Canvas {
             event.preventDefault();
             let pressed = false;
             let attributed = false;
-            const attributeKey = false;
             for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
                 const obj = global.KEY_ABILITIES[i];
                 if (global.specialKeysPressed.length && global.specialKeysPressed[0] === obj) {
@@ -337,39 +335,55 @@ class Canvas {
 
             case "ArrowUp":
                 if (!global.died && global.showTree) {
-                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                    global.classTreeDrag.isDragging = true;
+                    global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier;
+                    return;
                 }
+                this.socket.cmd.set(0, true);
+                break;
             case global.KEY_UP:
                 this.socket.cmd.set(0, true);
                 break;
             case "ArrowDown":
                 if (!global.died && global.showTree) {
-                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                    global.classTreeDrag.isDragging = true;
+                    global.classTreeDrag.momentum.y = this.treeScrollSpeed * this.treeScrollSpeedMultiplier;
+                    return;
                 }
+                this.socket.cmd.set(1, true);
+                break;
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, true);
                 break;
             case "ArrowLeft":
                 if (!global.died && global.showTree) {
-                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                    global.classTreeDrag.isDragging = true;
+                    global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier;
+                    return;
                 }
+                this.socket.cmd.set(2, true);
+                break;
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, true);
                 break;
             case "ArrowRight":
                 if (!global.died && global.showTree) {
-                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                    global.classTreeDrag.isDragging = true;
+                    global.classTreeDrag.momentum.x = this.treeScrollSpeed * this.treeScrollSpeedMultiplier;
+                    return;
                 }
+                this.socket.cmd.set(3, true);
+                break;
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
                 break;
-            case global.KEY_PRIMARY:
+            case global.KEY_MOUSE_0:
                 this.socket.cmd.set(4, true);
                 break;
-            case global.KEY_TERTIARY:
+            case global.KEY_MOUSE_1:
                 this.socket.cmd.set(5, true);
                 break;
-            case global.KEY_SECONDARY:
+            case global.KEY_MOUSE_2:
                 this.socket.cmd.set(6, true);
                 break;
             case global.KEY_LEVEL_UP:
@@ -381,13 +395,13 @@ class Canvas {
             case global.KEY_SKILL_MAX:
                 global.statMaxing = true;
                 break;
-            case global.KEY_SKILL_SAVE:
+            case global.KEY_UPGRADE_SKILL_SAVE:
                 global.skillSavePressed = true;
                 break;
-            case global.KEY_SKILL_LOAD:
+            case global.KEY_UPGRADE_SKILL_LOAD:
                 global.skillLoadPressed = true;
                 break;
-            case global.KEY_SELF_DESTRUCT:
+            case global.KEY_SUICIDE:
                 this.socket.talk("1");
                 break;
         }
@@ -415,7 +429,7 @@ class Canvas {
                     this.spinLock = !this.spinLock;
                     global.createMessage(this.spinLock ? "Spinlock enabled." : "Spinlock disabled.");
                     break;
-                case global.KEY_ALT_CONTROLS:
+                case global.KEY_REVERSE_MOUSE:
                     this.inverseMouse = !this.inverseMouse;
                     global.createMessage(this.inverseMouse ? "Reverse mouse enabled." : "Reverse mouse disabled.");
                     break;
@@ -440,18 +454,18 @@ class Canvas {
                     break;
             }
             const skill = [
-                global.KEY_UPGRADE_1,
-                global.KEY_UPGRADE_2,
-                global.KEY_UPGRADE_3,
-                global.KEY_UPGRADE_4,
-                global.KEY_UPGRADE_5,
-                global.KEY_UPGRADE_6,
-                global.KEY_UPGRADE_7,
-                global.KEY_UPGRADE_8,
-                global.KEY_UPGRADE_9,
-                global.KEY_UPGRADE_10
+                global.KEY_SKILL_1,
+                global.KEY_SKILL_2,
+                global.KEY_SKILL_3,
+                global.KEY_SKILL_4,
+                global.KEY_SKILL_5,
+                global.KEY_SKILL_6,
+                global.KEY_SKILL_7,
+                global.KEY_SKILL_8,
+                global.KEY_SKILL_9,
+                global.KEY_SKILL_10
             ].indexOf(event.code);
-            if (skill >= 0 && (global.skillSavePressed || global.skillLoadPressed)) {
+            if (skill >= 0 && localStorage.getItem("optSaveSkillUpgradesChecked") === "true" && (global.skillSavePressed || global.skillLoadPressed)) {
                 if (!event.repeat) {
                     const saves = getSkillSaves();
                     if (global.skillSavePressed) {
@@ -471,9 +485,8 @@ class Canvas {
                     }
                 }
             } else if (global.canSkill && skill >= 0) {
-                this.socket.talk("x", skill, 1 * global.statMaxing);
+                this.socket.talk("x", skill, global.statMaxing);
             }
-            // todo: map below to require a KEY_UPGRADE_CLASS press
             const upgradeMap = {
                 [global.KEY_UPGRADE_1]: 0,
                 [global.KEY_UPGRADE_2]: 1,
@@ -513,41 +526,49 @@ class Canvas {
             case "ArrowUp":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
+                this.socket.cmd.set(0, false);
+                break;
             case global.KEY_UP:
                 this.socket.cmd.set(0, false);
                 break;
             case "ArrowDown":
                 global.classTreeDrag.momentum.y = 0;
                 global.classTreeDrag.isDragging = false;
+                this.socket.cmd.set(1, false);
+                break;
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, false);
                 break;
             case "ArrowLeft":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
+                this.socket.cmd.set(2, false);
+                break;
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, false);
                 break;
             case "ArrowRight":
                 global.classTreeDrag.momentum.x = 0;
                 global.classTreeDrag.isDragging = false;
+                this.socket.cmd.set(3, false);
+                break;
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, false);
                 break;
-            case global.KEY_PRIMARY:
+            case global.KEY_MOUSE_0:
                 this.socket.cmd.set(4, false);
                 break;
-            case global.KEY_TERTIARY:
+            case global.KEY_MOUSE_1:
                 this.socket.cmd.set(5, false);
                 break;
-            case global.KEY_SECONDARY:
+            case global.KEY_MOUSE_2:
                 this.socket.cmd.set(6, false);
                 break;
             case global.KEY_SKILL_MAX:
                 global.statMaxing = false;
                 break;
-            case global.KEY_SKILL_SAVE:
-            case global.KEY_SKILL_LOAD:
+            case global.KEY_UPGRADE_SKILL_SAVE:
+            case global.KEY_UPGRADE_SKILL_LOAD:
                 global.skillSavePressed = global.skillLoadPressed = false;
                 break;
         }
@@ -596,75 +617,75 @@ class Canvas {
         }
     }
     mouseDown(mouse) {
-        let primaryFire = 4,
-            secondaryFire = 6;
+        let primaryFire = 4;
+        let secondaryFire = 6;
         if (this.inverseMouse) {
             [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         }
         global.clickables.clicked = true;
         switch (mouse.button) {
             case 0:
-                const mpos = {
-                    x: mouse.clientX * global.ratio,
-                    y: mouse.clientY * global.ratio
-                };
-                if (global.showTree) {
-                    // Start dragging if not clicking UI elements
-                    global.classTreeDrag.isDragging = true;
-                    global.classTreeDrag.startX = global.classTreeDrag.lastX = mouse.clientX;
-                    global.classTreeDrag.startY = global.classTreeDrag.lastY = mouse.clientY;
-                    global.classTreeDrag.momentum = { x: 0, y: 0 };
-                    break;
+            { const mpos = {
+                x: mouse.clientX * global.ratio,
+                y: mouse.clientY * global.ratio
+            };
+            if (global.showTree) {
+                // Start dragging if not clicking UI elements
+                global.classTreeDrag.isDragging = true;
+                global.classTreeDrag.startX = global.classTreeDrag.lastX = mouse.clientX;
+                global.classTreeDrag.startY = global.classTreeDrag.lastY = mouse.clientY;
+                global.classTreeDrag.momentum = { x: 0, y: 0 };
+                break;
+            }
+            if (global.ingameThemeSlider && global.ingameThemeSetBlend) {
+                const s = global.ingameThemeSlider;
+                if (mpos.x >= s.x && mpos.x <= s.x + s.w && mpos.y >= s.y - 8 && mpos.y <= s.y + s.h + 8) {
+                    global.ingameThemeSliderDrag = true;
+                    global.ingameThemeSetBlend(mpos.x <= s.x ? 0 : (mpos.x - s.x) / s.w);
+                    return;
                 }
-                if (global.ingameThemeSlider && global.ingameThemeSetBlend) {
-                    const s = global.ingameThemeSlider;
-                    if (mpos.x >= s.x && mpos.x <= s.x + s.w && mpos.y >= s.y - 8 && mpos.y <= s.y + s.h + 8) {
-                        global.ingameThemeSliderDrag = true;
-                        global.ingameThemeSetBlend(mpos.x <= s.x ? 0 : (mpos.x - s.x) / s.w);
-                        return;
+            }
+            if (global.ingameThemeNeon && global.ingameThemeToggleNeon) {
+                const c = global.ingameThemeNeon;
+                if (mpos.x >= c.x && mpos.x <= c.x + c.w && mpos.y >= c.y && mpos.y <= c.y + c.h) {
+                    global.ingameThemeToggleNeon();
+                    return;
+                }
+            }
+            const statIndex = global.clickables.stat.check(mpos);
+            const upgradeCheck = global.clickables.upgrade.check(mpos);
+            const optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
+            if (optionsMenu_toggleBox !== -1) {
+                const box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                if (box.type === "slidingBar") {
+                    box.trigger?.(mpos, box);
+                    global.optionsMenu_Anim.sliderMoving = box;
+                } else if (box.type === "option") {
+                    if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu !== box) {
+                        global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
+                        global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
+                        global.optionsMenu_Anim.currentOptionMenu = false;
+                    }
+                    box.optionService.opened = !box.optionService.opened;
+                    if (box.optionService.opened) {
+                        global.optionsMenu_Anim.currentOptionMenu = box, box.optionService.canClick = false;
                     }
                 }
-                if (global.ingameThemeNeon && global.ingameThemeToggleNeon) {
-                    const c = global.ingameThemeNeon;
-                    if (mpos.x >= c.x && mpos.x <= c.x + c.w && mpos.y >= c.y && mpos.y <= c.y + c.h) {
-                        global.ingameThemeToggleNeon();
-                        return;
+                break;
+            }
+            if (global.optionsCheckboxes) {
+                for (const box of global.optionsCheckboxes) {
+                    if (box.type === "option" && box.optionService.opened && global.optionsCheckboxes[optionsMenu_toggleBox] !== box && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
+                        box.optionService.opened = false;
+                        global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
+                        global.optionsMenu_Anim.currentOptionMenu = false;
                     }
                 }
-                const statIndex = global.clickables.stat.check(mpos);
-                const upgradeCheck = global.clickables.upgrade.check(mpos);
-                const optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                if (optionsMenu_toggleBox !== -1) {
-                    const box = global.optionsCheckboxes[optionsMenu_toggleBox];
-                    if (box.type === "slidingBar") {
-                        box.trigger?.(mpos, box);
-                        global.optionsMenu_Anim.sliderMoving = box;
-                    } else if (box.type === "option") {
-                        if (global.optionsMenu_Anim.currentOptionMenu && global.optionsMenu_Anim.currentOptionMenu !== box) {
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
-                            global.optionsMenu_Anim.currentOptionMenu = false;
-                        }
-                        box.optionService.opened = !box.optionService.opened;
-                        if (box.optionService.opened) {
-                            global.optionsMenu_Anim.currentOptionMenu = box, box.optionService.canClick = false;
-                        }
-                    }
-                    break;
-                }
-                if (global.optionsCheckboxes) {
-                    for (const box of global.optionsCheckboxes) {
-                        if (box.type === "option" && box.optionService.opened && global.optionsCheckboxes[optionsMenu_toggleBox] !== box && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
-                            box.optionService.opened = false;
-                            global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
-                            global.optionsMenu_Anim.currentOptionMenu = false;
-                        }
-                    }
-                }
-                if (statIndex !== -1) {
-                    this.socket.talk("x", statIndex, 0);
-                } else if (
-                    !global.dailyTankAd.renderUI &&
+            }
+            if (statIndex !== -1) {
+                this.socket.talk("x", statIndex, 0);
+            } else if (
+                !global.dailyTankAd.renderUI &&
                     global.clickables.optionsMenu.toggleBoxes.check(mpos) == -1 &&
                     global.clickables.optionsMenu.switchButton.check(mpos) == -1 &&
                     global.optionsMenu_Anim.tabClickables.check(mpos) == -1 &&
@@ -674,10 +695,10 @@ class Canvas {
                     global.clickables.optionsMenu.mainMenuIdle.check(mpos) === false &&
                     upgradeCheck == -1 &&
                     !global.died
-                ) {
-                    this.socket.cmd.set(primaryFire, true);
-                }
-                break;
+            ) {
+                this.socket.cmd.set(primaryFire, true);
+            }
+            break; }
             case 1:
                 this.socket.cmd.set(5, true);
                 break;
@@ -687,15 +708,15 @@ class Canvas {
         }
     }
     mouseUp(mouse) {
-        let primaryFire = 4,
-            secondaryFire = 6;
+        let primaryFire = 4;
+        let secondaryFire = 6;
         if (this.inverseMouse) {
             [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
         }
         global.clickables.clicked = false;
         switch (mouse.button) {
             case 0:
-                global.optionsMenu_Anim.sliderMoving = false;
+            { global.optionsMenu_Anim.sliderMoving = false;
                 if (global.ingameThemeSliderDrag) {
                     global.ingameThemeSliderDrag = false;
                     return;
@@ -855,7 +876,7 @@ class Canvas {
                             } else {
                                 this.socket.cmd.set(primaryFire, false);
                             }
-                break;
+                break; }
             case 1:
                 this.socket.cmd.set(5, false);
                 break;
@@ -1012,15 +1033,15 @@ class Canvas {
         }
         const cv = this.screenshotCanvas.getCanvas();
         const save = () => {
-            var x = cv.toDataURL(),
-                k = atob(x.split(",")[1]);
+            var x = cv.toDataURL();
+            var k = atob(x.split(",")[1]);
             x = x.split(",")[0].split(":")[1].split(";")[0];
             const p = new Uint8Array(k.length);
             for (let a = 0; a < k.length; a++) {
                 p[a] = k.charCodeAt(a);
             }
-            const q = URL.createObjectURL(new Blob([p], {type: x})),
-                w = document.createElement("a");
+            const q = URL.createObjectURL(new Blob([p], {type: x}));
+            const w = document.createElement("a");
             w.style.display = "none";
             w.setAttribute("download", "image.png");
             w.setAttribute("href", q);
@@ -1187,7 +1208,7 @@ class Canvas {
                     global.screenWidth * 0.6,
                     global.screenHeight * 0.12
                 );
-                const cx = (mpos.x - (this.cv.width * 1) / 6) / ratio / 2;
+                const cx = (mpos.x - this.cv.width / 6) / ratio / 2;
                 const cy = (mpos.y - (this.cv.height * 2) / 3) / ratio / 2;
                 let touchX = cx;
                 let touchY = cy;
@@ -1198,7 +1219,7 @@ class Canvas {
                     touchY = Math.sin(angle) * radius;
                 }
                 this.movementTouchPos = { x: touchX, y: touchY };
-                let x = mpos.x - (this.cv.width * 1) / 6;
+                let x = mpos.x - this.cv.width / 6;
                 let y = mpos.y - (this.cv.height * 2) / 3;
                 const norm = Math.sqrt(x * x + y * y);
                 x /= norm;
@@ -1411,7 +1432,7 @@ class Canvas {
                 // Shoot
                 if (this.gamepad.buttons[7].pressed) {
                     if (global.died && global.readyToRespawn && !global.cannotRespawn) {
-                        this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp);
+                        this.socket.talk("s", global.playerName, 0, config.game.autoLevelUp);
                         global.died = false;
                     } else {
                         this.socket.cmd.set(4, true);
@@ -1468,4 +1489,3 @@ class Canvas {
         this.socket.cmd.set(6, false);
     }
 }
-export { Canvas };

@@ -68,7 +68,6 @@ export class Siege {
             [5, "enchantress"],
             [5, "exorcistor"],
             [5, "shaman"],
-            [5, "witch"],
 
             //elites
             [1, "eliteDestroyer"],

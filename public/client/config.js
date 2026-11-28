@@ -18,7 +18,6 @@ const config = {
         force169AspectRatio: false,
         oldUIStyle: false,
         renderSkins: true,
-        coloredNest: false,
         renderOldNest: false,
         colors: "normal",
         pointy: true,
@@ -31,6 +30,7 @@ const config = {
         threeDimensional: false,
         wireframes: false,
         alphaLarge: false,
+        debugHitboxes: false,
         coloredHealthbars: false,
         separatedHealthbars: false,
         shakeProperties: {
@@ -52,7 +52,7 @@ const config = {
     lag: {
         unresponsive: false,
         memory: 500,
-        offset: +location.hash.match(/^(?:#debug_lag_offset=(\d+))?/)[1] || -50
+        offset: parseInt(location.hash.match(/^(?:#debug_lag_offset=(\d+))?/)[1]) || -50
     },
     game: {
         autoLevelUp: false,
@@ -60,7 +60,8 @@ const config = {
         centeredMinimap: false,
         incognitoMode: false,
         rainbowTeamColors: false,
-        dmcaMode: false
+        dmcaMode: false,
+        keyboardDisplay: false
     }
 };
 export { config };

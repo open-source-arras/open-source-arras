@@ -11,6 +11,7 @@ import "../projectiles.js";
 import "../tanks/main.js";
 import "../hats.js";
 import "../turrets.js";
+import "../obstacles.js";
 
 Class.celestial = {
     PARENT: "miniboss",

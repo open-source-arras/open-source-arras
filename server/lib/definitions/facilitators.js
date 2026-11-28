@@ -1483,7 +1483,7 @@ export function makeAura(damageFactor = 1, sizeFactor = 1, opacity = 0.3, auraCo
         PARENT: "genericTank",
         INDEPENDENT: true,
         LABEL: "",
-        COLOR: 17,
+        COLOR: "darkGrey",
         GUNS: [
             {
                 POSITION: {

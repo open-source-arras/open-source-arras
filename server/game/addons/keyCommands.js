@@ -36,8 +36,8 @@ function init() {
         };
     }
     function nearest(array, location, test = () => true) {
-        let lowest = Infinity,
-            closest;
+        let lowest = Infinity;
+        let closest;
         for (const instance of array.values()) {
             const distance = (instance.x - location.x) ** 2 + (instance.y - location.y) ** 2;
             if (distance < lowest && test(instance, distance)) {
@@ -49,7 +49,7 @@ function init() {
     }
     function makeHelpList(command, showPrefix = true) {
         const name = command.name;
-        let keyStr, defaultChar;
+        let keyStr; let defaultChar;
         if (command.displayKey) {
             keyStr = command.displayKey;
             defaultChar = command.displayKey;
@@ -307,18 +307,18 @@ function init() {
             permissionLevel: 1,
             run: ({ player }) => {
                 const colors = [
-                    "teal", "shiny", "triangle",
-                    "yellow", "lavender", "aqua",
-                    "crasher", "egg", "wall",
+                    "teal", "lime", "orange",
+                    "yellow", "aqua", "pink",
+                    "veryLightGrey", "lightGrey",
                     "pureWhite", "black", "blue",
-                    "green", "red", "square",
-                    "pentagon", "magenta", "grey",
-                    "rogue", "white", "pureBlack",
-                    "animatedBlueRed", "animatedBlueGrey", "animatedGreyBlue",
-                    "animatedRedGrey", "animatedGreyRed", "mustard",
+                    "green", "red", "gold",
+                    "purple", "magenta", "grey",
+                    "darkGrey", "white", "pureBlack",
+                    "flashBlueRed", "flashBlueGrey",
+                    "flashGreyBlue", "flashRedGrey",
+                    "flashGreyRed", "mustard",
                     "tangerine", "brown", "cyan",
-                    "lesbian", "rainbow", "trans",
-                    "trueTrans", "bi", "animatedMagenta"
+                    "rainbow", "trans"
                 ];
                 const target = targetEntities(player);
                 if (target.length) {
@@ -851,8 +851,8 @@ function init() {
             keys: [[["KEY_SPECIAL_BAN", "O"]]],
             permissionLevel: 6,
             run: ({ socket, player }) => {
-                const types = 2,
-                    typeNames = [["permanent", "permanently"], ["temporary", "temporarily"]];
+                const types = 2;
+                const typeNames = [["permanent", "permanently"], ["temporary", "temporarily"]];
                 function selectPlayer(player) {
                     let found = null;
                     for (const o of entities.values()) {
@@ -1009,8 +1009,8 @@ function init() {
             codes = ["default"];
         }
         const name = codes.find((code) => code.startsWith("-")) || codes[codes.length - 1];
-        let command,
-            length = 0;
+        let command;
+        let length = 0;
         for (const cmd of commands) {
             for (const keys of cmd.keys) {
                 if (keys.length > length && keys[keys.length - 1][0] === name && keys.slice(0, -1).every((key) => codes.includes(key[0]))) {

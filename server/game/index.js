@@ -352,7 +352,7 @@ export class gameHandler {
             instance.emit("tick", { body: instance });
 
             // Only walls and food can sleep.
-            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) {
+            if (Config.entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) {
                 instance.sleeping = true;
             }
         }
@@ -480,8 +480,8 @@ export class gameHandler {
         // Spawn bosses
         if (this.checkUsers() && Config.enable_bosses && !this.naturallySpawnedBosses.length && this.bossTimer++ > Config.boss_spawn_cooldown) {
             this.bossTimer = -Config.boss_spawn_delay - 2;
-            const selection = Config.boss_types[chooseChance(...Config.boss_types.map((selection) => selection.chance))],
-                amount = chooseChance(...selection.amount) + 1;
+            const selection = Config.boss_types[chooseChance(...Config.boss_types.map((selection) => selection.chance))];
+            const amount = chooseChance(...selection.amount) + 1;
             if (selection.message) {
                 gameManager.socketManager.broadcast(selection.message);
             }
@@ -490,8 +490,8 @@ export class gameHandler {
                 const names = chooseBossName(selection.nameType, amount);
 
                 for (let i = 0; i < amount; i++) {
-                    let spot,
-                        attempts = 30;
+                    let spot;
+                    let attempts = 30;
                     const name = names[i];
                     do {
                         spot = getSpawnableArea(TEAM_ENEMIES, gameManager);
@@ -528,8 +528,8 @@ export class gameHandler {
         // Add new bots if arena is open
         if (!gameManager.arenaClosed && !global.cannotRespawn && this.bots.length < Config.bot_cap) {
             const team = Config.mode === "tdm" || Config.mode === "tag" ? getWeakestTeam(gameManager) : undefined;
-            let limit = 20, // give up after 20 attempts and just pick whatever is currently chosen
-                loc;
+            let limit = 20; // give up after 20 attempts and just pick whatever is currently chosen
+            let loc;
             do {
                 loc = getSpawnableArea(team, gameManager);
             } while (limit-- && dirtyCheck(loc, 50, gameManager));

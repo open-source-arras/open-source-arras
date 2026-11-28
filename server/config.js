@@ -1,400 +1,323 @@
-export const Config = {
-    // Public
-    index: "index.html", // Where the main menu is located (in the /public folder).
-    host: "localhost:8080", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
-    port: 8080, // Which port to run the web server on.
+export const index = "index.html";
+export const host = "localhost:8080";
+export const allow_ACAO = false;
+export const broadcast_divisor = 1;
+export const entity_sleep = true;
+export const load_all_mockups = false;
+export const verbose_logs = false;
+export const visible_list_interval = 250;
+export const per_message_deflate = {
+    threshold: 1024, // Don't bother compressing messages smaller than this.
+    concurrencyLimit: 10, // How many messages can be compressed at once.
+    zlibDeflateOptions: {
+        level: 3, // 1 (fast) - 9 (small). 3 is plenty for game traffic.
+        memLevel: 8 // 1-9. Higher uses more memory per player for slightly smaller packets.
+    }
+};
+export const max_fov = 25000;
+export const view_extra_margin = 150;
+export const editor = true;
+export const servers = [
+    {
+        host: "localhost:8080",
 
-    // Server
-    broadcast_divisor: 1, // How often to send entity/camera updates, in ticks. 1 = every tick.
-    enable_entity_sleep: true, // Still, inert bodies (walls etc.) can skip per-tick work.
-    load_all_mockups: false, // Set to true if you want every mockup to be loaded when the server starts. Useful for debugging, but may noticeably slow down server startup.
-    verbose_logs: false, // Enable detailed startup logs and log speed loop warnings in the terminal.
-    visible_list_interval: 250, // How often to update the list of the entities that players can see. Has effects of when entities are activated.
-    per_message_deflate: { // Compress websocket messages, saves a lot of bandwidth on big packets. Replace the object with "false" to disable.
-        threshold: 1024, // Don't bother compressing messages smaller than this.
-        concurrencyLimit: 10, // How many messages can be compressed at once.
-        zlibDeflateOptions: {
-            level: 3, // 1 (fast) - 9 (small). 3 is plenty for game traffic.
-            memLevel: 8 // 1-9. Higher uses more memory per player for slightly smaller packets.
-        }
-    },
-    max_fov: 25000, // Hard cap for camera FOV sent to clients.
-    view_extra_margin: 150, // Extra margin beyond the visible viewport.
-    editor: true, // Enable the editor at '[host]/ext/editor'.
+        id: "la",
+        region: "Local",
+        location: "Localhost",
 
-    /* SERVER PROPERTIES INFORMATION - Make sure to change the host, port and id between servers!
+        gamemode: ["ffa"],
+        player_cap: 80,
 
-        share_client_server - Forces your server to share the same host and port as the client.
-        - Only one server at a time can have this enabled.
-        - This is REQUIRED if your server host doesn't support multi-ports and forces everything through the main server.
+        featured: false,
+        hidden: false,
+        private: false,
 
-        host        - Server host location.
-        port        - The port on the server.
-        id          - (<host>/#<id>)
-
-        region      - The region tab the server is sorted into on the main menu.
-        location    - The location of the server in the server list tooltip.
-        gamemode    - The selected gamemode.
-        player_cap  - Not including bots. Set to 0 to disable.
-
-        featured    - Whether the server is featured or not.
-        hidden      - Whether the server shows up in the server list (if its id isn't in the url).
-        private     - Whether the server requires a privileged token to join (except through server travel).
-
-        properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
-
-    */
-
-    servers: [
-        {
-            share_client_server: false,
-            host: "localhost:3000",
-            port: 3000,
-            id: "la",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["ffa"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                allow_server_travel: true,
-                bot_cap: 20,
-                daily_tank: {
-                    tank: "desmos",
-                    tier: 3,
-                    ads: true,
-                    ad_sources: [
-                        {
-                            file: "example_video_ad.mp4",
-                            use_regular_ad_size: true
-                        },
-                        {
-                            file: "example_image_ad.png",
-                            use_regular_ad_size: true
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3001",
-            port: 3001,
-            id: "lb",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["tdm"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                teams: 2,
-                bot_cap: 20
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3002",
-            port: 3002,
-            id: "lc",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["space", "open_tdm"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                round_arena: true,
-                teams: 3,
-                server_travel_properties: {
-                    loop_interval: 10_000, // how often the portal loop executes in milliseconds
-                    portals: 1 // amount of portals to spawn
-                },
-                server_travel: [
+        properties: {
+            allow_server_travel: true,
+            bot_cap: 20,
+            daily_tank: {
+                tank: "desmos",
+                tier: 3,
+                ads: true,
+                ad_sources: [
                     {
-                        ip: "localhost:3000", // destination server host
-                        portal_properties: {
-                            spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
-                            color: "blue"
-                        }
+                        file: "example_video_ad.mp4",
+                        use_regular_ad_size: true
+                    },
+                    {
+                        file: "example_image_ad.png",
+                        use_regular_ad_size: true
                     }
                 ]
             }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3003",
-            port: 3003,
-            id: "ld",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["domination"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                teams: 4,
-                bot_cap: 20
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3004",
-            port: 3004,
-            id: "le",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["mothership"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                mothership_time_limit: 30_000,
-                teams: 2,
-                bot_cap: 30
-            }
-        },
-        {
-            share_client_server: false,
-            host: "localhost:3101",
-            port: 3101,
-            id: "lpa",
-
-            region: "Local",
-            location: "Localhost",
-            gamemode: ["sandbox"],
-            player_cap: 80,
-
-            featured: false,
-            hidden: false,
-            private: false,
-
-            properties: {
-                allow_server_travel: true
-            }
         }
-    ],
-
-    // Web Server
-    allow_ACAO: false, // Access-Control-Allow-Origin, allows any server/client to access data from the web server.
-
-    // Map
-    map_tile_width: 420,
-    map_tile_height: 420,
-
-    spawn_message: true, // Whether to send the popup message(s) that appear on spawn.
-    chat_message_duration: 15_000, // How long a chat message lasts in milliseconds.
-    popup_message_duration: 10_000, // How long a popup message lasts in milliseconds.
-    sanitize_chat_input: true, // If you don't want your players to color their messages. They get sanitized after addons interpret them, but before they're added to the chat message dictionary.
-    broadcast_leader_usurped: false, // Broadcasts "The leader has been usurped by..." when the leader dies.
-
-    // Seasonal
-    seasonal_events: true, // Enable seasonal events at specific times of the year
-    force_fireworks: false, // Forcefully enable fireworks (automatic around 4th of July (should be only in US region servers tbh))
-    force_spooky_theme: false, // Forcefully enable seasonal halloween theme (adds eyes to walls and replaces rocks with pumpkins)
-    force_thanksgiving: false, // Forcefully enable seasonal american thanksgiving theme (replaces Motherships with Turkeys)
-
-    // Gameplay
-    game_speed: 1, // General game speed.
-    run_speed: 1.5, // General multiplier for acceleration and max speeds.
-    max_heartbeat_interval: 300_000, // How long (in milliseconds) a socket can be disconnected before their tank self-destructs.
-    respawn_delay: 0, // How long (in seconds) you have to wait to respawn. Set to 0 to disable.
-    instant_respawn: false, // Allow players to respawn instantly via Enter key, bypassing the respawn delay timer.
-    afk_key_commands: false, // Allow AFK players to use key commands.
-
-    upgrade_delay: 3_000, // How long (in milliseconds) you have to stay still to upgrade outside of a base. Set to 0 to disable.
-    upgrade_delay_reminder: 20_000, // How often (in milliseconds) you will be reminded to stay still and not shoot to upgrade outside of a base if you haven't upgraded yet.
-    reverse_tank_cooldown: true, // Enable the "Please slow down!" cooldown when spamming Reverse Tank.
-
-    bullet_spawn_offset: 1, // Where the bullet spawns, where 1 is fully outside the barrel and -1 is fully inside the barrel, and 0 is halfway between.
-    damage_multiplier: 1, // General damage multiplier everytime damage is dealt.
-    knockback_multiplier: 1.1, // General knockback multiplier everytime knockback is applied.
-    glass_health_factor: 2, // TODO: Figure out how the math behind this works.
-    room_bound_force: 0.01, // How strong the force is that confines entities to the map and portals apply to entities.
-    soft_max_skill: 0.59, // TODO: Find out what the intention behind the implementation of this configuration is.
-
-    mothership_time_limit: 0, // How long (in milliseconds) a player can have in control of their team's mothership. Set to 0 to disable.
-
-    // When an entity reaches a level, this function is called and returns how many skill points that entity gets for reaching that level.
-    defineLevelSkillPoints: (level) => {
-        if (level < 2) {
-            return 0;
-        }
-        if (level <= 40) {
-            return 1;
-        }
-        if (level <= 45 && level & 1 === 1) {
-            return 1;
-        }
-        return 0;
     },
+    {
+        host: "localhost:3001",
 
-    level_cap: 45, // Maximum normally achievable level.
-    level_cap_cheat: 45, // Maximum level via the level-up key and auto-level-up.
+        id: "lb",
+        region: "Local",
+        location: "Localhost",
 
-    skill_cap: 9, // Default skill caps.
-    skill_cap_soft: 0, // TODO: Figure out what this does.
-    tier_multiplier: 15, // Level difference between each upgrade tier.
+        gamemode: ["tdm"],
+        player_cap: 80,
 
-    // Bots
-    bot_cap: 0, // Maximum number of bots that can be on the server. Set to 0 to disable bots.
-    bot_xp_gain: 60, // How much XP bots get until they reach level_cap.
-    bot_start_level: 45, // How much XP bots will receive when first created.
-    bot_skill_upgrade_chances: [1, 1, 3, 4, 4, 4, 4, 2, 1, 1], // The chances of a bot upgrading a specific skill when skill upgrades are available.
-    bot_class_upgrade_chances: [1, 5, 20, 37, 37], // The chances of a bot upgrading a specific amount of times before it stops upgrading.
-    bot_name_prefix: "[AI] ", // This is prefixed before the bot's randomly chosen name.
+        featured: false,
+        hidden: false,
+        private: false,
 
-    // The class that players and bots spawn as.
-    spawn_class: "basic",
-
-    // How every entity regenerates their health.
-    regenerate_tick: 100,
-
-    // Food
-    enable_food: true, // Allows food to spawn.
-    food_cap: 150, // Maximum number of regular food at any time.
-    food_cap_nest: 15, // Maximum number of nest food at any time.
-    enemy_cap_nest: 10, // Maximum number of enemy nest food at any time.
-    food_group_cap: 6, // Number of foods that random food groups spawn with
-
-    // Tiered Food
-    food_types: Array(3).fill().map((_, i, a) => [ // Possible food types outside the nest
-    // Chance of spawning in exponents of 4
-        4 ** (a.length - i),
-        // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
-        Array(3).fill().map((_, j, b) => [
-            // Chance of spawning in exponents of 5
-            5 ** (b.length - j),
-            // 6-wide dimension of the 6 shiny modifiers
-            Array(6).fill().map((_, k, c) => [
-                // Chance of spawning, set to 200mil for regular polygons and exponents of 10 otherwise
-                k ? 10 ** (c.length - k - 1) : 200_000_000,
-
-                // 2-wide dimension of the 2 shape "ranks" - normal, crasher
-                // laby_${poly}_${tier}_${shiny}_${rank}
-                [
-                    [24, `laby_${i}_${j}_${k}_0`],
-                    [1, `laby_${i}_0_${k}_1`] // comment out this line to disable crashers outside nest
-                ]
-            ])
-        ])
-    ]),
-    food_types_nest: Array(2).fill().map((_, i, a) => [ // Possible food types in the nest
-    // Chance of spawning in exponents of 4
-        4 ** (a.length - i),
-        // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
-        Array(3).fill().map((_, j, b) => [
-            // Chance of spawning in exponents of 5
-            5 ** (b.length - j),
-            // 6-wide dimension of the 6 shiny modifiers
-            Array(6).fill().map((_, k, c) => [
-                // Chance of spawning, set to 200mil for regular polygons and exponents of 10 otherwise
-                k ? 10 ** (c.length - k - 1) : 200_000_000,
-
-                // 2-wide dimension of the 2 shape "ranks" - normal, crasher
-                // laby_${poly}_${tier}_${shiny}_${rank}
-                [
-                    [24, `laby_${i + 3}_${j}_${k}_0`],
-                    [1, `laby_${i + 3}_0_${k}_1`] // comment out this line to disable crashers in nest
-                ]
-            ])
-        ])
-    ]),
-
-    // Classic Food
-    classic_food: false, // Enables classic (Old Dreadnoughts) food types.
-    classic_food_types: [ // Possible classic food types outside the nest
-        [1, [
-            [65, "egg"], [64, "square"], [45, "triangle"], [7, "pentagon"]
-        ]],
-        [1 / 50000, [
-            [625, "gem"], [125, "shinySquare"], [25, "shinyTriangle"], [5, "shinyPentagon"]
-        ]],
-        [1 / 1000000, [
-            [1296, "jewel"], [216, "legendarySquare"], [36, "legendaryTriangle"], [6, "legendaryPentagon"]
-        ]]
-    ],
-    classic_food_types_nest: [ // Possible classic food types in the nest
-        [1, [
-            [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]
-        ]]
-    ],
-    classic_enemy_types_nest: [ // Possible classic enemy food types in the nest
-        [1, [
-            [1, "crasher"]
-        ]],
-        [1 / 20, [
-            [1, "sentryGun"], [1, "sentrySwarm"], [1, "sentryTrap"]
-        ]]
-    ],
-
-    // Bosses
-    enable_bosses: true,
-    boss_control: false, // Allows players to control bosses like dominators and motherships.
-    boss_spawn_cooldown: 260, // The delay (in seconds) between boss spawns.
-    boss_spawn_delay: 6, // The delay (in seconds) between the boss spawn being announced and the boss(es) actually spawning.
-    boss_types: [
-        {
-            bosses: ["eliteDestroyer", "eliteGunner", "eliteSprayer", "eliteBattleship", "eliteSpawner"],
-            amount: [5, 5, 4, 2, 1], chance: 2, nameType: "a"
-        },
-        {
-            bosses: ["roguePalisade"],
-            amount: [4, 1], chance: 1, nameType: "castle",
-            message: "A strange trembling..."
-        },
-        {
-            bosses: ["summoner", "eliteSkimmer", "nestKeeper"],
-            amount: [2, 2, 1], chance: 1, nameType: "a",
-            message: "A strange trembling..."
+        properties: {
+            teams: 2,
+            bot_cap: 20
         }
-        /*{
-            bosses: ["paladin", "freyja", "zaphkiel", "nyx", "theia"],
-            amount: [1], chance: 0.01,
-            message: "The world tremors as the celestials are reborn anew!",
-        },
-        {
-            bosses: ["julius", "genghis", "napoleon"],
-            amount: [1], chance: 0.1,
-            message: "The darkness arrives as the realms are torn apart!",
-        }*/
-    ],
+    },
+    {
+        host: "localhost:3002",
 
-    // How many members a team can have in comparison to an unweighed team.
-    // Example: We have team A and B. If the weight of A is 2 and B is 1, then the game will try to give A twice as many members as B.
-    // Check game/gamemodes/config to see how this works.
-    team_weights: {},
+        id: "lc",
+        region: "Local",
+        location: "Localhost",
 
-    // Fun
-    brain_damage: false, // Violently shakes your camera and tank if you name yourself 'Brain Damage'. Disabled by default for epilepsy concerns.
-    random_body_colors: false,
+        gamemode: ["space", "open_tdm"],
+        player_cap: 80,
 
-    // Room setup (don't change these unless you know what you're doing)
-    room_setup: ["default"],
-    round_arena: false,
-    mode: "ffa",
+        featured: false,
+        hidden: false,
+        private: false,
 
-    // Development
-    dev_build: true // Whether this version is unstable and should be clearly marked as such.
-};
+        properties: {
+            round_arena: true,
+            teams: 3,
+            server_travel_properties: {
+                loop_interval: 10000, // how often the portal loop executes in milliseconds
+                portals: 1 // amount of portals to spawn
+            },
+            server_travel: [
+                {
+                    ip: "localhost:3000", // destination server host
+                    portal_properties: {
+                        spawn_chance: 3, // chance for a portal to spawn somewhere in the map each loop iteration (higher = lower chances, lower = higher chance)
+                        color: "blue"
+                    }
+                }
+            ]
+        }
+    },
+    {
+        host: "localhost:3003",
+
+        id: "ld",
+        region: "Local",
+        location: "Localhost",
+
+        gamemode: ["domination"],
+        player_cap: 80,
+
+        featured: false,
+        hidden: false,
+        private: false,
+
+        properties: {
+            teams: 4,
+            bot_cap: 20
+        }
+    },
+    {
+        host: "localhost:3004",
+
+        id: "le",
+        region: "Local",
+        location: "Localhost",
+
+        gamemode: ["mothership"],
+        player_cap: 80,
+
+        featured: false,
+        hidden: false,
+        private: false,
+
+        properties: {
+            mothership_time_limit: 30000,
+            teams: 2,
+            bot_cap: 30
+        }
+    },
+    {
+        host: "localhost:3101",
+
+        id: "lpa",
+        region: "Local",
+        location: "Localhost",
+
+        gamemode: ["sandbox"],
+        player_cap: 80,
+
+        featured: false,
+        hidden: false,
+        private: false,
+
+        properties: {
+            allow_server_travel: true
+        }
+    }
+];
+export const map_tile_width = 420;
+export const map_tile_height = 420;
+export const spawn_message = true;
+export const chat_message_duration = 15000;
+export const popup_message_duration = 10000;
+export const sanitize_chat_input = true;
+export const broadcast_leader_usurped = false;
+export const seasonal_events = true;
+export const force_fireworks = false;
+export const force_spooky_theme = false;
+export const force_thanksgiving = false;
+export const game_speed = 1;
+export const run_speed = 1.5;
+export const max_heartbeat_interval = 300000;
+export const respawn_delay = 0;
+export const instant_respawn = false;
+export const afk_key_commands = false;
+export const upgrade_delay = 3000;
+export const upgrade_delay_reminder = 20000;
+export const reverse_tank_cooldown = true;
+export const bullet_spawn_offset = 1;
+export const damage_multiplier = 1;
+export const knockback_multiplier = 1.1;
+export const glass_health_factor = 2;
+export const room_bound_force = 0.01;
+export const soft_max_skill = 0.59;
+export const mothership_time_limit = 0;
+export function defineLevelSkillPoints(level) {
+    if (level < 2) {
+        return 0;
+    }
+    if (level <= 40) {
+        return 1;
+    }
+    if (level <= 45 && level & 1 === 1) {
+        return 1;
+    }
+    return 0;
+}
+export const level_cap = 45;
+export const level_cap_cheat = 45;
+export const skill_cap = 9;
+export const skill_cap_soft = 0;
+export const tier_multiplier = 15;
+export const bot_cap = 0;
+export const bot_xp_gain = 60;
+export const bot_start_level = 45;
+export const bot_skill_upgrade_chances = [1, 1, 3, 4, 4, 4, 4, 2, 1, 1];
+export const bot_class_upgrade_chances = [1, 5, 20, 37, 37];
+export const bot_name_prefix = "[AI] ";
+export const spawn_class = "basic";
+export const regenerate_tick = 100;
+export const enable_food = true;
+export const food_cap = 150;
+export const food_cap_nest = 15;
+export const enemy_cap_nest = 10;
+export const food_group_cap = 6;
+export const food_types = Array(3).fill().map((_, i, a) => [
+    // Chance of spawning in exponents of 4
+    4 ** (a.length - i),
+    // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
+    Array(3).fill().map((_, j, b) => [
+        // Chance of spawning in exponents of 5
+        5 ** (b.length - j),
+        // 6-wide dimension of the 6 shiny modifiers
+        Array(6).fill().map((_, k, c) => [
+            // Chance of spawning, set to 200mil for regular polygons and exponents of 10 otherwise
+            k ? 10 ** (c.length - k - 1) : 200000000,
+
+            // 2-wide dimension of the 2 shape "ranks" - normal, crasher
+            // laby_${poly}_${tier}_${shiny}_${rank}
+            [
+                [24, `laby_${i}_${j}_${k}_0`],
+                [1, `laby_${i}_0_${k}_1`] // comment out this line to disable crashers outside nest
+            ]
+        ])
+    ])
+]);
+export const food_types_nest = Array(2).fill().map((_, i, a) => [
+    // Chance of spawning in exponents of 4
+    4 ** (a.length - i),
+    // 4-wide dimension of the 4 shape tiers - regular, beta, alpha, omega
+    Array(3).fill().map((_, j, b) => [
+        // Chance of spawning in exponents of 5
+        5 ** (b.length - j),
+        // 6-wide dimension of the 6 shiny modifiers
+        Array(6).fill().map((_, k, c) => [
+            // Chance of spawning, set to 200mil for regular polygons and exponents of 10 otherwise
+            k ? 10 ** (c.length - k - 1) : 200000000,
+
+            // 2-wide dimension of the 2 shape "ranks" - normal, crasher
+            // laby_${poly}_${tier}_${shiny}_${rank}
+            [
+                [24, `laby_${i + 3}_${j}_${k}_0`],
+                [1, `laby_${i + 3}_0_${k}_1`] // comment out this line to disable crashers in nest
+            ]
+        ])
+    ])
+]);
+export const classic_food = false;
+export const classic_food_types = [
+    [1, [
+        [65, "egg"], [64, "square"], [45, "triangle"], [7, "pentagon"]
+    ]],
+    [1 / 50000, [
+        [625, "gem"], [125, "shinySquare"], [25, "shinyTriangle"], [5, "shinyPentagon"]
+    ]],
+    [1 / 1000000, [
+        [1296, "jewel"], [216, "legendarySquare"], [36, "legendaryTriangle"], [6, "legendaryPentagon"]
+    ]]
+];
+export const classic_food_types_nest = [
+    [1, [
+        [16, "pentagon"], [4, "betaPentagon"], [1, "alphaPentagon"]
+    ]]
+];
+export const classic_enemy_types_nest = [
+    [1, [
+        [1, "crasher"]
+    ]],
+    [1 / 20, [
+        [1, "sentryGun"], [1, "sentrySwarm"], [1, "sentryTrap"]
+    ]]
+];
+export const enable_bosses = true;
+export const boss_control = false;
+export const boss_spawn_cooldown = 260;
+export const boss_spawn_delay = 6;
+export const boss_types = [
+    {
+        bosses: ["eliteDestroyer", "eliteGunner", "eliteSprayer", "eliteBattleship", "eliteSpawner"],
+        amount: [5, 5, 4, 2, 1], chance: 2, nameType: "a"
+    },
+    {
+        bosses: ["roguePalisade"],
+        amount: [4, 1], chance: 1, nameType: "castle",
+        message: "A strange trembling..."
+    },
+    {
+        bosses: ["summoner", "eliteSkimmer", "nestKeeper"],
+        amount: [2, 2, 1], chance: 1, nameType: "a",
+        message: "A strange trembling..."
+    }
+    /*{
+        bosses: ["paladin", "freyja", "zaphkiel", "nyx", "theia"],
+        amount: [1], chance: 0.01,
+        message: "The world tremors as the celestials are reborn anew!",
+    },
+    {
+        bosses: ["julius", "genghis", "napoleon"],
+        amount: [1], chance: 0.1,
+        message: "The darkness arrives as the realms are torn apart!",
+    }*/
+];
+export const team_weights = {};
+export const brain_damage = false;
+export const random_body_colors = false;
+export const room_setup = ["default"];
+export const mode = "ffa";
+export const dev_build = true;

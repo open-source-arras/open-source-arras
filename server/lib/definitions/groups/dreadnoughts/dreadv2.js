@@ -1,6 +1,6 @@
 import { combineStats, dereference, makeAura, makeAuto, makeHat, weaponArray, weaponMirror } from "../../facilitators.js";
 import { base, smshskl } from "../../constants.js";
-import { basic, pelleter, power, turret as _turret, assassin, pounder, destroyer, drone, flankGuard, autoTurret, minionGun, trap, swarm, lowPower, skimmer, overseer, sniper, minion, twin, artillery, rifle, setTrap, machineGun, hunter, hunterSecondary, spam, triplet, predator } from "../../gunvals.js";
+import { basic, pelleter, power, turret as _turret, assassin, pounder, destroyer, drone, flankGuard, autoTurret, minionGun, trap, lowPower, skimmer, overseer, sniper, minion, twin, artillery, rifle, setTrap, machineGun, hunter, hunterSecondary, spam, triplet, predator, swarm } from "../../gunvals.js";
 import { Config, ensureIsClass } from "../../../../loaders/global.js";
 import { Class } from "../../../../loaders/global.js";
 import { forcePush } from "../../../util.js";
@@ -111,7 +111,7 @@ Class.genericEggnought = {
     PARENT: "genericDreadnought_dreadsV2",
     BODY: eggnoughtBody,
     SHAPE: 0,
-    COLOR: "egg",
+    COLOR: "veryLightGrey",
     SIZE: 16,
     DANGER: 8
 };
@@ -119,7 +119,7 @@ Class.genericSquarenought = {
     PARENT: "genericDreadnought_dreadsV2",
     BODY: squarenoughtBody,
     SHAPE: 4,
-    COLOR: "square",
+    COLOR: "gold",
     SIZE: 20,
     DANGER: 9
 };
@@ -127,7 +127,7 @@ Class.genericTrinought = {
     PARENT: "genericDreadnought_dreadsV2",
     BODY: trinoughtBody,
     SHAPE: 3.5,
-    COLOR: "triangle",
+    COLOR: "orange",
     SIZE: 23,
     DANGER: 10
 };
@@ -135,7 +135,7 @@ Class.genericPentanought = {
     PARENT: "genericDreadnought_dreadsV2",
     BODY: pentanoughtBody,
     SHAPE: 5.5,
-    COLOR: "pentagon",
+    COLOR: "purple",
     SIZE: 25,
     DANGER: 11
 };
@@ -143,7 +143,7 @@ Class.genericHexnought = {
     PARENT: "genericDreadnought_dreadsV2",
     BODY: hexnoughtBody,
     SHAPE: 6,
-    COLOR: "hexagon",
+    COLOR: "aqua",
     SIZE: 26,
     DANGER: 12
 };
@@ -170,7 +170,7 @@ Class.dropperTurret_dreadsV2 = {
     CONTROLLERS: [["spin", {speed: -0.035}]],
     INDEPENDENT: true,
     LABEL: "",
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray({
         POSITION: {
             LENGTH: 16,
@@ -234,7 +234,7 @@ Class.showerTurret_dreadsV2 = {
         FOV: 1.5
     },
     CONTROLLERS: [["spin", {speed: 0.03}]],
-    COLOR: 16,
+    COLOR: "grey",
     INDEPENDENT: true,
     MAX_CHILDREN: 4,
     GUNS: [
@@ -272,7 +272,7 @@ Class.spamAutoTurret = {
 Class.aggressorMinion_dreadsV2 = {
     PARENT: "minion",
     SHAPE: 3.5,
-    COLOR: "triangle",
+    COLOR: "orange",
     GUNS: weaponArray({
         POSITION: [16, 8.5, 1, 0, 0, 0, 0],
         PROPERTIES: {
@@ -285,7 +285,7 @@ Class.aggressorMinion_dreadsV2 = {
 Class.assailantMinion_dreadsV2 = {
     PARENT: "minion",
     SHAPE: 4,
-    COLOR: "square",
+    COLOR: "gold",
     GUNS: weaponArray({
         POSITION: [15, 7.5, 1, 0, 0, 0, 0],
         PROPERTIES: {
@@ -307,7 +307,7 @@ Class.betadrone = {
 Class.gladiatorGenericMinion_dreadsV2 = {
     PARENT: "minion",
     SHAPE: 3.5,
-    COLOR: "crasher",
+    COLOR: "pink",
     GUNS: []
 };
 Class.gladiatorTritankMinion_dreadsV2 = {
@@ -317,7 +317,7 @@ Class.gladiatorTritankMinion_dreadsV2 = {
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([basic, assassin, minionGun, {speed: 1.06, maxSpeed: 1.06, reload: 1.8, health: 1.3}]),
             WAIT_TO_CYCLE: true,
-            TYPE: ["bullet", {COLOR: 5}]
+            TYPE: ["bullet", {COLOR: "pink"}]
         }
     }, 3)
 };
@@ -342,7 +342,7 @@ Class.gladiatorTriswarmMinion_dreadsV2 = {
         POSITION: [7, 8.5, -1.5, 7, 0, 0, 0],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([swarm, flankGuard, minionGun, {speed: 1.1, maxSpeed: 1.1, reload: 1.6, size: 1.6, range: 1.15}]),
-            TYPE: ["swarm", {COLOR: 5}],
+            TYPE: ["swarm", {COLOR: "pink"}],
             STAT_CALCULATOR: "swarm"
         }
     }, 3)
@@ -373,7 +373,7 @@ Class.spotterRadar_dreadsV2 = {
     CONTROLLERS: [["spin", {speed: 0.02}]],
     INDEPENDENT: true,
     SHAPE: [[0.225, 1], [0.225, -1], [-0.225, -1], [-0.225, 1]],
-    COLOR: 17,
+    COLOR: "darkGrey",
     GUNS: [
         {
             POSITION: [4.5, 26, 1, -2.25, 0, 0, 0],
@@ -425,7 +425,7 @@ Class.hexagonLeviathanTop_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [6, 10, 0.001, 9.5, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 6)
 };
 Class.hexagonLeviathanBottom_dreadsV2 = {
@@ -433,7 +433,7 @@ Class.hexagonLeviathanBottom_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [7, 13.5, 0.001, 9.5, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 6)
 };
 Class.pentagonLeviathanTop_dreadsV2 = {
@@ -441,7 +441,7 @@ Class.pentagonLeviathanTop_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [6, 13.5, 0.001, 9, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 5)
 };
 Class.pentagonLeviathanBottom_dreadsV2 = {
@@ -449,14 +449,14 @@ Class.pentagonLeviathanBottom_dreadsV2 = {
     LABEL: "Leviathan",
     GUNS: weaponArray({
         POSITION: [7, 17, 0.001, 9, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 5)
 };
 Class.titanTop_dreadsV2 = {
     PARENT: "genericTrinought",
     GUNS: weaponArray({
         POSITION: [5, 26, 0.001, 8, 0, 0, 0],
-        PROPERTIES: {COLOR: 9}
+        PROPERTIES: {COLOR: "black"}
     }, 3)
 };
 
@@ -496,12 +496,12 @@ Class.dreadnought_dreadsV2 = {
 };
 Class.dreadWeapon_dreadsV2 = {
     LABEL: "",
-    COLOR: "egg",
+    COLOR: "veryLightGrey",
     REROOT_UPGRADE_TREE: "dreadWeapon_dreadsV2"
 };
 Class.dreadBody_dreadsV2 = {
     LABEL: "",
-    COLOR: "egg",
+    COLOR: "veryLightGrey",
     REROOT_UPGRADE_TREE: "dreadBody_dreadsV2"
 };
 
@@ -1819,7 +1819,7 @@ Class.moon_dreadsV2 = {
     PROPS: [
         {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["triangle", {COLOR: 9}]
+            TYPE: ["triangle", {COLOR: "black"}]
         }, {
             POSITION: [12, 0, 0, 180, 1],
             TYPE: "triangle"
@@ -1837,7 +1837,7 @@ Class.planet_dreadsV2 = {
     PROPS: [
         {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["triangle", {COLOR: 9}]
+            TYPE: ["triangle", {COLOR: "black"}]
         }, {
             POSITION: [12, 0, 0, 180, 1],
             TYPE: "triangle"
@@ -2283,7 +2283,7 @@ Class.astronomic_dreadsV2 = {
             TYPE: "pentagon"
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };
@@ -2294,10 +2294,10 @@ Class.behemoth_dreadsV2 = {
     PROPS: [
         {
             POSITION: [15, 0, 0, 180, 1],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };
@@ -2351,7 +2351,7 @@ Class.grandiose_dreadsV2 = {
             TYPE: "pentagon"
         }, {
             POSITION: [24, 0, 0, 180, 0],
-            TYPE: ["pentagon", {COLOR: 9}]
+            TYPE: ["pentagon", {COLOR: "black"}]
         }
     ]
 };
@@ -3146,27 +3146,27 @@ function mergeHexnoughtWeaponV2(weapon1, weapon2) {
     weapon1 = ensureIsClass(weapon1);
     weapon2 = ensureIsClass(weapon2);
 
-    const PARENT = "genericHexnought",
-        GUNS = [],
-        gunsOnOneSide = [],
-        weapon2GunsOnOneSide = [],
-        TURRETS = [],
-        turretsOnOneSide = [],
-        weapon2TurretsOnOneSide = [];
+    const PARENT = "genericHexnought";
+    const GUNS = [];
+    const gunsOnOneSide = [];
+    const weapon2GunsOnOneSide = [];
+    const TURRETS = [];
+    const turretsOnOneSide = [];
+    const weapon2TurretsOnOneSide = [];
 
     // Label
-    const name1 = hexDreadNames[weapon1.LABEL][weapon2.LABEL],
-        name2 = hexDreadNames[weapon2.LABEL][weapon1.LABEL];
-    let weaponName = weapon1.LABEL + weapon2.LABEL,
-        orientationId = 0;
+    const name1 = hexDreadNames[weapon1.LABEL][weapon2.LABEL];
+    const name2 = hexDreadNames[weapon2.LABEL][weapon1.LABEL];
+    let weaponName = weapon1.LABEL + weapon2.LABEL;
+    let orientationId = 0;
     if (name1) {
         weaponName = name1;
     } else if (name2) {
         weaponName = name2,
         orientationId = 1;
     }
-    const LABEL = weaponName,
-        className = `${weapon1.LABEL.toLowerCase() + weapon2.LABEL + orientationId}_dreadsV2`;
+    const LABEL = weaponName;
+    const className = `${weapon1.LABEL.toLowerCase() + weapon2.LABEL + orientationId}_dreadsV2`;
 
     // Guns ----------------------
     if (weapon1.GUNS) {
@@ -3259,11 +3259,11 @@ function makeHexnoughtBodyV2(body) {
 
     body = ensureIsClass(body);
 
-    const PARENT = "genericHexnought",
-        BODY = {},
-        TURRETS = [],
-        PROPS = [],
-        LABEL = body.LABEL;
+    const PARENT = "genericHexnought";
+    const BODY = {};
+    const TURRETS = [];
+    const PROPS = [];
+    const LABEL = body.LABEL;
 
     // Label
     const className = `${LABEL.toLowerCase()}Hex_dreadsV2`;

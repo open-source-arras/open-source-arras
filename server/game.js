@@ -105,14 +105,15 @@ const getName = (name, data) => {
 
 // Here is our actual game server
 export class GameServer {
-    constructor(host, port, gamemode, region, location, webProperties, serverProperties, isfeatured, isHidden, isPrivate, parentPort, loaderGlobal) {
-    // Override the default settings in Config.js.
+    constructor(host, gamemode, region, location, webProperties, serverProperties, isfeatured, isHidden, isPrivate, parentPort, loaderGlobal) {
+        // Override the default settings in Config.js.
         Object.keys(serverProperties).forEach((key) => {
             Config[key] = serverProperties[key];
         });
+
         // Define host, port, gamemode, region, and publicly define webProperties, and serverProperties.
         this.host = host;
-        this.port = port;
+        this.port = parseInt(this.host.split(":")[1]);
         this.gamemode = gamemode;
         this.region = region;
         this.location = location;
@@ -130,6 +131,10 @@ export class GameServer {
             }
         );
         this.loaderGlobal = loaderGlobal;
+        if (!Number.isInteger(this.port)) {
+            throw Error(`One of your servers (#${this.webProperties.id} at ${this.host}) does not have a valid port set!`);
+        };
+
         // Initalize.
         this.roomSpeed = Config.game_speed;
         this.runSpeed = Config.run_speed;
@@ -164,7 +169,7 @@ export class GameServer {
     // Get the game info
     getInfo(includegameManager = false) {
         return {
-            ip: this.host === "localhost" ? `${this.host}:${this.port}` : this.host,
+            ip: this.host,
             port: this.port,
             players: this.socketManager.clients.length,
             maxPlayers: this.webProperties.maxPlayers,
@@ -350,7 +355,8 @@ export class GameServer {
                 this.serverTravelHandler = [];
                 for (let i = 0; i < Config.server_travel.length; i++) {
                     const instance = Config.server_travel[i];
-                    this.serverTravelHandler[i] = new (require("./game/addons/serverTravel.js").serverTravelHandler)(instance, instance.portal_properties.spawn_chance, instance.portal_properties.color);
+                    const serverTravelModule = await import("./game/addons/serverTravel.js");
+                    this.serverTravelHandler[i] = new serverTravelModule.serverTravelHandler(instance, instance.portal_properties.spawn_chance, instance.portal_properties.color);
                     setInterval(() => {
                         let y = 1;
                         if (Config.server_travel_properties.portals) {
@@ -466,7 +472,7 @@ export class GameServer {
                 const a = Math.floor((location.y + this.room.height / 2) / this.room.tileWidth);
                 const b = Math.floor((location.x + this.room.width / 2) / this.room.tileHeight);
                 return this.room.setup[a][b];
-            } catch (_) {
+            } catch {
                 return undefined;
             }
         };
@@ -511,11 +517,11 @@ export class GameServer {
         });
     }
     // Set up the room
-    setRoom() {
+    async setRoom() {
     // Get the room setup(s)
         for (const filename of Config.room_setup) {
             // ... get the current setup
-            this.currentRoom = require(`./game/gamemodes/rooms/${filename}.js`);
+            this.currentRoom = await import(`./game/gamemodes/rooms/${filename}.js`);
             Config.roomHeight = this.currentRoom.length;
             Config.roomWidth = this.currentRoom[0].length;
 

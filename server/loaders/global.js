@@ -29,8 +29,8 @@ function chooseUpgradeFromBranch(remaining, my) {
     }
 
     const upgradeClass = [];
-    let upgradeTier = 0,
-        upgradeIndex = "";
+    let upgradeTier = 0;
+    let upgradeIndex = "";
     for (const u of my.selection) {
         upgradeClass.push(u.class);
         upgradeIndex += `${u.index}-`;
@@ -358,9 +358,9 @@ function bringToLife(my) {
 
 function runMove(my, now = Date.now()) {
     let engine = { x: 0, y: 0 };
-    const g = { x: my.control.goal.x - my.x, y: my.control.goal.y - my.y },
-        gactive = g.x !== 0 || g.y !== 0,
-        a = my.acceleration / global.gameManager.roomSpeed;
+    const g = { x: my.control.goal.x - my.x, y: my.control.goal.y - my.y };
+    const gactive = g.x !== 0 || g.y !== 0;
+    const a = my.acceleration / global.gameManager.roomSpeed;
     if (gactive && my.lastMovementTime) {
         my.lastMovementTime = now;
     }
@@ -389,14 +389,14 @@ function runMove(my, now = Date.now()) {
             my.maxSpeed = my.topSpeed;
             const l = getDistance({ x: 0, y: 0 }, g) + 1;
             if (gactive && l > my.size) {
-                const desiredxspeed = (my.topSpeed * g.x) / l,
-                    desiredyspeed = (my.topSpeed * g.y) / l,
-                    turning = Math.sqrt(
-                        (my.topSpeed *
+                const desiredxspeed = (my.topSpeed * g.x) / l;
+                const desiredyspeed = (my.topSpeed * g.y) / l;
+                const turning = Math.sqrt(
+                    (my.topSpeed *
                             Math.max(1, my.motionTypeArgs.turnVelocity ?? my.range) +
                             1
-                        ) / a
-                    );
+                    ) / a
+                );
                 engine = {
                     x: (desiredxspeed - my.velocity.x) / Math.max(5, turning),
                     y: (desiredyspeed - my.velocity.y) / Math.max(5, turning)
@@ -416,8 +416,8 @@ function runMove(my, now = Date.now()) {
                 const l = getDistance({ x: 0, y: 0 }, g);
                 if (l > my.size * 2) {
                     my.maxSpeed = my.topSpeed;
-                    const desiredxspeed = (my.topSpeed * g.x) / l,
-                        desiredyspeed = (my.topSpeed * g.y) / l;
+                    const desiredxspeed = (my.topSpeed * g.x) / l;
+                    const desiredyspeed = (my.topSpeed * g.y) / l;
                     engine = {
                         x: (desiredxspeed - my.velocity.x) * a,
                         y: (desiredyspeed - my.velocity.y) * a
@@ -459,8 +459,8 @@ function runMove(my, now = Date.now()) {
 };
 
 function runFace(my) {
-    const t = my.control.target,
-        oldFacing = my.facing;
+    const t = my.control.target;
+    const oldFacing = my.facing;
     function defaultBound() {
         let givenangle;
         if (my.control.main) {
@@ -664,9 +664,9 @@ function defineSplit(defs, branch, set, my) {
     if (set.TURRETS != null) {
         for (let i = 0; i < set.TURRETS.length; i++) {
             let turretDanger = false;
-            const def = set.TURRETS[i],
-                o = new TurretEntity(def.POSITION, my, my.master),
-                type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
+            const def = set.TURRETS[i];
+            const o = new TurretEntity(def.POSITION, my, my.master);
+            const type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
             for (let j = 0; j < type.length; j++) {
                 o.define(type[j]);
                 if (type.TURRET_DANGER) {
@@ -681,9 +681,9 @@ function defineSplit(defs, branch, set, my) {
     }
     if (set.PROPS != null) {
         for (let i = 0; i < set.PROPS.length; i++) {
-            const def = set.PROPS[i],
-                o = new Prop(def.POSITION, my.master, true),
-                type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
+            const def = set.PROPS[i];
+            const o = new Prop(def.POSITION, my.master, true);
+            const type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
             for (let j = 0; j < type.length; j++) {
                 o.define(type[j]);
             }
@@ -840,12 +840,12 @@ function makeHitbox(wall) {
     const z = wall.size - 4;
     //calculate the relative corners
     const relativeCorners = [
-            Math.atan2(z, z) + wall.angle,
-            Math.atan2(0 - z, z) + wall.angle,
-            Math.atan2(0 - z, 0 - z) + wall.angle,
-            Math.atan2(z, 0 - z) + wall.angle
-        ],
-        distance = Math.sqrt(z ** 2 + z ** 2);
+        Math.atan2(z, z) + wall.angle,
+        Math.atan2(0 - z, z) + wall.angle,
+        Math.atan2(0 - z, 0 - z) + wall.angle,
+        Math.atan2(z, 0 - z) + wall.angle
+    ];
+    const distance = Math.sqrt(z ** 2 + z ** 2);
 
     //convert 4 corners into 4 lines
     for (let i = 0; i < 4; i++) {
@@ -865,17 +865,17 @@ function makeHitbox(wall) {
 };
 
 const wallTypes = [
-    { color: 16, label: "Wall", alpha: 1, class: "wall" },
-    { color: 12, label: "deadly", alpha: 1, class: "deadlyWall" },
-    { color: 11, label: "heal", alpha: 1, class: "healingWall" },
-    { color: 19, label: "bouncy", alpha: 1, class: "bouncyWall" },
-    { color: 5, label: "breaker", alpha: 1, class: "breakerWall" },
-    { color: 0, label: "chunks", alpha: 1, class: "chunksWall" },
-    { color: 13, label: "optical", alpha: 1, class: "opticalWall" },
-    { color: 17, label: "!up", alpha: 1, class: "oneWayWallUp" },
-    { color: 17, label: "!down", alpha: 1, class: "oneWayWallDown" },
-    { color: 17, label: "!left", alpha: 1, class: "oneWayWallLeft" },
-    { color: 17, label: "!right", alpha: 1, class: "oneWayWallRight" }
+    { color: "grey", label: "Wall",    alpha: 1, class: "wall" },
+    { color: "red", label: "deadly",  alpha: 1, class: "deadlyWall" },
+    { color: "green", label: "heal",    alpha: 1, class: "healingWall" },
+    { color: "pureBlack", label: "bouncy",  alpha: 1, class: "bouncyWall" },
+    { color: "pink",  label: "breaker", alpha: 1, class: "breakerWall" },
+    { color: "teal",  label: "chunks",  alpha: 1, class: "chunksWall" },
+    { color: "gold", label: "optical", alpha: 1, class: "opticalWall" },
+    { color: "darkGrey", label: "!up",     alpha: 1, class: "oneWayWallUp" },
+    { color: "darkGrey", label: "!down",   alpha: 1, class: "oneWayWallDown" },
+    { color: "darkGrey", label: "!left",   alpha: 1, class: "oneWayWallLeft" },
+    { color: "darkGrey", label: "!right",  alpha: 1, class: "oneWayWallRight" }
 ];
 
 function becomeBulletChildren(socket, player, exit, newgui) {

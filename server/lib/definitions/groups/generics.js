@@ -216,7 +216,7 @@ Class.genericSmasher = {
 Class.flag = {
     LABEL: "Flag",
     SIZE: 20,
-    COLOR: 3,
+    COLOR: "yellow",
     TURRETS: [
         {
             TYPE: "flagHat",
@@ -261,7 +261,7 @@ Class.genericObstacle = {
         STEALTH: 1
     },
     VALUE: 0,
-    COLOR: "lightGray",
+    COLOR: "lightGrey",
     ACCEPTS_SCORE: false,
     VARIES_IN_SIZE: true
 };
@@ -720,7 +720,13 @@ for (let i = 0; i < 60; i++) {
         spawnDelay = Math.random() * 4;
     }
     Class.serverPortal.GUNS.push({
-        POSITION: [2, 8, 1, -150, 0, 360 / 60 * i, spawnDelay],
+        POSITION: {
+            LENGTH: 2,
+            WIDTH: 8,
+            X: -150,
+            ANGLE: 360 / 60 * i,
+            DELAY: spawnDelay
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([
                 basic,
@@ -759,7 +765,12 @@ for (let i = 0; i < 2; i++) {
         i++;
     }
     Class.serverPortal.GUNS.push({
-        POSITION: [2, 14, 1, 2.5, 0, 0, i],
+        POSITION: {
+            LENGTH: 2,
+            WIDTH: 14,
+            X: 2.5,
+            DELAY: i
+        },
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([basic, {damage: 0, speed: 0, maxSpeed: 0, reload: 0.4, recoil: 0, size: 3}]),
             TYPE: "portalAura",

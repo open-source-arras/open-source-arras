@@ -5,64 +5,58 @@ import { forcePush } from "../../../util.js";
 import { Class, ensureIsClass, TEAM_ROOM } from "../../../../loaders/global.js";
 
 const dreadnoughtBody = {
-        SPEED: base.SPEED * 0.6,
-        HEALTH: base.HEALTH * 4,
-        DAMAGE: base.DAMAGE * 2.5,
-        SHIELD: base.SHIELD * 2.5,
-        FOV: base.FOV * 1.25,
-        DENSITY: base.DENSITY * 6,
-        REGEN: base.REGEN
-    },
-    dreadv1Generic = {
-        damage: 1.35,
-        range: 0.8,
-        recoil: 0
-    },
-    dreadv1Sniper = {
-        speed: 1.07,
-        maxSpeed: 1.07,
-        health: 1.2,
-        damage: 1.1,
-        reload: 1.13,
-        density: 1.8,
-        pen: 1.05,
-        resist: 1.2,
-        range: 0.8
-    },
-    dreadv1Slow = {
-        health: 1.3,
-        damage: 1.25,
-        resist: 1.1,
-        speed: 0.65,
-        maxSpeed: 0.65
-    },
-    dreadv1Drone = {
-        health: 1.1,
-        speed: 0.77,
-        maxSpeed: 0.77,
-        reload: 1.65,
-        size: 1.2,
-        recoil: 0
-    },
-    dreadv1Trap = {
-        range: 1.3,
-        shudder: 0.2,
-        speed: 0.95,
-        reload: 2.8,
-        damage: 1.45,
-        health: 1.35,
-        resist: 1.1,
-        size: 1.25
-    };
+    SPEED: base.SPEED * 0.6,
+    HEALTH: base.HEALTH * 4,
+    DAMAGE: base.DAMAGE * 2.5,
+    SHIELD: base.SHIELD * 2.5,
+    FOV: base.FOV * 1.25,
+    DENSITY: base.DENSITY * 6,
+    REGEN: base.REGEN
+};
+const dreadv1Generic = {
+    damage: 1.35,
+    range: 0.8,
+    recoil: 0
+};
+const dreadv1Sniper = {
+    speed: 1.07,
+    maxSpeed: 1.07,
+    health: 1.2,
+    damage: 1.1,
+    reload: 1.13,
+    density: 1.8,
+    pen: 1.05,
+    resist: 1.2,
+    range: 0.8
+};
+const dreadv1Slow = {
+    health: 1.3,
+    damage: 1.25,
+    resist: 1.1,
+    speed: 0.65,
+    maxSpeed: 0.65
+};
+const dreadv1Drone = {
+    health: 1.1,
+    speed: 0.77,
+    maxSpeed: 0.77,
+    reload: 1.65,
+    size: 1.2,
+    recoil: 0
+};
+const dreadv1Trap = {
+    range: 1.3,
+    shudder: 0.2,
+    speed: 0.95,
+    reload: 2.8,
+    damage: 1.45,
+    health: 1.35,
+    resist: 1.1,
+    size: 1.25
+};
 
 // Set the below variable to true to disable the level requirements for upgrading.
 const free_upgrades = true;
-
-// Set the below variable to true to enable the Medicare/Medicaid healing bodies.
-const enable_medicare_branch = true;
-
-// Set the below variable to true to make Dreadnoughts use the Rogues color instead of the Hexagon color.
-const old_dreadnought_color = false;
 
 // Map elements
 function portalRings(color = "#1c3766") {
@@ -131,12 +125,12 @@ Class.spikyPortalSpikes_dreadsV1 = {
     FACING_TYPE: ["spin", {speed: 0.07}],
     GUNS: weaponArray({
         POSITION: [30, 8, 0.001, 0, 0, 0, 0],
-        PROPERTIES: {COLOR: "egg"}
+        PROPERTIES: {COLOR: "veryLightGrey"}
     }, 5)
 };
 Class.spikyPortalBumps_dreadsV1 = {
     SHAPE: "M 1 0 L 0.666 0.216 L 0.566 0.41 L 0.41 0.566 L 0.309 0.951 L 0 0.7 L -0.215 0.665 L -0.412 0.565 L -0.809 0.588 L -0.666 0.217 L -0.699 0.001 L -0.664 -0.217 L -0.809 -0.588 L -0.412 -0.566 L -0.217 -0.664 L 0.001 -0.699 L 0.309 -0.951 L 0.411 -0.567 L 0.565 -0.412 L 0.665 -0.215 Z",
-    COLOR: "egg",
+    COLOR: "veryLightGrey",
     INDEPENDENT: true,
     FACING_TYPE: ["spin", {speed: 0.12}]
 };
@@ -185,14 +179,11 @@ Class.genericDreadnought1 = {
     PARENT: "genericTank",
     BODY: dreadnoughtBody,
     SHAPE: 6,
-    COLOR: "hexagon",
+    COLOR: "darkGrey",
     SIZE: 22.5,
     SKILL_CAP: Array(10).fill(smshskl + 3),
     REROOT_UPGRADE_TREE: "dreadnought_dreadsV1"
 };
-if (old_dreadnought_color) {
-    Class.genericDreadnought1.COLOR = "darkGrey";
-}
 
 // Turret damage modifiers:
 // Automation secondary: 1x
@@ -213,7 +204,7 @@ Class.medicareTurret = {
     LABEL: "Turret",
     FACING_TYPE: ["spin", {speed: 0.04}],
     INDEPENDENT: true,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray([
         {
             POSITION: [8, 9, -0.5, 12.5, 0, 0, 0]
@@ -236,7 +227,7 @@ Class.medicaidTurret = {
     LABEL: "Turret",
     FACING_TYPE: ["spin", {speed: 0.04}],
     INDEPENDENT: true,
-    COLOR: 16,
+    COLOR: "grey",
     GUNS: weaponArray([
         {
             POSITION: [8, 9, -0.5, 12.5, 0, 0, 0]
@@ -660,9 +651,6 @@ Class.juggernaut_dreadsV1.UPGRADE_M1 = ["behemoth"].map((x) => `${x}_dreadsV1`);
 Class.medicare_dreadsV1.UPGRADE_M1 = ["medicaid"].map((x) => `${x}_dreadsV1`);
 
 const t1Bodies = ["sword", "pacifier", "invader", "centaur", "medicare", "automation", "juggernaut"].map((x) => `${x}_dreadsV1`);
-if (!enable_medicare_branch) {
-    t1Bodies.splice(4, 1); // Remove Medicare if healers are disabled
-}
 
 function mergeDreads(dread1, dread2, sourceDread, tier) {
     const dread1Name = dread1;
@@ -671,11 +659,11 @@ function mergeDreads(dread1, dread2, sourceDread, tier) {
     dread1 = ensureIsClass(dread1);
     dread2 = ensureIsClass(dread2);
 
-    const GUNS = [],
-        TURRETS = [],
-        BODY = structuredClone(dreadnoughtBody);
-    let LABEL = `${dread1.LABEL}-${dread2.LABEL}`,
-        UPGRADE_TOOLTIP = `${dread1.UPGRADE_TOOLTIP ?? ""} + ${dread2.UPGRADE_TOOLTIP ?? ""}`;
+    const GUNS = [];
+    const TURRETS = [];
+    const BODY = structuredClone(dreadnoughtBody);
+    let LABEL = `${dread1.LABEL}-${dread2.LABEL}`;
+    let UPGRADE_TOOLTIP = `${dread1.UPGRADE_TOOLTIP ?? ""} + ${dread2.UPGRADE_TOOLTIP ?? ""}`;
 
     // Label it
     if (dread1.LABEL == dread2.LABEL) {
@@ -690,8 +678,8 @@ function mergeDreads(dread1, dread2, sourceDread, tier) {
         GUNS.push(...dread1.GUNS);
     }
     for (const g in dread2.GUNS) {
-        const POSITION = structuredClone(dread2.GUNS[g].POSITION),
-            PROPERTIES = dread2.GUNS[g].PROPERTIES;
+        const POSITION = structuredClone(dread2.GUNS[g].POSITION);
+        const PROPERTIES = dread2.GUNS[g].PROPERTIES;
         POSITION[5] += 60;
         GUNS.push({ POSITION, PROPERTIES });
     }
