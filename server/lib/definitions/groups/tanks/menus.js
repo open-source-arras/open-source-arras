@@ -1,6 +1,9 @@
-const { combineStats, makeHat, makeMenu, removeUpgrades } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, makeMenu, removeUpgrades } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { basic } from "../../gunvals.js";
+import { Config } from "../../../../loaders/global.js";
+import { Class } from "../../../../loaders/global.js";
+
 let dreadnought = "dreadnought_dreadsV2";
 if (Config.classic_food) {
     dreadnought = "dreadnought_dreadsV1";
@@ -108,7 +111,7 @@ Class.menu_healers = makeMenu("Healer Menu", {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: ["bullet", {
                     TURRETS: [
                         {
@@ -172,7 +175,7 @@ Class.menu_bosses = makeMenu("Bosses Menu", {
         "terrestrial",
         "celestial",
         "diep"
-    ].map(x => `menu_${x}Bosses`)
+    ].map((x) => `menu_${x}Bosses`)
 });
 Class.menu_sentries = makeMenu("Sentries Menu", {
     color: "pink",
@@ -295,7 +298,7 @@ Class.menu_diepBosses = makeMenu("Diep Bosses Menu", {
         //"guardian",
         //"fallenBooster",
         //"fallenOverlord"
-    ].map(x => x + "_diep")
+    ].map((x) => `${x}_diep`)
 });
 Class.menu_devBosses = makeMenu("Dev Bosses Menu", {
     color: "lime",
@@ -377,7 +380,7 @@ Class.menu_memes = makeMenu("Memes", {
 });
 Class.menu_diep = makeMenu("Diep Tanks", {
     upgrades: [
-        "menu_diep2",
+        "menu_diep2"
         //"tank_diep"
     ]
 });
@@ -493,7 +496,7 @@ Class.menu_youtuber = {
                 ASPECT: 1
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: ["bullet", {COLOR: "#FFFFFF"}]
             }
         }
@@ -551,21 +554,21 @@ Class.menu_armsRace = makeMenu("Special AR Tanks", {
         "menu_changedArmsRace"
     ]
 });
-Class.menu_editedArmsRace = makeMenu("Edited AR Tanks", 
-	{ boxLabel: "Edited AR", 
-	upgrades: ["oldBand", "oldHewnTriple", /*"oldScatterer", "oldClaymore", "oldPollen", "oldMolotov", "oldScorcher", "oldFinger", "oldWarlord", "oldBlizzard", "oldDustStorm"*/]
-	}
+Class.menu_editedArmsRace = makeMenu("Edited AR Tanks",
+    { boxLabel: "Edited AR",
+        upgrades: ["oldBand", "oldHewnTriple"]
+    }
 );
 
-Class.menu_changedArmsRace = makeMenu("Old AR Tank Designs", 
-    { boxLabel: "Old AR", 
+Class.menu_changedArmsRace = makeMenu("Old AR Tank Designs",
+    { boxLabel: "Old AR",
         upgrades: [/*"oldDustStorm", "oldGrazer",*/"oldRattler"]
     }
 );
 
-Class.menu_removedArmsRace = makeMenu("Removed AR Tanks", 
-    { boxLabel: "Unused AR", 
-        upgrades: ["aeronaut", "autoProdigy", "duster", "shikra", "virago"] 
+Class.menu_removedArmsRace = makeMenu("Removed AR Tanks",
+    { boxLabel: "Unused AR",
+        upgrades: ["aeronaut", "autoProdigy", "duster", "shikra", "virago"]
     }
 );
 

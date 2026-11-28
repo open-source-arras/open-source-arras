@@ -1,6 +1,7 @@
-const { makeCrasher, makeLaby, makePolychoron, makePolyhedron, makePresent, makeRarities, makeRelic } = require("../facilitators.js");
-const { basePolygonDamage, basePolygonHealth } = require("../constants.js");
-const preset = require("../presets.js");
+import { makeCrasher, makeLaby, makePolychoron, makePolyhedron, makePresent, makeRarities, makeRelic } from "../facilitators.js";
+import { basePolygonDamage, basePolygonHealth } from "../constants.js";
+import { shape } from "../presets.js";
+import { Class } from "../../../loaders/global.js";
 
 // Set the below variable to true to enable the flat 3D shapes from Old Dreadnoughts.
 const classic_3D_shapes = false;
@@ -293,8 +294,14 @@ makeRarities([
     "nonagon"
 ]);
 
-// 3D/4D
+let cube_shape = shape.flatCube;
+let tetrahedron_shape = shape.flatTetrahedron;
+let octahedron_shape = shape.flatOctahedron;
+let dodecahedron_shape = shape.flatDodecahedron;
+let icosahedron_shape = shape.flatIcosahedron;
+let tesseract_shape = shape.flatTesseract;
 if (!classic_3D_shapes) {
+    const phi = (1 + Math.sqrt(5)) / 2;
     cube_shape = makePolyhedron({
         VERTEXES: [
             [1, 1, 1],
@@ -347,8 +354,7 @@ if (!classic_3D_shapes) {
     });
     dodecahedron_shape = makePolyhedron({
         FACES: (function() {
-            let phi = (1 + Math.sqrt(5)) / 2,
-                x = 1,
+            let x = 1,
                 y = 1 / phi,
                 z = 2 - phi;
 
@@ -448,8 +454,7 @@ if (!classic_3D_shapes) {
     });
     icosahedron_shape = makePolyhedron({
         FACES: (function() {
-            let phi = (1 + Math.sqrt(5)) / 2, // golden ratio
-                x = 1 / 2,
+            let x = 1 / 2,
                 y = 1 / (2 * phi);
             x *= 3;
             y *= 3;
@@ -585,15 +590,7 @@ if (!classic_3D_shapes) {
         VERTEXES_SCALE: 0.1,
         SCALE: 6
     });
-} else {
-    cube_shape = preset.shape.flatCube;
-    tetrahedron_shape = preset.shape.flatTetrahedron;
-    octahedron_shape = preset.shape.flatOctahedron;
-    dodecahedron_shape = preset.shape.flatDodecahedron;
-    icosahedron_shape = preset.shape.flatIcosahedron;
-    tesseract_shape = preset.shape.flatTesseract;
-};
-
+}
 Class.sphere = {
     PARENT: "food",
     LABEL: "Sphere",
@@ -764,7 +761,7 @@ Class.presentBP = makePresent("blue", "purple");
 Class.presentBW = makePresent("blue", "white");
 
 // Relics
-for (let [gemColor, name] of [
+for (const [gemColor, name] of [
     [undefined, ""],
     ["#a913cf", "Power"],
     ["#226ef6", "Space"],
@@ -775,7 +772,7 @@ for (let [gemColor, name] of [
 ]) {
     let gem;
     if (gemColor) {
-        gem = Class[name + "Gem"] = {
+        gem = Class[`${name}Gem`] = {
             PARENT: "gem",
             LABEL: `${name} Gem`,
             SHAPE: 6,
@@ -783,29 +780,29 @@ for (let [gemColor, name] of [
         };
     }
 
-    Class[name + "EggRelic"] = makeRelic("egg", 0.5, gem, 7);
-    Class[name + "SquareRelic"] = makeRelic("square", 1, gem);
-    Class[name + "TriangleRelic"] = makeRelic("triangle", 1.45, gem);
-    Class[name + "PentagonRelic"] = makeRelic("pentagon", -0.6, gem);
-    Class[name + "BetaPentagonRelic"] = makeRelic("betaPentagon", -0.6, gem);
-    Class[name + "AlphaPentagonRelic"] = makeRelic("alphaPentagon", -0.6, gem);
-    Class[name + "HexagonRelic"] = makeRelic("hexagon", -0.4, gem, undefined, 6.25);
-    Class[name + "Hexagon_oldRelic"] = makeRelic("hexagon_old", -0.4, gem, undefined, 6.25);
-    Class[name + "SeptagonRelic"] = makeRelic("septagon", -0.325, gem, undefined, 5.25);
-    Class[name + "OctagonRelic"] = makeRelic("octagon", -0.3, gem, undefined, 4.75);
-    Class[name + "NonagonRelic"] = makeRelic("nonagon", -0.25, gem, undefined, 4);
+    Class[`${name}EggRelic`] = makeRelic("egg", 0.5, gem, 7);
+    Class[`${name}SquareRelic`] = makeRelic("square", 1, gem);
+    Class[`${name}TriangleRelic`] = makeRelic("triangle", 1.45, gem);
+    Class[`${name}PentagonRelic`] = makeRelic("pentagon", -0.6, gem);
+    Class[`${name}BetaPentagonRelic`] = makeRelic("betaPentagon", -0.6, gem);
+    Class[`${name}AlphaPentagonRelic`] = makeRelic("alphaPentagon", -0.6, gem);
+    Class[`${name}HexagonRelic`] = makeRelic("hexagon", -0.4, gem, undefined, 6.25);
+    Class[`${name}Hexagon_oldRelic`] = makeRelic("hexagon_old", -0.4, gem, undefined, 6.25);
+    Class[`${name}SeptagonRelic`] = makeRelic("septagon", -0.325, gem, undefined, 5.25);
+    Class[`${name}OctagonRelic`] = makeRelic("octagon", -0.3, gem, undefined, 4.75);
+    Class[`${name}NonagonRelic`] = makeRelic("nonagon", -0.25, gem, undefined, 4);
 }
 
 // Tiered Food
-let polyNames = ["egg", "square", "triangle", "pentagon", "hexagon"],
+const polyNames = ["egg", "square", "triangle", "pentagon", "hexagon"],
     shinyNames = ["", "shiny", "legendary", "shadow", "rainbow", "trans"];
 for (let tier = 0; tier < 4; tier++) {
-    for (let poly in polyNames) {
+    for (const poly in polyNames) {
         let polyName = polyNames[poly];
         polyName = polyName[0].toUpperCase() + polyName.slice(1);
 
-        for (let shiny in shinyNames) {
-            let shinyName = shinyNames[shiny];
+        for (const shiny in shinyNames) {
+            const shinyName = shinyNames[shiny];
             let food = shinyName + polyName;
             food = food[0].toLowerCase() + food.slice(1);
 

@@ -1,4 +1,9 @@
-class Outbreak {
+import { gameManager } from "../../../game";
+import { Config, ensureIsClass } from "../../../loaders/global";
+import { ioTypes } from "../../../miscFiles/controllers";
+import { Entity } from "../../entities/entity";
+
+export class Outbreak {
     constructor() {
         this.gameActive = false;
         Config.outbreak_functions = {
@@ -16,9 +21,11 @@ class Outbreak {
             liveEntity.destroy();
             return;
         }
-        if (liveEntity.defs[0] == "bot") liveEntity.defs = liveEntity.defs[1];
+        if (liveEntity.defs[0] == "bot") {
+            liveEntity.defs = liveEntity.defs[1];
+        }
         const zombieColor = "green"; //"#267524";
-        let zombieEntity = new Entity({ x: liveEntity.x, y: liveEntity.y });
+        const zombieEntity = new Entity({ x: liveEntity.x, y: liveEntity.y });
         zombieEntity.define(liveEntity.defs);
         zombieEntity.define({ AI: { CHASE: true }, FACING_TYPE: ["manual", {angle: liveEntity.facing}] });
         zombieEntity.color.base = "grey";
@@ -32,8 +39,8 @@ class Outbreak {
         zombieEntity.minimapColor = zombieColor;
         zombieEntity.zombified = true;
         setTimeout(() => {
-            let Class = ensureIsClass(liveEntity.defs[0]);
-            zombieEntity.controllers.push(new ioTypes.nearestDifferentMaster(zombieEntity, {}, global.gameManager), new ioTypes.mapTargetToGoal(zombieEntity, {}, global.gameManager));
+            const Class = ensureIsClass(liveEntity.defs[0]);
+            zombieEntity.controllers.push(new ioTypes.nearestDifferentMaster(zombieEntity, {}, gameManager), new ioTypes.mapTargetToGoal(zombieEntity, {}, gameManager));
             zombieEntity.godmode = false;
             zombieEntity.invuln = false;
             zombieEntity.color.base = zombieColor;
@@ -41,8 +48,6 @@ class Outbreak {
         }, 1000);
     }
     start() {
-        this.gameActive = true; 
+        this.gameActive = true;
     };
 }
-
-module.exports = { Outbreak };

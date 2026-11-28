@@ -781,6 +781,6 @@ var color = {
         "paletteSize": 20,
         "border": 0,
         "neon": false
-    },
+    }
 };
-export { color }
+export { color };

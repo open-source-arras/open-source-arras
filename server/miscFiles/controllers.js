@@ -1,5 +1,11 @@
-let lerp = (a, b, x) => a + x * (b - a);
-let compressMovementOffsets = [
+import { Config } from "../config";
+import { gameManager } from "../game";
+import { nearest, timeOfImpact, Vector } from "../game/entities/vector";
+import { chance, choose, gauss, irandom, random, randomRange } from "../lib/random";
+import { angleDifference, clamp, getDirection, getDistance, getDistanceSquared, lerp } from "../lib/util";
+import { entities, targetableEntities, TEAM_ROOM, walls } from "../loaders/global";
+
+const compressMovementOffsets = [
         { x: 1, y: 0},
         { x: 1, y: 1},
         { x: 0, y: 1},
@@ -10,7 +16,7 @@ let compressMovementOffsets = [
         { x: 1, y:-1}
     ],
     compressMovement = (current, goal) => {
-        let offset = compressMovementOffsets[Math.round((Math.atan2(current.y - goal.y, current.x - goal.x) / (Math.PI * 2)) * 8 + 4) % 8];
+        const offset = compressMovementOffsets[Math.round((Math.atan2(current.y - goal.y, current.x - goal.x) / (Math.PI * 2)) * 8 + 4) % 8];
         return {
             x: current.x + offset.x,
             y: current.y + offset.y
@@ -20,12 +26,12 @@ let compressMovementOffsets = [
         return q0 <= Math.max(p0, r0) && q0 >= Math.min(p0, r0) && q1 <= Math.max(p1, r1) && q1 >= Math.min(p1, r1);
     },
     CLLorientation = (p0, p1, q0, q1, r0, r1) => {
-        let v = (q1 - p1) * (r0 - q0) - (q0 - p0) * (r1 - q1);
+        const v = (q1 - p1) * (r0 - q0) - (q0 - p0) * (r1 - q1);
         return !v ? 0 : v > 0 ? 1 : 2; // clock or counterclock wise
     },
     collisionLineLine = (p10, p11, q10, q11, p20, p21, q20, q21) => {
     // Find the four orientations needed for general and special cases
-        let o1 = CLLorientation(p10, p11, q10, q11, p20, p21),
+        const o1 = CLLorientation(p10, p11, q10, q11, p20, p21),
             o2 = CLLorientation(p10, p11, q10, q11, q20, q21),
             o3 = CLLorientation(p20, p21, q20, q21, p10, p11),
             o4 = CLLorientation(p20, p21, q20, q21, q10, q11);
@@ -43,7 +49,9 @@ let compressMovementOffsets = [
     // walls: Array<{ ...Vector, hitboxRadius, hitbox: Array<[Vector, Vector]> }>
     wouldHitWall = (me, enemy, directWallCheck = false) => {
         if (directWallCheck) {
-            if (!me.justHittedAWallTimeout) me.justHittedAWallTimeout = "ready";
+            if (!me.justHittedAWallTimeout) {
+                me.justHittedAWallTimeout = "ready";
+            }
             if (me.justHittedAWall && me.justHittedAWallTimeout === "ready") {
                 me.justHittedAWall = false;
                 me.justHittedAWallTimeout = "null";
@@ -56,35 +64,38 @@ let compressMovementOffsets = [
             return false;
         }
         // thing for culling off walls where theres no point of checking
-        let inclusionCircle = {
+        const inclusionCircle = {
             x: (me.x + enemy.x) / 2,
             y: (me.y + enemy.y) / 2,
-            radius: util.getDistance(me, enemy) / 2
+            radius: getDistance(me, enemy) / 2
         };
 
         for (let i = 0; i < walls.length; i++) {
-            let crate = walls[i];
+            const crate = walls[i];
 
             //avoid calculating collisions if it would just be a waste
-            if (util.getDistanceSquared(inclusionCircle, crate) > (inclusionCircle.radius + crate.hitboxRadius) ** 2) continue;
+            if (getDistanceSquared(inclusionCircle, crate) > (inclusionCircle.radius + crate.hitboxRadius) ** 2) {
+                continue;
+            }
 
             //if the crate intersects with the line, add them to the list of walls that have been hit
             //works by checking if the line from the gun end to the enemy position collides with any line from the crate hitbox
             for (let j = 0; j < crate.hitbox.length; j++) {
-                let hitboxLine = crate.hitbox[j];
+                const hitboxLine = crate.hitbox[j];
                 if (collisionLineLine(
                     me.x, me.y,
                     enemy.x, enemy.y,
                     crate.x + hitboxLine[0].x, crate.y + hitboxLine[0].y,
                     crate.x + hitboxLine[1].x, crate.y + hitboxLine[1].y
-                )) return true;
+                )) {
+                    return true;
+                }
             }
         }
         return false;
     };
 
-// Define IOs (AI)
-class IO {
+export class IO {
     constructor(body) {
         this.body = body;
         this.acceptsFromTop = true;
@@ -101,13 +112,13 @@ class IO {
     }
 }
 class io_siegeAI extends IO {
-    constructor(body, opts = {}) {
+    constructor(body, _) {
         super(body);
         this.enabled = true;
         this.goalDefault = gameManager.room.center;
     }
-    think(input) {
-        let tile = global.gameManager.room.getAt(this.body);
+    think(_) {
+        const tile = gameManager.room.getAt(this.body);
         if (tile && tile.name == "stopAI") {
             this.enabled = false;
         }
@@ -136,11 +147,11 @@ class io_doNothing extends IO {
     }
 }
 class io_moveInCircles extends IO {
-    constructor(body, opts = {}) {
+    constructor(body, _) {
         super(body);
         this.acceptsFromTop = false;
-        this.timer = ran.irandom(5) + 3;
-        this.pathAngle = ran.random(2 * Math.PI);
+        this.timer = irandom(5) + 3;
+        this.pathAngle = random(2 * Math.PI);
         this.goal = {
             x: this.body.x + 10 * Math.cos(this.pathAngle),
             y: this.body.y + 10 * Math.sin(this.pathAngle)
@@ -165,19 +176,21 @@ class io_moveInCircles extends IO {
 class io_listenToPlayer extends IO {
     constructor(b, opts = { static: false }) {
         super(b);
-        if ("object" != typeof opts.player) throw new Error("Required IO Option 'player' is not an object");
+        if ("object" != typeof opts.player) {
+            throw new Error("Required IO Option 'player' is not an object");
+        }
         this.player = opts.player;
         this.static = opts.static;
         this.acceptsFromTop = false;
     }
     // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
     think() {
-        let fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb),
-            alt = this.player.command.autoalt || this.player.command.rmb,
-            target = {
-                x: this.player.target.x,
-                y: this.player.target.y
-            };
+        const fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb),
+            alt = this.player.command.autoalt || this.player.command.rmb;
+        let target = {
+            x: this.player.target.x,
+            y: this.player.target.y
+        };
         if (this.body.reverseTargetWithTank) {
             target.x *= this.body.reverseTank;
             target.y *= this.body.reverseTank;
@@ -187,8 +200,12 @@ class io_listenToPlayer extends IO {
             let kk = Math.atan2(this.body.control.target.y, this.body.control.target.x) + 0.04;
             if (this.body.autospinBoost) {
                 let thing = 0.05 * 1 * this.body.autospinBoost;
-                if (this.player.command.lmb) thing = thing * 1.5;
-                if (this.player.command.rmb) thing = thing * -1;
+                if (this.player.command.lmb) {
+                    thing = thing * 1.5;
+                }
+                if (this.player.command.rmb) {
+                    thing = thing * -1;
+                }
                 kk += thing;
             }
             target = {
@@ -237,18 +254,16 @@ class io_boomerang extends IO {
         this.b = b;
         this.m = b.master;
         this.turnover = false;
-        let len = 10 * util.getDistance({
-            x: 0,
-            y: 0
-        }, b.master.control.target);
         this.myGoal = {
             x: 3 * b.master.control.target.x + b.master.x,
             y: 3 * b.master.control.target.y + b.master.y
         };
     }
-    think(input) {
-        if (this.b.range > this.r) this.r = this.b.range;
-        let t = 1; //1 - Math.sin(2 * Math.PI * this.b.range / this.r) || 1
+    think(_) {
+        if (this.b.range > this.r) {
+            this.r = this.b.range;
+        }
+        const t = 1; //1 - Math.sin(2 * Math.PI * this.b.range / this.r) || 1
         if (!this.turnover) {
             if (this.r && this.b.range < this.r * 0.5) {
                 this.turnover = true;
@@ -282,7 +297,7 @@ class io_goToMasterTarget extends IO {
         // reverse = 1 if reverseTargetWithTank is true,
         // otherwise use reverseTank (usually 1 or -1)
         const reverseTank = master.reverseTank != null ? master.reverseTank : 1;
-        const reverseTargetWithTank = !!master.reverseTargetWithTank;
+        const reverseTargetWithTank = Boolean(master.reverseTargetWithTank);
         const reverse = reverseTargetWithTank ? 1 : reverseTank;
 
         // If reverseTank is -1 (and reverseTargetWithTank is false),
@@ -298,7 +313,7 @@ class io_goToMasterTarget extends IO {
     }
     think() {
         if (this.countdown) {
-            if (util.getDistance(this.body, this.myGoal) < 5) {
+            if (getDistance(this.body, this.myGoal) < 5) {
                 this.countdown--;
             }
             return {
@@ -316,8 +331,8 @@ class io_canRepel extends IO {
     }
     think(input) {
         if (input.alt && input.target) {
-            let x = this.body.master.master.x - this.body.x;
-            let y = this.body.master.master.y - this.body.y;
+            // const x = this.body.master.master.x - this.body.x;
+            // const y = this.body.master.master.y - this.body.y;
             // if (x * x + y * y < 2250000) // (50 * 30) ^ 2
             return {
                 target: {
@@ -372,7 +387,11 @@ class io_mapFireToAlt extends IO {
     }
     think(input) {
         if (input.fire && this.body.gunsArrayed) {
-            for (let i = 0; i < this.body.gunsArrayed.length; i++) if (!this.onlyIfHasAltFireGun || this.body.gunsArrayed[i].altFire) return { alt: true };
+            for (let i = 0; i < this.body.gunsArrayed.length; i++) {
+                if (!this.onlyIfHasAltFireGun || this.body.gunsArrayed[i].altFire) {
+                    return { alt: true };
+                }
+            }
         }
     }
 }
@@ -382,7 +401,7 @@ class io_onlyAcceptInArc extends IO {
     }
     think(input) {
         if (input.target && this.body.firingArc != null) {
-            if (Math.abs(util.angleDifference(Math.atan2(input.target.y, input.target.x), this.body.firingArc[0])) >= this.body.firingArc[1]) {
+            if (Math.abs(angleDifference(Math.atan2(input.target.y, input.target.x), this.body.firingArc[0])) >= this.body.firingArc[1]) {
                 return {
                     fire: false,
                     alt: false,
@@ -408,9 +427,11 @@ class io_stackGuns extends IO {
         let lowestReadiness = Infinity,
             readiestGun;
         for (let i = 0; i < this.body.guns.length; i++) {
-            let gun = this.body.guns[i];
-            if (!gun.canShoot || !gun.stack) continue;
-            let reloadStat = (gun.calculator == "necro" || gun.calculator == "fixed reload") ? 1 : (gun.bulletStats === "master" ? this.body.skill : gun.bulletStats).rld,
+            const gun = this.body.guns[i];
+            if (!gun.canShoot || !gun.stack) {
+                continue;
+            }
+            const reloadStat = (gun.calculator == "necro" || gun.calculator == "fixed reload") ? 1 : (gun.bulletStats === "master" ? this.body.skill : gun.bulletStats).rld,
                 readiness = (1 - gun.cycle) / (gun.settings.reload * reloadStat);
             if (lowestReadiness > readiness) {
                 lowestReadiness = readiness;
@@ -424,7 +445,7 @@ class io_stackGuns extends IO {
         }
 
         //rotate the target vector based on the gun
-        let targetAngle = Math.atan2(target.y, target.x) - readiestGun.angle,
+        const targetAngle = Math.atan2(target.y, target.x) - readiestGun.angle,
             targetLength = Math.sqrt(target.x ** 2 + target.y ** 2);
         return {
             target: {
@@ -439,7 +460,7 @@ class io_nearestDifferentMaster extends IO {
     constructor(body, opts = {}) {
         super(body);
         this.targetLock = undefined;
-        this.tick = ran.irandom(30);
+        this.tick = irandom(30);
         this.lead = 0;
         this.timeout = opts.timeout || 90;
         this.lockThroughWalls = opts.lockThroughWalls;
@@ -450,29 +471,56 @@ class io_nearestDifferentMaster extends IO {
         const myMaster = this.body.master.master;
         const aiSettings = this.body.aiSettings;
         const theirMaster = e.master.master;
-        if (e.health.amount <= 0) return false;
-        if (theirMaster.team === myMaster.team || theirMaster.team === TEAM_ROOM) return false;
-        if (theirMaster.ignoredByAi) return false;
-        if (e.bond) return false;
-        if (e.invuln || e.godmode || theirMaster.godmode || theirMaster.passive || myMaster.passive) return false;
-        if (isNaN(e.dangerValue)) return false;
-        if (!(aiSettings.seeInvisible || this.body.isArenaCloser || e.alpha > 0.5)) return false;
+        if (e.health.amount <= 0) {
+            return false;
+        }
+        if (theirMaster.team === myMaster.team || theirMaster.team === TEAM_ROOM) {
+            return false;
+        }
+        if (theirMaster.ignoredByAi) {
+            return false;
+        }
+        if (e.bond) {
+            return false;
+        }
+        if (e.invuln || e.godmode || theirMaster.godmode || theirMaster.passive || myMaster.passive) {
+            return false;
+        }
+        if (isNaN(e.dangerValue)) {
+            return false;
+        }
+        if (!(aiSettings.seeInvisible || this.body.isArenaCloser || e.alpha > 0.5)) {
+            return false;
+        }
         if (!io_nearestDifferentMaster.validEntityTypes.has(e.type)) {
-            if ((aiSettings.IGNORE_SHAPES || myMaster.aiSettings.IGNORE_SHAPES) && e.type === "food") return false;
+            if ((aiSettings.IGNORE_SHAPES || myMaster.aiSettings.IGNORE_SHAPES) && e.type === "food") {
+                return false;
+            }
         }
         if (!aiSettings.BLIND) {
-            if ((e.x - m.x) * (e.x - m.x) >= sqrRange) return false;
-            if ((e.y - m.y) * (e.y - m.y) >= sqrRange) return false;
+            if ((e.x - m.x) * (e.x - m.x) >= sqrRange) {
+                return false;
+            }
+            if ((e.y - m.y) * (e.y - m.y) >= sqrRange) {
+                return false;
+            }
         }
         if (!aiSettings.SKYNET) {
-            if ((e.x - mm.x) * (e.x - mm.x) >= sqrRangeMaster) return false;
-            if ((e.y - mm.y) * (e.y - mm.y) >= sqrRangeMaster) return false;
+            if ((e.x - mm.x) * (e.x - mm.x) >= sqrRangeMaster) {
+                return false;
+            }
+            if ((e.y - mm.y) * (e.y - mm.y) >= sqrRangeMaster) {
+                return false;
+            }
         }
         return true;
     }
     wouldHitWall(entity) {
-        if (!this.lockThroughWalls) return wouldHitWall(this.body, entity);
-        else return false;
+        if (!this.lockThroughWalls) {
+            return wouldHitWall(this.body, entity);
+        } else {
+            return false;
+        }
     }
     buildList(range) {
         const sqrRange = range * range;
@@ -480,7 +528,7 @@ class io_nearestDifferentMaster extends IO {
         const validCandidates = [];
         for (const e of targetableEntities.values()) {
             if (this.validate(e, this.body, this.body.master.master, sqrRange, sqrRangeMaster) && !this.wouldHitWall(e)) {
-                if (this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
+                if (this.body.aiSettings.view360 || Math.abs(angleDifference(getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
                     validCandidates.push(e);
                 }
             }
@@ -497,7 +545,7 @@ class io_nearestDifferentMaster extends IO {
         const finalTargets = validCandidates.filter((e) => {
             // Even more expensive
             return !this.wouldHitWall(e);
-        }).filter(e => {
+        }).filter((e) => {
             if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
                 if (this.targetLock && e.id === this.targetLock.id) {
                     keepTarget = true;
@@ -522,8 +570,10 @@ class io_nearestDifferentMaster extends IO {
         // Use whether we have functional guns to decide
         for (let i = 0; i < this.body.guns.length; i++) {
             if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
-                let v = this.body.guns[i].getTracking();
-                if (v.speed == 0 || v.range == 0) continue;
+                const v = this.body.guns[i].getTracking();
+                if (v.speed == 0 || v.range == 0) {
+                    continue;
+                }
                 tracking = v.speed;
                 range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
                 break;
@@ -560,7 +610,7 @@ class io_nearestDifferentMaster extends IO {
             }
         }
         if (this.targetLock != null) {
-            let radial = this.targetLock.velocity,
+            const radial = this.targetLock.velocity,
                 diff = {
                     x: this.targetLock.x - this.body.x,
                     y: this.targetLock.y - this.body.y
@@ -568,7 +618,7 @@ class io_nearestDifferentMaster extends IO {
             if (this.tick % 2 === 0) {
                 this.lead = 0;
                 if (!this.body.aiSettings.CHASE) {
-                    let toi = timeOfImpact(diff, radial, tracking);
+                    const toi = timeOfImpact(diff, radial, tracking);
                     this.lead = toi;
                 }
             }
@@ -595,28 +645,49 @@ class io_healTeamMasters extends IO {
     constructor(body) {
         super(body);
         this.targetLock = undefined;
-        this.tick = ran.irandom(30);
+        this.tick = irandom(30);
         this.lead = 0;
         this.validTargets = [];
     }
     validate(e) {
         const myMaster = this.body.master.master;
         const theirMaster = e.master.master;
-        let fear = e.fear ?? 0.7;
-        if (e.health.amount <= 0) return false;
-        if (theirMaster.team !== myMaster.team) return false;
-        if (theirMaster.ignoredByAi) return false;
-        if (e.bond) return false;
-        if (e.type !== "tank") return false;
-        if (e.isDominator) return false;
-        if (e.health.amount > e.health.max * fear) return false;
-        if (e.invuln || e.godmode || theirMaster.godmode || theirMaster.passive || myMaster.passive) return false;
-        if (isNaN(e.dangerValue)) return false;
+        const fear = e.fear ?? 0.7;
+        if (e.health.amount <= 0) {
+            return false;
+        }
+        if (theirMaster.team !== myMaster.team) {
+            return false;
+        }
+        if (theirMaster.ignoredByAi) {
+            return false;
+        }
+        if (e.bond) {
+            return false;
+        }
+        if (e.type !== "tank") {
+            return false;
+        }
+        if (e.isDominator) {
+            return false;
+        }
+        if (e.health.amount > e.health.max * fear) {
+            return false;
+        }
+        if (e.invuln || e.godmode || theirMaster.godmode || theirMaster.passive || myMaster.passive) {
+            return false;
+        }
+        if (isNaN(e.dangerValue)) {
+            return false;
+        }
         return true;
     }
     wouldHitWall(entity) {
-        if (!this.lockThroughWalls) return wouldHitWall(this.body, entity);
-        else return false;
+        if (!this.lockThroughWalls) {
+            return wouldHitWall(this.body, entity);
+        } else {
+            return false;
+        }
     }
     buildList(range) {
         const sqrRange = range * range;
@@ -624,7 +695,7 @@ class io_healTeamMasters extends IO {
         const validCandidates = [];
         for (const e of targetableEntities.values()) {
             if (this.validate(e, this.body, this.body.master.master, sqrRange, sqrRangeMaster) && !this.wouldHitWall(e)) {
-                if (this.body.aiSettings.view360 || Math.abs(util.angleDifference(util.getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
+                if (this.body.aiSettings.view360 || Math.abs(angleDifference(getDirection(this.body, e), this.body.firingArc[0])) < this.body.firingArc[1]) {
                     validCandidates.push(e);
                 }
             }
@@ -641,7 +712,7 @@ class io_healTeamMasters extends IO {
         const finalTargets = validCandidates.filter((e) => {
             // Even more expensive
             return !this.wouldHitWall(e);
-        }).filter(e => {
+        }).filter((e) => {
             if (this.body.aiSettings.farm || e.dangerValue === mostDangerous) {
                 if (this.targetLock && e.id === this.targetLock.id) {
                     keepTarget = true;
@@ -661,21 +732,23 @@ class io_healTeamMasters extends IO {
             this.targetLock = undefined;
             return {};
         }
-        let tracking = this.body.topSpeed,
-            range = this.body.fov;
+        // let tracking = this.body.topSpeed;
+        let range = this.body.fov;
         // Use whether we have functional guns to decide
         for (let i = 0; i < this.body.guns.length; i++) {
             if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
-                let v = this.body.guns[i].getTracking();
-                if (v.speed == 0 || v.range == 0) continue;
-                tracking = v.speed;
+                const v = this.body.guns[i].getTracking();
+                if (v.speed == 0 || v.range == 0) {
+                    continue;
+                }
+                // tracking = v.speed;
                 range = Math.min(range, (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range));
                 break;
             }
         }
-        if (!Number.isFinite(tracking)) {
-            tracking = this.body.topSpeed + .01;
-        }
+        // if (!Number.isFinite(tracking)) {
+        //     tracking = this.body.topSpeed + .01;
+        // }
         if (!Number.isFinite(range)) {
             range = 340 * this.body.FOV;
         }
@@ -704,7 +777,7 @@ class io_healTeamMasters extends IO {
             }
         }
         if (this.targetLock != null) {
-            let radial = this.targetLock.velocity,
+            const radial = this.targetLock.velocity,
                 diff = {
                     x: this.targetLock.x - this.body.x,
                     y: this.targetLock.y - this.body.y
@@ -733,32 +806,28 @@ class io_avoid extends IO {
         super(body);
     }
     think(input) {
-        let masterId = this.body.master.id;
-        let range = this.body.size * this.body.size * 100;
+        const masterId = this.body.master.id;
+        const range = this.body.size * this.body.size * 100;
         this.avoid = nearest(entities, {
             x: this.body.x,
             y: this.body.y
         }, function(test, sqrdst) {
             return (test.master.id !== masterId && (test.type === "bullet" || test.type === "drone" || test.type === "swarm" || test.type === "trap" || test.type === "block") && sqrdst < range);
         });
-        // Aim at that target
         if (this.avoid != null) {
-            // Consider how fast it's moving.
-            let delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y);
-            let diff = new Vector(this.avoid.x - this.body.x, this.avoid.y - this.body.y);
-            let comp = (delt.x * diff.x + delt.y * diff.y) / delt.length / diff.length;
-            let goal = {};
+            const delt = new Vector(this.body.velocity.x - this.avoid.velocity.x, this.body.velocity.y - this.avoid.velocity.y);
+            const diff = new Vector(this.avoid.x - this.body.x, this.avoid.y - this.body.y);
+            const comp = (delt.x * diff.x + delt.y * diff.y) / delt.length / diff.length;
             if (comp > 0) {
+                let goal = {
+                    x: -diff.x * comp,
+                    y: -diff.y * comp
+                };
                 if (input.goal) {
-                    let goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y));
+                    const goalDist = Math.sqrt(range / (input.goal.x * input.goal.x + input.goal.y * input.goal.y));
                     goal = {
                         x: input.goal.x * goalDist - diff.x * comp,
                         y: input.goal.y * goalDist - diff.y * comp
-                    };
-                } else {
-                    goal = {
-                        x: -diff.x * comp,
-                        y: -diff.y * comp
                     };
                 }
                 return goal;
@@ -773,17 +842,17 @@ class io_minion extends IO {
         this.opts = opts;
     }
     think(input) {
-        if (this.body.aiSettings.reverseDirection && ran.chance(0.005)) {
+        if (this.body.aiSettings.reverseDirection && chance(0.005)) {
             this.turnwise = -1 * this.turnwise;
         }
         if (input.target != null && (input.alt || input.main)) {
-            let sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE);
-            let leash = 82 * sizeFactor;
-            let orbit = this.opts.turnwiserange ?? 140 * sizeFactor;
-            let repel = 142 * sizeFactor;
+            const sizeFactor = Math.sqrt(this.body.master.size / this.body.master.SIZE);
+            const leash = 82 * sizeFactor;
+            const orbit = this.opts.turnwiserange ?? 140 * sizeFactor;
+            const repel = 142 * sizeFactor;
             let goal;
             let power = 1;
-            let target = new Vector(input.target.x, input.target.y);
+            const target = new Vector(input.target.x, input.target.y);
             if (input.alt) {
                 // Leash
                 if (target.length < leash) {
@@ -793,7 +862,7 @@ class io_minion extends IO {
                     };
                     // Spiral repel
                 } else if (target.length < repel) {
-                    let dir = -this.turnwise * target.direction + Math.PI / 5;
+                    const dir = -this.turnwise * target.direction + Math.PI / 5;
                     goal = {
                         x: this.body.x + Math.cos(dir),
                         y: this.body.y + Math.sin(dir)
@@ -807,7 +876,7 @@ class io_minion extends IO {
                 }
             } else if (input.main) {
                 // Orbit point
-                let dir = this.turnwise * target.direction + 0.01;
+                const dir = this.turnwise * target.direction + 0.01;
                 goal = {
                     x: this.body.x + target.x - orbit * Math.cos(dir),
                     y: this.body.y + target.y - orbit * Math.sin(dir)
@@ -834,13 +903,15 @@ class io_hangOutNearMaster extends IO {
         };
         this.timer = 0;
     }
-    think(input) {
-        if (this.body.invisible[1]) return {};
+    think(_) {
+        if (this.body.invisible[1]) {
+            return {};
+        }
         if (this.body.source !== this.body) {
-            let bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size;
-            let bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size;
-            let dist = util.getDistance(this.body, this.body.source) + Math.PI / 8;
-            let output = {
+            const bound1 = this.orbit * 0.8 + this.body.source.size + this.body.size;
+            const bound2 = this.orbit * 1.5 + this.body.source.size + this.body.size;
+            const dist = getDistance(this.body, this.body.source) + Math.PI / 8;
+            const output = {
                 target: {
                     x: this.body.velocity.x,
                     y: this.body.velocity.y
@@ -851,15 +922,15 @@ class io_hangOutNearMaster extends IO {
             // Set a goal
             if (dist > bound2 || this.timer > 30) {
                 this.timer = 0;
-                let dir = util.getDirection(this.body, this.body.source) + Math.PI * ran.random(0.5);
-                let len = ran.randomRange(bound1, bound2);
-                let x = this.body.source.x - len * Math.cos(dir);
-                let y = this.body.source.y - len * Math.sin(dir);
+                const dir = getDirection(this.body, this.body.source) + Math.PI * random(0.5);
+                const len = randomRange(bound1, bound2);
+                const x = this.body.source.x - len * Math.cos(dir);
+                const y = this.body.source.y - len * Math.sin(dir);
                 this.currentGoal = { x: x, y: y };
             }
             if (dist < bound2) {
                 output.power = 0.15;
-                if (ran.chance(0.3)) {
+                if (chance(0.3)) {
                     this.timer++;
                 }
             }
@@ -881,7 +952,7 @@ class io_spin extends IO {
             return input;
         }
         this.a += this.speed;
-        let offset = (this.independent && this.body.bond != null) ? this.body.bound.angle : 0;
+        const offset = (this.independent && this.body.bond != null) ? this.body.bound.angle : 0;
         return {
             target: {
                 x: Math.cos(this.a + offset),
@@ -900,18 +971,20 @@ class io_spin2 extends IO {
         this.reverseOnTheFly = opts.reverseOnTheFly ?? false;
 
         // On spawn logic
-        let alt = this.body.master.control.alt;
-        let reverse = (this.reverseOnAlt && alt) ? -1 : 1;
+        const alt = this.body.master.control.alt;
+        const reverse = (this.reverseOnAlt && alt) ? -1 : 1;
         this.body.facingType = "spin";
         this.body.facingTypeArgs = {speed: this.speed * reverse};
     }
-    think(input) {
-        if (!this.reverseOnTheFly || !this.reverseOnAlt) return;
+    think(_) {
+        if (!this.reverseOnTheFly || !this.reverseOnAlt) {
+            return;
+        }
 
         // Live logic
-        let alt = this.body.master.control.alt;
+        const alt = this.body.master.control.alt;
         if (this.lastAlt != alt) {
-            let reverse = alt ? -1 : 1;
+            const reverse = alt ? -1 : 1;
             this.body.facingType = "spin";
             this.body.facingTypeArgs = {speed: this.speed * reverse};
             this.lastAlt = alt;
@@ -921,7 +994,7 @@ class io_spin2 extends IO {
 class io_fleeAtLowHealth extends IO {
     constructor(b) {
         super(b);
-        this.fear = util.clamp(ran.gauss(0.7, 0.15), 0.1, 0.9);
+        this.fear = clamp(gauss(0.7, 0.15), 0.1, 0.9);
         b.fear = this.fear;
     }
     think(input) {
@@ -943,11 +1016,10 @@ class io_zoom extends IO {
         this.dynamic = opts.dynamic;
         this.permanent = opts.permanent;
     }
-
     think(input) {
         if (this.permanent || (input.alt && input.target)) {
             if (this.dynamic || this.body.cameraOverrideX === null) {
-                let direction = Math.atan2(input.target.y, input.target.x);
+                const direction = Math.atan2(input.target.y, input.target.x);
                 this.body.cameraOverrideX = this.body.x + this.distance * Math.cos(direction);
                 this.body.cameraOverrideY = this.body.y + this.distance * Math.sin(direction);
             }
@@ -962,7 +1034,7 @@ class io_wanderAroundMap extends IO {
         super(body);
         this.lookAtGoal = opts.lookAtGoal;
         this.replicatePlayerMovement = opts.replicatePlayerMovement;
-        this.spot = ran.choose(global.gameManager.room.spawnableDefault).randomInside();
+        this.spot = choose(global.gameManager.room.spawnableDefault).randomInside();
 
         this.bossWander = opts.diepBossWander;
         this.howFarAwayFromEdgeOfMap = 15;
@@ -975,17 +1047,21 @@ class io_wanderAroundMap extends IO {
     think(input) {
         if (Config.BOT_MOVE && this.botMoveEnabled) {
             this.enabled = false;
-            for (let e of Config.BOT_MOVE) {
+            for (const e of Config.BOT_MOVE) {
                 if ((e.TEAM === "any" || this.body.team == e.TEAM) && e.MOVEMENT && !input.fire) {
-                    if (!this.moveArray) this.botMove_active = true, this.moveArray = 0, this.arrayLength = e.MOVEMENT.length - 1; // Set flags
-                    let i = e.MOVEMENT[this.moveArray];
-                    let [locX, locY] = i;
+                    if (!this.moveArray) {
+                        this.botMove_active = true, this.moveArray = 0, this.arrayLength = e.MOVEMENT.length - 1;
+                    } // Set flags
+                    const i = e.MOVEMENT[this.moveArray];
+                    const [locX, locY] = i;
                     if (new Vector(this.body.x - locX * 30, this.body.y - locY * 30).isShorterThan(e.RANGE ?? 50)) {
-                        if (this.moveArray == this.arrayLength) this.botMoveEnabled = false, this.enabled = true;
+                        if (this.moveArray == this.arrayLength) {
+                            this.botMoveEnabled = false, this.enabled = true;
+                        }
                         this.moveArray++;
                     }
                     if (input.goal == null && !this.body.autoOverride) {
-                        let loc = compressMovement(this.body, { x: locX * 30, y: locY * 30 });
+                        const loc = compressMovement(this.body, { x: locX * 30, y: locY * 30 });
                         return {
                             target: (this.lookAtGoal && input.target == null) ? {
                                 x: locX * 30 - this.body.x,
@@ -996,11 +1072,13 @@ class io_wanderAroundMap extends IO {
                     }
                 }
             }
-            if (!this.botMove_active) this.botMoveEnabled = false, this.enabled = true;
+            if (!this.botMove_active) {
+                this.botMoveEnabled = false, this.enabled = true;
+            }
         }
         if (this.enabled) {
             if (this.bossWander) {
-                let points = [{
+                const points = [{
                     x: global.gameManager.room.width / this.howFarAwayFromEdgeOfMap, // top left
                     y: global.gameManager.room.height / this.howFarAwayFromEdgeOfMap
                 }, {
@@ -1015,7 +1093,7 @@ class io_wanderAroundMap extends IO {
                 }];
                 this.tick++;
                 this.currentGoal = points[this.i];
-                let distanceFromPoint = util.getDistance(this.body, this.currentGoal);
+                const distanceFromPoint = getDistance(this.body, this.currentGoal);
                 if (this.tick >= 100 + distanceFromPoint + (this.body.SPEED < 5 ? 1000 : 0)) {
                     this.tick = 0;
                     if (this.i >= points.length - 1) {
@@ -1037,7 +1115,7 @@ class io_wanderAroundMap extends IO {
                 };
             }
             if (new Vector(this.body.x - this.spot.x, this.body.y - this.spot.y).isShorterThan(50) || wouldHitWall(this.body, this.spot, true)) {
-                this.spot = ran.choose(global.gameManager.room.spawnableDefault).randomInside();
+                this.spot = choose(global.gameManager.room.spawnableDefault).randomInside();
             }
             if (input.goal == null && !this.body.autoOverride) {
                 let goal = this.spot;
@@ -1056,22 +1134,27 @@ class io_wanderAroundMap extends IO {
     }
 }
 // returns deviation from origin angle in radians
-let io_formulaTarget_sineDefault = (frame, body) => Math.sin(frame / 30);
+const io_formulaTarget_sineDefault = (frame, _) => Math.sin(frame / 30);
 class io_formulaTarget extends IO {
+    /**
+     *
+     * @param {Entity} b
+     * @param {{ masterAngle: number, formula?: (frame: number, body: Entity) => number }} opts formula returns RADIANS.
+     */
     constructor(b, opts = {}) {
         super(b);
         this.masterAngle = opts.masterAngle;
-        this.formula = opts.formula || io_formulaTarget_sineDefault;
+        this.formula = opts.formula ?? io_formulaTarget_sineDefault;
         //this.updateOriginAngle = opts.updateOriginAngle;
         this.originAngle = this.masterAngle ? b.master.facing : b.facing;
         this.frame = 0;
     }
     think() {
-    // if (this.updateOriginAngle) {
-    //     this.originAngle = this.masterAngle ? b.master.facing : getTheGunThatSpawnedMe("how do i do that????").angle;
-    // }
+        // if (this.updateOriginAngle) {
+        //     this.originAngle = this.masterAngle ? b.master.facing : getTheGunThatSpawnedMe("how do i do that????").angle;
+        // }
 
-        let angle = this.originAngle + this.formula(this.frame += 1 / global.gameManager.runSpeed, this.body);
+        const angle = this.originAngle + this.formula(this.frame += 1 / global.gameManager.runSpeed, this.body);
         return {
             goal: {
                 x: this.body.x + Math.sin(angle),
@@ -1091,11 +1174,10 @@ class io_whirlwind extends IO {
         this.body.inverseDist = this.maxDistance * this.body.size - this.body.dist + this.minDistance * this.body.size;
         this.radiusScalingSpeed = opts.radiusScalingSpeed || 10;
     }
-    
     think(input) {
         this.body.angle += (this.body.skill.spd * 2 + this.body.aiSettings.SPEED) * Math.PI / 180;
-        let trueMaxDistance = this.maxDistance * this.body.size;
-        let trueMinDistance = this.minDistance * this.body.size;
+        const trueMaxDistance = this.maxDistance * this.body.size;
+        const trueMinDistance = this.minDistance * this.body.size;
         if(input.fire) {
             if(this.body.dist <= trueMaxDistance) {
                 this.body.dist += this.radiusScalingSpeed;
@@ -1117,13 +1199,12 @@ class io_orbit extends IO {
         this.realDist = 0;
         this.invert = opts.invert ?? false;
     }
-  
-    think(input) {
-        let invertFactor = this.invert ? -1 : 1,
+    think(_) {
+        const invertFactor = this.invert ? -1 : 1,
             master = this.body.master.useOwnMaster ? this.body.master : this.body.master.master,
             dist = this.invert ? master.inverseDist : master.dist,
             angle = (this.body.angle * Math.PI / 180 + master.angle) * invertFactor;
-        
+
         if(this.realDist > dist) {
             this.realDist -= Math.min(10, Math.abs(this.realDist - dist));
         } else if(this.realDist < dist) {
@@ -1131,7 +1212,7 @@ class io_orbit extends IO {
         }
         this.body.x = master.x + Math.cos(angle) * this.realDist * Math.sqrt(2);
         this.body.y = master.y + Math.sin(angle) * this.realDist * Math.sqrt(2);
-        
+
         this.body.facing = angle;
     }
 }
@@ -1156,24 +1237,24 @@ class io_advancedOrbit extends IO {
         this.changeMaster = opts.changeMaster ?? false; // make it so bullet whirlwinds work
         this.mirrorMasterVelocity = opts.mirrorVelocity ?? false; // adds the bodies velocity to the satellites
         this.mirrorMasterAcceleration = opts.mirrorAcceleration ?? false; // adds the bodies acceleration to the satellites
-        this.accountForVelocity = opts.accountForVelocity ?? false; // fixes satellites that trail 
+        this.accountForVelocity = opts.accountForVelocity ?? false; // fixes satellites that trail
     }
-    think(input) {
-        let invertRotationFactor = this.invertRotation ? -1 : 1,
-            invertDistance = this.invertDistance ? -1 : 1,
+    think(_) {
+        const invertRotationFactor = this.invertRotation ? -1 : 1,
+            // invertDistance = this.invertDistance ? -1 : 1,
             master = this.changeMaster ? this.body.source : this.body.master.master,
             dist = this.invertDistance ? master.inverseDist : master.dist,
             angle = (this.body.angle * Math.PI / 180 + (master.angle * (this.spinMulti)) + (this.realDist * (Math.PI / 180) * this.speedWithDistance)) * invertRotationFactor,
             rotation = this.rotation * (Math.PI / 180);
-        let finalRotation = rotation + (master.angle * (this.gradualSpin / master.aiSettings.SPEED));
+        const finalRotation = rotation + (master.angle * (this.gradualSpin / master.aiSettings.SPEED));
 
         if (this.realDist > dist) {
             this.realDist -= Math.min(10, Math.abs(this.realDist - dist));
         } else if (this.realDist < dist) {
             this.realDist += Math.min(10, Math.abs(dist - this.realDist));
         }
-        let fixAmount = this.minDistanceForFix * (this.distanceMulti - 1) * -1;
-        let radiusSizeMulti = master.size * this.offset,
+        const fixAmount = this.minDistanceForFix * (this.distanceMulti - 1) * -1;
+        const radiusSizeMulti = master.size * this.offset,
             ovalLengthMultiplier = (this.ovalLengthMulti * master.size),
             ovalWidthMultiplier = (this.ovalWidthMulti * master.size),
             distanceMulti = this.realDist * this.distanceMulti,
@@ -1181,9 +1262,9 @@ class io_advancedOrbit extends IO {
             xDistance = (Math.cos(angle) * (distanceMulti + radiusSizeMulti + ovalLengthMultiplier + fixAmountMulti)),
             yDistance = (Math.sin(angle) * (distanceMulti + radiusSizeMulti + ovalWidthMultiplier + fixAmountMulti));
 
-        let addedX = this.accountForVelocity ? this.body.velocity.x : 0;
-        let addedY = this.accountForVelocity ? this.body.velocity.y : 0;
-        let centerX = master.x + ((this.centerOffset * Math.cos(this.centerOffsetAngle * (Math.PI / 180))) * master.size),
+        const addedX = this.accountForVelocity ? this.body.velocity.x : 0;
+        const addedY = this.accountForVelocity ? this.body.velocity.y : 0;
+        const centerX = master.x + ((this.centerOffset * Math.cos(this.centerOffsetAngle * (Math.PI / 180))) * master.size),
             centerY = master.y + ((this.centerOffset * Math.sin(this.centerOffsetAngle * (Math.PI / 180))) * master.size);
 
         this.body.x = (centerX + addedX) + (xDistance * Math.cos(finalRotation) - yDistance * Math.sin(finalRotation));
@@ -1218,18 +1299,18 @@ class io_snake extends IO {
         this.body.y += Math.sin(this.body.velocity.direction) * this.body.size * Config.bullet_spawn_offset + 0;
         // Clamp scale to [45, 75]
         // Attempts to get the bullets to intersect with the cursor
-        this.waveHorizontalScale = util.clamp(util.getDistance(this.body.master.master.control.target, {x: 0, y: 0}) / Math.PI, 45, 75);
+        this.waveHorizontalScale = clamp(getDistance(this.body.master.master.control.target, {x: 0, y: 0}) / Math.PI, 45, 75);
     }
-    think(input) {
-    // Define a sin wave for the bullet to follow
-        let waveX = this.waveHorizontalScale * (this.body.RANGE - this.body.range) / this.wavePeriod;
-        let waveY = this.waveAmplitude * Math.sin(waveX / this.waveHorizontalScale) * this.waveInvert * this.reverseWave + this.yOffset;
+    think(_) {
+        // Define a sin wave for the bullet to follow
+        const waveX = this.waveHorizontalScale * (this.body.RANGE - this.body.range) / this.wavePeriod;
+        const waveY = this.waveAmplitude * Math.sin(waveX / this.waveHorizontalScale) * this.waveInvert * this.reverseWave + this.yOffset;
         // Rotate the sin wave
-        let trueWaveX = Math.cos(this.waveAngle) * waveX - Math.sin(this.waveAngle) * waveY;
-        let trueWaveY = Math.sin(this.waveAngle) * waveX + Math.cos(this.waveAngle) * waveY;
+        const trueWaveX = Math.cos(this.waveAngle) * waveX - Math.sin(this.waveAngle) * waveY;
+        const trueWaveY = Math.sin(this.waveAngle) * waveX + Math.cos(this.waveAngle) * waveY;
         // Follow the sin wave
-        this.body.x = util.lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
-        this.body.y = util.lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
+        this.body.x = lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
+        this.body.y = lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
         // Accelerate after spawning
         this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed);
     }
@@ -1242,13 +1323,12 @@ class io_disableOnOverride extends IO {
         this.lastPacify = false;
         this.savedDamage = 0;
     }
-
-    think(input) {
+    think(_) {
         if (!this.initialAlpha) {
             this.initialAlpha = this.body.alpha;
             this.targetAlpha = this.initialAlpha;
         }
-        
+
         this.pacify = (this.body.parent.master.autoOverride || this.body.parent.master.master.autoOverride);
         if (this.pacify && !this.lastPacify) {
             this.targetAlpha = 0;
@@ -1263,8 +1343,10 @@ class io_disableOnOverride extends IO {
         this.lastPacify = this.pacify;
 
         if (this.body.alpha != this.targetAlpha) {
-            this.body.alpha += util.clamp(this.targetAlpha - this.body.alpha, -0.05, 0.05);
-            if (this.body.flattenedPhoto) this.body.flattenedPhoto.alpha = this.body.alpha;
+            this.body.alpha += clamp(this.targetAlpha - this.body.alpha, -0.05, 0.05);
+            if (this.body.flattenedPhoto) {
+                this.body.flattenedPhoto.alpha = this.body.alpha;
+            }
         }
     }
 }
@@ -1275,8 +1357,8 @@ class io_scaleWithMaster extends IO {
         this.storedSize = 0;
         this.ratio = this.body.SIZE * 4.1;
     }
-    think(input) {
-        let masterSize = this.body.master.size;
+    think(_) {
+        const masterSize = this.body.master.size;
         if (masterSize != this.storedSize) {
             this.storedSize = masterSize;
             this.body.SIZE = masterSize * this.ratio;
@@ -1302,20 +1384,20 @@ class io_snakeTillNot extends IO {
         this.body.y += Math.sin(this.body.velocity.direction) * this.body.size * Config.bullet_spawn_offset + 0;
         // Clamp scale to [45, 75]
         // Attempts to get the bullets to intersect with the cursor
-        this.waveHorizontalScale = util.clamp(util.getDistance(this.body.master.master.control.target, {x: 0, y: 0}) / Math.PI, 45, 75);
+        this.waveHorizontalScale = clamp(getDistance(this.body.master.master.control.target, {x: 0, y: 0}) / Math.PI, 45, 75);
         this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit ??= false;
     }
-    think(input) {
+    think(_) {
         if (!this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit) {
             // Define a sin wave for the bullet to follow
-            let waveX = this.waveHorizontalScale * (this.body.RANGE - this.body.range) / this.wavePeriod;
-            let waveY = this.waveAmplitude * Math.sin(waveX / this.waveHorizontalScale) * this.waveInvert * this.reverseWave + this.yOffset;
+            const waveX = this.waveHorizontalScale * (this.body.RANGE - this.body.range) / this.wavePeriod;
+            const waveY = this.waveAmplitude * Math.sin(waveX / this.waveHorizontalScale) * this.waveInvert * this.reverseWave + this.yOffset;
             // Rotate the sin wave
-            let trueWaveX = Math.cos(this.waveAngle) * waveX - Math.sin(this.waveAngle) * waveY;
-            let trueWaveY = Math.sin(this.waveAngle) * waveX + Math.cos(this.waveAngle) * waveY;
+            const trueWaveX = Math.cos(this.waveAngle) * waveX - Math.sin(this.waveAngle) * waveY;
+            const trueWaveY = Math.sin(this.waveAngle) * waveX + Math.cos(this.waveAngle) * waveY;
             // Follow the sin wave
-            this.body.x = util.lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
-            this.body.y = util.lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
+            this.body.x = lerp(this.body.x, this.startX + trueWaveX, this.velocityMagnitude);
+            this.body.y = lerp(this.body.y, this.startY + trueWaveY, this.velocityMagnitude);
             // Accelerate after spawning
             this.velocityMagnitude = Math.min(0.1, this.velocityMagnitude + 0.01 / global.gameManager.runSpeed);
         }
@@ -1341,13 +1423,13 @@ class io_oroboros extends IO {
         this.lerpTimer = 0;
         body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = false;
     };
-    think(input) {
+    think(_) {
         this.x += this.speed;
-        if (util.getDistance({x: this.masterBodyX, y: this.masterBodyY}, {x: this.body.x, y: this.body.y}) > util.getDistance({x: 0, y: 0}, {x: this.masterX, y: this.masterY}) || this.gonnaGoInFUCKINGCircles) {
+        if (getDistance({x: this.masterBodyX, y: this.masterBodyY}, {x: this.body.x, y: this.body.y}) > getDistance({x: 0, y: 0}, {x: this.masterX, y: this.masterY}) || this.gonnaGoInFUCKINGCircles) {
             this.lerpTimer = Math.min(1, this.lerpTimer + 0.02);
             this.gonnaGoInFUCKINGCircles = true;
             this.body.dontEverDareToDoThatSnakeShitEverAgainYouPieceOfShit = true;
-            
+
             this.body.x = lerp(this.body.x, (this.range * Math.sin(-this.x)) + this.myGoal.x, this.lerpTimer);
             this.body.y = lerp(this.body.y, (this.range * Math.cos(-this.x)) + this.myGoal.y, this.lerpTimer);
             this.body.facing = lerp(0, -this.x, this.lerpTimer);
@@ -1369,11 +1451,11 @@ class io_oroboros extends IO {
     }
 }
 class io_rcs extends IO {
-    constructor(body) { 
+    constructor(body) {
         super(body);
         this.body = body;
     }
-    think(input) {
+    think(_) {
         const master = this.body.master,
             {x: vx, y: vy} = master.velocity,
             goal = {x: master.control.goal.x - master.x, y: master.control.goal.y - master.y},
@@ -1400,7 +1482,7 @@ class io_rcs extends IO {
     }
 }
 
-let ioTypes = {
+export const ioTypes = {
     //misc
     zoom: io_zoom,
     doNothing: io_doNothing,
@@ -1441,5 +1523,3 @@ let ioTypes = {
     fleeAtLowHealth: io_fleeAtLowHealth,
     wanderAroundMap: io_wanderAroundMap
 };
-
-module.exports = { ioTypes, IO };

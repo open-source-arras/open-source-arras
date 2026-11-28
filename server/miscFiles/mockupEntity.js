@@ -1,3 +1,9 @@
+import { getRealSizeLazy } from "../game/entities/subFunctions";
+import { Vector } from "../game/entities/vector";
+import { randomRange } from "../lib/random";
+import { rounder } from "../lib/util";
+import { Config, ensureIsClass, handleBatchUpgradeSplit, Class } from "../loaders/global";
+
 class MockupEntityGun {
     constructor(info) {
         this.colorUnboxed = {
@@ -17,8 +23,8 @@ class MockupEntityGun {
             if (info.PROPERTIES.COLOR != null) {
                 if (typeof info.PROPERTIES.COLOR === "number" || typeof info.PROPERTIES.COLOR === "string") {
                     if (!isNaN(info.PROPERTIES.COLOR) && !isNaN(parseFloat(info.PROPERTIES.COLOR)) || /^[a-zA-Z0-9#]*$/.test(info.PROPERTIES.COLOR)) {
-                        this.colorUnboxed.base = info.PROPERTIES.COLOR; 
-                    } 
+                        this.colorUnboxed.base = info.PROPERTIES.COLOR;
+                    }
                 } else if (typeof info.PROPERTIES.COLOR === "object") {
                     this.colorUnboxed = {
                         base: info.PROPERTIES.COLOR.BASE ?? 16,
@@ -26,15 +32,25 @@ class MockupEntityGun {
                         saturationShift: info.PROPERTIES.COLOR.SATURATION_SHIFT ?? 1,
                         brightnessShift: info.PROPERTIES.COLOR.BRIGHTNESS_SHIFT ?? 0,
                         allowBrightnessInvert: info.PROPERTIES.COLOR.ALLOW_BRIGHTNESS_INVERT ?? false
-                    }; 
+                    };
                 }
-                this.color = this.colorUnboxed.base + " " + this.colorUnboxed.hueShift + " " + this.colorUnboxed.saturationShift + " " + this.colorUnboxed.brightnessShift + " " + this.colorUnboxed.allowBrightnessInvert;
+                this.color = `${this.colorUnboxed.base} ${this.colorUnboxed.hueShift} ${this.colorUnboxed.saturationShift} ${this.colorUnboxed.brightnessShift} ${this.colorUnboxed.allowBrightnessInvert}`;
             }
-            if (info.PROPERTIES.ALPHA != null) this.alpha = info.PROPERTIES.ALPHA;
-            if (info.PROPERTIES.STROKE_WIDTH != null) this.strokeWidth = info.PROPERTIES.STROKE_WIDTH;
-            if (info.PROPERTIES.BORDERLESS != null) this.borderless = info.PROPERTIES.BORDERLESS;
-            if (info.PROPERTIES.DRAW_FILL != null) this.drawFill = info.PROPERTIES.DRAW_FILL;
-            if (info.PROPERTIES.DRAW_ABOVE) this.drawAbove = info.PROPERTIES.DRAW_ABOVE;
+            if (info.PROPERTIES.ALPHA != null) {
+                this.alpha = info.PROPERTIES.ALPHA;
+            }
+            if (info.PROPERTIES.STROKE_WIDTH != null) {
+                this.strokeWidth = info.PROPERTIES.STROKE_WIDTH;
+            }
+            if (info.PROPERTIES.BORDERLESS != null) {
+                this.borderless = info.PROPERTIES.BORDERLESS;
+            }
+            if (info.PROPERTIES.DRAW_FILL != null) {
+                this.drawFill = info.PROPERTIES.DRAW_FILL;
+            }
+            if (info.PROPERTIES.DRAW_ABOVE) {
+                this.drawAbove = info.PROPERTIES.DRAW_ABOVE;
+            }
         }
         let position = info.POSITION;
         if (Array.isArray(position)) {
@@ -63,7 +79,7 @@ class MockupEntityGun {
         this.length = position.LENGTH / 10;
         this.width = position.WIDTH / 10;
         this.aspect = position.ASPECT;
-        let _off = new Vector(position.X, position.Y);
+        const _off = new Vector(position.X, position.Y);
         this.angle = (position.ANGLE * Math.PI) / 180;
         this.direction = _off.direction;
         this.offset = _off.length / 10;
@@ -90,7 +106,7 @@ class MockupEntityProp {
         // Bind prop
         this.bond = bond;
         this.bond.props.push(this);
-        
+
         let position = def.POSITION;
         // Get my position.
         if (Array.isArray(position)) {
@@ -107,7 +123,7 @@ class MockupEntityProp {
         position.Y ??= 0;
         position.ANGLE ??= 0;
         position.LAYER ??= 0;
-        let _off = new Vector(position.X, position.Y);
+        const _off = new Vector(position.X, position.Y);
         this.bound = {
             size: position.SIZE / 20,
             angle: position.ANGLE * Math.PI / 180,
@@ -130,7 +146,7 @@ class MockupEntityProp {
         this.props = [];
     }
     define(def) {
-        let set = ensureIsClass(def);
+        const set = ensureIsClass(def);
 
         if (set.PARENT != null) {
             if (Array.isArray(set.PARENT)) {
@@ -141,7 +157,9 @@ class MockupEntityProp {
                 this.define(set.PARENT, false);
             }
         }
-        if (set.index != null) this.index = set.index.toString();
+        if (set.index != null) {
+            this.index = set.index.toString();
+        }
         if (set.SHAPE != null) {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : (set.SHAPE_NUM ?? 0);
             this.shapeData = set.SHAPE;
@@ -150,8 +168,8 @@ class MockupEntityProp {
         if (set.COLOR != null) {
             if (typeof set.COLOR === "number" || typeof set.COLOR === "string") {
                 if (!isNaN(set.COLOR) && !isNaN(parseFloat(set.COLOR)) || /^[a-zA-Z0-9#]*$/.test(set.COLOR)) {
-                    this.colorUnboxed.base = set.COLOR; 
-                } 
+                    this.colorUnboxed.base = set.COLOR;
+                }
             } else if (typeof set.COLOR === "object") {
                 this.colorUnboxed = {
                     base: set.COLOR.BASE ?? 16,
@@ -159,14 +177,18 @@ class MockupEntityProp {
                     saturationShift: set.COLOR.SATURATION_SHIFT ?? 1,
                     brightnessShift: set.COLOR.BRIGHTNESS_SHIFT ?? 0,
                     allowBrightnessInvert: set.COLOR.ALLOW_BRIGHTNESS_INVERT ?? false
-                }; 
+                };
             }
-            this.color = this.colorUnboxed.base + " " + this.colorUnboxed.hueShift + " " + this.colorUnboxed.saturationShift + " " + this.colorUnboxed.brightnessShift + " " + this.colorUnboxed.allowBrightnessInvert;
+            this.color = `${this.colorUnboxed.base} ${this.colorUnboxed.hueShift} ${this.colorUnboxed.saturationShift} ${this.colorUnboxed.brightnessShift} ${this.colorUnboxed.allowBrightnessInvert}`;
         }
-        if (set.BORDERLESS != null) this.borderless = set.BORDERLESS;
-        if (set.DRAW_FILL != null) this.drawFill = set.DRAW_FILL;
+        if (set.BORDERLESS != null) {
+            this.borderless = set.BORDERLESS;
+        }
+        if (set.DRAW_FILL != null) {
+            this.drawFill = set.DRAW_FILL;
+        }
         if (set.GUNS != null) {
-            let newGuns = [];
+            const newGuns = [];
             for (let i = 0; i < set.GUNS.length; i++) {
                 newGuns.push(new MockupEntityGun(set.GUNS[i]));
             }
@@ -175,7 +197,7 @@ class MockupEntityProp {
     }
 }
 
-class MockupEntity {
+export class MockupEntity {
     constructor() {
     // General stuff
         this.settings = {};
@@ -203,7 +225,9 @@ class MockupEntity {
         this.set(Class.genericEntity);
     }
     set(vclass) {
-        if (!Array.isArray(vclass)) vclass = [vclass];
+        if (!Array.isArray(vclass)) {
+            vclass = [vclass];
+        }
         // Define all primary stats
         let set = ensureIsClass(vclass[0]);
         if (set.PARENT != null) {
@@ -217,13 +241,27 @@ class MockupEntity {
         }
         this.borderless = set.BORDERLESS ?? false;
         this.drawFill = set.DRAW_FILL ?? true;
-        if (set.LAYER != null) this.layerID = set.LAYER;
-        if (set.index != null) this.index = set.index.toString();
-        if (set.NAME != null) this.name = set.NAME;
-        if (set.LABEL != null) this.label = set.LABEL;
-        if (set.TYPE != null) this.type = set.TYPE;
-        if (set.UPGRADE_LABEL != null) this.upgradeLabel = set.UPGRADE_LABEL;
-        if (set.UPGRADE_TOOLTIP != null) this.upgradeTooltip = set.UPGRADE_TOOLTIP;
+        if (set.LAYER != null) {
+            this.layerID = set.LAYER;
+        }
+        if (set.index != null) {
+            this.index = set.index.toString();
+        }
+        if (set.NAME != null) {
+            this.name = set.NAME;
+        }
+        if (set.LABEL != null) {
+            this.label = set.LABEL;
+        }
+        if (set.TYPE != null) {
+            this.type = set.TYPE;
+        }
+        if (set.UPGRADE_LABEL != null) {
+            this.upgradeLabel = set.UPGRADE_LABEL;
+        }
+        if (set.UPGRADE_TOOLTIP != null) {
+            this.upgradeTooltip = set.UPGRADE_TOOLTIP;
+        }
         this.strokeWidth = set.STROKE_WIDTH ?? 1;
         if (set.SHAPE != null) {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : (set.SHAPE_NUM ?? 0);
@@ -232,7 +270,7 @@ class MockupEntity {
         this.imageInterpolation = set.IMAGE_INTERPOLATION ?? "bilinear";
         if (set.COLOR != null) {
             if (typeof set.COLOR === "number" || typeof set.COLOR === "string") {
-                this.colorUnboxed.base = set.COLOR; 
+                this.colorUnboxed.base = set.COLOR;
             } else if (typeof set.COLOR === "object") {
                 this.colorUnboxed = {
                     base: set.COLOR.BASE ?? 16,
@@ -240,15 +278,17 @@ class MockupEntity {
                     saturationShift: set.COLOR.SATURATION_SHIFT ?? 1,
                     brightnessShift: set.COLOR.BRIGHTNESS_SHIFT ?? 0,
                     allowBrightnessInvert: set.COLOR.ALLOW_BRIGHTNESS_INVERT ?? false
-                }; 
+                };
             }
-            this.color = this.colorUnboxed.base + " " + this.colorUnboxed.hueShift + " " + this.colorUnboxed.saturationShift + " " + this.colorUnboxed.brightnessShift + " " + this.colorUnboxed.allowBrightnessInvert;
+            this.color = `${this.colorUnboxed.base} ${this.colorUnboxed.hueShift} ${this.colorUnboxed.saturationShift} ${this.colorUnboxed.brightnessShift} ${this.colorUnboxed.allowBrightnessInvert}`;
         }
-        if (set.UPGRADE_COLOR) this.upgradeColor = set.UPGRADE_COLOR + " 0 1 0 false";
+        if (set.UPGRADE_COLOR) {
+            this.upgradeColor = `${set.UPGRADE_COLOR} 0 1 0 false`;
+        }
         if (set.GLOW != null) {
             this.glow = {
                 radius: set.GLOW.RADIUS ?? 0,
-                color: set.GLOW.COLOR + " 0 1 0 false",
+                color: `${set.GLOW.COLOR} 0 1 0 false`,
                 alpha: set.GLOW.ALPHA ?? 1,
                 recursion: set.GLOW.RECURSION ?? 1
             };
@@ -260,13 +300,23 @@ class MockupEntity {
         this.settings.ratioEffects = set.RATIO_EFFECTS ?? true;
         this.settings.motionEffects = set.MOTION_EFFECTS ?? true;
         this.sendAllMockups = set.SEND_ALL_MOCKUPS ?? false;
-        if (set.VISIBLE_ON_BLACKOUT) this.visibleOnBlackout = set.VISIBLE_ON_BLACKOUT;
-        if (set.DMCA_CENSOR_NAME) this.censor |= 1;
-        if (set.DMCA_CENSOR_DESIGN) this.censor |= 2;
-        if (set.REROOT_UPGRADE_TREE) this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
+        if (set.VISIBLE_ON_BLACKOUT) {
+            this.visibleOnBlackout = set.VISIBLE_ON_BLACKOUT;
+        }
+        if (set.DMCA_CENSOR_NAME) {
+            this.censor |= 1;
+        }
+        if (set.DMCA_CENSOR_DESIGN) {
+            this.censor |= 2;
+        }
+        if (set.REROOT_UPGRADE_TREE) {
+            this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
+        }
         if (Array.isArray(this.rerootUpgradeTree)) {
             let finalRoot = "";
-            for (let root of this.rerootUpgradeTree) finalRoot += root + "\\/";
+            for (const root of this.rerootUpgradeTree) {
+                finalRoot += `${root}\\/`;
+            }
             this.rerootUpgradeTree = finalRoot.substring(0, finalRoot.length - 2);
         }
         if (set.STAT_NAMES != null) {
@@ -281,7 +331,7 @@ class MockupEntity {
                 move_speed: set.STAT_NAMES?.MOVE_SPEED ?? "Movement Speed",
                 shield_regen: set.STAT_NAMES?.SHIELD_REGEN ?? "Shield Regeneration",
                 shield_cap: set.STAT_NAMES?.SHIELD_CAP ?? "Shield Capacity"
-            }; 
+            };
         }
         if (set.ALPHA != null) {
             this.alpha = ("number" === typeof set.ALPHA) ? set.ALPHA : set.ALPHA[1];
@@ -292,19 +342,25 @@ class MockupEntity {
         }
         let level = 0;
         if (set.VALUE != null) {
-            let score = 0;
+            const score = 0;
             let deduction = 0;
-            let levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level;
+            const levelScore = () => 1.74 * Math.pow(level + 1, 1.79503264) - 0.53 * level;
             while (score - deduction >= levelScore()) {
                 deduction += levelScore();
                 level += 1;
             }
-        } else if (set.LEVEL != null) level = set.LEVEL;
-        this.size = (set.SIZE ?? 1) * (set.VARIES_IN_SIZE ? ran.randomRange(0.8, 1.2) : 1) * (1 + Math.min(set.LEVEL_CAP ?? Config.level_cap, level) / 45);
-        this.realSize = util.rounder(this.size * lazyRealSizes[Math.floor(Math.abs(this.shape))]);
-        this.size = util.rounder(this.size);
-        if (set.BRANCH_LABEL != null) this.branchLabel = set.BRANCH_LABEL;
-        if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
+        } else if (set.LEVEL != null) {
+            level = set.LEVEL;
+        }
+        this.size = (set.SIZE ?? 1) * (set.VARIES_IN_SIZE ? randomRange(0.8, 1.2) : 1) * (1 + Math.min(set.LEVEL_CAP ?? Config.level_cap, level) / 45);
+        this.realSize = rounder(this.size * getRealSizeLazy(Math.floor(Math.abs(this.shape))));
+        this.size = rounder(this.size);
+        if (set.BRANCH_LABEL != null) {
+            this.branchLabel = set.BRANCH_LABEL;
+        }
+        if (set.BATCH_UPGRADES != null) {
+            this.batchUpgrades = set.BATCH_UPGRADES;
+        }
         for (const prop in set) {
             if (!prop.startsWith("UPGRADES_TIER_")) {
                 continue;
@@ -312,14 +368,16 @@ class MockupEntity {
             for (let j = 0; j < set[prop].length; j++) {
                 let upgrades = set[prop][j];
                 let index = "";
-                if (!Array.isArray(upgrades)) upgrades = [upgrades];
-                let redefineAll = upgrades.includes(true);
-                let trueUpgrades = upgrades.slice(0, upgrades.length - redefineAll); // Ignore last element if it's true
-                for (let k of trueUpgrades) {
-                    let e = ensureIsClass(k);
-                    index += e.index + "-";
+                if (!Array.isArray(upgrades)) {
+                    upgrades = [upgrades];
                 }
-                let i = parseInt(prop.split("_")[2]);
+                const redefineAll = upgrades.includes(true);
+                const trueUpgrades = upgrades.slice(0, upgrades.length - redefineAll); // Ignore last element if it's true
+                for (const k of trueUpgrades) {
+                    const e = ensureIsClass(k);
+                    index += `${e.index}-`;
+                }
+                const i = parseInt(prop.split("_")[2]);
                 this.upgrades.push({
                     class: trueUpgrades,
                     level: Config.tier_multiplier * i,
@@ -332,12 +390,20 @@ class MockupEntity {
             }
         }
         // Batch Upgrades
-        if (!this.defs) this.defs = [];
-        for (let def of vclass) this.defs.push(def);
-        if (this.batchUpgrades) handleBatchUpgradeSplit(this); // Batch upgrades
+        if (!this.defs) {
+            this.defs = [];
+        }
+        for (const def of vclass) {
+            this.defs.push(def);
+        }
+        if (this.batchUpgrades) {
+            handleBatchUpgradeSplit(this);
+        } // Batch upgrades
         for (let branch = 1; branch < this.defs.length; branch++) { // Define additional stats for other split upgrades (And fix class tree too)
             set = ensureIsClass(this.defs[branch]);
-            if (set.index != null) this.index += "-" + set.index;
+            if (set.index != null) {
+                this.index += `-${set.index}`;
+            }
             if (set.PARENT != null) {
                 if (Array.isArray(set.PARENT)) {
                     for (let i = 0; i < set.PARENT.length; i++) {
@@ -347,20 +413,25 @@ class MockupEntity {
                     this.branchLabel = ensureIsClass(set.PARENT).BRANCH_LABEL;
                 }
             }
-            if (set.BATCH_UPGRADES != null) this.batchUpgrades = set.BATCH_UPGRADES;
+            if (set.BATCH_UPGRADES != null) {
+                this.batchUpgrades = set.BATCH_UPGRADES;
+            }
             for (const prop in set) {
                 if (!prop.startsWith("UPGRADES_TIER_")) {
                     continue;
                 }
+                const i = parseInt(prop.split("_")[2]);
                 for (let j = 0; j < set[prop].length; j++) {
                     let upgrades = set[prop][j];
                     let index = "";
-                    if (!Array.isArray(upgrades)) upgrades = [upgrades];
-                    let redefineAll = upgrades.includes(true);
-                    let trueUpgrades = upgrades.slice(0, upgrades.length - redefineAll); // Ignore last element if it's true
-                    for (let k of trueUpgrades) {
-                        let e = ensureIsClass(k);
-                        index += e.index + "-";
+                    if (!Array.isArray(upgrades)) {
+                        upgrades = [upgrades];
+                    }
+                    const redefineAll = upgrades.includes(true);
+                    const trueUpgrades = upgrades.slice(0, upgrades.length - redefineAll); // Ignore last element if it's true
+                    for (const k of trueUpgrades) {
+                        const e = ensureIsClass(k);
+                        index += `${e.index}-`;
                     }
                     this.upgrades.push({
                         class: trueUpgrades,
@@ -373,16 +444,20 @@ class MockupEntity {
                     });
                 }
             }
-            if (set.REROOT_UPGRADE_TREE) this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
+            if (set.REROOT_UPGRADE_TREE) {
+                this.rerootUpgradeTree = set.REROOT_UPGRADE_TREE;
+            }
             if (Array.isArray(this.rerootUpgradeTree)) {
                 let finalRoot = "";
-                for (let root of this.rerootUpgradeTree) finalRoot += root + "\\/";
+                for (const root of this.rerootUpgradeTree) {
+                    finalRoot += `${root}\\/`;
+                }
                 this.rerootUpgradeTree += finalRoot.substring(0, finalRoot.length - 2);
             }
         }
         delete this.defs;
         if (set.GUNS != null) {
-            let newGuns = [];
+            const newGuns = [];
             for (let i = 0; i < set.GUNS.length; i++) {
                 newGuns.push(new MockupEntityGun(set.GUNS[i]));
             }
@@ -391,8 +466,8 @@ class MockupEntity {
         if (set.TURRETS != null) {
             this.turrets = [];
             for (let i = 0; i < set.TURRETS.length; i++) {
-                let def = set.TURRETS[i];
-                let o = new MockupEntity();
+                const def = set.TURRETS[i];
+                const o = new MockupEntity();
                 if (Array.isArray(def.TYPE)) {
                     for (let j = 0; j < def.TYPE.length; j++) {
                         o.set(def.TYPE[j]);
@@ -406,7 +481,7 @@ class MockupEntity {
         if (set.PROPS != null) {
             this.props = [];
             for (let i = 0; i < set.PROPS.length; i++) {
-                let def = set.PROPS[i],
+                const def = set.PROPS[i],
                     type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE],
                     o = new MockupEntityProp(def, this);
                 for (let j = 0; j < type.length; j++) {
@@ -436,7 +511,7 @@ class MockupEntity {
         position.ANGLE ??= 0;
         position.ARC ??= 360;
         position.LAYER ??= 0;
-        let _off = new Vector(position.X, position.Y);
+        const _off = new Vector(position.X, position.Y);
         this.bound = {
             size: position.SIZE / 20,
             angle: position.ANGLE * Math.PI / 180,
@@ -447,5 +522,3 @@ class MockupEntity {
         };
     }
 }
-
-module.exports = { MockupEntity };

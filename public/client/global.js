@@ -48,11 +48,11 @@ const missingno = {
     props: []
 };
 function Clickable() {
-    let region = {
+    const region = {
         x: 0,
         y: 0,
         w: 0,
-        h: 0,
+        h: 0
     };
     let active = false;
     return {
@@ -63,19 +63,19 @@ function Clickable() {
             region.h = h * global.ratio;
             active = true;
         },
-        check: target => {
-            let dx = Math.round(target.x - region.x);
-            let dy = Math.round(target.y - region.y);
+        check: (target) => {
+            const dx = Math.round(target.x - region.x);
+            const dy = Math.round(target.y - region.y);
             return active && dx >= 0 && dy >= 0 && dx <= region.w && dy <= region.h;
         },
         hide: () => {
             active = false;
-        },
+        }
     };
 }
-let Region = (size) => {
+const Region = (size) => {
     // Define the region
-    let data = [];
+    const data = [];
     for (let i = 0; i < size; i++) {
         data.push(Clickable());
     }
@@ -90,9 +90,11 @@ let Region = (size) => {
             data[index].set(...a);
         },
         hide: () => {
-            for (let region of data) region.hide();
+            for (const region of data) {
+                region.hide();
+            }
         },
-        check: x => data.findIndex(r => r.check(x))
+        check: (x) => data.findIndex((r) => r.check(x))
     };
 };
 
@@ -241,7 +243,7 @@ const global = {
     KEY_SPECIAL_DEMOTE: "Quote",
 
     KEY_ABILITIES: ["KEY_SPECIAL_ATTRIBUTE", "KEY_SPECIAL_SKILL"],
-    
+
     // THIS layout of the mobile sandbox cmd keys, i tried to out like a real keyboard so it
     // lines up with the "`" + key" operator commands from server/keyCommands.js
     // "attribute" and "skill" are the code sent alongside KEY_SPECIAL_ATTRIBUTE or
@@ -261,7 +263,7 @@ const global = {
             { label: "9" },
             { label: "0", code: "KEY_SPECIAL_ZOOM_CLEAR" },
             { label: "-", code: "KEY_SPECIAL_ZOOM_OUT" },
-            { label: "+", code: "KEY_SPECIAL_ZOOM_IN" },
+            { label: "+", code: "KEY_SPECIAL_ZOOM_IN" }
         ],
         [
             { label: "Q", code: "KEY_SPECIAL_BASIC" },
@@ -273,7 +275,7 @@ const global = {
             { label: "U" },
             { label: "I", code: "KEY_SPECIAL_INVINCIBLE" },
             { label: "O", code: "KEY_SPECIAL_BAN", attribute: "KEY_SPECIAL_ATTRIBUTE_ARENA_EDGE" },
-            { label: "P" },
+            { label: "P" }
         ],
         [
             { label: "A", code: "KEY_SPECIAL_ATTRIBUTE", prefix: "attribute" },
@@ -286,7 +288,7 @@ const global = {
             { label: "K", code: "KEY_SPECIAL_KILL" },
             { label: "L", attribute: "KEY_SPECIAL_ATTRIBUTE_LEADERBOARD" },
             { label: ";", code: "KEY_SPECIAL_PROMOTE" },
-            { label: "'", code: "KEY_SPECIAL_DEMOTE" },
+            { label: "'", code: "KEY_SPECIAL_DEMOTE" }
         ],
         [
             { label: "Z", code: "KEY_SPECIAL_WALL_TYPE" },
@@ -298,8 +300,8 @@ const global = {
             { label: "M", attribute: "KEY_SPECIAL_ATTRIBUTE_MINIMAP_HIDE", skill: "KEY_SPECIAL_SKILL_MAX" },
             { label: ",", code: "KEY_SPECIAL_SMALLER" },
             { label: ".", code: "KEY_SPECIAL_BIGGER" },
-            { label: "?", code: "KEY_SPECIAL_HELP", attribute: "KEY_SPECIAL_HELP", skill: "KEY_SPECIAL_HELP" },
-        ],
+            { label: "?", code: "KEY_SPECIAL_HELP", attribute: "KEY_SPECIAL_HELP", skill: "KEY_SPECIAL_HELP" }
+        ]
     ],
 
     // runs whatever a tapped sandbox key buttons key is supposed to do
@@ -307,28 +309,32 @@ const global = {
     // also the need to hold anything down; a prefix key (A or S) itself
     // then whichever key gets tapped next is sent together with it in one packet
     // and also dont remove socket.talk op thing it breaks
-handleOperatorKeyDown: function (key) {
-    const prefix = global.operatorKeyboard.prefix;
-    if (key.prefix) {
+    handleOperatorKeyDown: function(key) {
+        const prefix = global.operatorKeyboard.prefix;
+        if (key.prefix) {
         // tapping the same prefix twice just cancels it otherwise arm it
-        global.operatorKeyboard.prefix = prefix === key.prefix ? null : key.prefix;
+            global.operatorKeyboard.prefix = prefix === key.prefix ? null : key.prefix;
+            return false;
+        }
+        if (prefix) {
+            const prefixCode = prefix === "attribute" ? "KEY_SPECIAL_ATTRIBUTE" : "KEY_SPECIAL_SKILL";
+            const comboCode = key[prefix];
+            if (comboCode) {
+                global.canvas.socket.talk("#", prefixCode, comboCode);
+            }
+            global.operatorKeyboard.prefix = null; // one shoting it is like tapping shift once
+            return false;
+        }
+        if (key.code) {
+            global.canvas.socket.talk("#", key.code);
+            return true;
+        }
         return false;
-    }
-    if (prefix) {
-        const prefixCode = prefix === "attribute" ? "KEY_SPECIAL_ATTRIBUTE" : "KEY_SPECIAL_SKILL";
-        const comboCode = key[prefix];
-        if (comboCode) global.canvas.socket.talk("#", prefixCode, comboCode);
-        global.operatorKeyboard.prefix = null; // one shoting it is like tapping shift once
-        return false;
-    }
-    if (key.code) {
-        global.canvas.socket.talk("#", key.code);
-        return true;
-    }
-    return false;
     },
-    handleOperatorKeyUp: function (key) {
-    if (key.code) global.canvas.socket.talk("#", "-" + key.code);
+    handleOperatorKeyUp: function(key) {
+        if (key.code) {
+            global.canvas.socket.talk("#", `-${key.code}`);
+        }
     },
     showTree: false,
     scrollX: 0,
@@ -398,7 +404,7 @@ handleOperatorKeyDown: function (key) {
             toggleBoxes: Region(100),
             HoverBoxes: Region(100),
             optionBoxes: Region(50),
-            mainMenuIdle: Clickable(),
+            mainMenuIdle: Clickable()
         }
     },
     dailyTankAd: {
@@ -440,7 +446,7 @@ handleOperatorKeyDown: function (key) {
         rendergap: 0,
         lastuplink: 0,
         lastPacketTime: 0,
-        mspt: 0,
+        mspt: 0
     },
     advanced: {
         arenaShape: "rect",
@@ -448,7 +454,7 @@ handleOperatorKeyDown: function (key) {
         blackout: {
             active: false,
             color: "#000000"
-        },
+        }
     },
     bandwidth: {
         currentHa: 0,
@@ -456,19 +462,19 @@ handleOperatorKeyDown: function (key) {
         finalHa: 0,
         finalFa: 0,
         totalHa: 0,
-        totalFa: 0,
+        totalFa: 0
     },
     mobileStatus: {
         enableCrosshair: false,
         showCrosshair: false,
         useBigJoysticks: false,
-        showJoysticks: false,
+        showJoysticks: false
     },
     hasOperator: false, // operator telling
     // State for the mobile sandbox buttonss
     operatorKeyboard: {
         open: false,
-        prefix: null,
+        prefix: null
     },
     GUIStatus: {
         renderLeaderboard: false,
@@ -481,19 +487,19 @@ handleOperatorKeyDown: function (key) {
         renderPlayerBars: false,
         renderPlayerKillbar: true,
         minimapReducedInfo: false,
-        fullHDMode: false,
+        fullHDMode: false
     },
     serverStats: {
         players: "?",
         mspt: "?",
         mspt_color: "not found",
         lag_color: "not found",
-        serverGamemodeName: "Unknown",
+        serverGamemodeName: "Unknown"
     },
     renderingInfo: {
         entities: 0,
         turretEntities: 0,
-        entitiesWithName: 0,
+        entitiesWithName: 0
     },
     lerp: (v, z, x) => {
         v = (x - v) / (z - v);
@@ -515,7 +521,7 @@ handleOperatorKeyDown: function (key) {
     vscreenSizey: 1080,
     timezoneLocation: new Date().getTimezoneOffset() / -60,
     ratio: window.devicePixelRatio,
-    mockupLoading: { then: cb => cb() },
+    mockupLoading: { then: (cb) => cb() },
     treeScale: 1,
     chats: {},
     initPlayer: () => {
@@ -533,7 +539,7 @@ handleOperatorKeyDown: function (key) {
             sliderMoving: false,
             currentOptionMenu: false
         };
-        let list = {
+        const list = {
             // Set up the player
             id: -1,
             x: global.screenWidth / 2,
@@ -544,11 +550,11 @@ handleOperatorKeyDown: function (key) {
             lastvy: 0,
             cx: {
                 x: 0,
-                animX: 0,
+                animX: 0
             },
             cy: {
                 y: 0,
-                animY: 0,
+                animY: 0
             },
             renderx: 0,
             rendery: 0,
@@ -570,15 +576,15 @@ handleOperatorKeyDown: function (key) {
             animY: new util.animBar(),
             roomAnim: {
                 x: new util.animBar(),
-                y: new util.animBar(),
+                y: new util.animBar()
             },
             name: "",
             lastUpdate: 0,
             time: 0,
             screenWidth: global.screenWidth,
             screenHeight: global.screenHeight,
-            nameColor: "#FFFFFF",
-        }
+            nameColor: "#FFFFFF"
+        };
         list.animv.add(list.renderv);
         return list;
     },
@@ -616,7 +622,9 @@ handleOperatorKeyDown: function (key) {
         global.died = false;
         global.disconnected = false;
         global.readyToRespawn = false;
-        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+        if (global.respawnReadyTimeout) {
+            clearTimeout(global.respawnReadyTimeout);
+        }
         global.entities = [];
         global.roomSetup = [];
         global.messages = [];
@@ -649,7 +657,9 @@ handleOperatorKeyDown: function (key) {
         global.died = false;
         global.disconnected = false;
         global.readyToRespawn = false;
-        if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+        if (global.respawnReadyTimeout) {
+            clearTimeout(global.respawnReadyTimeout);
+        }
         global.gameConnecting = true;
         global.message = "";
         global.entities = [];

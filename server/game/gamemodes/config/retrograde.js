@@ -1,3 +1,1 @@
-module.exports = {
-    retrograde: true
-};
+export const retrograde = true;

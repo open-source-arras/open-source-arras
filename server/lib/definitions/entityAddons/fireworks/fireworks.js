@@ -1,3 +1,6 @@
+import { Entity } from "../../../../game/entities/entity.js";
+import { Class, Config, TEAM_ROOM } from "../../../../loaders/global.js";
+
 const fireworkShapes = [0, 3, 4, "M 0 -1 L 0.3 -0.4 L 1 -0.4 L 0.6 0.3 L 0.8 1 L 0 0.6 L -0.8 1 L -0.6 0.2 L -1 -0.4 L -0.4 -0.4 Z"];
 const fireworkColors = [["blue", "red"], ["red", "orange"], ["blue", "cyan"], ["purple", "pink"], ["lime", "green"]];
 const fireworkCountMin = 6;
@@ -15,9 +18,9 @@ Class.firework = {
     }
 };
 
-let fireworkShapesClasses = [];
+const fireworkShapesClasses = [];
 for (let i = 0; i < fireworkShapes.length; i++) {
-    let name = `firework${i + 1}`;
+    const name = `firework${i + 1}`;
     Class[name] = {
         PARENT: "firework",
         SHAPE: fireworkShapes[i]
@@ -26,20 +29,22 @@ for (let i = 0; i < fireworkShapes.length; i++) {
 }
 
 function spawnFireworks(position) {
-    let definition = fireworkShapesClasses[Math.floor(Math.random() * fireworkShapesClasses.length)];
-    let colors = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
-    let count = Math.floor(fireworkCountMin / colors.length) * colors.length + Math.floor(Math.random() * ((fireworkCountMax - fireworkCountMin) / colors.length)) * colors.length;
+    const definition = fireworkShapesClasses[Math.floor(Math.random() * fireworkShapesClasses.length)];
+    const colors = fireworkColors[Math.floor(Math.random() * fireworkColors.length)];
+    const count = Math.floor(fireworkCountMin / colors.length) * colors.length + Math.floor(Math.random() * ((fireworkCountMax - fireworkCountMin) / colors.length)) * colors.length;
 
-    let facing = Math.PI * 2 / count;
+    const facing = Math.PI * 2 / count;
 
     for (let i = 0; i < count; i++) {
-        let e = new Entity(position);
+        const e = new Entity(position);
         e.isFirework = true;
         e.define(definition);
         if (e.colorUnboxed) {
             e.colorUnboxed.base = colors[i % colors.length];
             e.compressColor();
-        } else e.color.interpret(colors[i % colors.length]);
+        } else {
+            e.color.interpret(colors[i % colors.length]);
+        }
         e.facing = facing * i;
         e.accel.x = Math.cos(facing * i) * fireworkSpeed;
         e.accel.y = Math.sin(facing * i) * fireworkSpeed;
@@ -48,8 +53,8 @@ function spawnFireworks(position) {
     }
 }
 
-module.exports = ({ Events }) => {
-    Events.on("spawn", body => {
+export default ({ Events }) => {
+    Events.on("spawn", (body) => {
         body.on("dead", () => {
             if (((Config.seasonal_events && new Date().getMonth() === 6 && new Date().getDate() === 4) || Config.force_fireworks) && !body.isFirework) {
                 spawnFireworks({x: body.x, y: body.y});

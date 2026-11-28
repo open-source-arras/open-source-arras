@@ -1,3 +1,5 @@
+import { tileClass } from "../../../loaders/global";
+
 const {
     normal: ____,
     sbase1: sanc,
@@ -7,7 +9,7 @@ const {
     bossSpawnVoid: spwn
 } = tileClass;
 
-module.exports = [
+export default [
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, spwn, spwn, X__X, X__X, X__X, X__X, X__X, X__X, X__X],
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X],
     [X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X, X__X],

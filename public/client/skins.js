@@ -9,10 +9,16 @@ fetch("/getSkins.json", { cache: "no-store" })
     .catch(() => {});
 
 function findSkinKeyword(rawName) {
-    if (!keywords.length) return null;
+    if (!keywords.length) {
+        return null;
+    }
     const name = (rawName || "").replace(/^#[0-9a-f]{6}/i, "").toLowerCase();
-    if (!name) return null;
-    if (cache.has(name)) return cache.get(name);
+    if (!name) {
+        return null;
+    }
+    if (cache.has(name)) {
+        return cache.get(name);
+    }
     let best = null;
     let at = -1;
     for (const [skin, keyword] of keywords) {
@@ -27,7 +33,9 @@ function findSkinKeyword(rawName) {
 }
 
 export function skinShape(rawName) {
-    if (!config.graphical.renderSkins) return null;
+    if (!config.graphical.renderSkins) {
+        return null;
+    }
     const name = findSkinKeyword(rawName);
     return name ? `image=/img/skins/${encodeURIComponent(name)}.png` : null;
 }

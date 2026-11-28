@@ -1,16 +1,22 @@
-let placeRoids = (defs, tile, room, gameManager) => {
+import { Config } from "../../../config";
+import { randomAngle } from "../../../lib/random";
+import { ensureIsClass, Tile, tileClass } from "../../../loaders/global";
+import { Entity } from "../../entities/entity";
+import { dirtyCheck } from "../../entities/subFunctions";
+
+const placeRoids = (defs, tile, room, gameManager) => {
     for (let [def, amount] of defs) {
         def = ensureIsClass(def);
-        let checkRadius = 10 + def.SIZE;
+        const checkRadius = 10 + def.SIZE;
         for (; amount; amount--) {
             let i = 200,
-                position = {};
+                position;
             do {
                 position = tile.randomInside();
             } while (i-- && dirtyCheck(position, checkRadius, gameManager));
-            let o = new Entity(position);
+            const o = new Entity(position);
             o.team = -101;
-            o.facing = ran.randomAngle();
+            o.facing = randomAngle();
             o.define(def);
             o.protect();
             o.life();

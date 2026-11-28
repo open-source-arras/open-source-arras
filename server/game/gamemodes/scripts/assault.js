@@ -1,14 +1,20 @@
-class Assault {
+import { choose } from "../../../lib/random";
+import { TEAM_BLUE, TEAM_GREEN, getTeamColor, getTeamName } from "../../../loaders/global";
+import { ioTypes } from "../../../miscFiles/controllers";
+import { Entity } from "../../entities/entity";
+
+export class Assault {
     constructor() {
         this.room = global.gameManager.room;
         this.choices = ["destroyerDominator", "gunnerDominator", "trapperDominator"];
         this.defineProperties();
     }
-    
     spawnDominator(tile, team, type, originalType, saveCurrentType = false) {
-        let o = new Entity(tile.loc);
+        const o = new Entity(tile.loc);
         o.define(type);
-        if (saveCurrentType) originalType = type;
+        if (saveCurrentType) {
+            originalType = type;
+        }
         o.team = team;
         o.color.base = getTeamColor(team);
         o.skill.score = 111069;
@@ -21,13 +27,17 @@ class Assault {
             o.controllers = [new ioTypes.nearestDifferentMaster(o, {}, global.gameManager), new ioTypes.spin(o, { onlyWhenIdle: true })];
         }
         o.on("dead", () => {
-            if (!this.gameActive || global.gameManager.arenaClosed) return;
+            if (!this.gameActive || global.gameManager.arenaClosed) {
+                return;
+            }
             if (o.team === TEAM_BLUE) {
                 this.spawnDominator(tile, TEAM_GREEN, tile.isSanctuary ? "sanctuaryTier3" : originalType, originalType);
                 tile.color = "green";
                 this.leftDominators++;
                 global.gameManager.socketManager.broadcast(`A GREEN ${tile.isSanctuary ? "Sanctuary" : "Dominator"} has been repaired!`);
-                if (this.leftDominators == 3 && this.timerPaused) this.timerPaused = false;
+                if (this.leftDominators == 3 && this.timerPaused) {
+                    this.timerPaused = false;
+                }
             } else {
                 this.spawnDominator(tile, TEAM_BLUE, "dominator", originalType);
                 tile.color = "blue";
@@ -46,7 +56,6 @@ class Assault {
             global.gameManager.socketManager.broadcastRoomUpdate(tile.gridLoc.x, tile.gridLoc.y, tile.color);
         });
     }
-
     defineProperties() {
         this.gameActive = false;
         this.minuteTimer = 12;
@@ -55,7 +64,6 @@ class Assault {
         this.timerPaused = false;
         this.leftDominators = 0;
     }
-
     win(team) {
         global.gameManager.socketManager.broadcast(`${getTeamName(team)} HAS WON THE GAME!`);
         this.gameActive = false;
@@ -63,24 +71,29 @@ class Assault {
             global.gameManager.closeArena();
         }, 3000);
     }
-
     start() {
         this.gameActive = true;
-        for (let tile of this.room.spawnable["assaultDominators"]) {
+        for (const tile of this.room.spawnable["assaultDominators"]) {
             this.leftDominators += 1;
             tile.color = tile.bluePrint.COLOR;
             if (tile.isSanctuary) {
-                if (!this.room.spawnable[TEAM_GREEN]) this.room.spawnable[TEAM_GREEN] = [];
+                if (!this.room.spawnable[TEAM_GREEN]) {
+                    this.room.spawnable[TEAM_GREEN] = [];
+                }
                 this.room.spawnable[TEAM_GREEN].push(tile);
                 this.spawnDominator(tile, TEAM_GREEN, "sanctuaryTier3");
                 continue;
             }
-            let type = ran.choose(this.choices);
+            const type = choose(this.choices);
             this.spawnDominator(tile, TEAM_GREEN, type, false, true);
         }
         this.timerInterval = setInterval(() => {
-            if (global.gameManager.arenaClosed) clearInterval(this.timerInterval);
-            if (!this.gameActive || this.timerPaused) return;
+            if (global.gameManager.arenaClosed) {
+                clearInterval(this.timerInterval);
+            }
+            if (!this.gameActive || this.timerPaused) {
+                return;
+            }
             if (this.minuteTimer !== 0) {
                 this.minuteTimer--;
                 global.gameManager.socketManager.broadcast(`${this.minuteTimer + 1} minut${this.minuteTimer == 0 ? "e" : "es"} until ${getTeamName(TEAM_GREEN)} wins!`);
@@ -90,8 +103,12 @@ class Assault {
             }
         }, 60000);
         this.secondaryTimeInterval = setInterval(() => {
-            if (global.gameManager.arenaClosed) clearInterval(this.secondaryTimeInterval);
-            if (!this.gameActive || this.timerPaused) return;
+            if (global.gameManager.arenaClosed) {
+                clearInterval(this.secondaryTimeInterval);
+            }
+            if (!this.gameActive || this.timerPaused) {
+                return;
+            }
             if (this.minuteTimer == 0) {
                 this.secondTimer--;
                 if (this.secondTimer === 0) {
@@ -122,17 +139,13 @@ class Assault {
             }
         }, 1000);
     }
-
     reset() {
         clearInterval(this.timerInterval);
         clearInterval(this.secondaryTimeInterval);
         this.defineProperties();
     }
-    
     redefine(theshit) {
         this.room = theshit.room;
         this.defineProperties();
     }
 }
-
-module.exports = { Assault };

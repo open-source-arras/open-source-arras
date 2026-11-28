@@ -1,6 +1,8 @@
-const { combineStats, weaponArray, weaponMirror } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, weaponArray, weaponMirror } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { drone, summoner, machineGun, machineGunner, destroyer, annihilator } from "../../gunvals.js";
+import { Config } from "../../../../config.js";
+import { Class } from "../../../../loaders/global.js";
 
 const mystical_gun_position = {
     LENGTH: 3.5,
@@ -28,7 +30,7 @@ Class.sorcerer = {
     GUNS: weaponArray({
         POSITION: mystical_gun_position,
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.machineGun, g.machineGunner, { damage: 1.8, size: 0.4, spray: 150, speed: 2, shudder: 1.75 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, machineGun, machineGunner, { damage: 1.8, size: 0.4, spray: 150, speed: 2, shudder: 1.75 }]),
             TYPE: "sorcererDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -56,7 +58,7 @@ Class.summoner = {
     GUNS: weaponArray({
         POSITION: mystical_gun_position,
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, { size: 0.8 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, { size: 0.8 }]),
             TYPE: "summonerDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -84,7 +86,7 @@ Class.enchantress = {
     GUNS: weaponArray({
         POSITION: mystical_gun_position,
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, { size: 0.9, damage: 1.1 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, { size: 0.9, damage: 1.1 }]),
             TYPE: "enchantressDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -112,7 +114,7 @@ Class.exorcistor = {
     GUNS: weaponArray({
         POSITION: mystical_gun_position,
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.destroyer, { maxSpeed: 1.2, reload: 5, size: 1.15, damage: 4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, destroyer, { maxSpeed: 1.2, reload: 5, size: 1.15, damage: 4 }]),
             TYPE: "exorcistorDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -140,7 +142,7 @@ Class.shaman = {
     GUNS: weaponArray({
         POSITION: mystical_gun_position,
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.destroyer, { size: 1.25, maxSpeed: 1.2, damage: 1.1, reload: 3, damage: 4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, destroyer, { size: 1.25, maxSpeed: 1.2, reload: 3, damage: 4 }]),
             TYPE: "shamanDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -171,7 +173,7 @@ Class.sangoma = {
             WIDTH: 8.15
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.destroyer, { size: 1.25, maxSpeed: 1.2, damage: 1.1, reload: 3, damage: 4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, destroyer, { size: 1.25, maxSpeed: 1.2, reload: 3, damage: 4 }]),
             TYPE: "sangomaDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -202,7 +204,7 @@ Class.preacher = {
             WIDTH: 6.65
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.destroyer, g.annihilator, { size: 1.45, maxSpeed: 1.2, damage: 1.1, reload: 3, damage: 4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, destroyer, annihilator, { size: 1.45, maxSpeed: 1.2, reload: 3, damage: 4 }]),
             TYPE: "preacherDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -233,7 +235,7 @@ Class.herbalist = {
             WIDTH: 6.15
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.destroyer, g.annihilator, { size: 1.7, maxSpeed: 1.2, damage: 1.1, reload: 3, damage: 4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, destroyer, annihilator, { size: 1.7, maxSpeed: 1.2, reload: 3, damage: 4 }]),
             TYPE: "herbalistDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -264,7 +266,7 @@ Class.witch = {
             Y: 5.5
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.summoner, { size: 0.4 }]),
+            SHOOT_SETTINGS: combineStats([drone, summoner, { size: 0.4 }]),
             TYPE: "enchantressDrone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,

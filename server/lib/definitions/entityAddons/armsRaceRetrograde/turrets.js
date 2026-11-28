@@ -1,12 +1,13 @@
-const { combineStats, makeTurret } = require("../../facilitators.js");
-const g = require("../../gunvals.js");
+import { combineStats, makeTurret } from "../../facilitators.js";
+import { basic, flankGuard, machineGun, gatlingGun } from "../../gunvals.js";
+import { Class } from "../../../../loaders/global.js";
 
 Class.gatlingAutoTankGun = makeTurret({
     GUNS: [
         {
             POSITION: [16, 11, 1.3, 8, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.machineGun, g.gatlingGun, { speed: 0.7, maxSpeed: 0.7 }]),
+                SHOOT_SETTINGS: combineStats([basic, flankGuard, machineGun, gatlingGun, { speed: 0.7, maxSpeed: 0.7 }]),
                 TYPE: "bullet"
             }
         },

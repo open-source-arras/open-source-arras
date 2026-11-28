@@ -1,3 +1,1 @@
-module.exports = {
-    space: true
-};
+export const space = true;

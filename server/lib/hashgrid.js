@@ -1,4 +1,4 @@
-module.exports = class HashGrid {
+export default class HashGrid {
     static stride = 1 << 16;
 
     cells = new Map();
@@ -8,7 +8,6 @@ module.exports = class HashGrid {
         this.output = new Set();
         this.clearCount = 0;
     }
-
     insert(entity, minX, minY, maxX, maxY) {
         const endX = maxX >> this.cellSize;
         const endY = maxY >> this.cellSize;
@@ -24,7 +23,6 @@ module.exports = class HashGrid {
             }
         }
     }
-
     query(minX, minY, maxX, maxY) {
         const cells = this.cells;
         const cellSize = this.cellSize;
@@ -40,7 +38,9 @@ module.exports = class HashGrid {
                 const cell = cells.get(key);
                 if (cell !== undefined) {
                     for (const entity of cell) {
-                        if (skipBonded && entity.bond) continue;
+                        if (skipBonded && entity.bond) {
+                            continue;
+                        }
                         if (entity.minX < maxX && entity.maxX > minX && entity.minY < maxY && entity.maxY > minY) {
                             this.output.add(entity);
                         }
@@ -50,13 +50,16 @@ module.exports = class HashGrid {
         }
         return this.output;
     }
-
     clear() {
         if ((++this.clearCount & 1023) === 0) {
             for (const [key, cell] of this.cells) {
-                if (cell.length === 0) this.cells.delete(key);
+                if (cell.length === 0) {
+                    this.cells.delete(key);
+                }
             }
         }
-        for (const cell of this.cells.values()) cell.length = 0;
+        for (const cell of this.cells.values()) {
+            cell.length = 0;
+        }
     }
 };

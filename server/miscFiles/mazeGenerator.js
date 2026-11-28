@@ -1,5 +1,5 @@
 const MazeZone = class {
-    constructor(array = [], offset = { x: 0, y: 0 }, length = array.map(row => row.filter(r => r).length).reduce((a, b) => a + b, 0)) {
+    constructor(array = [], offset = { x: 0, y: 0 }, length = array.map((row) => row.filter((r) => r).length).reduce((a, b) => a + b, 0)) {
         this.array = array;
         this.offset = offset;
         this.length = length;
@@ -11,18 +11,20 @@ const MazeZone = class {
         return this.array.length === 0 ? 0 : this.array[0].length;
     }
     normalize() {
-        while (this.array.length > 0 && this.array[0].every(r => !r)) {
+        while (this.array.length > 0 && this.array[0].every((r) => !r)) {
             this.offset.x++;
             this.array.shift();
         }
-        while (this.array.length > 0 && this.array[this.array.length - 1].every(r => !r)) {
+        while (this.array.length > 0 && this.array[this.array.length - 1].every((r) => !r)) {
             this.array.pop();
         }
         let minY = Infinity;
         let maxY = -Infinity;
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
-                if (!this.array[x][y]) continue;
+                if (!this.array[x][y]) {
+                    continue;
+                }
                 minY = y < minY ? y : minY;
                 maxY = y > maxY ? y : maxY;
             }
@@ -31,44 +33,46 @@ const MazeZone = class {
         if (minY === Infinity) {
             this.array = [];
         } else {
-            this.array = this.array.map(row => row.slice(minY, maxY + 1));
+            this.array = this.array.map((row) => row.slice(minY, maxY + 1));
         }
         return this;
     }
     blocks() {
-        let blocks = [];
+        const blocks = [];
         for (let x = 0; x < this.width; x++) {
             for (let y = 0; y < this.height; y++) {
                 if (this.array[x][y]) {
-                    blocks.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 }); 
-                } 
-            } 
+                    blocks.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 });
+                }
+            }
         }
         return blocks;
     }
     shaveSingles() {
-        let { width, height } = this;
+        const { width, height } = this;
         if (this.length <= 3) {
-            return [null, this.blocks()]; 
+            return [null, this.blocks()];
         }
         /*if (this.length === 4)
         if (width === 2 && height === 2)
           return [null, [{ x: this.offset.x, y: this.offset.y, size: 2 }]]
         else
           return [null, this.blocks()]*/
-  
-        let output = [];
+
+        const output = [];
         let shaveable = true;
         let shaved = false;
         while (shaveable) {
             shaveable = false;
             for (let x = 0; x < width; x++) {
                 for (let y = 0; y < height; y++) {
-                    if (!this.array[x][y]) continue;
-                    let left = x > 0 && this.array[x - 1][y];
-                    let right = x + 1 < width && this.array[x + 1][y];
-                    let top = y > 0 && this.array[x][y - 1];
-                    let bottom = y + 1 < height && this.array[x][y + 1];
+                    if (!this.array[x][y]) {
+                        continue;
+                    }
+                    const left = x > 0 && this.array[x - 1][y];
+                    const right = x + 1 < width && this.array[x + 1][y];
+                    const top = y > 0 && this.array[x][y - 1];
+                    const bottom = y + 1 < height && this.array[x][y + 1];
                     if ((!left && !right) || (!top && !bottom)) {
                         this.array[x][y] = false;
                         output.push({ x: x + this.offset.x, y: y + this.offset.y, size: 1 });
@@ -80,24 +84,26 @@ const MazeZone = class {
         }
         this.length -= output.length;
         if (shaved) {
-            return [this.normalize(), output]; 
+            return [this.normalize(), output];
         }
         return null;
     }
     takeBiggestSquare() {
-        let { width, height } = this;
+        const { width, height } = this;
         let best = null;
         let maxSize = 0;
         for (let x = 0; x < width; x++) {
             for (let y = 0; y < height; y++) {
-                if (!this.array[x][y]) continue;
+                if (!this.array[x][y]) {
+                    continue;
+                }
                 let size = 1;
                 loop: while (x + size < width && y + size < height) {
                     for (let i = 0; i <= size; i++) {
                         if (!this.array[x + size][y + i]
                || !this.array[x + i][y + size]) {
-                            break loop; 
-                        } 
+                            break loop;
+                        }
                     }
                     size++;
                 }
@@ -107,50 +113,52 @@ const MazeZone = class {
                 }
             }
         }
-        if (!best) return null;
+        if (!best) {
+            return null;
+        }
         this.length -= maxSize * maxSize;
         for (let x = 0; x < maxSize; x++) {
             for (let y = 0; y < maxSize; y++) {
                 this.array[best.x + x][best.y + y] = false;
             }
         }
-        let square = { x: best.x + this.offset.x, y: best.y + this.offset.y, size: maxSize };
+        const square = { x: best.x + this.offset.x, y: best.y + this.offset.y, size: maxSize };
         if (best.x === 0 || best.x + maxSize === width
        || best.y === 0 || best.y + maxSize === height) {
-            this.normalize(); 
+            this.normalize();
         }
         return square;
     }
     shave() {
         this.normalize();
-        let shave = this.shaveSingles();
+        const shave = this.shaveSingles();
         if (shave) {
-            return shave; 
+            return shave;
         }
-        let biggestSquare = this.takeBiggestSquare();
+        const biggestSquare = this.takeBiggestSquare();
         return [this.width && this.height ? this : null, [biggestSquare]];
     }
     intoSquares() {
         let current = this;
-        let squares = [];
+        const squares = [];
         while (current) {
-            let now = this.shave();
+            const now = this.shave();
             current = now[0];
             squares.push(...now[1]);
         }
         return squares;
     }
     toString(filled = "[]", unfilled = "--") {
-        let map = Array(this.height).fill().map((_, i) => this.array.map(row => row[i]));
+        const map = Array(this.height).fill().map((_, i) => this.array.map((row) => row[i]));
         return [
-            `${ this.width }x${ this.height } (${ this.length })`,
-            map.map(row => row.map(cell => cell ? filled : unfilled).join("")).join("\n"),
-            `+(${ this.offset.x }, ${ this.offset.y })`
+            `${this.width}x${this.height} (${this.length})`,
+            map.map((row) => row.map((cell) => cell ? filled : unfilled).join("")).join("\n"),
+            `+(${this.offset.x}, ${this.offset.y})`
         ].join("\n");
     }
 };
-  
-const MazeGenerator = class {
+
+class MazeGenerator {
     constructor(type) { // TODO new config format
         this.type = type;
         this.staticRand = Math.random();
@@ -158,7 +166,7 @@ const MazeGenerator = class {
     }
     clear(mapString) {
         if (mapString) {
-            let map = mapString.trim().split("\n").map(r => r.trim().split("").map(r => r === "#" ? 1 : r === "@"));
+            const map = mapString.trim().split("\n").map((r) => r.trim().split("").map((r) => r === "#" ? 1 : r === "@"));
             this.maze = Array(map[0].length).fill().map((_, y) => Array(map.length).fill().map((_, x) => map[x][y]));
             this.width = map[0].length;
             this.height = map.length;
@@ -169,92 +177,91 @@ const MazeGenerator = class {
         }
     }
     isClosed() {
-        let cells = [].concat(
+        const cells = [].concat(
             ...this.maze.map((r, x) =>
                 r.map((r, y) => [x, y, r])
-                    .filter(([x, y, r]) => !r))
+                    .filter(([_, __, r]) => !r))
         ).map(([x, y]) => [x, y, x === 0 || x === this.width - 1 || y === 0 || y === this.height - 1]);
-  
+
         let work = true;
         while (work) {
             work = false;
-            for (let [x, y, open] of cells) {
+            for (const [x, y, open] of cells) {
                 if (open) {
-                    for (let other of cells) {
-                        let [ox, oy, oOpen] = other;
+                    for (const other of cells) {
+                        const [ox, oy, oOpen] = other;
                         if (!oOpen && (Math.abs(ox - x) + Math.abs(oy - y) === 1)) {
                             other[2] = true;
                             work = true;
                         }
-                    } 
-                } 
+                    }
+                }
             }
         }
-        return cells.some(r => !r[2]);
+        return cells.some((r) => !r[2]);
     }
     randomErosion(side = null, corner = null) { // null = no requirement, 0 = neither, 1 = only one, 2 = both, true = one or two
         for (let i = 0; i < 10000; i++) {
-            // find position
-            let x = Math.floor(Math.random() * this.width);
-            let y = Math.floor(Math.random() * this.height);
-            if (this.maze[x][y]) continue;
-            // find direction
-            if ((x === 0 || x === this.width - 1) && (y === 0 || y === this.height - 1)) continue;
+            const x = Math.floor(Math.random() * this.width);
+            const y = Math.floor(Math.random() * this.height);
+            if (this.maze[x][y]) {
+                continue;
+            }
+            if ((x === 0 || x === this.width - 1) && (y === 0 || y === this.height - 1)) {
+                continue;
+            }
             let direction = Math.floor(Math.random() * 4);
-            if (x === 0) direction = 0;
-            else if (y === 0) direction = 1;
-            else if (x === this.width - 1) direction = 2;
-            else if (y === this.height - 1) direction = 3;
-            // find target
-            let tx = direction === 0 ? x + 1 : direction === 2 ? x - 1 : x;
-            let ty = direction === 1 ? y + 1 : direction === 3 ? y - 1 : y;
-            if (this.maze[tx][ty] !== true) continue;
-            // check corner
+            if (x === 0) {
+                direction = 0;
+            } else if (y === 0) {
+                direction = 1;
+            } else if (x === this.width - 1) {
+                direction = 2;
+            } else if (y === this.height - 1) {
+                direction = 3;
+            }
+
+            const tx = direction === 0 ? x + 1 : direction === 2 ? x - 1 : x;
+            const ty = direction === 1 ? y + 1 : direction === 3 ? y - 1 : y;
+            if (this.maze[tx][ty] !== true) {
+                continue;
+            }
+
             if (corner !== null) {
-                let left = this.maze
-                    [direction === 2 || direction === 3 ? x - 1 : x + 1]
-                    [direction === 0 || direction === 3 ? y - 1 : y + 1];
-                let right = this.maze
-                    [direction === 1 || direction === 2 ? x - 1 : x + 1]
-                    [direction === 2 || direction === 3 ? y - 1 : y + 1];
-                if ((corner === true && (left || right)) || (corner === +left + +right)) {
-                } else {
+                const left = this.maze[direction === 2 || direction === 3 ? x - 1 : x + 1][direction === 0 || direction === 3 ? y - 1 : y + 1];
+                const right = this.maze[direction === 1 || direction === 2 ? x - 1 : x + 1][direction === 2 || direction === 3 ? y - 1 : y + 1];
+                if (!((corner === true && (left || right)) || (corner === Number(left) + Number(right)))) {
                     continue;
                 }
             }
-            // check side
+
             if (side !== null) {
-                let left = this.maze
-                    [direction === 3 ? x + 1 : direction === 1 ? x - 1 : x]
-                    [direction === 0 ? y + 1 : direction === 2 ? y - 1 : y];
-                let right = this.maze
-                    [direction === 1 ? x + 1 : direction === 3 ? x - 1 : x]
-                    [direction === 2 ? y + 1 : direction === 0 ? y - 1 : y];
-                if ((side === true && (left || right)) || (side === +left + +right)) {
-                } else {
+                const left = this.maze[direction === 3 ? x + 1 : direction === 1 ? x - 1 : x][direction === 0 ? y + 1 : direction === 2 ? y - 1 : y];
+                const right = this.maze[direction === 1 ? x + 1 : direction === 3 ? x - 1 : x][direction === 2 ? y + 1 : direction === 0 ? y - 1 : y];
+                if (!((side === true && (left || right)) || (side === Number(left) + Number(right)))) {
                     continue;
                 }
             }
-            // return it
+
             return [tx, ty, x, y];
         }
-        throw new Error(`Unable to find suitable erosion site; side = ${ side }, corner = ${ corner }`);
+        throw new Error(`Unable to find suitable erosion site; side = ${side}, corner = ${corner}`);
     }
     erode(side, corner) {
-        let [x, y] = this.randomErosion(side, corner);
+        const [x, y] = this.randomErosion(side, corner);
         this.maze[x][y] = false;
     }
     erodeSym2(side, corner) {
-        let [x, y] = this.randomErosion(side, corner);
+        const [x, y] = this.randomErosion(side, corner);
         this.maze[x][y] = false;
         this.maze[this.width - 1 - x][this.height - 1 - y] = false;
     }
     erodeSym4(side, corner) {
         if (this.width !== this.height) {
-            throw new Error("Maze must be a square!"); 
+            throw new Error("Maze must be a square!");
         }
-        let size = this.width - 1;
-        let [x, y] = this.randomErosion(side, corner);
+        const size = this.width - 1;
+        const [x, y] = this.randomErosion(side, corner);
         if (this.staticRand < 0.5) {
             this.maze[x][y] = false;
             this.maze[x][size - y] = false;
@@ -269,10 +276,10 @@ const MazeGenerator = class {
     }
     erodeSym8(side, corner) {
         if (this.width !== this.height) {
-            throw new Error("Maze must be a square!"); 
+            throw new Error("Maze must be a square!");
         }
-        let size = this.width - 1;
-        let [x, y] = this.randomErosion(side, corner);
+        const size = this.width - 1;
+        const [x, y] = this.randomErosion(side, corner);
         this.maze[x][y] = false;
         this.maze[y][x] = false;
         this.maze[x][size - y] = false;
@@ -318,10 +325,10 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 75; i++) {
-            this.erode(0, 1); 
+            this.erode(0, 1);
         } // Shaves outer rim
         for (let i = 0; i < 200; i++) {
-            this.erode(1, 2); 
+            this.erode(1, 2);
             this.erode(2, 2);
         }
     }
@@ -367,7 +374,7 @@ const MazeGenerator = class {
             this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 180; i++) {
-            this.erode(1, 2); 
+            this.erode(1, 2);
             this.erode(2, 2);
         }
     }
@@ -407,7 +414,7 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 5; i++) {
-            this.erodeSym2(0, 2); 
+            this.erodeSym2(0, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erodeSym2(0, 2);
@@ -423,7 +430,7 @@ const MazeGenerator = class {
             this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 75; i++) {
-            this.erodeSym2(1, 2); 
+            this.erodeSym2(1, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erodeSym2(0, 2);
@@ -432,7 +439,7 @@ const MazeGenerator = class {
             this.erodeSym2(2, 2);
         }
         for (let i = 0; i < 25; i++) {
-            this.erodeSym2(0, 0); 
+            this.erodeSym2(0, 0);
         }
     }
     run4Teams() {
@@ -471,7 +478,7 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 5; i++) {
-            this.erodeSym4(0, 2); 
+            this.erodeSym4(0, 2);
         }
         for (let i = 0; i < 2; i++) {
             this.erodeSym4(0, 2);
@@ -487,7 +494,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erodeSym4(1, 2); 
+            this.erodeSym4(1, 2);
         }
         for (let i = 0; i < 2; i++) {
             this.erodeSym4(0, 2);
@@ -496,7 +503,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 12; i++) {
-            this.erodeSym4(0, 0); 
+            this.erodeSym4(0, 0);
         }
     }
     run8Teams() {
@@ -535,7 +542,7 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 4; i++) {
-            this.erodeSym4(0, 2); 
+            this.erodeSym4(0, 2);
         }
         for (let i = 0; i < 2; i++) {
             this.erodeSym4(0, 2);
@@ -551,7 +558,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 25; i++) {
-            this.erodeSym4(1, 2); 
+            this.erodeSym4(1, 2);
         }
         for (let i = 0; i < 2; i++) {
             this.erodeSym4(0, 2);
@@ -560,7 +567,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 6; i++) {
-            this.erodeSym4(0, 0); 
+            this.erodeSym4(0, 0);
         }
     }
     run8TeamsLabyrinth() {
@@ -695,7 +702,7 @@ const MazeGenerator = class {
         --------------------------------------------------------------------------------------------------------------------------------
       `);
         for (let i = 0; i < 32; i++) {
-            this.erodeSym4(0, 2); 
+            this.erodeSym4(0, 2);
         }
         for (let i = 0; i < 32; i++) {
             this.erodeSym4(0, 2);
@@ -711,7 +718,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 500; i++) {
-            this.erodeSym4(1, 2); 
+            this.erodeSym4(1, 2);
         }
         for (let i = 0; i < 32; i++) {
             this.erodeSym4(0, 2);
@@ -720,7 +727,7 @@ const MazeGenerator = class {
             this.erodeSym4(2, 2);
         }
         for (let i = 0; i < 96; i++) {
-            this.erodeSym4(0, 0); 
+            this.erodeSym4(0, 0);
         }
     }
     runBunker() {
@@ -751,7 +758,7 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 8; i++) {
-            this.erode(0, 2); 
+            this.erode(0, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erode(0, 2);
@@ -767,7 +774,7 @@ const MazeGenerator = class {
             this.erode(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erode(1, 2); 
+            this.erode(1, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erode(0, 2);
@@ -776,7 +783,7 @@ const MazeGenerator = class {
             this.erode(2, 2);
         }
         for (let i = 0; i < 15; i++) {
-            this.erode(0, 0); 
+            this.erode(0, 0);
         }
     }
     runBooster() {
@@ -816,10 +823,10 @@ const MazeGenerator = class {
           ---------------------------------------------------
         `);
         for (let i = 0; i < 20; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
         for (let i = 0; i < 8; i++) {
-            this.erode(0, 2); 
+            this.erode(0, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erode(0, 2);
@@ -835,7 +842,7 @@ const MazeGenerator = class {
             this.erode(2, 2);
         }
         for (let i = 0; i < 40; i++) {
-            this.erode(1, 2); 
+            this.erode(1, 2);
         }
         for (let i = 0; i < 5; i++) {
             this.erode(0, 2);
@@ -844,7 +851,7 @@ const MazeGenerator = class {
             this.erode(2, 2);
         }
         for (let i = 0; i < 15; i++) {
-            this.erode(0, 0); 
+            this.erode(0, 0);
         }
     }
     runTrenches() {
@@ -873,7 +880,7 @@ const MazeGenerator = class {
         ----------####################
         `);
         for (let i = 0; i < 25; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runLine() {
@@ -938,7 +945,7 @@ const MazeGenerator = class {
           ------------------------------
         `);
         for (let i = 0; i < 35; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runAcropolis() {
@@ -986,7 +993,7 @@ const MazeGenerator = class {
             this.erode(2, 2);
         }
         for (let i = 0; i < 130; i++) {
-            this.erode(1, 2); 
+            this.erode(1, 2);
             this.erode(2, 2);
         }
     }
@@ -1026,14 +1033,14 @@ const MazeGenerator = class {
           --------------------------------
         `);
         for (let i = 0; i < 8; i++) {
-            this.erodeSym2(0, 2); 
+            this.erodeSym2(0, 2);
         }
         this.erodeSym2(1, 2);
         for (let i = 0; i < 6; i++) {
-            this.erodeSym2(null); 
+            this.erodeSym2(null);
         }
         for (let i = 0; i < 4; i++) {
-            this.erodeSym2(1, 2); 
+            this.erodeSym2(1, 2);
         }
     }
     runBlitz() {
@@ -1072,7 +1079,7 @@ const MazeGenerator = class {
           --------------------------------
         `);
         for (let i = 0; i < 100; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runCitadel() {
@@ -1105,7 +1112,7 @@ const MazeGenerator = class {
           --------------------------
         `);
         for (let i = 0; i < 15; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runSiegeOld() {
@@ -1144,7 +1151,7 @@ const MazeGenerator = class {
         --------------------------------
       `);
         for (let i = 0; i < 100; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runFortress() {
@@ -1179,7 +1186,7 @@ const MazeGenerator = class {
         ----------------------------
       `);
         for (let i = 0; i < 45; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runMothership() {
@@ -1220,7 +1227,7 @@ const MazeGenerator = class {
         ----------------------------------
       `);
         for (let i = 0; i < 5; i++) {
-            this.erode(null, null); 
+            this.erode(null, null);
         }
     }
     runTrial() {
@@ -1285,9 +1292,8 @@ const MazeGenerator = class {
                 default:
                     console.log("Invalid maze type! Generating aborted.");
                     return null;
-                    break;
             }
-        } catch(e) {
+        } catch (_) {
             return null;
         }
         if (this.isClosed()) {
@@ -1300,23 +1306,27 @@ const MazeGenerator = class {
     }
     placeMinimal() {
         let bestSquares = null;
-  
+
         for (let i = 0; i < 10; i++) {
-            let trial = this.runTrial();
-            if (!trial) continue;
-            let squares = trial.intoSquares();
+            const trial = this.runTrial();
+            if (!trial) {
+                continue;
+            }
+            const squares = trial.intoSquares();
             if (bestSquares === null || squares.length < bestSquares.length) {
                 bestSquares = squares;
                 continue;
             }
         }
-  
+
         for (let i = 0; !bestSquares && i < 500; i++) {
-            let trial = this.runTrial();
-            if (!trial) continue;
+            const trial = this.runTrial();
+            if (!trial) {
+                continue;
+            }
             bestSquares = trial.intoSquares();
         }
-  
+
         return {
             squares: bestSquares,
             width: this.width,
@@ -1325,4 +1335,4 @@ const MazeGenerator = class {
     }
 };
 
-module.exports = { MazeGenerator };
+export { MazeGenerator };

@@ -38,13 +38,13 @@ const config = {
                 shakeStartTime: -1,
                 shakeDuration: -1,
                 shakeAmount: -1,
-                keepShake: false,
+                keepShake: false
             },
             UIShake: {
                 shakeStartTime: -1,
                 shakeDuration: -1,
                 shakeAmount: -1,
-                keepShake: false,
+                keepShake: false
             }
         }
     },
@@ -52,7 +52,7 @@ const config = {
     lag: {
         unresponsive: false,
         memory: 500,
-        offset: +location.hash.match(/^(?:#debug_lag_offset=(\d+))?/)[1] || -50,
+        offset: +location.hash.match(/^(?:#debug_lag_offset=(\d+))?/)[1] || -50
     },
     game: {
         autoLevelUp: false,
@@ -60,10 +60,10 @@ const config = {
         centeredMinimap: false,
         incognitoMode: false,
         rainbowTeamColors: false,
-        dmcaMode: false,
+        dmcaMode: false
     }
 };
-export { config }
+export { config };
 
 // globals.
 function createMessage(con, dur = 10_000, JSONMessage = false) {
@@ -71,16 +71,16 @@ function createMessage(con, dur = 10_000, JSONMessage = false) {
         global.messages.push({
             text: "Nah that aint the text",
             faded: 0,
-            textJSON: JSON.parse(con).map(line => translateServerMessage(line)),
+            textJSON: JSON.parse(con).map((line) => translateServerMessage(line)),
             time: Date.now(),
-            duration: dur,
+            duration: dur
         });
     } else {
         global.messages.push({
             text: translateServerMessage(con),
             faded: 0,
             time: Date.now(),
-            duration: dur,
+            duration: dur
         });
     }
 };

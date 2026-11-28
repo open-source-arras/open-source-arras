@@ -1,3 +1,5 @@
+import { tileClass } from "../../../loaders/global";
+
 const {
     normal: ____,
     nest,
@@ -5,7 +7,7 @@ const {
     roid
 } = tileClass;
 
-module.exports = [
+export default [
     [____, ____, ____, ____, ____, ____, roid, roid, roid, ____, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, roid, roid, roid, ____, ____, ____, ____, ____, ____],
     [____, ____, rock, rock, ____, ____, ____, ____, ____, ____, ____, rock, rock, ____, ____],

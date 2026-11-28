@@ -1,3 +1,1 @@
-module.exports = {
-    train: true
-};
+export const train = true;

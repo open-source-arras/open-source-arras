@@ -1,10 +1,8 @@
-module.exports = {
-    mode: "tdm",
-    teams: 1,
-    map_tile_width: 180,
-    map_tile_height: 180,
-    allow_server_travel: true,
-    enable_food: false,
-    enable_bosses: false,
-    room_setup: ["sandbox_nexus"]
-};
+export const mode = "tdm";
+export const teams = 1;
+export const map_tile_width = 180;
+export const map_tile_height = 180;
+export const allow_server_travel = true;
+export const enable_food = false;
+export const enable_bosses = false;
+export const room_setup = ["sandbox_nexus"];

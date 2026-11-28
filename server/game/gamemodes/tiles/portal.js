@@ -1,4 +1,8 @@
-let launchForce = 7500,
+import { choose } from "../../../lib/random";
+import { Config, Tile, tileClass } from "../../../loaders/global";
+import { entities } from "../../debug/logs";
+
+const launchForce = 7500,
     gravity = 33500,
     minibossPush = 30000,
 
@@ -6,14 +10,16 @@ let launchForce = 7500,
 
 tileClass.portal = new Tile({
     COLOR: "black",
-    INIT: tile => portals.push(tile),
+    INIT: (tile) => portals.push(tile),
     TICK: (tile, room) => {
-        for (let entity of tile.entities) {
-            if (entity.passive || entity.settings.goThruObstacle || entity.facingType === "bound" || entity.cannotTeleport) continue;
-            let dx = entity.x - tile.loc.x,
+        for (const entity of tile.entities) {
+            if (entity.passive || entity.settings.goThruObstacle || entity.facingType === "bound" || entity.cannotTeleport) {
+                continue;
+            }
+            const dx = entity.x - tile.loc.x,
                 dy = entity.y - tile.loc.y,
-                dist2 = dx ** 2 + dy ** 2,
-                force = Config.room_bound_force;
+                dist2 = dx ** 2 + dy ** 2;
+            let force = Config.room_bound_force;
 
             //push away big boys
             if (entity.type === "miniboss" || entity.isMothership) {
@@ -29,7 +35,7 @@ tileClass.portal = new Tile({
             }
 
             //that tank is not close enough, suck them in!
-            let eventHorizon = Math.min(room.tileWidth, room.tileHeight) / 5;
+            const eventHorizon = Math.min(room.tileWidth, room.tileHeight) / 5;
             if (dist2 > eventHorizon ** 2) {
                 force *= gravity / dist2;
                 entity.velocity.x -= dx * force;
@@ -39,10 +45,10 @@ tileClass.portal = new Tile({
 
             //calc stuff for teleporting and launching them
             force *= launchForce;
-            let angle = Math.random() * Math.PI * 2,
+            const angle = Math.random() * Math.PI * 2,
                 ax = Math.cos(angle),
                 ay = Math.sin(angle),
-                exitport = ran.choose(portals.filter(p => p !== tile) || room.random());
+                exitport = choose(portals.filter((p) => p !== tile) || room.random());
 
             //launch that idiot from the outportal
             entity.x = exitport.loc.x;
@@ -56,7 +62,7 @@ tileClass.portal = new Tile({
             entity.protect();
 
             //also don't forget to bring her kids along the ride
-            for (let o of entities.values()) {
+            for (const o of entities.values()) {
                 if (o.id !== entity.id && o.master.master.id === entity.id && (o.type === "drone" || o.type === "minion" || o.type === "satellite")) {
                     o.velocity.x += entity.velocity.x;
                     o.velocity.y += entity.velocity.y;

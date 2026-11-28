@@ -1,4 +1,14 @@
-class gameHandler {
+import { gameManager } from "../game";
+import { choose, chooseBossName, chooseBotName, chooseChance, irandomRange, randomAngle } from "../lib/random";
+import { listify, remove, time } from "../lib/util";
+import { Class, Config, getSpawnableArea, getTeamColor, getWeakestTeam, grid, setSyncedTimeout, syncedDelaysLoop, TEAM_ENEMIES, viewGrid } from "../loaders/global";
+import { advancedcollide, firmcollide, firmcollidehard, mazewallcollide, mazewallcustomcollide, mooncollide, simplecollide } from "../miscFiles/collisionFunctions";
+import { activation, collide, entities, life, loops, master, physics, selfie } from "./debug/logs";
+import { Entity } from "./entities/entity";
+import { dirtyCheck } from "./entities/subFunctions";
+import { Vector } from "./entities/vector";
+
+export class gameHandler {
     constructor() {
         this.loopCounter = 0;
         this.loophealCounter = 0;
@@ -12,25 +22,33 @@ class gameHandler {
         this.bossTimer = 0;
         this.active = false;
     }
-    checkUsers = () => global.gameManager.clients.length >= 1;
+    checkUsers = () => gameManager.clients.length >= 1;
     // Collision stuff
     collide = (instance, other) => {
 
         // Fast exit for noclip or ghosts
-        if (instance.noclip || other.noclip) return 0;
+        if (instance.noclip || other.noclip) {
+            return 0;
+        }
 
         // Emit collision events
         instance.emit("collide", { body: instance, instance, other });
         other.emit("collide", { body: other, instance: other, other: instance });
         // Custom tick handlers for bullet entities
-        if (instance.tickHandler) instance.tickHandler(instance, instance, other);
-        if (other.tickHandler) other.tickHandler(other, other, instance);
+        if (instance.tickHandler) {
+            instance.tickHandler(instance, instance, other);
+        }
+        if (other.tickHandler) {
+            other.tickHandler(other, other, instance);
+        }
 
-        if (instance.settings.no_collisions || 
-            instance.master.master.settings.no_collisions || 
-            other.settings.no_collisions || 
+        if (instance.settings.no_collisions ||
+            instance.master.master.settings.no_collisions ||
+            other.settings.no_collisions ||
             other.master.master.settings.no_collisions
-        )  return 0;
+        )  {
+            return 0;
+        }
 
         // Ghost checks (merged for less code repetition)
         for (const obj of [instance, other]) {
@@ -46,13 +64,17 @@ class gameHandler {
             (instance.socket?.status?.isAFK || other.socket?.status?.isAFK) &&
             (instance.isPlayer || instance.isBot) &&
             (other.isPlayer || other.isBot)
-        ) return 0;
+        ) {
+            return 0;
+        }
 
         // Fast exit for inactive or invisible entities
         if (
             (instance.isArenaCloser && !instance.alpha) ||
             (other.isArenaCloser && !other.alpha)
-        ) return 0;
+        ) {
+            return 0;
+        }
 
         // Fast exit for wall-vs-wall with never-collide
         if (
@@ -60,23 +82,38 @@ class gameHandler {
             other.settings.hitsOwnType === "never" &&
             instance.team === other.team &&
             instance.type === "wall" && other.type === "wall"
-        ) return;
+        ) {
+            return;
+        }
         switch (true) {
             case instance.isPortal || other.isPortal:
-                let [portal, otherBody] = instance.isPortal ? [instance, other] : [other, instance];
+            {
+                const [portal, otherBody] = instance.isPortal ? [instance, other] : [other, instance];
 
                 if (portal.settings.destination && otherBody.isPlayer && otherBody.socket && !otherBody.immuneToPortals) {
-                    global.gameManager.socketManager.sendToServer(otherBody.socket, portal.settings.destination);
+                    gameManager.socketManager.sendToServer(otherBody.socket, portal.settings.destination);
                 } else if (["bullet", "drone", "trap", "satellite"].includes(otherBody.type)) {
-                    if (otherBody.master !== portal) otherBody.kill();
-                } else if (!["wall", "aura"].includes(otherBody.type)) advancedcollide(portal, otherBody, false, false);
+                    if (otherBody.master !== portal) {
+                        otherBody.kill();
+                    }
+                } else if (!["wall", "aura"].includes(otherBody.type)) {
+                    advancedcollide(portal, otherBody, false, false);
+                }
                 break;
+            }
             case instance.type === "wall" || other.type === "wall":
-                if (instance.type === "wall" && other.type === "wall") return;
-                if (instance.type === "aura" || other.type === "aura") return;
-                let wall = instance.type === "wall" ? instance : other;
-                let entity = instance.type === "wall" ? other : instance;
-                if (entity.isArenaCloser || (entity.isArenaCloser !== false && entity.master.isArenaCloser)) return;
+            {
+                if (instance.type === "wall" && other.type === "wall") {
+                    return;
+                }
+                if (instance.type === "aura" || other.type === "aura") {
+                    return;
+                }
+                const wall = instance.type === "wall" ? instance : other;
+                const entity = instance.type === "wall" ? other : instance;
+                if (entity.isArenaCloser || (entity.isArenaCloser !== false && entity.master.isArenaCloser)) {
+                    return;
+                }
                 switch (wall.shape) {
                     case 4:
                         switch (wall.walltype) {
@@ -93,18 +130,21 @@ class gameHandler {
                         break;
                 }
                 break;
+            }
             case instance.team === other.team &&
                 (instance.settings.hitsOwnType === "pushOnlyTeam" ||
                     other.settings.hitsOwnType === "pushOnlyTeam"):
                 {
-                    let pusher = instance.settings.hitsOwnType === "pushOnlyTeam" ? instance : other;
-                    let entity = instance.settings.hitsOwnType === "pushOnlyTeam" ? other : instance;
+                    const pusher = instance.settings.hitsOwnType === "pushOnlyTeam" ? instance : other;
+                    const entity = instance.settings.hitsOwnType === "pushOnlyTeam" ? other : instance;
                     // Dominator / Mothership collisions
                     if (
                         instance.settings.hitsOwnType === other.settings.hitsOwnType ||
                         entity.settings.hitsOwnType === "never"
-                    ) return;
-                    let a = 1 + 10 / (Math.max(entity.velocity.length, pusher.velocity.length) + 10);
+                    ) {
+                        return;
+                    }
+                    const a = 1 + 10 / (Math.max(entity.velocity.length, pusher.velocity.length) + 10);
                     advancedcollide(pusher, entity, false, false, a);
                 }
                 break;
@@ -112,7 +152,7 @@ class gameHandler {
                 (instance.settings.hitsOwnType === "droneCollision" &&
                     other.settings.hitsOwnType === "droneCollision"):
                 {
-                    let a = 1 + 10 / (Math.max(instance.velocity.length, other.velocity.length));
+                    const a = 1 + 10 / (Math.max(instance.velocity.length, other.velocity.length));
                     firmcollide(instance, other, a);
                 }
                 break;
@@ -124,9 +164,13 @@ class gameHandler {
                 (instance.team === other.team && (instance.healer && instance.master.id !== other.id) || (other.healer && other.master.id !== instance.id)):
                 // Exits if the aura is not hitting a boss, tank, food, or crasher
                 if (instance.type === "aura") {
-                    if (!(this.auraCollideTypes.includes(other.type))) return;
+                    if (!(this.auraCollideTypes.includes(other.type))) {
+                        return;
+                    }
                 } else if (other.type === "aura") {
-                    if (!(this.auraCollideTypes.includes(instance.type))) return;
+                    if (!(this.auraCollideTypes.includes(instance.type))) {
+                        return;
+                    }
                 }
                 advancedcollide(instance, other, true, true);
                 break;
@@ -136,8 +180,12 @@ class gameHandler {
             case instance.settings.hitsOwnType === other.settings.hitsOwnType:
                 switch (instance.settings.hitsOwnType) {
                     case "assembler": {
-                        if (instance.assemblerLevel == null) instance.assemblerLevel = 1;
-                        if (other.assemblerLevel == null) other.assemblerLevel = 1;
+                        if (instance.assemblerLevel == null) {
+                            instance.assemblerLevel = 1;
+                        }
+                        if (other.assemblerLevel == null) {
+                            other.assemblerLevel = 1;
+                        }
                         const [target1, target2] = (instance.id > other.id) ? [instance, other] : [other, instance];
                         if (
                             target2.assemblerLevel >= 10 || target1.assemblerLevel >= 10 ||
@@ -168,7 +216,9 @@ class gameHandler {
                             o.refreshBodyAttributes();
                             o.life();
                         }
-                    } // don't break
+                        advancedcollide(instance, other, false, false);
+                    }
+                        break;
                     case "push":
                         advancedcollide(instance, other, false, false);
                         break;
@@ -189,16 +239,16 @@ class gameHandler {
                                 case true:
                                     firmcollidehard(instance, other, 20);
                                     break;
-                                default: 
+                                default:
                                     firmcollide(instance, other);
                                     break;
                             }
-                            
+
                         };
                         break;
                     case "hardOnlyBosses":
                         if (instance.type === other.type && instance.type === "miniboss") {
-                            firmcollide(instance, other); 
+                            firmcollide(instance, other);
                         }
                         break;
                     case "repel":
@@ -210,19 +260,23 @@ class gameHandler {
     };
 
     gameloop() {
-        logs.loops.tally();
-        logs.master.set();
+        loops.tally();
+        master.set();
 
         // Do entities life
-        logs.entities.set();
+        entities.set();
         grid.clear();
         // Sleepers
         for (const instance of entities.values()) {
-            if (instance.sleeping) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+            if (instance.sleeping) {
+                grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+            }
         }
         for (const instance of [...entities.values()]) {
             // Sleeping bodies skip their turn.
-            if (instance.sleeping) continue;
+            if (instance.sleeping) {
+                continue;
+            }
             if (instance.contemplationOfMortality() === 1) {
                 if (Config.outbreak && !instance.zombified && (instance.isPlayer || instance.isBot)) {
                     instance.zombified = true;
@@ -230,7 +284,9 @@ class gameHandler {
                     instance.alpha = 0;
                     instance.takeSelfie();
                     Config.outbreak_functions.zombify(instance);
-                } else instance.destroy();
+                } else {
+                    instance.destroy();
+                }
                 continue;
             }
 
@@ -240,38 +296,46 @@ class gameHandler {
             // Handle physics only if not bonded
             if (instance.bond == null) {
                 // Resolve the physical behavior from the last collision cycle.
-                logs.physics.set();
+                physics.set();
                 instance.physics();
-                logs.physics.mark();
+                physics.mark();
             }
 
             if (instance.activation.active || instance.isPlayer) {
-                logs.entities.tally();
+                entities.tally();
                 // Think about my actions.
-                logs.life.set();
+                life.set();
                 instance.life();
-                logs.life.mark();
+                life.mark();
                 // Take a selfie.
-                logs.selfie.set();
+                selfie.set();
                 instance.takeSelfie();
-                logs.selfie.mark();
+                selfie.mark();
                 // Apply friction.
-                if (!Config.space || instance.type !== "tank") instance.friction();
+                if (!Config.space || instance.type !== "tank") {
+                    instance.friction();
+                }
                 instance.confinementToTheseEarthlyShackles();
             }
 
             // Update axis-aligned bounding box
             instance.updateAABB(instance.activation.active);
             // Check collisions.
-            logs.collide.set();
+            collide.set();
             for (const other of grid.query(instance.minX, instance.minY, instance.maxX, instance.maxY).values()) {
                 // Touching a sleeping body wakes it.
-                if (other.sleeping) other.wake();
+                if (other.sleeping) {
+                    other.wake();
+                }
                 this.collide(instance, other);
             }
-            if (instance.isInGrid) grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
-            if (instance.type === "satellite") instance.takeSelfie();
-            logs.collide.mark();
+            if (instance.isInGrid) {
+                grid.insert(instance, instance.minX, instance.minY, instance.maxX, instance.maxY);
+            }
+            if (instance.type === "satellite") {
+                instance.takeSelfie();
+            }
+            collide.mark();
             if ((instance.touchingSizeWall === false || instance.collisionArray.length === 0) && instance.originalSize) {
                 instance.SIZE = instance.originalSize;
                 instance.originalSize = undefined;
@@ -281,42 +345,45 @@ class gameHandler {
                 instance.originalFov = undefined;
             }
             // Check whether we want to live.
-            logs.activation.set();
+            activation.set();
             instance.activation.update();
-            logs.activation.mark();
+            activation.mark();
 
             instance.emit("tick", { body: instance });
 
             // Only walls and food can sleep.
-            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) instance.sleeping = true;
+            if (Config.enable_entity_sleep && (instance.type === "wall" || instance.type === "food") && instance.canSleep()) {
+                instance.sleeping = true;
+            }
         }
-        logs.entities.mark();
-        logs.master.mark();
+        entities.mark();
+        master.mark();
         // Update lastCycle only once
-        global.gameManager.room.lastCycle = util.time();
-        global.viewGrid.clear();
+        gameManager.room.lastCycle = time();
+        viewGrid.clear();
         for (const instance of entities.values()) {
             const half = 1.5 * instance.size;
-            global.viewGrid.insert(instance, instance.x - half, instance.y - half, instance.x + half, instance.y + half);
+            viewGrid.insert(instance, instance.x - half, instance.y - half, instance.x + half, instance.y + half);
         }
         if (++this.broadcastTick >= (Config.broadcast_divisor || 1)) {
             this.broadcastTick = 0;
-            for (let i = 0; i < global.gameManager.clients.length; i++) {
-                let client = global.gameManager.clients[i];
+            for (let i = 0; i < gameManager.clients.length; i++) {
+                const client = gameManager.clients[i];
                 if (client.status.readyToBroadcast) {
                     client.view.gazeUpon();
                 }
             }
         }
     };
-
     foodloop() {
-        if (global.gameManager.arenaClosed) return;
+        if (gameManager.arenaClosed) {
+            return;
+        }
 
         // Helper to pick a type from a weighted set
         const pickFromChanceSet = (set) => {
             while (Array.isArray(set)) {
-                set = set[ran.chooseChance(...set.map(e => e[0]))][1];
+                set = set[chooseChance(...set.map((e) => e[0]))][1];
             }
             return set;
         };
@@ -326,13 +393,15 @@ class gameHandler {
             const o = new Entity(tile);
             const type = pickFromChanceSet(layeredSet);
             o.define(type);
-            o.facing = ran.randomAngle();
+            o.facing = randomAngle();
             o.team = TEAM_ENEMIES;
             o.isFood = true;
             return o;
         };
 
-        if (Math.random() >= 0.1) return; // 1/10 chance to spawn food
+        if (Math.random() >= 0.1) {
+            return;
+        } // 1/10 chance to spawn food
 
         let totalFoods = 1;
         if (Math.random() < 0.2) { // 1/5 chance to spawn a group
@@ -343,24 +412,24 @@ class gameHandler {
         const setupCleanup = (arr, o) => {
             const loop = setInterval(() => {
                 if (o.isDead()) {
-                    util.remove(arr, arr.indexOf(o));
+                    remove(arr, arr.indexOf(o));
                     clearInterval(loop);
                 }
             }, 1500);
         };
 
         // Nest food/enemy spawn
-        if (Math.random() < 1 / 3 && global.gameManager.room.spawnable[TEAM_ENEMIES]) {
+        if (Math.random() < 1 / 3 && gameManager.room.spawnable[TEAM_ENEMIES]) {
             // Enemy spawn
             if (Config.classic_food && Math.random() < 1 / 3 && this.enemyFoods.length < Config.enemy_cap_nest) {
-                const tile = ran.choose(global.gameManager.room.spawnable[TEAM_ENEMIES]).randomInside();
+                const tile = choose(gameManager.room.spawnable[TEAM_ENEMIES]).randomInside();
                 const o = spawnFoodEntity(tile, Config.classic_enemy_types_nest);
                 this.enemyFoods.push(o);
                 setupCleanup(this.enemyFoods, o);
             }
             // Nest food spawn
             if (this.nestFoods.length < Config.food_cap_nest) {
-                const tile = ran.choose(global.gameManager.room.spawnable[TEAM_ENEMIES]).randomInside();
+                const tile = choose(gameManager.room.spawnable[TEAM_ENEMIES]).randomInside();
                 for (let i = 0; i < totalFoods; i++) {
                     if (Config.classic_food) {
                         const o = spawnFoodEntity(tile, Config.classic_food_types_nest);
@@ -375,7 +444,7 @@ class gameHandler {
             }
         } else if (this.foods.length < Config.food_cap) {
             // Regular food spawn
-            const tile = ran.choose(global.gameManager.room.spawnableDefault).randomInside();
+            const tile = choose(gameManager.room.spawnableDefault).randomInside();
             for (let i = 0; i < totalFoods; i++) {
                 if (Config.classic_food) {
                     const o = spawnFoodEntity(tile, Config.classic_food_types);
@@ -389,9 +458,8 @@ class gameHandler {
             }
         }
     }
-
     regenHealthAndShield() {
-        for (let instance of entities.values()) {
+        for (const instance of entities.values()) {
             if (instance.shield.max) {
                 instance.shield.regenerate();
             }
@@ -400,34 +468,36 @@ class gameHandler {
             }
         }
     };
-    
-    maintainloop = () => {   
+
+    maintainloop = () => {
     // Upgrade bots' skill
         for (let i = 0; i < this.bots.length; i++) {
-            let o = this.bots[i];
+            const o = this.bots[i];
             if (o.skill.level < Config.level_cap && o.skill.level >= Config.bot_start_level) {
-                o.skill.score += Config.bot_xp_gain;            
+                o.skill.score += Config.bot_xp_gain;
             }
         }
         // Spawn bosses
         if (this.checkUsers() && Config.enable_bosses && !this.naturallySpawnedBosses.length && this.bossTimer++ > Config.boss_spawn_cooldown) {
             this.bossTimer = -Config.boss_spawn_delay - 2;
-            let selection = Config.boss_types[ran.chooseChance(...Config.boss_types.map((selection) => selection.chance))],
-                amount = ran.chooseChance(...selection.amount) + 1;
+            const selection = Config.boss_types[chooseChance(...Config.boss_types.map((selection) => selection.chance))],
+                amount = chooseChance(...selection.amount) + 1;
             if (selection.message) {
-                global.gameManager.socketManager.broadcast(selection.message);
+                gameManager.socketManager.broadcast(selection.message);
             }
-            global.gameManager.socketManager.broadcast(amount > 1 ? "Visitors are coming." : "A visitor is coming.");
+            gameManager.socketManager.broadcast(amount > 1 ? "Visitors are coming." : "A visitor is coming.");
             setSyncedTimeout(() => {
-                let names = ran.chooseBossName(selection.nameType, amount);
+                const names = chooseBossName(selection.nameType, amount);
 
                 for (let i = 0; i < amount; i++) {
-                    let spot, attempts = 30, name = names[i];
+                    let spot,
+                        attempts = 30;
+                    const name = names[i];
                     do {
-                        spot = getSpawnableArea(TEAM_ENEMIES, global.gameManager); 
+                        spot = getSpawnableArea(TEAM_ENEMIES, gameManager);
                     } while (attempts-- && dirtyCheck(spot, 500));
 
-                    let boss = new Entity(spot);
+                    const boss = new Entity(spot);
                     boss.define(selection.bosses.sort(() => 0.5 - Math.random())[i % selection.bosses.length]);
                     boss.team = TEAM_ENEMIES;
                     boss.isBoss = true;
@@ -436,10 +506,10 @@ class gameHandler {
                     }
 
                     this.naturallySpawnedBosses.push(boss);
-                    boss.on("dead", () => util.remove(this.naturallySpawnedBosses, this.naturallySpawnedBosses.indexOf(boss)));
+                    boss.on("dead", () => remove(this.naturallySpawnedBosses, this.naturallySpawnedBosses.indexOf(boss)));
                 }
 
-                global.gameManager.socketManager.broadcast(`${util.listify(names)} ha${names.length == 1 ? "s" : "ve"} arrived!`);
+                gameManager.socketManager.broadcast(`${listify(names)} ha${names.length == 1 ? "s" : "ve"} arrived!`);
             }, Config.boss_spawn_delay * 30);
         }
     };
@@ -447,56 +517,65 @@ class gameHandler {
     quickMaintainLoop = () => {
     // Auto get score
         for (let i = 0; i < this.bots.length; i++) {
-            let o = this.bots[i];
+            const o = this.bots[i];
             o.skill.maintain();
-            o.skillUp(["atk", "hlt", "spd", "str", "pen", "dam", "rld", "mob", "rgn", "shi"][ran.chooseChance(...Config.bot_skill_upgrade_chances)]);
+            o.skillUp(["atk", "hlt", "spd", "str", "pen", "dam", "rld", "mob", "rgn", "shi"][chooseChance(...Config.bot_skill_upgrade_chances)]);
             o.refreshSkills();
-            if (o.leftoverUpgrades && o.upgrade(ran.irandomRange(0, o.upgrades.length))) {
+            if (o.leftoverUpgrades && o.upgrade(irandomRange(0, o.upgrades.length))) {
                 o.leftoverUpgrades--;
             }
         }
         // Add new bots if arena is open
-        if (!global.gameManager.arenaClosed && !global.cannotRespawn && this.bots.length < Config.bot_cap) {
-            let team = Config.mode === "tdm" || Config.mode === "tag" ? getWeakestTeam(global.gameManager) : undefined,
-                limit = 20, // give up after 20 attempts and just pick whatever is currently chosen
+        if (!gameManager.arenaClosed && !global.cannotRespawn && this.bots.length < Config.bot_cap) {
+            const team = Config.mode === "tdm" || Config.mode === "tag" ? getWeakestTeam(gameManager) : undefined;
+            let limit = 20, // give up after 20 attempts and just pick whatever is currently chosen
                 loc;
             do {
-                loc = getSpawnableArea(team, global.gameManager);
-            } while (limit-- && dirtyCheck(loc, 50, global.gameManager));
+                loc = getSpawnableArea(team, gameManager);
+            } while (limit-- && dirtyCheck(loc, 50, gameManager));
 
             this.spawnBots(loc, team);
         }
     };
 
     spawnBots(loc, team) {
-        let botName = Config.bot_name_prefix + ran.chooseBotName();
-        let o = new Entity(loc);
+        const botName = Config.bot_name_prefix + chooseBotName();
+        const o = new Entity(loc);
         o.define(Config.spawn_class);
         o.define({ CONTROLLERS: ["nearestDifferentMaster"] }, false, false, false);
         o.refreshBodyAttributes();
         o.isBot = true;
         o.name = botName;
         o.invuln = true;
-        o.leftoverUpgrades = ran.chooseChance(...Config.bot_class_upgrade_chances);
-        let color = Config.random_body_colors ? Math.floor(Math.random() * 20) : team ? getTeamColor(team) : "red";
+        o.leftoverUpgrades = chooseChance(...Config.bot_class_upgrade_chances);
+        const color = Config.random_body_colors ? Math.floor(Math.random() * 20) : team ? getTeamColor(team) : "red";
         o.color.base = color;
         o.leaderboardColor = color;
         o.minimapColor = color;
         o.skill.reset();
-        let leveling = setInterval(() => {
+        const leveling = setInterval(() => {
             if (o.skill.level < Config.bot_start_level) {
                 o.skill.score += o.skill.levelScore;
                 o.skill.maintain();
-            } else clearInterval(leveling);
+            } else {
+                clearInterval(leveling);
+            }
         }, 100);
         o.refreshBodyAttributes();
-        if (team) o.team = team;
+        if (team) {
+            o.team = team;
+        }
         this.bots.push(o);
-        if (Config.tag) Config.tag_data.addBot(o), global.nextTagBotTeam = null;
+        if (Config.tag) {
+            Config.tag_data.addBot(o);
+            global.nextTagBotTeam = null;
+        }
         setTimeout(() => {
             // allow them to move
             let CC = Class[o.defs[0]];
-            if (!CC) CC = {};
+            if (!CC) {
+                CC = {};
+            }
             o.controllers = [];
             o.define({
                 CONTROLLERS: CC.CONTROLLERS ? [...Class.bot.CONTROLLERS, ...CC.CONTROLLERS] : Class.bot.CONTROLLERS,
@@ -515,10 +594,10 @@ class gameHandler {
             o.refreshBodyAttributes();
             o.invuln = false;
             o.on("define", () => {
-                let CC = Class[o.defs[0]];
+                const CC = Class[o.defs[0]];
                 if (CC && CC.HEALING_TANK) {
                     o.controllers = [];
-                    o.define({ 
+                    o.define({
                         CONTROLLERS: ["healTeamMasters", "minion", ["wanderAroundMap", { replicatePlayerMovement: true, lookAtGoal: true }]],
                         FACING_TYPE: CC.FACING_TYPE ? CC.FACING_TYPE : Class.bot.FACING_TYPE,
                         AI: { ...(CC.AI ?? {}), ...Class.bot.AI }
@@ -530,44 +609,53 @@ class gameHandler {
         o.on("dead", () => {
             setTimeout(() => {
                 if (global.nextTagBotTeam) {
-                    let loc = getSpawnableArea(global.nextTagBotTeam, global.gameManager);
+                    const loc = getSpawnableArea(global.nextTagBotTeam, gameManager);
                     this.spawnBots(loc, global.nextTagBotTeam);
                 }
             }, 10);
-            util.remove(this.bots, this.bots.indexOf(o));
+            remove(this.bots, this.bots.indexOf(o));
         });
     };
-
     run() {
         this.active = true;
-        let gameLoop = setInterval(() => {
-            if (!this.active) return clearInterval(gameLoop);
+        const gameLoop = setInterval(() => {
+            if (!this.active) {
+                return clearInterval(gameLoop);
+            }
             if (this.checkUsers()) {
                 try {
                     this.gameloop();
                     syncedDelaysLoop();
-                    if (Config.enable_food) this.foodloop();
-                    global.gameManager.roomLoop();
-                    global.gameManager.gamemodeManager.request("quickloop");
-                } catch(e) {
-                    global.gameManager.gameSpeedCheckHandler.onError(e);
+                    if (Config.enable_food) {
+                        this.foodloop();
+                    }
+                    gameManager.roomLoop();
+                    gameManager.gamemodeManager.request("quickloop");
+                } catch (e) {
+                    gameManager.gameSpeedCheckHandler.onError(e);
                     this.stop();
                 };
             }
-        }, global.gameManager.room.cycleSpeed);
-        let maintainloop = setInterval(() => {
-            if (!this.active) return clearInterval(maintainloop);
-            global.gameManager.gameSpeedCheckHandler.update();
-            global.gameManager.gamemodeManager.request("loop");
+        }, gameManager.room.cycleSpeed);
+        const maintainloop = setInterval(() => {
+            if (!this.active) {
+                return clearInterval(maintainloop);
+            }
+            gameManager.gameSpeedCheckHandler.update();
+            gameManager.gamemodeManager.request("loop");
             this.maintainloop();
         }, 1000);
-        let otherloop = setInterval(() => {
-            if (!this.active) return clearInterval(otherloop);
+        const otherloop = setInterval(() => {
+            if (!this.active) {
+                return clearInterval(otherloop);
+            }
             this.quickMaintainLoop();
-            global.gameManager.socketManager.chatLoop();
+            gameManager.socketManager.chatLoop();
         }, 200);
-        let healingLoop = setInterval(() => {
-            if (!this.active) return clearInterval(healingLoop);
+        const healingLoop = setInterval(() => {
+            if (!this.active) {
+                return clearInterval(healingLoop);
+            }
             this.regenHealthAndShield();
         }, Config.regenerate_tick);
     }
@@ -575,5 +663,3 @@ class gameHandler {
         this.active = false;
     }
 }
-
-module.exports = { gameHandler };

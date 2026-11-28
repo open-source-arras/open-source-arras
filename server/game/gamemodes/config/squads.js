@@ -1,3 +1,1 @@
-module.exports = {
-    groups: 4
-};
+export const groups = 4;

@@ -1,4 +1,5 @@
-const { weaponArray } = require("../facilitators.js");
+import { weaponArray } from "../facilitators.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Rocks
 Class.gravel = {

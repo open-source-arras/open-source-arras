@@ -1,4 +1,2 @@
-module.exports = {
-    maze: true,
-    maze_type: 1
-};
+export const maze = true;
+export const maze_type = 1;

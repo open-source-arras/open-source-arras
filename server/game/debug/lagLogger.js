@@ -1,4 +1,4 @@
-class LagLogger {
+export class LagLogger {
     constructor() {
         this.startTime = 0;
         this.endTime = 0;
@@ -15,11 +15,11 @@ class LagLogger {
             at: new Date(),
             time: this.totalTime
         });
-        if (this.history.length > 10) this.history.shift();
+        if (this.history.length > 10) {
+            this.history.shift();
+        }
     }
     get sum() {
         return this.history;
     }
 }
-
-module.exports = { LagLogger };

@@ -1,4 +1,4 @@
-module.exports = {
+export const Config = {
     // Public
     index: "index.html", // Where the main menu is located (in the /public folder).
     host: "localhost:8080", // Web server domain. If the host is 'localhost:NUMBER', the NUMBER must be the port setting.
@@ -42,7 +42,7 @@ module.exports = {
         private     - Whether the server requires a privileged token to join (except through server travel).
 
         properties  - This overrides other settings in this file, assuming the selected gamemode doesn't also override it.
-    
+
     */
 
     servers: [
@@ -237,10 +237,16 @@ module.exports = {
     mothership_time_limit: 0, // How long (in milliseconds) a player can have in control of their team's mothership. Set to 0 to disable.
 
     // When an entity reaches a level, this function is called and returns how many skill points that entity gets for reaching that level.
-    defineLevelSkillPoints: level => {
-        if (level < 2) return 0;
-        if (level <= 40) return 1;
-        if (level <= 45 && level & 1 === 1) return 1;
+    defineLevelSkillPoints: (level) => {
+        if (level < 2) {
+            return 0;
+        }
+        if (level <= 40) {
+            return 1;
+        }
+        if (level <= 45 && level & 1 === 1) {
+            return 1;
+        }
         return 0;
     },
 

@@ -1,7 +1,7 @@
 class AdvancedRecorder extends MediaRecorder {
     constructor(canvas, framePerSecond = 60, fileName = "video.mp4") {
         super(canvas.captureStream(framePerSecond), {
-            mimeType: MediaRecorder.isTypeSupported("video/mp4") ? "video/mp4" : "video/webm",
+            mimeType: MediaRecorder.isTypeSupported("video/mp4") ? "video/mp4" : "video/webm"
         });
         this.fileName = fileName;
         this.frames = [];
@@ -10,9 +10,9 @@ class AdvancedRecorder extends MediaRecorder {
         });
     }
     download() {
-        let a = new Blob(this.frames, { type: this.mimeType, });
+        const a = new Blob(this.frames, { type: this.mimeType });
         this.frames.length = 0;
-        let k = URL.createObjectURL(a),
+        const k = URL.createObjectURL(a),
             q = document.createElement("a");
         q.style.display = "none";
         q.setAttribute("download", this.fileName);

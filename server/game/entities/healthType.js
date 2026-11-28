@@ -1,4 +1,6 @@
-class HealthType {
+import { clamp } from "../../lib/util";
+
+export class HealthType {
     constructor(health, type, resist = 0) {
         this.max = health;
         this.amount = health;
@@ -15,7 +17,7 @@ class HealthType {
         return this.max ? this.amount / this.max : 0;
     }
     getDamage(amount, capped = true) {
-        let damageToMax = this.amount - this.max;
+        const damageToMax = this.amount - this.max;
         switch (this.type) {
             case "dynamic":
                 return Math.max(capped
@@ -30,37 +32,40 @@ class HealthType {
     }
     regenerate(boost = false) {
         boost /= 2;
-        let cons = 5;
+        const cons = 5;
         switch (this.type) {
             case "static":
-                if (this.amount >= this.max || !this.amount) break;
+                if (this.amount >= this.max || !this.amount) {
+                    break;
+                }
                 this.amount += cons * boost;
                 break;
             case "dynamic":
-                let r = this.amount / this.max;
-                if (r <= 0) {
+                if (this.amount <= 0) {
                     this.amount = 0.0001;
-                } else if (r >= 1) {
+                } else if (this.amount >= this.max) {
                     this.amount = this.max;
                 } else {
                     // this regen multiplier is this curve: https://www.desmos.com/calculator/ghjggwdp6h
-                    let regenMultiplier = Math.exp(Math.pow(Math.sqrt(r / 2) - 0.4, 2) * -50);
+                    const r = this.amount / this.max;
+                    const regenMultiplier = Math.exp(Math.pow(Math.sqrt(r / 2) - 0.4, 2) * -50);
                     this.amount += cons * (this.regen * regenMultiplier / 3 + (r * this.max) / 150 + boost);
                 }
                 break;
         }
-        this.amount = util.clamp(this.amount, 0, this.max);
+        this.amount = clamp(this.amount, 0, this.max);
     }
     get permeability() {
         switch (this.type) {
             case "static":
                 return 1;
             case "dynamic":
-                return this.max ? util.clamp(this.amount / this.max, 0, 1) : 0;
+                return this.max ? clamp(this.amount / this.max, 0, 1) : 0;
         }
+
+        throw new TypeError(`HealthType.type is some bullshit: ${this.type}`);
     }
     get ratio() {
-        return this.max ? util.clamp(1 - Math.pow(this.amount / this.max - 1, 4), 0, 1) : 0;
+        return this.max ? clamp(1 - Math.pow(this.amount / this.max - 1, 4), 0, 1) : 0;
     }
 }
-module.exports = { HealthType };

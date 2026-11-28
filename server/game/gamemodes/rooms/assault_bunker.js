@@ -1,12 +1,14 @@
+import { tileClass } from "../../../loaders/global";
+
 const {
     normal: ____,
     nest,
     base1: bas1,
     baseprotected1: bap1,
     sabase2: bas2
-} = tileClass;  
+} = tileClass;
 
-module.exports = [
+export default [
     [bas1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bap1, bas1, bas1, bas1],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],
     [____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____, ____],

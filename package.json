@@ -2,6 +2,7 @@
   "name": "open-source-arras",
   "version": "3.0.0",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node --no-lazy index",
     "make-skin": "node tools/make-skin.js"

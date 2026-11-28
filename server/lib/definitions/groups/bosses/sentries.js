@@ -1,6 +1,7 @@
-const { combineStats, skillSet, makeAuto, weaponMirror } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, skillSet, makeAuto, weaponMirror } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { swarm, machineGun, basic, pounder, launcher, sniper, rifle, crossbow, minigun, twin, spam } from "../../gunvals.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Sentries
 Class.sentry = {
@@ -52,7 +53,7 @@ Class.sentrySwarm = {
         {
             POSITION: [7, 14, 0.6, 7, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, { recoil: 1.15, range: 0.9 }]),
+                SHOOT_SETTINGS: combineStats([swarm, { recoil: 1.15, range: 0.9 }]),
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
@@ -124,7 +125,7 @@ Class.shinySentrySwarm = {
         {
             POSITION: [6, 11, 1.3, 7, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, { recoil: 1.15 }, g.machineGun, { reload: 0.25 }]),
+                SHOOT_SETTINGS: combineStats([swarm, { recoil: 1.15 }, machineGun, { reload: 0.25 }]),
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
@@ -188,7 +189,7 @@ Class.sentinelLauncher = {
         {
             POSITION: [3, 12.45, -1.35, 17.2, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, launcher]),
                 TYPE: "sentinelMissile",
                 NO_LIMITATIONS: true
             }
@@ -207,34 +208,34 @@ Class.sentinelCrossbow = {
         {
             POSITION: [15, 2.5, 1, 0, 3.5, 35 / 2, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, { speed: 0.7, maxSpeed: 0.7 }, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [15, 2.5, 1, 0, -3.5, -35 / 2, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, { speed: 0.7, maxSpeed: 0.7 }, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [20, 3.5, 1, 0, 4, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, { speed: 0.7, maxSpeed: 0.7 }, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [20, 3.5, 1, 0, -4, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7 }, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, { speed: 0.7, maxSpeed: 0.7 }, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [24, 7, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, { speed: 0.7, maxSpeed: 0.7, reload: 2, recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, { speed: 0.7, maxSpeed: 0.7, reload: 2, recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }
@@ -248,43 +249,43 @@ Class.sentinelMinigun = {
         {
             POSITION: [16, 7.5, 1, 0, 4.5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [11.5, 7.5, -1.33, 1, 4.5, 0, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [16, 7.5, 1, 0, -4.5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [11.5, 7.5, -1.33, 1, -4.5, 0, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [22.5, 9, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [20.4, 9, 1, 0, 0, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [18.3, 9, 1, 0, 0, 0, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, g.twin, g.spam, g.spam]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, twin, spam, spam]),
                 TYPE: "bullet"
             }
         }
@@ -300,7 +301,7 @@ Class.sentinelSwarm = {
     GUNS: weaponMirror({
         POSITION: [7, 10, 0.6, 7, 5.5, 180, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.swarm, { recoil: 1.15, range: 0.9 }]),
+            SHOOT_SETTINGS: combineStats([swarm, { recoil: 1.15, range: 0.9 }]),
             TYPE: "swarm",
             STAT_CALCULATOR: "swarm"
         }

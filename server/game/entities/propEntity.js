@@ -1,7 +1,13 @@
-class Prop {
+import { Gun } from "./gun";
+import { Vector } from "./vector";
+import { Color } from "../../miscFiles/color.js";
+import { Entity } from "./entity.js";
+import { ensureIsClass } from "../../loaders/global.js";
+
+export class Prop {
     constructor(position, bond) {
         this.guns = [];
-        this.id = entitiesIdLog++;
+        this.id = Entity.entitiesIdLog++;
         this.color = new Color(16);
         this.borderless = false;
         this.drawFill = true;
@@ -25,7 +31,7 @@ class Prop {
         position.Y ??= 0;
         position.ANGLE ??= 0;
         position.LAYER ??= 0;
-        let _off = new Vector(position.X, position.Y);
+        const _off = new Vector(position.X, position.Y);
         this.bound = {
             size: position.SIZE / 20,
             angle: position.ANGLE * Math.PI / 180,
@@ -46,7 +52,7 @@ class Prop {
         this.props = [];
     }
     define(def) {
-        let set = ensureIsClass(def);
+        const set = ensureIsClass(def);
 
         if (set.PARENT != null) {
             if (Array.isArray(set.PARENT)) {
@@ -57,7 +63,9 @@ class Prop {
                 this.define(set.PARENT, false);
             }
         }
-        if (set.index != null) this.index = set.index.toString();
+        if (set.index != null) {
+            this.index = set.index.toString();
+        }
         if (set.SHAPE != null) {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : 0;
             this.shapeData = set.SHAPE;
@@ -66,11 +74,17 @@ class Prop {
         if (set.COLOR != null) {
             this.color.interpret(set.COLOR);
         }
-        if (set.STROKE_WIDTH != null) this.strokeWidth = set.STROKE_WIDTH;
-        if (set.BORDERLESS != null) this.borderless = set.BORDERLESS;
-        if (set.DRAW_FILL != null) this.drawFill = set.DRAW_FILL;
+        if (set.STROKE_WIDTH != null) {
+            this.strokeWidth = set.STROKE_WIDTH;
+        }
+        if (set.BORDERLESS != null) {
+            this.borderless = set.BORDERLESS;
+        }
+        if (set.DRAW_FILL != null) {
+            this.drawFill = set.DRAW_FILL;
+        }
         if (set.GUNS != null) {
-            let newGuns = [];
+            const newGuns = [];
             for (let i = 0; i < set.GUNS.length; i++) {
                 newGuns.push(new Gun(this, set.GUNS[i]));
             }
@@ -78,7 +92,9 @@ class Prop {
         }
     }
     camera() {
-        if (!this.cameraInfo) this.cameraInfo = { guns: [] };
+        if (!this.cameraInfo) {
+            this.cameraInfo = { guns: [] };
+        }
         const info = this.cameraInfo;
         info.type = 0x01;
         info.id = this.id;
@@ -97,10 +113,10 @@ class Prop {
         info.borderless = this.borderless;
         info.drawFill = this.drawFill;
         info.guns.length = 0;
-        for (const gun of this.guns) info.guns.push(gun.getPhotoInfo());
+        for (const gun of this.guns) {
+            info.guns.push(gun.getPhotoInfo());
+        }
         info.turrets = this.turrets;
         return info;
     }
 }
-
-module.exports = { Prop };

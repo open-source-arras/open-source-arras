@@ -1,7 +1,12 @@
+import { choose } from "../../../lib/random";
+import { getTeamColor, Config, getTeamName, getWeakestTeam, entities } from "../../../loaders/global";
+import { ioTypes } from "../../../miscFiles/controllers";
+import { Entity } from "../../entities/entity";
+
 const today = new Date();
 const thanksgiving = (today.getMonth() === 10 && today.getDay() === 4 && today.getDate() >= 22 && today.getDate() <= 28) || Config.force_thanksgiving;
 
-class Mothership {
+export class Mothership {
     constructor() {
         if (thanksgiving) {
             this.choices = ["turkey"];
@@ -21,13 +26,11 @@ class Mothership {
         this.teamWon = false;
         global.defeatedTeams = [];
     };
-
     start() {
         this.spawn();
     }
-
     spawn() {
-        let locs = [{
+        const locs = [{
             x: global.gameManager.room.width * 0.1 - global.gameManager.room.width / 2,
             y: global.gameManager.room.height * 0.1 - global.gameManager.room.height / 2
         }, {
@@ -53,9 +56,9 @@ class Mothership {
             y: global.gameManager.room.height * 0.1 - global.gameManager.room.height / 2
         }].sort(() => 0.5 - Math.random());
         for (let i = 0; i < Config.teams; i++) {
-            let o = new Entity(locs[i]),
+            const o = new Entity(locs[i]),
                 team = -i - 1;
-            o.define(ran.choose(this.choices));
+            o.define(choose(this.choices));
             o.define({ ACCEPTS_SCORE: false, VALUE: 643890 });
             o.color.base = getTeamColor(team);
             o.team = team;
@@ -76,13 +79,14 @@ class Mothership {
             });
         }
     };
-
     death(entity, team) {
-        global.gameManager.socketManager.broadcast(getTeamName(team) + "'s mothership has been killed!");
-        if (global.gameManager.arenaClosed) return;
+        global.gameManager.socketManager.broadcast(`${getTeamName(team)}'s mothership has been killed!`);
+        if (global.gameManager.arenaClosed) {
+            return;
+        }
         global.defeatedTeams.push(team);
-        let newTeam = getWeakestTeam(global.gameManager);
-        for (let e of entities.values()) {
+        const newTeam = getWeakestTeam(global.gameManager);
+        for (const e of entities.values()) {
             if (e.team == team && e.isPlayer) {
                 e.sendMessage("Your team has been eliminated.");
                 e.socket.rememberedTeam = newTeam;
@@ -93,36 +97,35 @@ class Mothership {
             }
         }
     };
-
     winner(teamId) {
-        global.gameManager.socketManager.broadcast(getTeamName(teamId) + " has won the game!");
+        global.gameManager.socketManager.broadcast(`${getTeamName(teamId)} has won the game!`);
         setTimeout(() => {
-            global.gameManager.closeArena(); 
+            global.gameManager.closeArena();
         }, 3000);
     };
-
     loop() {
-        if (this.teamWon) return;
+        if (this.teamWon) {
+            return;
+        }
         let aliveNow = this.motherships.map(([id, data]) => {
             const entity = entities.get(id);
             return [id, data, entity];
         });
-        aliveNow = aliveNow.filter(entry => {
-            if (!entry[2] || entry[2].isDead()) return false;
+        aliveNow = aliveNow.filter((entry) => {
+            if (!entry[2] || entry[2].isDead()) {
+                return false;
+            }
             return true;
         });
         if (aliveNow.length === 1) {
             this.teamWon = true;
             setTimeout(() => {
-                this.winner(aliveNow[0][1]); 
+                this.winner(aliveNow[0][1]);
             }, 2500);
         }
         this.motherships = aliveNow;
     };
-
     reset() {
         this.defineProperties();
     };
 }
-
-module.exports = { Mothership };

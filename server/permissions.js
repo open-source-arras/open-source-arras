@@ -9,7 +9,7 @@
 // - 7 // Game Admin (old)
 // - 8 // Developer
 
-module.exports = [
+export default [
     /* TOKEN PERMISSIONS INFORMATION
 
         keys            - The ID for the token that goes in `.env`. (Format: "process.env.[TOKEN_NAME]")

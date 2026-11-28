@@ -1,8 +1,15 @@
+import { Config } from "../config";
+import { gameManager } from "../game";
+import { time, warn, log } from "../lib/util";
+import { classMap, setPermissionLevel, mockupData, getTeamColor, entities, permissionLevelValue, loadAllMockups, Class, mockupMap } from "../loaders/global";
+
 const prefix = "$";
 
 function formatCommandArguments(argumentSpec) {
-    if (!argumentSpec?.length) return "";
-    const alternatives = argumentSpec.map(argument => Array.isArray(argument) ? argument.map(parameter => `<${parameter}>`).join(" ") : argument);
+    if (!argumentSpec?.length) {
+        return "";
+    }
+    const alternatives = argumentSpec.map((argument) => Array.isArray(argument) ? argument.map((parameter) => `<${parameter}>`).join(" ") : argument);
     return alternatives.length === 1 ? alternatives[0] : `<${alternatives.join("|")}>`;
 }
 
@@ -11,12 +18,14 @@ const commands = [
         command: ["help"],
         permissionLevel: 0,
         run: ({ socket }) => {
-            let lines = [
+            const lines = [
                 "Help menu:",
                 ...commands.filter((c) => socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden).map((c) => {
-                    let usage = c.arguments ? ` ${formatCommandArguments(c.arguments)}` : c.usage ? ` ${c.usage}` : "";
+                    const usage = c.arguments ? ` ${formatCommandArguments(c.arguments)}` : c.usage ? ` ${c.usage}` : "";
                     let text = `- ${prefix} ${c.command.join(` or ${prefix} `)}${usage}`;
-                    if (c.description) text += ` - ${c.description}`;
+                    if (c.description) {
+                        text += ` - ${c.description}`;
+                    }
                     return text;
                 })
             ];
@@ -34,10 +43,10 @@ const commands = [
                 "bosses",
                 "global"
             ];
-            let sendAvailableLeaderboardMessage = () => {
-                let lines = [
+            const sendAvailableLeaderboardMessage = () => {
+                const lines = [
                     "Available leaderboards:",
-                    ...leaderboards.map(lb => `- ${lb}`)
+                    ...leaderboards.map((lb) => `- ${lb}`)
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
@@ -93,14 +102,16 @@ const commands = [
                 socket.talk("m", 5_000, "You are no longer AFK!");
                 return;
             }
-            let body = socket.player.body;
+            const body = socket.player.body;
             if (!body.inBase()) {
                 socket.talk("m", 5_000, "You must be inside your base to use this command!");
                 return;
             }
             socket.status.isAFK = true;
             if (socket.player.command) {
-                for (let key of ["up", "down", "left", "right", "lmb", "mmb", "rmb", "autofire", "autoalt", "override"]) socket.player.command[key] = false;
+                for (const key of ["up", "down", "left", "right", "lmb", "mmb", "rmb", "autofire", "autoalt", "override"]) {
+                    socket.player.command[key] = false;
+                }
             }
             socket.talk("m", 5_000, "You are now AFK!");
         }
@@ -110,17 +121,25 @@ const commands = [
         description: "Check when exactly the arena will be guaranteed to close",
         permissionLevel: 0,
         run: ({ socket }) => {
-            let uptime = Math.floor(util.time() / 1000);
-            let d = Math.floor(uptime / 86400);
-            let h = Math.floor((uptime % 86400) / 3600);
-            let m = Math.floor((uptime % 3600) / 60);
-            let s = uptime % 60;
-            let parts = [];
-            if (d > 0) parts.push(`${d}d`);
-            if (h > 0) parts.push(`${h}h`);
-            if (m > 0) parts.push(`${m}m`);
-            if (s > 0 || parts.length === 0) parts.push(`${s}s`);
-            let lines = [
+            const uptime = Math.floor(time() / 1000);
+            const d = Math.floor(uptime / 86400);
+            const h = Math.floor((uptime % 86400) / 3600);
+            const m = Math.floor((uptime % 3600) / 60);
+            const s = uptime % 60;
+            const parts = [];
+            if (d > 0) {
+                parts.push(`${d}d`);
+            }
+            if (h > 0) {
+                parts.push(`${h}h`);
+            }
+            if (m > 0) {
+                parts.push(`${m}m`);
+            }
+            if (s > 0 || parts.length === 0) {
+                parts.push(`${s}s`);
+            }
+            const lines = [
                 `The arena has been open for ${parts.join(" ")} and can remain open for at most PLACEHOLDER.`, // TODO: Add a maximum amount of time a server can be open for.
                 "Note that the arena may close sooner if it's inactive or if a minigame is won."
             ];
@@ -148,14 +167,14 @@ const commands = [
                 socket.talk("m", 5_000, "Invalid clan tag.");
                 return;
             }
-            let input = args.join(" ").replace(/[\[\]]/g, "").trim();
+            const input = args.join(" ").replace(/[[\]]/g, "").trim();
             if (!input) {
                 socket.talk("m", 5_000, "Invalid clan tag.");
                 return;
             }
-            let name = socket.player.body.name;
-            let match = name.match(/\[(.+?)\]/);
-            let newName = match
+            const name = socket.player.body.name;
+            const match = name.match(/\[(.+?)\]/);
+            const newName = match
                 ? name.replace(/\[(.+?)\]/, `[${input}]`)
                 : name ? `[${input}] ${name}` : `[${input}]`;
             if (newName.length > 24) {
@@ -163,7 +182,9 @@ const commands = [
                 return;
             }
             socket.player.body.name = newName;
-            if (socket.player.body.originalName !== undefined) socket.player.body.originalName = newName;
+            if (socket.player.body.originalName !== undefined) {
+                socket.player.body.originalName = newName;
+            }
         }
     },
     {
@@ -172,9 +193,9 @@ const commands = [
         permissionLevel: 4,
         hidden: true,
         run: ({ socket, gameManager }) => {
-            let clients = gameManager.socketManager.clients;
+            const clients = gameManager.socketManager.clients;
             let count = 0;
-            for (let client of clients) {
+            for (const client of clients) {
                 if (client.status?.permissionLevel === 0) {
                     setPermissionLevel(client, 1);
                     client.talk("m", 8_000, "You have been promoted to Arena Conductor!");
@@ -189,14 +210,12 @@ const commands = [
         description: "Demote all Arena Conductors to player.",
         permissionLevel: 4,
         hidden: true,
-        run: ({ socket, gameManager }) => {
-            let clients = gameManager.socketManager.clients;
-            let count = 0;
-            for (let client of clients) {
+        run: ({ gameManager }) => {
+            const clients = gameManager.socketManager.clients;
+            for (const client of clients) {
                 if (client.status?.permissionLevel === 1) {
                     setPermissionLevel(client, 0);
                     client.talk("m", 8_000, "You have been demoted to player!");
-                    count++;
                 }
             }
         }
@@ -242,26 +261,34 @@ const commands = [
             }
         ],
         run: ({ socket, args, gameManager, command }) => {
-            let sendAvailableArenaMessage = () => {
-                let lines = [
+            const sendAvailableArenaMessage = () => {
+                const lines = [
                     "Help menu:",
-                    ...command.subcommands.map(subcommand => {
-                        let argumentsText = subcommand.arguments ? ` ${formatCommandArguments(subcommand.arguments)}` : "";
+                    ...command.subcommands.map((subcommand) => {
+                        const argumentsText = subcommand.arguments ? ` ${formatCommandArguments(subcommand.arguments)}` : "";
                         return `- ${prefix} arena ${subcommand.command}${argumentsText} - ${subcommand.description}`;
                     })
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
-            if (!args[0]) sendAvailableArenaMessage(); else {
+            if (!args[0]) {
+                sendAvailableArenaMessage();
+            } else {
                 switch (args[0]) {
                     case "size":
                         if (args[1] === "dynamic") {
-                            if (!Config.sandbox) return socket.talk("m", 3_000, "This command is only available on sandbox.");
+                            if (!Config.sandbox) {
+                                return socket.talk("m", 3_000, "This command is only available on sandbox.");
+                            }
                             gameManager.room.settings.sandbox.do_not_change_arena_size = false;
                         } else {
-                            if (!args[1] || !args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
+                            if (!args[1] || !args[2]) {
+                                return socket.talk("m", 3_000, "Invalid arguments.");
+                            }
                             if (args[1] % 2 === 0 && args[2] % 2 === 0) {
-                                if (Config.sandbox) gameManager.room.settings.sandbox.do_not_change_arena_size = true;
+                                if (Config.sandbox) {
+                                    gameManager.room.settings.sandbox.do_not_change_arena_size = true;
+                                }
                                 gameManager.updateBounds(args[1] * 30, args[2] * 30);
                             } else {
                                 socket.talk("m", 3000, "Arena size must be even.");
@@ -269,7 +296,9 @@ const commands = [
                         }
                         break;
                     case "team":
-                        if (!args[1]) return socket.talk("m", 3_000, "Invalid argument.");
+                        if (!args[1]) {
+                            return socket.talk("m", 3_000, "Invalid argument.");
+                        }
                         if (args[1] === "0") {
                             Config.mode = "ffa";
                             Config.teams = null;
@@ -294,7 +323,9 @@ const commands = [
                                 socket.talk("m", 4_000, "Spawnpoint removed.");
                                 break;
                             default:
-                                if (!args[2]) return socket.talk("m", 3_000, "Invalid arguments.");
+                                if (!args[2]) {
+                                    return socket.talk("m", 3_000, "Invalid arguments.");
+                                }
                                 global.spawnPoint = {
                                     x: parseInt(args[1] * 30),
                                     y: parseInt(args[2] * 30)
@@ -303,11 +334,13 @@ const commands = [
                         }
                         break;
                     case "discoverable": // WIP
-                        if (args[1] !== "true" && args[1] !== "false") return socket.talk("m", 3_000, "Invalid arguments.");
+                        if (args[1] !== "true" && args[1] !== "false") {
+                            return socket.talk("m", 3_000, "Invalid arguments.");
+                        }
                         socket.talk("This is WIP lol.");
                         break;
                     case "close":
-                        util.warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
+                        warn(`${socket.player.body.name === "" ? `An unnamed player (ip: ${socket.ip})` : socket.player.body.name} has closed the arena.`);
                         gameManager.closeArena();
                         break;
                     default:
@@ -345,7 +378,7 @@ const commands = [
     },
     {
         command: ["team"],
-        description: "Change your team.", // player teams are -1 through -8, dreads are -10, room is -100 and enemies is -101
+        description: "Change your team.",
         permissionLevel: 2,
         hidden: true,
         run: ({ args, socket }) => {
@@ -367,14 +400,14 @@ const commands = [
                 socket.talk("m", 5_000, "No server specified.");
                 return;
             }
-            let server = Config.servers.find(
-                s => s.id === args[0]
+            const server = Config.servers.find(
+                (s) => s.id === args[0]
             );
             if (!server) {
                 socket.talk("m", 5_000, "Server not found.");
                 return;
             }
-            global.gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
+            gameManager.socketManager.sendToServer(socket, `http://${server.host}`);
         }
     },
     {
@@ -387,13 +420,13 @@ const commands = [
                 return;
             }
 
-            let nexusServer = Config.servers.find(s => s.gamemode && s.gamemode.includes("sandbox_nexus"));
+            const nexusServer = Config.servers.find((s) => s.gamemode && s.gamemode.includes("sandbox_nexus"));
             if (!nexusServer) {
                 socket.talk("m", 5_000, "Unable to find Sandbox Nexus.");
                 return;
             }
 
-            global.gameManager.socketManager.sendToServer(socket, `http://${nexusServer.host}`);
+            gameManager.socketManager.sendToServer(socket, `http://${nexusServer.host}`);
         }
     },
     {
@@ -410,15 +443,15 @@ const commands = [
         description: "Developer commands, go troll some players or just take a look for yourself.",
         permissionLevel: 8,
         run: ({ socket, args, gameManager }) => {
-            let sendAvailableDevCommandsMessage = () => {
-                let lines = [
+            const sendAvailableDevCommandsMessage = () => {
+                const lines = [
                     "Help menu:",
                     `- ${prefix} developer define <entity> - Change your tank.`,
                     `- ${prefix} developer reload - Reloads definitions for this server.`
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             };
-            let command = args[0];
+            const command = args[0];
             if (command === "define" || command === "d") {
                 if (!args[1]) {
                     socket.talk("m", 5_000, "No entity specified.");
@@ -433,8 +466,8 @@ const commands = [
                     };
                 }
                 // Rate limiter for anti-lag
-                let time = performance.now();
-                let sinceLastReload = time - global.reloadDefinitionsInfo.lastReloadTime;
+                const time = performance.now();
+                const sinceLastReload = time - global.reloadDefinitionsInfo.lastReloadTime;
                 if (sinceLastReload < 5000) {
                     socket.talk("m", Config.popup_message_duration, `Wait ${Math.floor((5000 - sinceLastReload) / 100) / 10} seconds and try again.`);
                     return;
@@ -452,11 +485,13 @@ const commands = [
                 classMap.clear();
 
                 // Log it.
-                util.warn("Reloading all definitions");
+                warn("Reloading all definitions");
 
                 // Purge all cache entries of every file in definitions
-                for (let file in require.cache) {
-                    if (!file.includes("definitions") || file.includes(__filename)) continue;
+                for (const file in require.cache) {
+                    if (!file.includes("definitions") || file.includes(__filename)) {
+                        continue;
+                    }
                     delete require.cache[file];
                 }
 
@@ -465,26 +500,32 @@ const commands = [
 
                 // Put the removal function back
                 Array.prototype.remove = function(index) {
-                    if (index === this.length - 1) return this.pop();
-                    let r = this[index];
+                    if (index === this.length - 1) {
+                        return this.pop();
+                    }
+                    const r = this[index];
                     this[index] = this.pop();
                     return r;
                 };
 
                 // Redefine all tanks and bosses
-                for (let entity of entities.values()) {
+                for (const entity of entities.values()) {
                     // If it's a valid type, and it's not a turret
-                    if (!["tank", "miniboss", "food"].includes(entity.type)) continue;
-                    if (entity.bond) continue;
+                    if (!["tank", "miniboss", "food"].includes(entity.type)) {
+                        continue;
+                    }
+                    if (entity.bond) {
+                        continue;
+                    }
 
-                    let entityDefs = JSON.parse(JSON.stringify(entity.defs));
+                    const entityDefs = structuredClone(entity.defs);
                     // Save color to put it back later
-                    let entityColor = entity.color.compiled;
+                    const entityColor = entity.color.compiled;
 
                     // Redefine all properties and update values to match
                     entity.upgrades = [];
                     entity.define(entityDefs);
-                    for (let instance of entities.values()) {
+                    for (const instance of entities.values()) {
                         if (
                             instance.settings.clearOnMasterUpgrade &&
                             instance.master.id === entity.id
@@ -507,16 +548,18 @@ const commands = [
                 mockupMap = {};
 
                 // Load all mockups if enabled in configuration
-                if (Config.load_all_mockups) global.loadAllMockups(false);
+                if (Config.load_all_mockups) {
+                    loadAllMockups(false);
+                }
 
                 setTimeout(() => { // Let it sit for a second.
                     // Erase cached mockups for each connected clients.
-                    gameManager.clients.forEach(socket => {
+                    gameManager.clients.forEach((socket) => {
                         socket.status.mockupData = socket.initMockupList();
                         socket.status.selectedLeaderboard2 = socket.status.selectedLeaderboard;
                         socket.status.selectedLeaderboard = "stop";
                         socket.status.entitySent?.clear();
-                        socket.talk("RE"); // Also reset the global.entities in the client so it can refresh.
+                        socket.talk("RE"); // Also reset the entities in the client so it can refresh.
                         if (Config.load_all_mockups) {
                             for (let i = 0; i < mockupData.length; i++) {
                                 socket.talk("M", mockupData[i].index, JSON.stringify(mockupData[i]));
@@ -527,19 +570,23 @@ const commands = [
                         socket.talk("CC"); // Clear cache
                     });
                     // Log it again.
-                    util.log("[INFO]: Successfully reloaded all definitions");
+                    log("[INFO]: Successfully reloaded all definitions");
                     gameManager.gameHandler.run();
                 }, 1000);
-            } else sendAvailableDevCommandsMessage();
+            } else {
+                sendAvailableDevCommandsMessage();
+            }
         }
     }
 ];
 
 function runCommand(socket, message) {
-    if (!socket?.player?.body) return;
-    let args = message.slice(prefix.length).trimStart().split(/\s+/);
-    let name = args.shift();
-    let command = commands.find((c) => c.command.includes(name));
+    if (!socket?.player?.body) {
+        return;
+    }
+    const args = message.slice(prefix.length).trimStart().split(/\s+/);
+    const name = args.shift();
+    const command = commands.find((c) => c.command.includes(name));
     if (!command) {
         socket.talk("m", 5_000, "Unknown command.");
         return;
@@ -549,18 +596,18 @@ function runCommand(socket, message) {
         return;
     }
     try {
-        command.run({ socket, message, args, gameManager: global.gameManager, command });
-    } catch(e) {
-        console.error("Error while running " + name);
+        command.run({ socket, message, args, gameManager, command });
+    } catch (e) {
+        console.error(`Error while running ${name}`);
         console.error(e);
         socket.talk("m", 5_000, "An error occurred while running this command.");
     }
 }
 
-function handleChatCommand(socket, message) {
-    if ("string" !== typeof message || !message.startsWith(prefix)) return false;
+export function handleChatCommand(socket, message) {
+    if ("string" !== typeof message || !message.startsWith(prefix)) {
+        return false;
+    }
     runCommand(socket, message);
     return true;
 }
-
-module.exports = { handleChatCommand };

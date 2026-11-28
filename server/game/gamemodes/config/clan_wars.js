@@ -1,4 +1,2 @@
-module.exports = {
-    mode: "clan",
-    clan_wars: true
-};
+export const mode = "clan";
+export const clan_wars = true;

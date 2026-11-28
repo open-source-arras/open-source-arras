@@ -1,6 +1,9 @@
-const { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack, getStatFrom, skillSet } = require("../facilitators.js");
-const { base, statnames } = require("../constants.js");
-const g = require("../gunvals.js");
+import { combineStats, LayeredBoss, makeAura, makeMenu, makeRadialAuto, weaponArray, weaponMirror, weaponStack, getStatFrom, skillSet } from "../facilitators.js";
+import { base, statnames } from "../constants.js";
+import { basic, machineGun, drone, sunchip, twin, gunner, cyclone, swarm, pelleter, power, flankGuard, noSpread, pounder, destroyer, annihilator, trap, setTrap, artillery, shotgun, fake, sniper, minion } from "../gunvals.js";
+import { IO, ioTypes } from "../../../miscFiles/controllers.js";
+import { Entity } from "../../../game/entities/entity.js";
+import { Class } from "../../../../loaders/global.js";
 
 Class.menu_testing = makeMenu("Testing", {upgrades: [
     "ball",
@@ -48,7 +51,7 @@ Class.rainbowTesseract = {
     PARENT: "tesseract",
     LABEL: "Rainbow Tesseract",
     NAME: "Rainbow Tesseract",
-    SHAPE: Class.tesseract.SHAPE + "/" + tessFaceColors.join(",")
+    SHAPE: `${Class.tesseract.SHAPE}/${tessFaceColors.join(",")}`
 };
 
 // Tagger
@@ -73,7 +76,7 @@ Class.tagger = {
         {
             POSITION: {},
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "tagBullet"
             }
         }
@@ -118,10 +121,10 @@ Class.roaringParent = {
                 body.ticking ??= 0;
                 body.ticking++;
 
-                let k = body.master.facing;
+                const k = body.master.facing;
                 Object.defineProperty(body, "facing", {
                     get:() => {
-                        return k; 
+                        return k;
                     }, set:() => {}
                 });
 
@@ -154,24 +157,26 @@ Class.roaringLancer = {
         {
             event: "fire",
             handler: ({body, gun}) => {
+                function afterImage() {
+                    const o = new Entity({x: body.x, y: body.y});
+                    o.master = body;
+
+                    o.define(body.defs[0]);
+                    o.define("roaringParent");
+
+                    o.team = body.team;
+                    o.SIZE = body.size;
+                    o.color.base = body.color.base;
+                    o.master = body;
+                }
+
                 switch (gun.identifier) {
                     case "charge":
-                        function afterImage() {
-                            o = new Entity({x: body.x, y: body.y});
-                            o.master = body;
-
-                            o.define(body.defs[0]);
-                            o.define("roaringParent");
-
-                            o.team = body.team;
-                            o.SIZE = body.size;
-                            o.color.base = body.color.base;
-                            o.master = body;
-                        }
-
-                        let interval = setInterval(afterImage, 100);
+                    {
+                        const interval = setInterval(afterImage, 100);
                         setTimeout(() => clearInterval(interval), 1_000);
                         break;
+                    }
                 };
             }
         }
@@ -238,7 +243,7 @@ Class.roaringLancer = {
                 ANGLE: 180
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, { reload: 11, recoil: 9.75 * 2 }]),
+                SHOOT_SETTINGS: combineStats([basic, { reload: 11, recoil: 9.75 * 2 }]),
                 TYPE: ["bullet", {ALPHA: 0}],
                 IDENTIFIER: "charge"
             }
@@ -256,7 +261,7 @@ Class.gunLayerTest = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "bullet"
             }
         },
@@ -268,7 +273,7 @@ Class.gunLayerTest = {
                 LAYER: -1
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "bullet"
             }
         },
@@ -280,7 +285,7 @@ Class.gunLayerTest = {
                 LAYER: -3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "bullet"
             }
         }
@@ -300,7 +305,7 @@ Class.bacteria = {
                 WIDTH: 32
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 2, recoil: 0.25, shudder: 0.1, size: 0.62, speed: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 2, recoil: 0.25, shudder: 0.1, size: 0.62, speed: 2}]),
                 TYPE: "bacteriaClone",
                 NO_LIMITATIONS: true,
                 WAIT_TO_CYCLE: true
@@ -329,10 +334,10 @@ Class.bacteriaClone = {
     //GUNS: Class.bacteria.GUNS // server stress test mode
 };
 class io_turretWithMotion extends IO {
-    constructor(b, opts = {}) {
+    constructor(b) {
         super(b);
     }
-    think(input) {
+    think() {
         return {
             target: this.body.master.velocity,
             main: true
@@ -530,7 +535,7 @@ Class.literallyATank = {
         {
             POSITION: [12, 8, 1.3, 30, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, { reload: 3, damage: 1.2, shudder: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, { reload: 3, damage: 1.2, shudder: 0.5 }]),
                 TYPE: "developerBullet"
             }
         },
@@ -568,7 +573,7 @@ Class.airblast = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun]),
                 TYPE: "airblastBullet"
             }
         },
@@ -602,7 +607,7 @@ Class.anglemancer = {
     GUNS: weaponArray({
         POSITION: [5, 11, 1.3, 7, 0, 180, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.sunchip, { reload: 0.8 }]),
+            SHOOT_SETTINGS: combineStats([drone, sunchip, { reload: 0.8 }]),
             TYPE: "trichip",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -623,7 +628,7 @@ Class.cycloneM1 = {
                 WIDTH: 3.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -635,7 +640,7 @@ Class.cycloneM1 = {
                 DELAY: 1 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -647,7 +652,7 @@ Class.cycloneM1 = {
                 DELAY: 2 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         }
@@ -669,7 +674,7 @@ Class.gunnerCruiser = {
                     ANGLE: 22.5
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.swarm]),
+                    SHOOT_SETTINGS: combineStats([swarm]),
                     TYPE: "swarm",
                     STAT_CALCULATOR: "swarm"
                 }
@@ -681,7 +686,7 @@ Class.gunnerCruiser = {
                     Y: -2.5
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { speed: 0.7, maxSpeed: 0.7 }, g.flankGuard, { recoil: 1.8 }]),
+                    SHOOT_SETTINGS: combineStats([basic, pelleter, power, twin, { speed: 0.7, maxSpeed: 0.7 }, flankGuard, { recoil: 1.8 }]),
                     TYPE: "bullet"
                 }
             }
@@ -710,7 +715,7 @@ Class.miscTestHelper2 = {
         {
             POSITION: [18, 8, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.noSpread]),
+                SHOOT_SETTINGS: combineStats([basic, noSpread]),
                 TYPE: "bullet",
                 COLOR: -1
             }
@@ -729,7 +734,7 @@ Class.miscTestHelper = {
         {
             POSITION: [18, 8, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.noSpread]),
+                SHOOT_SETTINGS: combineStats([basic, noSpread]),
                 TYPE: "bullet",
                 COLOR: -1
             }
@@ -750,7 +755,7 @@ Class.miscTest = {
         {
             POSITION: [18, 8, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.noSpread]),
+                SHOOT_SETTINGS: combineStats([basic, noSpread]),
                 TYPE: "bullet"
             }
         }
@@ -796,7 +801,6 @@ Class.mmaTest = {
 };
 Class.vulnturrettest_turret = {
     PARENT: "genericTank",
-    COLOR: "grey",
     HITS_OWN_TYPE: "hard",
     LABEL: "Shield",
     COLOR: "teal"
@@ -812,7 +816,7 @@ Class.vulnturrettest = {
     GUNS: [{
         POSITION: {},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet"
         }
     }],
@@ -854,7 +858,7 @@ Class.alphaGunTest = {
     GUNS: [{
         POSITION: {},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             ALPHA: 0.5
         }
@@ -905,7 +909,7 @@ Class.screenShakeTest = {
                 AMOUNT: 6
             },
             PUSH: true,
-            APPLY_ON_SHOOT: true   
+            APPLY_ON_SHOOT: true
         }
     ],
     GUNS: Class.basic.GUNS
@@ -917,7 +921,7 @@ Class.strokeWidthTest = {
     GUNS: [{
         POSITION: {},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             STROKE_WIDTH: 0.5
         }
@@ -941,12 +945,12 @@ Class.onTest = {
         }
     }, {
         event: "altFire",
-        handler: ({ body, gun }) => {
+        handler: ({ body }) => {
             body.sendMessage("I fired my alt gun.");
         }
     }, {
         event: "dead",
-        handler: ({ body, killers, killTools }) => {
+        handler: ({ body, killers }) => {
             const killedOrDied = killers.length === 0 ? "died." : "got killed.";
             body.sendMessage(`I ${killedOrDied}`);
         }
@@ -959,28 +963,28 @@ Class.onTest = {
         }
     }, {
         event: "damage",
-        handler: ({ body, damageInflictor, damageTool }) => { 
+        handler: ({ body }) => {
             body.sendMessage("I got hurt.");
         }
     }],
     GUNS: [{
         POSITION: {},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             IDENTIFIER: "mainGun"
         }
     }, {
         POSITION: { ANGLE: 90 },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             ALT_FIRE: true
         }
     }, {
         POSITION: { ANGLE: 180, DELAY: 0.5 },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             IDENTIFIER: "secondaryGun"
         }
@@ -1060,7 +1064,7 @@ Class.ghoster = {
         POSITION: {WIDTH: 20, LENGTH: 20},
         PROPERTIES: {
             TYPE: "bullet",
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator])
+            SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, annihilator])
         }
     }],
     ALPHA: 1
@@ -1074,7 +1078,9 @@ Class.switcheroo = {
         {
             event: "fire",
             handler: ({ body, globalMasterStore: store, gun }) => {
-                if (gun.identifier !== "switcherooGun") return;
+                if (gun.identifier !== "switcherooGun") {
+                    return;
+                }
                 store.switcheroo_i ??= 0;
                 store.switcheroo_i++;
                 store.switcheroo_i %= 6;
@@ -1086,7 +1092,7 @@ Class.switcheroo = {
     GUNS: [{
         POSITION: {},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic]),
+            SHOOT_SETTINGS: combineStats([basic]),
             TYPE: "bullet",
             IDENTIFIER: "switcherooGun"
         }
@@ -1105,7 +1111,7 @@ Class.vanquisher = {
     GUNS: [{
         POSITION: [21, 14, 1, 0, 0, 180, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, destroyer]),
             TYPE: "bullet"
         }
 
@@ -1115,7 +1121,7 @@ Class.vanquisher = {
     }, {
         POSITION: [2, 12, 1.1, 18, 0, 0, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.trap, g.setTrap]),
+            SHOOT_SETTINGS: combineStats([trap, setTrap]),
             TYPE: "setTrap",
             STAT_CALCULATOR: "block"
         }
@@ -1125,39 +1131,39 @@ Class.vanquisher = {
         POSITION: [10, 9, 1, 9, 0, 90, 0]
     }, {
         POSITION: [17, 13, 1, 0, 0, 90, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.artillery, g.artillery]), TYPE: "launcherMissile", STAT_CALCULATOR: "sustained" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, pounder, artillery, artillery]), TYPE: "launcherMissile", STAT_CALCULATOR: "sustained" }
 
     //shotgun
     }, {
         POSITION: [4, 3, 1, 11, -3, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "bullet" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "bullet" }
     }, {
         POSITION: [4, 3, 1, 11, 3, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "bullet" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "bullet" }
     }, {
         POSITION: [4, 4, 1, 13, 0, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "casing" }
     }, {
         POSITION: [1, 4, 1, 12, -1, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "casing" }
     }, {
         POSITION: [1, 4, 1, 11, 1, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "casing" }
     }, {
         POSITION: [1, 3, 1, 13, -1, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "bullet" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "bullet" }
     }, {
         POSITION: [1, 3, 1, 13, 1, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "bullet" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "bullet" }
     }, {
         POSITION: [1, 2, 1, 13, 2, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "casing" }
     }, {
         POSITION: [1, 2, 1, 13, -2, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun]), TYPE: "casing" }
     }, {
         POSITION: [15, 14, 1, 6, 0, 270, 0],
-        PROPERTIES: { SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.shotgun, g.fake]), TYPE: "casing" }
+        PROPERTIES: { SHOOT_SETTINGS: combineStats([basic, machineGun, shotgun, fake]), TYPE: "casing" }
     }, {
         POSITION: [8, 14, -1.3, 4, 0, 270, 0]
     }]
@@ -1189,13 +1195,13 @@ Class.armyOfOne = {
         {
             POSITION: [21, 19, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.destroyer, g.destroyer, g.destroyer, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, destroyer, destroyer, destroyer, sniper, sniper, sniper, sniper, sniper, sniper, sniper, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }]),
                 TYPE: "armyOfOneBullet"
             }
         }, {
             POSITION: [21, 11, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.destroyer, g.destroyer, g.destroyer, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, g.sniper, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, g.fake]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, destroyer, destroyer, destroyer, sniper, sniper, sniper, sniper, sniper, sniper, sniper, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, { reload: 0.5 }, fake]),
                 TYPE: "bullet"
             }
         }
@@ -1213,14 +1219,14 @@ Class.bulletSpawnTest = {
         {
             POSITION: [20, 10, 1, 0, -5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {speed: 0, maxSpeed: 0, shudder: 0, spray: 0, recoil: 0}]),
+                SHOOT_SETTINGS: combineStats([basic, {speed: 0, maxSpeed: 0, shudder: 0, spray: 0, recoil: 0}]),
                 TYPE: ["bullet", {BORDERLESS: true}],
                 BORDERLESS: true
             }
         }, {
             POSITION: [50, 10, 1, 0, 5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {speed: 0, maxSpeed: 0, shudder: 0, spray: 0, recoil: 0}]),
+                SHOOT_SETTINGS: combineStats([basic, {speed: 0, maxSpeed: 0, shudder: 0, spray: 0, recoil: 0}]),
                 TYPE: ["bullet", {BORDERLESS: true}],
                 BORDERLESS: true
             }
@@ -1259,13 +1265,13 @@ Class.weaponArrayTest = {
         {
             POSITION: [20, 8, 1, 0, 0, 25, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 2}]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [17, 8, 1, 0, 0, 25, 0.1],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 2}]),
                 TYPE: "bullet"
             }
         }
@@ -1283,7 +1289,7 @@ Class.gunBenchmark = {
     GUNS: weaponArray({
         POSITION: [60, 0.2, 0, 0, 0, 0, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, {size: 0, reload: 0.15, range: 0.05}]),
+            SHOOT_SETTINGS: combineStats([basic, {size: 0, reload: 0.15, range: 0.05}]),
             TYPE: ["bullet", {DRAW_SELF: false}]
         }
     }, 720)
@@ -1296,17 +1302,17 @@ Class.syncWithTankTest = {
     FACING_TYPE: ["smoothToTarget", { smoothness: 30 }],
     GUNS: Class.basic.GUNS
 };
-exports.backwardsExports = {
+export const backwardsExports = {
     PARENT: "genericTank",
     LABEL: "Basic `Exports` exported tank",
     BODY: Class.basic.BODY,
     GUNS: Class.basic.GUNS
 };
-let testLayeredBoss = new LayeredBoss("testLayeredBoss", "Test Layered Boss", "terrestrial", 7, 3, "terrestrialTrapTurret", 5, 7, true, {SPEED: 10});
+const testLayeredBoss = new LayeredBoss("testLayeredBoss", "Test Layered Boss", "terrestrial", 7, 3, "terrestrialTrapTurret", 5, 7, true, {SPEED: 10});
 testLayeredBoss.addLayer({gun: {
     POSITION: [3.6, 7, -1.4, 8, 0, null, 0],
     PROPERTIES: {
-        SHOOT_SETTINGS: combineStats([g.minion, { size: 0.5 }]),
+        SHOOT_SETTINGS: combineStats([minion, { size: 0.5 }]),
         TYPE: ["minion", {INDEPENDENT: true}],
         AUTOFIRE: true,
         SYNCS_SKILLS: true
@@ -1327,9 +1333,9 @@ Class.overrideTest = {
                 WIDTH: 19.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, annihilator]),
                 TYPE: "bullet",
-                STAT_OVERRIDE: getStatFrom([g.basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
+                STAT_OVERRIDE: getStatFrom([basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
             }
         },
         {
@@ -1339,9 +1345,9 @@ Class.overrideTest = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "bullet",
-                STAT_OVERRIDE: getStatFrom([g.basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
+                STAT_OVERRIDE: getStatFrom([basic], ["reload", "speed", "shudder", "spray", "maxSpeed"])
             }
         }
     ]
@@ -1351,7 +1357,7 @@ Class.bulletStatsTestBullet = {
     GUNS: [{
         POSITION: {LENGTH: 15},
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, {recoil: 0}]),
+            SHOOT_SETTINGS: combineStats([basic, {recoil: 0}]),
             TYPE: "bullet",
             AUTOFIRE: true
         }
@@ -1364,7 +1370,7 @@ Class.bulletStatsTest = {
         {
             POSITION: {WIDTH: 12},
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "bulletStatsTestBullet",
                 BULLET_STATS: skillSet({
                     rld: 0,
@@ -1411,5 +1417,3 @@ Class.digDigFrown_kirk = {
     PARENT: "genericDigDig",
     PROPS: []
 };
-
-global.convertExportsToClass(exports);

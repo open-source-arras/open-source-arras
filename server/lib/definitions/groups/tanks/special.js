@@ -1,8 +1,9 @@
-const { combineStats, skillSet, makeAuto, makeRadialAuto, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base, dfltskl, statnames } = require("../../constants.js");
-const { getDistance } = require("../../../util.js");
-const g = require("../../gunvals.js");
-const preset = require("../../presets.js");
+import { combineStats, skillSet, makeAuto, makeRadialAuto, weaponArray, weaponMirror, weaponStack } from "../../facilitators.js";
+import { base, dfltskl, statnames } from "../../constants.js";
+import { satellite, drone, overseer, trap, setTrap, bigBalls, basic, twin, gunner, cyclone, spam, op, machineShot, sniper, assassin, pounder, destroyer, annihilator, flankGuard, triAngle, thruster, swarm, pelleter, artillery, minigun, power, weak, honcho, bigCheese, triplet, quintuplet, worstTank, destroyerDominator, gunnerDominator, trapperDominator, healer, mothership, fake } from "../../gunvals.js";
+import { shape, makeAuto as _makeAuto } from "../../presets.js";
+import { key, entities } from "../../../../loaders/global.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Admin Tanks
 Class.aeolus = {
@@ -22,13 +23,13 @@ Class.aeolus = {
         SPEED: 2
     },
     GUNS: (() => {
-        let output = [];
+        const output = [];
         for (let j = 0; j < 9; j++) {
             for (let i = 3; i < 4; i++) {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * 40 },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * 40), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 1, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -47,7 +48,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 11) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 11)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 5 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.625, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -66,7 +67,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 13) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 13)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 7 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 0.75, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -85,7 +86,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 15) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 15)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 9 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -0.875, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -104,7 +105,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 17) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 17)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 11 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -123,7 +124,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 19) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 19)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 13 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.125, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -142,7 +143,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 21) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 21)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 15 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.25, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -161,7 +162,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 23) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 23)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 17 / 3, invertRotation: false, spinMulti: -0.25, invertDistance: false, gradualSpin: -1.375, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -180,7 +181,7 @@ Class.aeolus = {
                 output.push({
                     POSITION: { WIDTH: 4, LENGTH: 1, DELAY: 0, ANGLE: i * (360 / 25) },
                     PROPERTIES: {
-                        SHOOT_SETTINGS: combineStats([g.satellite, { reload: 14 }]),
+                        SHOOT_SETTINGS: combineStats([satellite, { reload: 14 }]),
                         TYPE: ["satellite", {
                             ANGLE: 45 * i + (j * (360 / 25)), CAN_GO_OUTSIDE_ROOM: true, CONTROLLERS: [["advancedOrbit", {
                                 offset: 19 / 3, invertRotation: false, spinMulti: 0.25, invertDistance: false, gradualSpin: 1.5, ovalLengthMulti: 1, ovalWidthMulti: 1, rotation: -45 * i
@@ -213,7 +214,7 @@ Class.alas = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 0.5, speed: 2, maxSpeed: 2 }]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, { reload: 0.5, speed: 2, maxSpeed: 2 }]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -256,7 +257,7 @@ Class.average4tdmScore = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer]),
+                SHOOT_SETTINGS: combineStats([drone, overseer]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -339,7 +340,7 @@ Class.averageL39Hunt = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer]),
+                SHOOT_SETTINGS: combineStats([drone, overseer]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -429,7 +430,7 @@ Class.beeman = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, { reload: 0.5, range: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, { reload: 0.5, range: 0.5 }]),
                 TYPE: "beemanTrap"
             }
         }
@@ -449,7 +450,7 @@ Class.bigBalls = {
             ANGLE: 90
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.bigBalls]),
+            SHOOT_SETTINGS: combineStats([drone, overseer, bigBalls]),
             TYPE: "bigBall",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -488,7 +489,7 @@ Class.cocogoat = { // WIP!!
             POSITION: {
                 SIZE: 20.125,
                 X: -1,
-                Y: -2, 
+                Y: -2,
                 ANGLE: -5,
                 LAYER: 1
             }
@@ -510,7 +511,7 @@ Class.cxATMG = {
     LABEL: "CX-ATMG",
     UPGRADE_LABEL: "CX-ATMG",
     COLOR: Class.cube.COLOR,
-    SHAPE: preset.shape.flatCube,
+    SHAPE: shape.flatCube,
     SIZE: 12,
     BODY: {
         RESIST: 2,
@@ -530,28 +531,28 @@ Class.cxATMG = {
         {
             POSITION: [15, 2.5, 1, 0, 2, 0, 0.2],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 0.5}]),
                 TYPE: "cxATMGBullet"
             }
         },
         {
             POSITION: [15, 2.5, 1, 0, -2, 0, 0.2],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 0.5}]),
                 TYPE: "cxATMGBullet"
             }
         },
         {
             POSITION: [1, 2.5, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 0.5}]),
                 TYPE: "cxATMGBullet"
             }
         },
         {
             POSITION: [16.5, 3.5, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.5}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 0.5}]),
                 TYPE: "cxATMGBullet"
             }
         },
@@ -587,7 +588,7 @@ Class.damoclone = {
             WIDTH: 4
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone, g.spam]),
+            SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone, spam]),
             TYPE: "bullet"
         }
     }, 24, {delayIncrement: 1 / 24})
@@ -636,7 +637,7 @@ Class.developer = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
+                SHOOT_SETTINGS: combineStats([basic, op, {reload: 0.2, spray: 0, speed: 3, damage: 3}]),
                 TYPE: "developerBullet"
             }
         }
@@ -645,7 +646,7 @@ Class.developer = {
 Class.fat456 = makeRadialAuto("architectGun", { isTurret: true, danger: 7, size: 12, label: "Fat456", body: { FOV: base.FOV * 1.15, SPEED: base.SPEED * 4 } });
 Class.fat456.COLOR = "#654321";
 Class.fat456.SIZE = 30;
-Class.heptaAutoBasic = makeAuto("basic", "Hepta Auto-Basic", preset.makeAuto.hepta);
+Class.heptaAutoBasic = makeAuto("basic", "Hepta Auto-Basic", _makeAuto.hepta);
 Class.literallyAMachineGun = {
     PARENT: "genericTank",
     LABEL: "Literally a Machine Gun",
@@ -701,7 +702,7 @@ Class.machineShot = {
                 DELAY: 2 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.machineShot]),
+                SHOOT_SETTINGS: combineStats([machineShot]),
                 TYPE: "bullet"
             }
         },
@@ -714,7 +715,7 @@ Class.machineShot = {
                 DELAY: 1 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.machineShot]),
+                SHOOT_SETTINGS: combineStats([machineShot]),
                 TYPE: "bullet"
             }
         }]),
@@ -724,7 +725,7 @@ Class.machineShot = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.machineShot]),
+                SHOOT_SETTINGS: combineStats([machineShot]),
                 TYPE: "bullet"
             }
         }
@@ -745,7 +746,7 @@ Class.meDoingYourMom = {
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, { recoil: 0.01, reload: 0.01 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, assassin, { recoil: 0.01, reload: 0.01 }]),
                 FIXED_RELOAD: true,
                 TYPE: "bullet"
             }
@@ -771,7 +772,7 @@ Class.meOnMyWayToDoYourMom = {
                 WIDTH: 19.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator, { reload: 0.01, recoil: 10, spray: 1 }]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, annihilator, { reload: 0.01, recoil: 10, spray: 1 }]),
                 TYPE: "bullet"
             }
         }
@@ -808,7 +809,7 @@ Class.rapture = {
                 WIDTH: 19.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, annihilator]),
                 TYPE: "speedBullet"
             }
         },
@@ -850,7 +851,7 @@ Class.schoolShooter = {
                 Y: 5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op, {damage: 1e6, reload: 0.3, spray: 0, speed: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, op, {damage: 1e6, reload: 0.3, spray: 0, speed: 2}]),
                 TYPE: "developerBullet",
                 ALPHA: 0
             }
@@ -871,7 +872,7 @@ Class.tetraGunner = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2, size: 0.75 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2, size: 0.75 }]),
                 TYPE: "bullet"
             }
         }),
@@ -881,7 +882,7 @@ Class.tetraGunner = {
                 WIDTH: 3.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         }
@@ -899,7 +900,7 @@ Class.theAmalgamation = makeAuto({
             POSITION: [6, 12, 1.2, 8, 0, 0, 0],
             PROPERTIES: {
                 MAX_CHILDREN: 4,
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, { reload: 0.5 }]),
                 TYPE: ["drone", {
                     AI: { skynet: true },
                     INDEPENDENT: true,
@@ -914,7 +915,7 @@ Class.theAmalgamation = makeAuto({
             {
                 POSITION: [16, 8, 1, 0, 0, -90, 0.1],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "thruster"
                 }
@@ -922,7 +923,7 @@ Class.theAmalgamation = makeAuto({
             {
                 POSITION: [7, 7.5, 0.6, 7, 0, -90, 0],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.swarm]),
+                    SHOOT_SETTINGS: combineStats([swarm]),
                     TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                     STAT_CALCULATOR: "swarm"
                 }
@@ -930,14 +931,14 @@ Class.theAmalgamation = makeAuto({
             {
                 POSITION: [18, 8, 1, 0, 0, -130, 0.1],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle]),
                     TYPE: "bullet"
                 }
             },
             {
                 POSITION: [13, 8, 1, 0, 1, -135, 0.6],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "thruster"
                 }
@@ -945,7 +946,7 @@ Class.theAmalgamation = makeAuto({
             {
                 POSITION: [16, 8, 1, 0, 0, -145, 0.1],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "thruster"
                 }
@@ -953,14 +954,14 @@ Class.theAmalgamation = makeAuto({
             {
                 POSITION: [13.5, 3, 1, 0, -8.5, -10, 0.6],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin]),
+                    SHOOT_SETTINGS: combineStats([basic, pelleter, artillery, twin]),
                     TYPE: "bullet"
                 }
             },
             {
                 POSITION: [17.3, 3, 1, 0, -7, -7, 0.2],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.artillery, g.twin]),
+                    SHOOT_SETTINGS: combineStats([basic, pelleter, artillery, twin]),
                     TYPE: "bullet"
                 }
             }
@@ -971,21 +972,21 @@ Class.theAmalgamation = makeAuto({
                 WIDTH: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
+                SHOOT_SETTINGS: combineStats([basic, minigun]),
                 TYPE: "bullet"
             }
         }, 3, {lengthOffset: 2, delayIncrement: 1 / 3}),
         {
             POSITION: [19, 2, 1, 0, -2.5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { recoil: 4 }, { recoil: 1.8 }]),
+                SHOOT_SETTINGS: combineStats([basic, pelleter, power, twin, { recoil: 4 }, { recoil: 1.8 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [19, 2, 1, 0, 2.5, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.power, g.twin, { recoil: 4 }, { recoil: 1.8 }]),
+                SHOOT_SETTINGS: combineStats([basic, pelleter, power, twin, { recoil: 4 }, { recoil: 1.8 }]),
                 TYPE: "bullet"
             }
         },
@@ -995,7 +996,7 @@ Class.theAmalgamation = makeAuto({
         {
             POSITION: [20.5, 19.5, 1, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, g.annihilator]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, annihilator]),
                 TYPE: "bullet"
             }
         }
@@ -1013,7 +1014,7 @@ Class.theConglomerate = {
         {
             POSITION: [30, 2, 1, 0, 4, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
@@ -1023,28 +1024,28 @@ Class.theConglomerate = {
         {
             POSITION: [30, 2, 1, 0, -4, 180, 0.8],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [30, 2, 1, 0, 2.25, 180, 0.2],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [30, 2, 1, 0, -2.25, 180, 0.6],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [30, 2, 1, 0, 0, 180, 0.4],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
@@ -1055,7 +1056,7 @@ Class.theConglomerate = {
             {
                 POSITION: [14, 8, 1, 0, 1, -140, 0.6],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "thruster"
                 }
@@ -1063,7 +1064,7 @@ Class.theConglomerate = {
             {
                 POSITION: [16, 8, 1, 0, 0, -150, 0.1],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "thruster"
                 }
@@ -1078,14 +1079,14 @@ Class.theConglomerate = {
         {
             POSITION: [24, 5, 1, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, {speed: 2, reload: 2}]), // not sure about damage/penetration/health stats
+                SHOOT_SETTINGS: combineStats([basic, sniper, assassin, {speed: 2, reload: 2}]), // not sure about damage/penetration/health stats
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [20, 16, 1, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "masterBullet",
                 MAX_CHILDREN: 4,
                 DESTROY_OLDEST_CHILD: true,
@@ -1099,7 +1100,7 @@ Class.theConglomerate = {
             {
                 POSITION: [2, 7, 1.1, 15, 0, -60, 0],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.weak]),
+                    SHOOT_SETTINGS: combineStats([trap, setTrap, weak]),
                     TYPE: "setTrap"
                 }
             }
@@ -1107,7 +1108,7 @@ Class.theConglomerate = {
         {
             POSITION: [16, 16, 1.4, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.honcho, g.bigCheese]),
+                SHOOT_SETTINGS: combineStats([drone, honcho, bigCheese]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -1118,70 +1119,70 @@ Class.theConglomerate = {
         {
             POSITION: [16, 10, 1, 0, 5, 0, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
+                SHOOT_SETTINGS: combineStats([basic, twin, triplet, quintuplet]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [19, 10, 1, 0, 3, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
+                SHOOT_SETTINGS: combineStats([basic, twin, triplet, quintuplet]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [16, 10, 1, 0, -5, 0, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
+                SHOOT_SETTINGS: combineStats([basic, twin, triplet, quintuplet]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [19, 10, 1, 0, -3, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
+                SHOOT_SETTINGS: combineStats([basic, twin, triplet, quintuplet]),
                 TYPE: "bullet"
             }
         },
         ...weaponMirror({
             POSITION: [12, 5, 1, 0, -6, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin]),
+                SHOOT_SETTINGS: combineStats([basic, twin]),
                 TYPE: "bullet"
             }
         }, {delayIncrement: 0.5}),
         {
             POSITION: [22, 10, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.triplet, g.quintuplet]),
+                SHOOT_SETTINGS: combineStats([basic, twin, triplet, quintuplet]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [22, 7, -1.5, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
+                SHOOT_SETTINGS: combineStats([basic, minigun]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [20, 7.5, -1.5, 0, 0, 0, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, { size: 7 / 7.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, { size: 7 / 7.5 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [18, 8, -1.5, 0, 0, 0, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, { size: 7 / 8 }]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, { size: 7 / 8 }]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [7, 7.5, 0.6, 7, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm]),
+                SHOOT_SETTINGS: combineStats([swarm]),
                 TYPE: "swarm",
                 STAT_CALCULATOR: "swarm"
             }
@@ -1275,7 +1276,7 @@ Class.wifeBeater = {
     GUNS: weaponArray({
         POSITION: [6, 12, 1.2, 8, 0, 0, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.op]),
+            SHOOT_SETTINGS: combineStats([drone, overseer, op]),
             TYPE: "drone",
             AUTOFIRE: true,
             SYNCS_SKILLS: true,
@@ -1305,7 +1306,7 @@ Class.worstTank = {
                 DELAY: 0.6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.worstTank]),
+                SHOOT_SETTINGS: combineStats([basic, worstTank]),
                 TYPE: "bullet"
             }
         },
@@ -1318,7 +1319,7 @@ Class.worstTank = {
                 DELAY: 0.2
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.worstTank]),
+                SHOOT_SETTINGS: combineStats([basic, worstTank]),
                 TYPE: "bullet"
             }
         }], {delayIncrement: 0.2}),
@@ -1330,7 +1331,7 @@ Class.worstTank = {
                 X: 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.worstTank]),
+                SHOOT_SETTINGS: combineStats([basic, worstTank]),
                 TYPE: "bullet"
             }
         }
@@ -1388,7 +1389,7 @@ Class.destroyerDominator = {
         {
             POSITION: [15.25, 6.75, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.destroyerDominator]),
+                SHOOT_SETTINGS: combineStats([basic, destroyerDominator]),
                 TYPE: "bullet"
             }
         },
@@ -1404,21 +1405,21 @@ Class.gunnerDominator = {
         {
             POSITION: [14.25, 3, 1, 0, -2, 0, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunnerDominator]),
+                SHOOT_SETTINGS: combineStats([basic, gunnerDominator]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [14.25, 3, 1, 0, 2, 0, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunnerDominator]),
+                SHOOT_SETTINGS: combineStats([basic, gunnerDominator]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: [15.85, 3, 1, 0, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunnerDominator]),
+                SHOOT_SETTINGS: combineStats([basic, gunnerDominator]),
                 TYPE: "bullet"
             }
         },
@@ -1438,7 +1439,7 @@ Class.trapperDominator = {
         {
             POSITION: [1.25, 3.75, 1.7, 12, 0, 0, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.trapperDominator]),
+                SHOOT_SETTINGS: combineStats([trap, trapperDominator]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap",
                 AUTOFIRE: true
@@ -1475,10 +1476,10 @@ Class.sanctuary = {
         }
     ]
 };
-let sancTiers = [3, 6, 8, 9, 10, 12];
-let sancHealerTiers = [2, 3, 4];
-for (let tier of sancHealerTiers) {
-    Class["sanctuaryHealerTier" + (sancHealerTiers.indexOf(tier) + 1)] = {
+const sancTiers = [3, 6, 8, 9, 10, 12];
+const sancHealerTiers = [2, 3, 4];
+for (const tier of sancHealerTiers) {
+    Class[`sanctuaryHealerTier${sancHealerTiers.indexOf(tier) + 1}`] = {
         PARENT: "sanctuaryHealer",
         FACING_TYPE: ["spin", {speed: -0.06}],
         GUNS: weaponArray([
@@ -1497,7 +1498,7 @@ for (let tier of sancHealerTiers) {
                     X: 10
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, { range: 0.5, reload: 1.1, speed: 0.80 }, g.healer]),
+                    SHOOT_SETTINGS: combineStats([basic, { range: 0.5, reload: 1.1, speed: 0.80 }, healer]),
                     SPAWN_OFFSET: 0,
                     TYPE: "healerSanctuaryBullet",
                     AUTOFIRE: true
@@ -1506,19 +1507,19 @@ for (let tier of sancHealerTiers) {
         ], tier)
     };
 };
-for (let tier of sancTiers) {
-    let sancIndex = sancTiers.indexOf(tier);
-    Class["sanctuaryTier" + (sancIndex + 1)] = {
+for (const tier of sancTiers) {
+    const sancIndex = sancTiers.indexOf(tier);
+    Class[`sanctuaryTier${sancIndex + 1}`] = {
         PARENT: "sanctuary",
         TURRETS: [],
-        UPGRADE_LABEL: "Tier " + (sancIndex + 1),
+        UPGRADE_LABEL: `Tier ${sancIndex + 1}`,
         GUNS: weaponArray([
             {
                 POSITION: {LENGTH: 12, WIDTH: 4}
             }, {
                 POSITION: {LENGTH: 1.5, WIDTH: 4, ASPECT: 1.7, X: 12},
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, {shudder: 0.15, health: 7, reload: 1.5, speed: 1}]),
+                    SHOOT_SETTINGS: combineStats([trap, {shudder: 0.15, health: 7, reload: 1.5, speed: 1}]),
                     TYPE: ["trap", {BODY: {PUSHABILITY: 0.5}}],
                     STAT_CALCULATOR: "trap",
                     AUTOFIRE: true
@@ -1526,12 +1527,12 @@ for (let tier of sancTiers) {
             }
         ], tier)
     };
-    Class["sanctuaryTier" + (sancIndex + 1)].TURRETS.push({
+    Class[`sanctuaryTier${sancIndex + 1}`].TURRETS.push({
         POSITION: { SIZE: 22 },
         TYPE: "dominationBody"
     }, {
         POSITION: { SIZE: 9.3, LAYER: 1 },
-        TYPE: "sanctuaryHealerTier" + (sancIndex < 2 ? 1 : sancIndex < 4 ? 2 : sancIndex < 6 ? 3 : 3)
+        TYPE: `sanctuaryHealerTier${sancIndex < 2 ? 1 : sancIndex < 4 ? 2 : sancIndex < 6 ? 3 : 3}`
     });
 };
 
@@ -1558,13 +1559,13 @@ Class.mothership = {
         DAMAGE: 1.5
     },
     HITS_OWN_TYPE: "pushOnlyTeam",
-    GUNS: 
+    GUNS:
     weaponArray([
         {
             POSITION: [4.3, 3.1, 1.2, 8, 0, 22.5, 0],
             PROPERTIES: {
                 MAX_CHILDREN: 2,
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -1575,7 +1576,7 @@ Class.mothership = {
             POSITION: [4.3, 3.1, 1.2, 8, 0, 45, 1 / 32],
             PROPERTIES: {
                 MAX_CHILDREN: 2,
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: ["drone", {
                     AI: {skynet: true},
                     INDEPENDENT: true,
@@ -1617,7 +1618,7 @@ Class.turkeyEye = {
             POSITION: [10.75, 1, 0, 0, 360, 1],
             TYPE: "turkeyNose"
         }
-    ] 
+    ]
 };
 Class.turkeyHead = {
     LABEL: "Turkey",
@@ -1647,7 +1648,6 @@ Class.turkey = {
     MAX_CHILDREN: 16,
     SHAPE: 16,
     BODY: {
-        SPEED: base.SPEED * 0.2,
         FOV: 1.5,
         SHIELD: 0,
         ACCEL: 0.2,
@@ -1661,7 +1661,7 @@ Class.turkey = {
         {
             POSITION: [18, 4.69, 1, 0, 0, 135, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -1669,43 +1669,32 @@ Class.turkey = {
                 WAIT_TO_CYCLE: true
             }
         },
-        { 
+        {
             POSITION: [20.96, 6.69, 1, 0, 0, 157.5, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
                 WAIT_TO_CYCLE: true
-            } 
+            }
         },
         {
             POSITION: [18, 4.69, 1, 0, 0, 225, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
                 WAIT_TO_CYCLE: true
-            }  
+            }
         },
         {
             POSITION: [20.96, 6.69, 1, 0, 0, 202.5, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
-                TYPE: "drone",
-                AUTOFIRE: true,
-                SYNCS_SKILLS: true,
-                STAT_CALCULATOR: "drone",
-                WAIT_TO_CYCLE: true
-            } 
-        },
-        {
-            POSITION: [24.09, 8.69, 1, 0, 0, 180, 0],
-            PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -1716,7 +1705,7 @@ Class.turkey = {
         {
             POSITION: [24.09, 8.69, 1, 0, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -1724,26 +1713,37 @@ Class.turkey = {
                 WAIT_TO_CYCLE: true
             }
         },
-        { 
+        {
+            POSITION: [24.09, 8.69, 1, 0, 0, 180, 0],
+            PROPERTIES: {
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
+                TYPE: "drone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true
+            }
+        },
+        {
             POSITION: [4, 5, 1, 10, 0, 105, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
                 WAIT_TO_CYCLE: true
-            } 
+            }
         },
         {   POSITION: [4, 5, 1, 10, 0, -105, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, g.mothership]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
                 WAIT_TO_CYCLE: true
-            } 
+            }
         }
     ],
     TURRETS: [
@@ -1760,17 +1760,24 @@ function spectatorSelect(body, playersOnly, canSelectSelf) {
         x: body.control.target.x + body.x,
         y: body.control.target.y + body.y
     };
-    let lowest = Infinity, closest;
+    let lowest = Infinity,
+        closest;
     for (const instance of entities.values()) {
-        if (instance.source === body && (instance !== body || !canSelectSelf)) continue;
-        if (playersOnly && (!instance.isPlayer || instance.isBot)) continue;
+        if (instance.source === body && (instance !== body || !canSelectSelf)) {
+            continue;
+        }
+        if (playersOnly && (!instance.isPlayer || instance.isBot)) {
+            continue;
+        }
         const distance = (instance.x - cursor.x) ** 2 + (instance.y - cursor.y) ** 2;
         if (distance < lowest) {
             lowest = distance;
             closest = instance;
         }
     }
-    if (!closest || closest.bond) return;
+    if (!closest || closest.bond) {
+        return;
+    }
     const message = [
         `Selected ${closest.name || (closest.isPlayer ? "an unnamed player" : "a")}${(closest.name || closest.isPlayer) ? "'s" : ""} ${closest.label} (ID #${closest.id}).`,
         `Score: ${closest.skill.score};`,
@@ -1813,7 +1820,7 @@ Class.spectator = {
             WIDTH: 0
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.2}, g.fake]),
+            SHOOT_SETTINGS: combineStats([basic, {reload: 0.2}, fake]),
             TYPE: "bullet",
             ALPHA: 0,
             IDENTIFIER: "spectatorSelect"
@@ -1824,7 +1831,7 @@ Class.spectator = {
             WIDTH: 0
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, { reload: 0.25 }, g.fake]),
+            SHOOT_SETTINGS: combineStats([basic, { reload: 0.25 }, fake]),
             TYPE: "bullet",
             ALPHA: 0,
             ALT_FIRE: true
@@ -1839,7 +1846,9 @@ Class.spectator = {
     }, {
         event: "fire",
         handler: ({ body, gun }) => {
-            if (!body.socket || gun.identifier !== "spectatorSelect") return;
+            if (!body.socket || gun.identifier !== "spectatorSelect") {
+                return;
+            }
             spectatorSelect(body, !body.socket.player.command.mmb, body.settings.canSelectSelf);
         }
     }]
@@ -1891,7 +1900,9 @@ Class.guillotine = {
             event: "control",
             handler: ({body}) => {
                 const s = body.store;
-                if (!s.selectedEntity) return;
+                if (!s.selectedEntity) {
+                    return;
+                }
                 s.selectedEntity.kill();
                 body.sendMessage("Killed the selected entity.");
             }
@@ -1916,12 +1927,14 @@ Class.banHammer = {
             event: "control",
             handler: ({body}) => {
                 const selected = body.store.selectedEntity;
-                if (!selected || !selected.isPlayer || !selected.socket) return;
+                if (!selected || !selected.isPlayer || !selected.socket) {
+                    return;
+                }
                 if (selected.socket.status.opera >= 4) {
                     body.sendMessage("You cannot ban this player!");
                     return;
                 }
-                let type = body.store.banCommandType ?? 1;
+                const type = body.store.banCommandType ?? 1;
                 if (type === 1) {
                     global.gameManager.socketManager.ban(selected.socket, "Ban Hammer");
                     body.sendMessage("Banned the selected player.");
@@ -1960,21 +1973,21 @@ Class.antiTankMachineGun = {
         {
             POSITION: { LENGTH: 15, WIDTH: 3.0000001192092896, X: -6.556708751634699e-8, Y: 1.5000000596046434, ANGLE: 0 },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: { LENGTH: 15, WIDTH: 3.0000001192092896, X: -6.556708770004402e-8, Y: -1.5000000596046434, ANGLE: 0 },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
                 TYPE: "bullet"
             }
         },
         {
             POSITION: { LENGTH: 17.000000476837158, WIDTH: 3.0000001192092896, X: 0, Y: 0, ANGLE: 0 },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, op, {reload: 0.5, health: 100, damage: 100, recoil: 0, spray: 0.1, speed: 2, maxSpeed: 2}]),
                 TYPE: "bullet"
             }
         },
@@ -2027,7 +2040,7 @@ Class.arenaCloser = {
                 WIDTH: 10
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, {reload: 0.8, recoil: 0.25, health: 1e3, damage: 1e3, pen: 1e3, speed: 3, maxSpeed: 1, range: 1.8, density: 4, spray: 0.25}]),
+                SHOOT_SETTINGS: combineStats([basic, {reload: 0.8, recoil: 0.25, health: 1e3, damage: 1e3, pen: 1e3, speed: 3, maxSpeed: 1, range: 1.8, density: 4, spray: 0.25}]),
                 TYPE: ["bullet", {LAYER: 12}]
             }
         }
@@ -2130,7 +2143,7 @@ Class.baseProtector_diep = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 1 / 3, size: 2 / 3 }]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, { reload: 1 / 3, size: 2 / 3 }]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -2157,7 +2170,7 @@ Class.manager_special = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.overseer, { reload: 0.05, speed: 2, maxSpeed: 2, damage: 100}]),
+                SHOOT_SETTINGS: combineStats([drone, overseer, { reload: 0.05, speed: 2, maxSpeed: 2, damage: 100}]),
                 TYPE: ["drone", { ARENA_CLOSER: false }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",

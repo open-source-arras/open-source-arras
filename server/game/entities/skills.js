@@ -1,3 +1,5 @@
+import { Config } from "../../config";
+
 const skcnv = {
     rld: 0,
     pen: 1,
@@ -11,12 +13,12 @@ const skcnv = {
     mob: 9
 };
 
-let curvePoints = [];
+const curvePoints = [];
 
-let curve = (x) => {
-    let index = x * Config.skill_cap;
+const curve = (x) => {
+    const index = x * Config.skill_cap;
     if (!curvePoints[index]) {
-        curvePoints[index] = Math.log(4 * (index / Config.skill_cap) + 1) / 1.6; 
+        curvePoints[index] = Math.log(4 * (index / Config.skill_cap) + 1) / 1.6;
     }
     return curvePoints[index];
 };
@@ -24,7 +26,7 @@ function apply(f, x) {
     return x < 0 ? 1 / (1 - x * f) : f * x + 1;
 }
 
-class Skill {
+export class Skill {
     constructor(initial = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) {
     // Just skill stuff.
         this.raw = initial;
@@ -56,7 +58,7 @@ class Skill {
         this.brst = 0;
         this.ghost = 0;
         this.acl = 0;
-        let skill = [...initial];
+        const skill = [...initial];
         this.reset();
         this.set(skill);
     }
@@ -66,7 +68,9 @@ class Skill {
         this.deduction = 0;
         this.level = 0;
         this.levelUpScore = 1;
-        if (resetLSPF) this.LSPF = null;
+        if (resetLSPF) {
+            this.LSPF = null;
+        }
         this.set([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
         this.maintain();
     }
@@ -77,7 +81,7 @@ class Skill {
                 this.raw[i] = this.caps[i];
             }
         }
-        let attrib = [];
+        const attrib = [];
         for (let i = 0; i < 10; i++) {
             attrib[i] = curve(this.raw[i] / Config.skill_cap);
         }
@@ -123,7 +127,9 @@ class Skill {
         this.update();
     }
     maintain() {
-        if (this.score - this.deduction < this.levelScore) return false;
+        if (this.score - this.deduction < this.levelScore) {
+            return false;
+        }
 
         this.deduction = this.levelUpScore;
         this.level += 1;
@@ -147,7 +153,7 @@ class Skill {
     cap(skill, real = false) {
         if (!real && this.level < Config.skill_cap_soft) {
             return Math.round(this.caps[skcnv[skill]] * Config.soft_max_skill);
-        } 
+        }
         return this.caps[skcnv[skill]];
     }
     upgrade(stat) {
@@ -169,5 +175,3 @@ class Skill {
         this.update();
     }
 }
-
-module.exports = { Skill };

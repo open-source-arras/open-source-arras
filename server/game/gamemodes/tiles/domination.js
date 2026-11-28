@@ -1,8 +1,12 @@
+import { Tile, tileClass } from "../../../loaders/global";
+
 tileClass.dominationTile = new Tile({
     COLOR: "yellow",
     NAME: "Domination Tile",
     INIT: (tile, room) => {
-        if (!room.spawnable["Dominators"]) room.spawnable["Dominators"] = [];
+        if (!room.spawnable["Dominators"]) {
+            room.spawnable["Dominators"] = [];
+        }
         room.spawnable["Dominators"].push(tile);
     }
 });

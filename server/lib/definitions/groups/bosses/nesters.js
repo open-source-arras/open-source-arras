@@ -1,6 +1,7 @@
-const { combineStats, weaponArray } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, weaponArray } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { drone, nestKeeper, trap, setTrap, constructor, basic, pounder, destroyer, swarm, launcher } from "../../gunvals.js";
+import { Class } from "../../../../loaders/global.js";
 
 Class.nester = {
     PARENT: "miniboss",
@@ -26,7 +27,7 @@ Class.nestKeeper = {
     GUNS: weaponArray({
         POSITION: [3.5, 6.65, 1.2, 8, 0, 36, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.nestKeeper]),
+            SHOOT_SETTINGS: combineStats([drone, nestKeeper]),
             TYPE: "drone",
             AUTOFIRE: true,
             LABEL: "Mega Crasher",
@@ -53,7 +54,7 @@ Class.nestWarden = {
         }, {
             POSITION: [1.5, 7, 1.2, 10.7, 0, 36, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, { speed: 1.2 }, g.setTrap, g.constructor, {size: 0.7}]),
+                SHOOT_SETTINGS: combineStats([trap, { speed: 1.2 }, setTrap, constructor, {size: 0.7}]),
                 TYPE: "unsetTrap",
                 STAT_CALCULATOR: "block"
             }
@@ -76,7 +77,7 @@ Class.nestGuardian = {
     GUNS: weaponArray({
         POSITION: [5.5, 7, 1, 6, 0, 36, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer]),
             TYPE: "bullet",
             LABEL: "Devastator"
         }
@@ -109,7 +110,7 @@ Class.nestCurator = {
     GUNS: weaponArray([{
         POSITION: [4.5, 1.5, -1.4, 8, 3.75, 180, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.swarm]),
+            SHOOT_SETTINGS: combineStats([swarm]),
             TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
             AUTOFIRE: true,
             STAT_CALCULATOR: "swarm"
@@ -118,7 +119,7 @@ Class.nestCurator = {
     {
         POSITION: [4.5, 1.5, -1.4, 8, -3.75, 180, 0.5],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.swarm]),
+            SHOOT_SETTINGS: combineStats([swarm]),
             TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
             AUTOFIRE: true,
             STAT_CALCULATOR: "swarm"
@@ -127,7 +128,7 @@ Class.nestCurator = {
     {
         POSITION: [3.5, 8.25, 1.2, 8, 0, 36, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.drone, g.nestKeeper]),
+            SHOOT_SETTINGS: combineStats([drone, nestKeeper]),
             TYPE: "drone",
             AUTOFIRE: true,
             LABEL: "Mega Crasher",
@@ -154,7 +155,7 @@ Class.nestDeacon = {
         }, {
             POSITION: [1.5, 8, 1.2, 10.7, 0, 36, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, { speed: 1.2 }, g.setTrap, g.constructor, g.pounder]),
+                SHOOT_SETTINGS: combineStats([trap, { speed: 1.2 }, setTrap, constructor, pounder]),
                 TYPE: "unsetTrap",
                 STAT_CALCULATOR: "block"
             }
@@ -177,7 +178,7 @@ Class.nestChampion = {
     GUNS: weaponArray({
         POSITION: [5.5, 7, 1, 6, 0, 36, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer, g.launcher]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer, launcher]),
             TYPE: "launcherMissile",
             LABEL: "Ravager"
         }

@@ -1,15 +1,16 @@
-const { Siege } = require("./scripts/siege.js");
-const { Assault } = require("./scripts/assault.js");
-const { Tag } = require("./scripts/tag.js");
-const { Domination } = require("./scripts/dominator.js");
-const { Mothership } = require("./scripts/mothership.js");
-const { Sandbox } = require("./scripts/sandbox.js");
-const { Train } = require("./scripts/trainwars.js");
-const { Maze } = require("./scripts/maze.js");
-const { Labyrinth } = require("./scripts/labyrinth.js");
-const { Outbreak } = require("./scripts/outbreak.js");
-const { ClanWars } = require("./scripts/clan_wars.js");
-const { GroupHandler } = require("./scripts/groups.js");
+import { Siege } from "./scripts/siege.js";
+import { Assault } from "./scripts/assault.js";
+import { Tag } from "./scripts/tag.js";
+import { Domination } from "./scripts/dominator.js";
+import { Mothership } from "./scripts/mothership.js";
+import { Sandbox } from "./scripts/sandbox.js";
+import { Train } from "./scripts/trainwars.js";
+import { Maze } from "./scripts/maze.js";
+import { Labyrinth } from "./scripts/labyrinth.js";
+import { Outbreak } from "./scripts/outbreak.js";
+import { ClanWars } from "./scripts/clan_wars.js";
+import { GroupHandler } from "./scripts/groups.js";
+import { Config } from "../../loaders/global.js";
 
 class gamemodeManager {
     constructor() {
@@ -26,45 +27,78 @@ class gamemodeManager {
         this.gameClanwars = new ClanWars(global.gameManager);
         this.gameGroups = new GroupHandler(global.gameManager);
     }
-
     request(type) {
         if (type == "start") {
-            if (Config.siege) this.gameSiege.start(Config.maze_type ?? false);
-            if (Config.assault) this.gameAssault.start();
-            if (Config.tag) Config.tag_data.initAndStart();
-            if (Config.domination) this.gameDomination.start();
-            if (Config.mothership) this.gameMothership.start();
-            if (Config.maze && Config.maze_type !== undefined && !Config.siege) this.gameMaze.generate();
-            if (Config.labyrinth) this.gameLabyrinth.generate();
-            if (Config.outbreak) this.gameOutbreak.start();
+            if (Config.siege) {
+                this.gameSiege.start(Config.maze_type ?? false);
+            }
+            if (Config.assault) {
+                this.gameAssault.start();
+            }
+            if (Config.tag) {
+                Config.tag_data.initAndStart();
+            }
+            if (Config.domination) {
+                this.gameDomination.start();
+            }
+            if (Config.mothership) {
+                this.gameMothership.start();
+            }
+            if (Config.maze && Config.maze_type !== undefined && !Config.siege) {
+                this.gameMaze.generate();
+            }
+            if (Config.labyrinth) {
+                this.gameLabyrinth.generate();
+            }
+            if (Config.outbreak) {
+                this.gameOutbreak.start();
+            }
         }
         if (type == "loop") {
             global.gameManager.lagLogger.set();
-            if (Config.siege) this.gameSiege.loop();
-            if (Config.mothership) this.gameMothership.loop();
+            if (Config.siege) {
+                this.gameSiege.loop();
+            }
+            if (Config.mothership) {
+                this.gameMothership.loop();
+            }
             global.gameManager.lagLogger.mark();
             if (global.gameManager.lagLogger.totalTime > 100) {
                 console.log("Gamemode loop is taking a long time!");
                 console.log(`Gamemode loop took ${global.gameManager.lagLogger.totalTime}ms to complete!`);
                 console.log(`Gamemode loop log history: (Last ${global.gameManager.lagLogger.sum.length} entries)`);
-                console.log(global.gameManager.lagLogger.sum.map(entry => `Run at: ${entry.at}. Time: ${entry.time}.`).join("\n"));
+                console.log(global.gameManager.lagLogger.sum.map((entry) => `Run at: ${entry.at}. Time: ${entry.time}.`).join("\n"));
             }
         }
         if (type == "quickloop") { // Mainly for sandbox and trainwars only, but you can also put your own gamemode loop here incase the regular loop doesnt fit.
-            if (Config.sandbox) this.gameSandbox.update();
-            if (Config.train) this.gameTrain.loop();
+            if (Config.sandbox) {
+                this.gameSandbox.update();
+            }
+            if (Config.train) {
+                this.gameTrain.loop();
+            }
         }
     }
-
     terminate() {
-        if (Config.siege) this.gameSiege.reset();
-        if (Config.assault) this.gameAssault.reset();
-        if (Config.tag) Config.tag_data.resetAndStop();
-        if (Config.domination) this.gameDomination.reset();
-        if (Config.mothership) this.gameMothership.reset();
-        if (Config.clan_wars) this.gameClanwars.reset();
+        if (Config.siege) {
+            this.gameSiege.reset();
+        }
+        if (Config.assault) {
+            this.gameAssault.reset();
+        }
+        if (Config.tag) {
+            Config.tag_data.resetAndStop();
+        }
+        if (Config.domination) {
+            this.gameDomination.reset();
+        }
+        if (Config.mothership) {
+            this.gameMothership.reset();
+        }
+        if (Config.clan_wars) {
+            this.gameClanwars.reset();
+        }
     }
-
     redefine(theshit) {
         this.gameSiege.redefine(theshit);
         this.gameAssault.redefine(theshit);
@@ -77,4 +111,4 @@ class gamemodeManager {
     }
 }
 
-module.exports = { gamemodeManager };
+export default { gamemodeManager };

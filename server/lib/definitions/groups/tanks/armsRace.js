@@ -5718,7 +5718,7 @@ Class.tripleTwin.UPGRADES_TIER_4 = ["quadTwin", "autoTriple", "bentTriple", "hew
 Class.twin.UPGRADES_TIER_4 = ["duo"];
 Class.underseer.UPGRADES_TIER_4 = ["conductor", "conjurer"];
 
-const better_retrograde = require("../../groups/tanks/retrograde.js");
+const better_retrograde = require("../../groups/tanks/retrograde.js").default;
 if (better_retrograde && Config.retrograde) {
     try {
         require("../../entityAddons/armsRaceRetrograde/tanks.js");

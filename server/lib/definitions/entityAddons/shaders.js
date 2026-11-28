@@ -1,3 +1,5 @@
+import { Class } from "../../../loaders/global";
+
 function init() {
     const EnableBulletShaders = true; // enable shaders for bullets, drones, etc.
 

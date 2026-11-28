@@ -1,3 +1,1 @@
-module.exports = {
-    room_setup: ["rock"]
-};
+export const room_setup = ["rock"];

@@ -1,10 +1,10 @@
-const { workerData, parentPort } = require("worker_threads");
+import { workerData, parentPort } from "worker_threads";
 
 // Load required game components
-let GLOBAL = require("./loaders/loader.js");
+import GLOBAL from "./loaders/loader.js";
 
 // Create the game server
-new (require("./game.js").gameServer)(
+import("./game.js").then(({gameServer}) => new gameServer(
     workerData.host,
     workerData.port,
     workerData.gamemode,
@@ -17,4 +17,4 @@ new (require("./game.js").gameServer)(
     workerData.isPrivate,
     parentPort,
     GLOBAL
-);
+));

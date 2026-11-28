@@ -24,7 +24,7 @@ const categories = {
         "sigma", "edge", "mewing", "mew", "yapping", "yap", "mogging", "mog",
         "goon", "maxxing", "maxing", "tiktok", "fanumtax", "grimaceshake",
         "babygronk", "edging", "gyat"
-    ],
+    ]
 };
 
 const modes = {
@@ -32,12 +32,14 @@ const modes = {
     offensive: ["offensive"],
     inappropriate: ["offensive", "inappropriate"],
     swear: ["offensive", "inappropriate", "profane"],
-    brainrot: ["offensive", "inappropriate", "profane", "brainrot"],
+    brainrot: ["offensive", "inappropriate", "profane", "brainrot"]
 };
 
 export function censorChat(text, mode) {
     const enabled = modes[mode] || [];
-    if (!enabled.length) return text;
+    if (!enabled.length) {
+        return text;
+    }
 
     const symbols = [];
     const indexes = [];
@@ -58,9 +60,13 @@ export function censorChat(text, mode) {
         for (const word of categories[name]) {
             for (let i = 0; i <= symbols.length - word.length; i++) {
                 let j = 0;
-                while (j < word.length && symbols[i + j] === (word.charCodeAt(j) & 31)) j++;
+                while (j < word.length && symbols[i + j] === (word.charCodeAt(j) & 31)) {
+                    j++;
+                }
                 if (j === word.length) {
-                    for (let k = 0; k < word.length; k++) chars[indexes[i + k]] = "*";
+                    for (let k = 0; k < word.length; k++) {
+                        chars[indexes[i + k]] = "*";
+                    }
                 }
             }
         }

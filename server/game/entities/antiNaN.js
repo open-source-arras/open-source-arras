@@ -1,9 +1,9 @@
-class antiNaN {
+export class AntiNaN {
     constructor(me) {
         this.me = me;
         this.nansInARow = 0;
         this.data = { x: 1, y: 1, vx: 0, vy: 0, ax: 0, ay: 0 };
-        this.amNaN = me => [me.x, me.y, me.velocity.x, me.velocity.y, me.accel.x, me.accel.y].some(isNaN);
+        this.amNaN = (me) => [me.x, me.y, me.velocity.x, me.velocity.y, me.accel.x, me.accel.y].some(isNaN);
     }
     update() {
         if (this.amNaN(this.me)) {
@@ -25,9 +25,9 @@ class antiNaN {
             this.data.vy = this.me.velocity.y;
             this.data.ax = this.me.accel.x;
             this.data.ay = this.me.accel.y;
-            if (this.nansInARow > 0) this.nansInARow--;
+            if (this.nansInARow > 0) {
+                this.nansInARow--;
+            }
         }
     }
 }
-
-module.exports = { antiNaN };

@@ -2,7 +2,9 @@
 // Adds a simple ratelimit for sending too many messages.
 // Allows you to spam if you have the allowSpam flag in your permissions.
 
-let recent = {},
+import { Config, Events } from "../../loaders/global";
+
+const recent = {},
     ratelimit = 3,
     decay = 10_000,
     badWords = [
@@ -41,13 +43,13 @@ let recent = {},
     ];
 
 Events.on("chatMessage", ({ message, socket, preventDefault, setMessage }) => {
-    let perms = socket.permissions,
+    const perms = socket.permissions,
         id = socket.player.body.id;
 
     // Here we block out some very bad word by replacing it with a good word,
     // then we set the message that others will see to that filtered message.
     let realMessage = message;
-    for (let badWord of badWords) {
+    for (const badWord of badWords) {
         realMessage = realMessage.replaceAll(badWord, () => {
             return goodWords[Math.floor(Math.random() * goodWords.length)];
         });
@@ -55,7 +57,9 @@ Events.on("chatMessage", ({ message, socket, preventDefault, setMessage }) => {
     setMessage(realMessage);
 
     // They are allowed to spam ANYTHING they want INFINITELY.
-    if (message.startsWith("$") || (perms && perms.allowSpam)) return;
+    if (message.startsWith("$") || (perms && perms.allowSpam)) {
+        return;
+    }
 
     // If they're talking too much, they can take a break.
     // Fortunately, this returns false if recent[id] is undefined.

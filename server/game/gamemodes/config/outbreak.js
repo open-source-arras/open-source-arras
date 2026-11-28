@@ -1,3 +1,1 @@
-module.exports = {
-    outbreak: true
-};
+export const outbreak = true;

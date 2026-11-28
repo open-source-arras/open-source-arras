@@ -1,6 +1,10 @@
-const { combineStats, skillSet, makePolyhedron } = require("../facilitators.js");
-const { base, dfltskl, smshskl, statnames } = require("../constants.js");
-const g = require("../gunvals.js");
+import { combineStats, skillSet, makePolyhedron } from "../facilitators.js";
+import { base, dfltskl, smshskl, statnames } from "../constants.js";
+import { basic } from "../gunvals.js";
+import { clamp } from "../../util.js";
+import { entities } from "../../../loaders/global.js";
+import { Config } from "../../../config.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Set the below variable to true to enable the flat ball from arras.io.
 const classic_ball = false;
@@ -265,7 +269,7 @@ Class.genericObstacle = {
 // Colour each face by its vertex count: a truncated icosahedron (football) has 12 PENTAGONS
 // (5 verts → black) and 20 HEXAGONS (6 verts → white). Reading it from the geometry means the
 // right faces are always coloured, regardless of face order — no hand-made list to get wrong.
-let ballShape = makePolyhedron({
+const ballShape = makePolyhedron({
     VERTEXES: [
         [0.742344, 0.28355, -0.350487],
         [0.850651, 0, -0.175244],
@@ -371,7 +375,7 @@ Class.ball = {
     VALUE: 2e7,
     SIZE: 30,
     COLOR: "veryLightGrey",
-    SHAPE: ballShape + "/" + ballShape.split("/")[1].split(";").map(face => face.split(",").length === 5 ? "black" : "veryLightGrey").join(","),
+    SHAPE: `${ballShape}/${ballShape.split("/")[1].split(";").map((face) => face.split(",").length === 5 ? "black" : "veryLightGrey").join(",")}`,
     BODY: {
         DAMAGE: 4.8,
         DENSITY: 20,
@@ -452,7 +456,7 @@ Class.drone = {
     CLEAR_ON_MASTER_UPGRADE: true,
     BUFF_VS_FOOD: true
 };
-Class.satellite = { 
+Class.satellite = {
     LABEL: "Satellite",
     TYPE: "satellite",
     ACCEPTS_SCORE: false,
@@ -620,10 +624,14 @@ Class.portalAura = {
             handler: ({ body }) => {
                 if (body.growing) {
                     body.SIZE += 1.2;
-                    if (body.SIZE > 45) body.growing = false;
+                    if (body.SIZE > 45) {
+                        body.growing = false;
+                    }
                 } else {
                     body.SIZE -= 1.2;
-                    if (body.SIZE < 32) body.growing = true;
+                    if (body.SIZE < 32) {
+                        body.growing = true;
+                    }
                 }
             }
         }
@@ -669,32 +677,36 @@ Class.serverPortal = {
         {
             event: "tick",
             handler: ({ body }) => {
-                for (let instance of entities.values()) {
-                    if (instance.immuneToPortals) continue;
-                    let diffX = instance.x - body.x,
+                for (const instance of entities.values()) {
+                    if (instance.immuneToPortals) {
+                        continue;
+                    }
+                    const diffX = instance.x - body.x,
                         diffY = instance.y - body.y,
                         dist2 = diffX ** 2 + diffY ** 2;
                     if (dist2 <= ((body.size / 12) * 250) ** 1.9) {
                         let forceMulti = (0.2 / instance.size);
                         if (instance.isPlayer && instance.socket) {
-                            if (dist2 < body.size ** 2.5 + instance.size ** 2.5) forceMulti = (3 / instance.size);
-                            instance.velocity.x += util.clamp(body.x - instance.x, -90, 90) * instance.damp * forceMulti;//0.05
-                            instance.velocity.y += util.clamp(body.y - instance.y, -90, 90) * instance.damp * forceMulti;//0.05
+                            if (dist2 < body.size ** 2.5 + instance.size ** 2.5) {
+                                forceMulti = (3 / instance.size);
+                            }
+                            instance.velocity.x += clamp(body.x - instance.x, -90, 90) * instance.damp * forceMulti;//0.05
+                            instance.velocity.y += clamp(body.y - instance.y, -90, 90) * instance.damp * forceMulti;//0.05
                         } else if (
-                            !instance.isDominator && 
-                            !instance.isArenaCloser && 
-                            !instance.godmode && 
-                            !instance.invuln && 
-                            instance.id != body.id && 
+                            !instance.isDominator &&
+                            !instance.isArenaCloser &&
+                            !instance.godmode &&
+                            !instance.invuln &&
+                            instance.id != body.id &&
                             instance.type !== "wall" &&
-                            instance.team != body.team && 
+                            instance.team != body.team &&
                             instance.type === "bullet" ||
                             instance.type === "drone" ||
                             instance.type === "trap" ||
                             instance.type === "minion") {
                             forceMulti = (3 / instance.size);
-                            instance.velocity.x -= util.clamp(body.x - instance.x, -90, 90) * instance.damp * forceMulti;//0.05
-                            instance.velocity.y -= util.clamp(body.y - instance.y, -90, 90) * instance.damp * forceMulti;//0.05
+                            instance.velocity.x -= clamp(body.x - instance.x, -90, 90) * instance.damp * forceMulti;//0.05
+                            instance.velocity.y -= clamp(body.y - instance.y, -90, 90) * instance.damp * forceMulti;//0.05
                         }
                     }
                 }
@@ -704,12 +716,14 @@ Class.serverPortal = {
 };
 for (let i = 0; i < 60; i++) {
     let spawnDelay = Math.random() * 252;
-    if (spawnDelay < 20) spawnDelay = Math.random() * 4;
+    if (spawnDelay < 20) {
+        spawnDelay = Math.random() * 4;
+    }
     Class.serverPortal.GUNS.push({
         POSITION: [2, 8, 1, -150, 0, 360 / 60 * i, spawnDelay],
         PROPERTIES: {
             SHOOT_SETTINGS: combineStats([
-                g.basic,
+                basic,
                 { shudder: 0, speed: 2.7, spray: 0, reload: 0.8, recoil: 0, range: 0.15 }
             ]),
             SYNCS_SKILLS: true,
@@ -727,7 +741,11 @@ for (let i = 0; i < 60; i++) {
                         {
                             event: "tick",
                             handler: ({ body }) => {
-                                if (body.alpha < 0.9) body.alpha += 0.06; else body.alpha = 0;
+                                if (body.alpha < 0.9) {
+                                    body.alpha += 0.06;
+                                } else {
+                                    body.alpha = 0;
+                                }
                             }
                         }
                     ]
@@ -737,11 +755,13 @@ for (let i = 0; i < 60; i++) {
     });
 };
 for (let i = 0; i < 2; i++) {
-    if (i & 1) i++;
+    if (i & 1) {
+        i++;
+    }
     Class.serverPortal.GUNS.push({
         POSITION: [2, 14, 1, 2.5, 0, 0, i],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, {damage: 0, speed: 0, maxSpeed: 0, reload: 0.4, recoil: 0, size: 3}]),
+            SHOOT_SETTINGS: combineStats([basic, {damage: 0, speed: 0, maxSpeed: 0, reload: 0.4, recoil: 0, size: 3}]),
             TYPE: "portalAura",
             SYNCS_SKILLS: true,
             AUTOFIRE: true,

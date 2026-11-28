@@ -3,12 +3,15 @@ import { util } from "./util.js";
 import { config } from "./config.js";
 import * as socketStuff from "./socketinit.js";
 import { AdvancedRecorder } from "./recorder.js";
-let { gui } = socketStuff;
+const { gui } = socketStuff;
 
 const skillSavesKey = "skill_upgrade_saves";
 function getSkillSaves() {
-    try { return JSON.parse(localStorage.getItem(skillSavesKey)) || []; }
-    catch { return []; }
+    try {
+        return JSON.parse(localStorage.getItem(skillSavesKey)) || [];
+    } catch {
+        return [];
+    }
 }
 
 class Canvas {
@@ -18,14 +21,25 @@ class Canvas {
         this.socket = global.socket;
         this.directions = [];
         this.chatListener = function(id, event) { // i changed 14 to 31
-            if (!["Enter", "Escape", "Send"].includes(event.code)) return;
+            if (!["Enter", "Escape", "Send"].includes(event.code)) {
+                return;
+            }
             this[id].blur();
             this.cv.focus();
             global.showChat = false;
-            setTimeout(() => { if (!this.chatBox.loadedProperly) this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false; }, 50)
-            if (!this[id].value) return;
-            if (event.code === "Enter") this.socket.talk("M", this[id].value);
-            this[id].value = ""; }
+            setTimeout(() => {
+                if (!this.chatBox.loadedProperly) {
+                    this.chatBox.remove(), this.chatInput.remove(), this.chatBox = false;
+                }
+            }, 50);
+            if (!this[id].value) {
+                return;
+            }
+            if (event.code === "Enter") {
+                this.socket.talk("M", this[id].value);
+            }
+            this[id].value = "";
+        };
         this.cv = document.getElementById("gameCanvas");
         this.cvb = document.getElementById("gameCanvas-background");
         this.cvg = document.getElementById("gameCanvas-gameplay");
@@ -45,8 +59,8 @@ class Canvas {
         this.initalized = false;
         this.tankTreeProps = {
             searchQuery: "",
-            enabled: false,
-        }
+            enabled: false
+        };
         global.canvas = this;
     }
     init() {
@@ -56,23 +70,69 @@ class Canvas {
             this.movementTouch = null,
             this.movementTouchPos = { x: 0, y: 0 },
             this.controlTouchPos = { x: 0, y: 0 },
-            this.mobilecv.addEventListener("touchstart", (event) => {if (global.gameStart || global.disconnected) this.touchStart(event)}),
-            this.mobilecv.addEventListener("touchmove", (event) => {if (global.gameStart) this.touchMove(event)}),
-            this.mobilecv.addEventListener("touchend", (event) => {if (global.gameStart) this.touchEnd(event)}),
-            this.mobilecv.addEventListener("touchcancel", (event) => {if (global.gameStart) this.touchEnd(event)})
+            this.mobilecv.addEventListener("touchstart", (event) => {
+                if (global.gameStart || global.disconnected) {
+                    this.touchStart(event);
+                }
+            }),
+            this.mobilecv.addEventListener("touchmove", (event) => {
+                if (global.gameStart) {
+                    this.touchMove(event);
+                }
+            }),
+            this.mobilecv.addEventListener("touchend", (event) => {
+                if (global.gameStart) {
+                    this.touchEnd(event);
+                }
+            }),
+            this.mobilecv.addEventListener("touchcancel", (event) => {
+                if (global.gameStart) {
+                    this.touchEnd(event);
+                }
+            })
         ) : ( // PC
-            this.cv.addEventListener("mousemove", (event) => {if (global.gameStart || global.disconnected) this.mouseMove(event)}),
-            this.cv.addEventListener("mousedown", (event) => {if (global.gameStart || global.disconnected) this.mouseDown(event)}),
-            this.cv.addEventListener("mouseup", (event) => {if (global.gameStart || global.disconnected) this.mouseUp(event)}),
-            this.cv.addEventListener("keypress", (event) => {if (global.gameStart) this.keyPress(event)}),
-            this.cv.addEventListener("wheel", (event) => {if (global.gameStart) this.wheel(event)})
+            this.cv.addEventListener("mousemove", (event) => {
+                if (global.gameStart || global.disconnected) {
+                    this.mouseMove(event);
+                }
+            }),
+            this.cv.addEventListener("mousedown", (event) => {
+                if (global.gameStart || global.disconnected) {
+                    this.mouseDown(event);
+                }
+            }),
+            this.cv.addEventListener("mouseup", (event) => {
+                if (global.gameStart || global.disconnected) {
+                    this.mouseUp(event);
+                }
+            }),
+            this.cv.addEventListener("keypress", (event) => {
+                if (global.gameStart) {
+                    this.keyPress(event);
+                }
+            }),
+            this.cv.addEventListener("wheel", (event) => {
+                if (global.gameStart) {
+                    this.wheel(event);
+                }
+            })
         );
-        this.cv.addEventListener("keydown", (event) => {if (global.gameStart) this.keyDown(event)});
-        this.cv.addEventListener("keyup", (event) => {if (global.gameStart) this.keyUp(event)});
+        this.cv.addEventListener("keydown", (event) => {
+            if (global.gameStart) {
+                this.keyDown(event);
+            }
+        });
+        this.cv.addEventListener("keyup", (event) => {
+            if (global.gameStart) {
+                this.keyUp(event);
+            }
+        });
         window.addEventListener("keydown", (event) => {
             const el = global.ingameRebind;
             if (!el) {
-                if (global.gameStart && event.code === "F3") event.preventDefault();
+                if (global.gameStart && event.code === "F3") {
+                    event.preventDefault();
+                }
                 return;
             }
             event.preventDefault();
@@ -82,12 +142,18 @@ class Canvas {
                 el.textContent = name;
                 global[el.dataset.key] = event.code;
                 let kb = {};
-                try { kb = JSON.parse(localStorage.getItem("keybinds") || "{}"); } catch (e) { kb = {}; }
+                try {
+                    kb = JSON.parse(localStorage.getItem("keybinds") || "{}");
+                } catch (e) {
+                    kb = {};
+                }
                 kb[el.dataset.key] = [name, event.code];
                 localStorage.setItem("keybinds", JSON.stringify(kb));
             }
             const td = el.closest("td");
-            if (td) td.classList.remove("editing");
+            if (td) {
+                td.classList.remove("editing");
+            }
             global.ingameRebind = null;
         }, true);
         window.addEventListener("gamepadconnected", (e) => {
@@ -100,16 +166,16 @@ class Canvas {
         });
         this.initalized = true;
     }
-
     toggleReverse() {
-        let now = Date.now();
-        this.reverseSpam = this.reverseSpam.filter(t => now - t < 10_000);
+        const now = Date.now();
+        this.reverseSpam = this.reverseSpam.filter((t) => now - t < 10_000);
         this.reverseSpam.push(now);
-        if (this.reverseSpam.length >= 7) return global.createMessage("Please slow down!");
+        if (this.reverseSpam.length >= 7) {
+            return global.createMessage("Please slow down!");
+        }
         this.reverseDirection = !this.reverseDirection;
         global.createMessage(this.reverseDirection ? "Reverse tank enabled." : "Reverse tank disabled.");
     }
-
     wheel(event) {
         if (global.showTree) {
             if (event.deltaY > 1) {
@@ -122,10 +188,14 @@ class Canvas {
     keyPress(event) {
         switch (event.code) {
             case "Minus":
-                if (!global.died && global.showTree) global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
+                if (!global.died && global.showTree) {
+                    global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
+                }
                 break;
             case "Equal":
-                if (!global.died && global.showTree) global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
+                if (!global.died && global.showTree) {
+                    global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
+                }
                 break;
         }
     }
@@ -143,10 +213,14 @@ class Canvas {
                 this.chatInput.setAttribute("enterkeyhint", "send");
                 this.chatInput.setAttribute("autocomplete", "off");
             };
-            this.chatInput.addEventListener("keydown", event => this.chatListener("chatInput", event));
+            this.chatInput.addEventListener("keydown", (event) => this.chatListener("chatInput", event));
             if (global.mobile) {
-                this.chatInput.addEventListener("beforeinput", event => {
-                 if (event.inputType === "insertLineBreak") this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() { event.preventDefault(); } }); 
+                this.chatInput.addEventListener("beforeinput", (event) => {
+                    if (event.inputType === "insertLineBreak") {
+                        this.chatListener("chatInput", { code: "Enter", key: "Enter", keyCode: 13, preventDefault() {
+                            event.preventDefault();
+                        } });
+                    }
                 }); // i changed
             };
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
@@ -154,7 +228,6 @@ class Canvas {
         this.chatInput.focus();
         global.showChat = true;
     }
-
     respawn() {
         if (global.died && global.readyToRespawn && !global.cannotRespawn) {
             this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, false, 1 * config.game.incognitoMode);
@@ -165,20 +238,23 @@ class Canvas {
             }
         }
     }
-
     keyDown(event) {
-        if (global.dailyTankAd.renderUI) return;
+        if (global.dailyTankAd.renderUI) {
+            return;
+        }
         if (global.specialPressed) {
             event.preventDefault();
             let pressed = false;
             let attributed = false;
-            let attributeKey = false;
+            const attributeKey = false;
             for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
-                let obj = global.KEY_ABILITIES[i];
-                if (global.specialKeysPressed.length && global.specialKeysPressed[0] === obj) attributed = obj;
+                const obj = global.KEY_ABILITIES[i];
+                if (global.specialKeysPressed.length && global.specialKeysPressed[0] === obj) {
+                    attributed = obj;
+                }
             }
             if (!event.repeat) {
-                for (let obj in global) {
+                for (const obj in global) {
                     let wrongKey = false;
                     const thing = global[obj];
                     if (typeof thing === "string") {
@@ -189,9 +265,11 @@ class Canvas {
                             }
                         } else if (!pressed && obj.startsWith("KEY_SPECIAL_") && thing === event.code) {
                             for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
-                                let obj2 = global.KEY_ABILITIES[i];
+                                const obj2 = global.KEY_ABILITIES[i];
                                 if (obj.startsWith(obj2)) {
-                                    if (obj !== obj2) wrongKey = true;
+                                    if (obj !== obj2) {
+                                        wrongKey = true;
+                                    }
                                 }
                             }
                             if (!wrongKey) {
@@ -234,8 +312,11 @@ class Canvas {
         switch (event.code) {
             case "ShiftLeft":
             case "ShiftRight":
-                if (global.showTree) this.treeScrollSpeedMultiplier = 5;
-                else this.socket.cmd.set(6, true);
+                if (global.showTree) {
+                    this.treeScrollSpeedMultiplier = 5;
+                } else {
+                    this.socket.cmd.set(6, true);
+                }
                 break;
 
             case "Enter":
@@ -255,22 +336,30 @@ class Canvas {
                 break;
 
             case "ArrowUp":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) {
+                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                }
             case global.KEY_UP:
                 this.socket.cmd.set(0, true);
                 break;
             case "ArrowDown":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) {
+                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.y = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                }
             case global.KEY_DOWN:
                 this.socket.cmd.set(1, true);
                 break;
             case "ArrowLeft":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) {
+                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = -this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                }
             case global.KEY_LEFT:
                 this.socket.cmd.set(2, true);
                 break;
             case "ArrowRight":
-                if (!global.died && global.showTree) return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                if (!global.died && global.showTree) {
+                    return (global.classTreeDrag.isDragging = true, global.classTreeDrag.momentum.x = +this.treeScrollSpeed * this.treeScrollSpeedMultiplier);
+                }
             case global.KEY_RIGHT:
                 this.socket.cmd.set(3, true);
                 break;
@@ -366,7 +455,7 @@ class Canvas {
                 if (!event.repeat) {
                     const saves = getSkillSaves();
                     if (global.skillSavePressed) {
-                        saves[skill] = gui.skills.map(s => s.amount);
+                        saves[skill] = gui.skills.map((s) => s.amount);
                         localStorage.setItem(skillSavesKey, JSON.stringify(saves));
                     } else if (saves[skill]) {
                         let points = gui.points;
@@ -374,7 +463,9 @@ class Canvas {
                             const stat = gui.skills[i];
                             const target = Math.min(saves[skill][i] || 0, stat.cap);
                             const missing = Math.min(Math.max(0, target - stat.amount), points);
-                            for (let j = 0; j < missing; j++) this.socket.talk("x", 9 - i, 0);
+                            for (let j = 0; j < missing; j++) {
+                                this.socket.talk("x", 9 - i, 0);
+                            }
                             points -= missing;
                         }
                     }
@@ -393,15 +484,19 @@ class Canvas {
                 [global.KEY_UPGRADE_7]: 6,
                 [global.KEY_UPGRADE_8]: 7,
                 [global.KEY_UPGRADE_9]: 8
-            }
+            };
             if (global.canUpgrade && !global.died) {
                 const i = upgradeMap[event.code];
-                if (i !== undefined) this.socket.talk("U", i, parseInt(gui.upgrades[i][0]));
+                if (i !== undefined) {
+                    this.socket.talk("U", i, parseInt(gui.upgrades[i][0]));
+                }
             }
         }
     }
     keyUp(event) {
-        if (global.dailyTankAd.renderUI) return;
+        if (global.dailyTankAd.renderUI) {
+            return;
+        }
         switch (event.code) {
             case global.KEY_SPECIAL:
                 global.specialPressed = false;
@@ -409,8 +504,11 @@ class Canvas {
                 break;
             case "ShiftLeft":
             case "ShiftRight":
-                if (global.showTree) this.treeScrollSpeedMultiplier = 1;
-                else this.socket.cmd.set(6, false);
+                if (global.showTree) {
+                    this.treeScrollSpeedMultiplier = 1;
+                } else {
+                    this.socket.cmd.set(6, false);
+                }
                 break;
             case "ArrowUp":
                 global.classTreeDrag.momentum.y = 0;
@@ -454,17 +552,17 @@ class Canvas {
                 break;
         }
         if (global.specialPressed) {
-            let arrayCopy = global.specialKeysPressed.slice();
+            const arrayCopy = global.specialKeysPressed.slice();
             let code = null;
             let pressed = false;
             let attributed = false;
             for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
-                let obj = global.KEY_ABILITIES[i];
+                const obj = global.KEY_ABILITIES[i];
                 if (global.specialKeysPressed.length && global.specialKeysPressed[0] === obj) {
                     attributed = obj;
                 }
             }
-            for (let obj in global) {
+            for (const obj in global) {
                 let wrongKey = false;
                 const thing = global[obj];
                 if (typeof thing === "string") {
@@ -475,8 +573,10 @@ class Canvas {
                         }
                     } else if (!pressed && obj.startsWith("KEY_SPECIAL_") && thing === event.code) {
                         for (let i = 0; i < global.KEY_ABILITIES.length; i++) {
-                            let obj2 = global.KEY_ABILITIES[i];
-                            if (obj.startsWith(obj2)) wrongKey = true;
+                            const obj2 = global.KEY_ABILITIES[i];
+                            if (obj.startsWith(obj2)) {
+                                wrongKey = true;
+                            }
                         }
                         if (!wrongKey) {
                             code = obj;
@@ -485,25 +585,28 @@ class Canvas {
                     }
                 }
             }
-            let i = global.specialKeysPressed.indexOf(code);
+            const i = global.specialKeysPressed.indexOf(code);
             if (i >= 0) {
                 global.specialKeysPressed.splice(i, 1);
                 arrayCopy[i] = `-${code}`;
+            } else {
+                arrayCopy.push(`-${code}`);
             }
-            else arrayCopy.push(`-${code}`);
             this.socket.talk("#", ...arrayCopy);
         }
     }
     mouseDown(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.inverseMouse) {
+            [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        }
         global.clickables.clicked = true;
         switch (mouse.button) {
             case 0:
-                let mpos = {
+                const mpos = {
                     x: mouse.clientX * global.ratio,
-                    y: mouse.clientY * global.ratio,
+                    y: mouse.clientY * global.ratio
                 };
                 if (global.showTree) {
                     // Start dragging if not clicking UI elements
@@ -528,11 +631,11 @@ class Canvas {
                         return;
                     }
                 }
-                let statIndex = global.clickables.stat.check(mpos);
-                let upgradeCheck = global.clickables.upgrade.check(mpos);
-                let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
+                const statIndex = global.clickables.stat.check(mpos);
+                const upgradeCheck = global.clickables.upgrade.check(mpos);
+                const optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    const box = global.optionsCheckboxes[optionsMenu_toggleBox];
                     if (box.type === "slidingBar") {
                         box.trigger?.(mpos, box);
                         global.optionsMenu_Anim.sliderMoving = box;
@@ -543,12 +646,14 @@ class Canvas {
                             global.optionsMenu_Anim.currentOptionMenu = false;
                         }
                         box.optionService.opened = !box.optionService.opened;
-                        if (box.optionService.opened) global.optionsMenu_Anim.currentOptionMenu = box, box.optionService.canClick = false;
+                        if (box.optionService.opened) {
+                            global.optionsMenu_Anim.currentOptionMenu = box, box.optionService.canClick = false;
+                        }
                     }
                     break;
                 }
                 if (global.optionsCheckboxes) {
-                    for (let box of global.optionsCheckboxes) {
+                    for (const box of global.optionsCheckboxes) {
                         if (box.type === "option" && box.optionService.opened && global.optionsCheckboxes[optionsMenu_toggleBox] !== box && global.clickables.optionsMenu.optionBoxes.check(mpos) === -1) {
                             box.optionService.opened = false;
                             global.optionsMenu_Anim.currentOptionMenu.optionService.canClick = false;
@@ -560,16 +665,18 @@ class Canvas {
                     this.socket.talk("x", statIndex, 0);
                 } else if (
                     !global.dailyTankAd.renderUI &&
-                    global.clickables.optionsMenu.toggleBoxes.check(mpos) == -1 && 
+                    global.clickables.optionsMenu.toggleBoxes.check(mpos) == -1 &&
                     global.clickables.optionsMenu.switchButton.check(mpos) == -1 &&
                     global.optionsMenu_Anim.tabClickables.check(mpos) == -1 &&
-                    global.clickables.skipUpgrades.check(mpos) == -1 && 
+                    global.clickables.skipUpgrades.check(mpos) == -1 &&
                     global.clickables.dailyTankUpgrade.check(mpos) == false &&
                     global.clickables.dailyTankAd.check(mpos) === false &&
                     global.clickables.optionsMenu.mainMenuIdle.check(mpos) === false &&
-                    upgradeCheck == -1 && 
+                    upgradeCheck == -1 &&
                     !global.died
-                ) this.socket.cmd.set(primaryFire, true);
+                ) {
+                    this.socket.cmd.set(primaryFire, true);
+                }
                 break;
             case 1:
                 this.socket.cmd.set(5, true);
@@ -579,10 +686,12 @@ class Canvas {
                 break;
         }
     }
-   mouseUp(mouse) {
+    mouseUp(mouse) {
         let primaryFire = 4,
             secondaryFire = 6;
-        if (this.inverseMouse) [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        if (this.inverseMouse) {
+            [primaryFire, secondaryFire] = [secondaryFire, primaryFire];
+        }
         global.clickables.clicked = false;
         switch (mouse.button) {
             case 0:
@@ -594,21 +703,21 @@ class Canvas {
                 if (global.optionsMenu_Anim.currentOptionMenu) {
                     global.optionsMenu_Anim.currentOptionMenu.optionService.canClickSwitch = true;
                 };
-                let mpos = {
+                const mpos = {
                     x: mouse.clientX * global.ratio,
-                    y: mouse.clientY * global.ratio,
+                    y: mouse.clientY * global.ratio
                 };
-                let upgradeIndex = global.clickables.upgrade.check(mpos);
-                let dailyTankUpgrade = global.clickables.dailyTankUpgrade.check(mpos);
-                let dailyTankAd = global.clickables.dailyTankAd.check(mpos);
-                let dailyTankCloseAd = global.clickables.dailyTankCloseAd.check(mpos);
-                let respawnCheck = global.clickables.deathRespawn.check(mpos);
-                let exitGame = global.clickables.exitGame.check(mpos);
-                let reconnectCheck = global.clickables.reconnect.check(mpos);
-                let optionsMenu_Switch = global.clickables.optionsMenu.switchButton.check(mpos);
-                let optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
-                let optionsMenu_clickOption = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                let optionsMenu_tabClick = global.optionsMenu_Anim.tabClickables ? global.optionsMenu_Anim.tabClickables.check(mpos) : -1;
+                const upgradeIndex = global.clickables.upgrade.check(mpos);
+                const dailyTankUpgrade = global.clickables.dailyTankUpgrade.check(mpos);
+                const dailyTankAd = global.clickables.dailyTankAd.check(mpos);
+                const dailyTankCloseAd = global.clickables.dailyTankCloseAd.check(mpos);
+                const respawnCheck = global.clickables.deathRespawn.check(mpos);
+                const exitGame = global.clickables.exitGame.check(mpos);
+                const reconnectCheck = global.clickables.reconnect.check(mpos);
+                const optionsMenu_Switch = global.clickables.optionsMenu.switchButton.check(mpos);
+                const optionsMenu_toggleBox = global.clickables.optionsMenu.toggleBoxes.check(mpos);
+                const optionsMenu_clickOption = global.clickables.optionsMenu.optionBoxes.check(mpos);
+                const optionsMenu_tabClick = global.optionsMenu_Anim.tabClickables ? global.optionsMenu_Anim.tabClickables.check(mpos) : -1;
                 // Options menu clickables
                 if (optionsMenu_Switch === 0) {
                     global.optionsMenu_Anim.switchMenu_button.set(-40);
@@ -622,7 +731,9 @@ class Canvas {
                     global.optionsMenu_Anim.switchMenu_button.set(0);
                     global.optionsMenu_Anim.mainMenu.set(-500);
                     global.optionsMenu_Anim.isOpened = false;
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
+                    if (global.optionsMenu_Anim.scrollTargets) {
+                        global.optionsMenu_Anim.scrollTargets = [0, 0, 0, 0];
+                    }
                     if (global.optionsMenu_Anim._wheelHandler) {
                         window.removeEventListener("wheel", global.optionsMenu_Anim._wheelHandler);
                         global.optionsMenu_Anim._wheelHandler = undefined;
@@ -634,7 +745,9 @@ class Canvas {
                         if (mpos.x >= r.x && mpos.x <= r.x + r.w && mpos.y >= r.y && mpos.y <= r.y + r.h) {
                             document.querySelectorAll("#controlSettings td.editing").forEach((td) => td.classList.remove("editing"));
                             const td = r.el.closest("td");
-                            if (td) td.classList.add("editing");
+                            if (td) {
+                                td.classList.add("editing");
+                            }
                             global.ingameRebind = r.el;
                             return;
                         }
@@ -644,7 +757,9 @@ class Canvas {
                     global.optionsMenu_Anim.activeTab = optionsMenu_tabClick;
                     global.optionsMenu_Anim.tabOffset.set(optionsMenu_tabClick);
                     global.optionsMenu_Anim.mainMenuHeight.set(global.optionsMenu_Anim.tabs[optionsMenu_tabClick][1]);
-                    if (optionsMenu_tabClick !== 2) global.ingameKeybindRects = null;
+                    if (optionsMenu_tabClick !== 2) {
+                        global.ingameKeybindRects = null;
+                    }
                     if (global.optionsMenu_Anim.currentOptionMenu) {
                         global.optionsMenu_Anim.currentOptionMenu.optionService.opened = false;
                         global.optionsMenu_Anim.currentOptionMenu = false;
@@ -652,18 +767,27 @@ class Canvas {
                     global.clickables.optionsMenu.toggleBoxes.hide();
                     global.clickables.optionsMenu.HoverBoxes.hide();
                     global.clickables.optionsMenu.optionBoxes.hide();
-                    if (global.optionsMenu_Anim.scrollTargets) global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
+                    if (global.optionsMenu_Anim.scrollTargets) {
+                        global.optionsMenu_Anim.scrollTargets[optionsMenu_tabClick] = 0;
+                    }
                     break;
                 }
                 if (optionsMenu_toggleBox !== -1) {
-                    let box = global.optionsCheckboxes[optionsMenu_toggleBox];
-                    if (box.placeholder) break;
+                    const box = global.optionsCheckboxes[optionsMenu_toggleBox];
+                    if (box.placeholder) {
+                        break;
+                    }
                     if (box.type === "checkbox") {
-                        let doc = document.getElementById(box.id);
+                        const doc = document.getElementById(box.id);
                         box.value = !box.value;
-                        if (doc) doc.checked = box.value;
-                        if (doc) util.submitToLocalStorage(box.id);
-                        else localStorage.setItem(box.id + "Checked", box.value ? "true" : "false");
+                        if (doc) {
+                            doc.checked = box.value;
+                        }
+                        if (doc) {
+                            util.submitToLocalStorage(box.id);
+                        } else {
+                            localStorage.setItem(`${box.id}Checked`, box.value ? "true" : "false");
+                        }
                     }
                     break;
                 }
@@ -679,7 +803,7 @@ class Canvas {
                     global.tankTree("exit");
                     break;
                 }
-                
+
                 // Check zoom buttons
                 if (global.clickables.classTreeZoomIn.check(mpos) === 0) {
                     global.targetTreeScale = Math.min(global.targetTreeScale * 1.2, 8);
@@ -689,16 +813,16 @@ class Canvas {
                     global.targetTreeScale = Math.max(global.targetTreeScale / 1.2, 0.5);
                     break;
                 }
-                
+
                 // Check search bar click
                 const searchBarWidth = 300;
                 const searchBarHeight = 35;
                 const searchBarX = global.screenWidth / 2 / global.ratio - searchBarWidth / 2;
                 const searchBarY = 30;
-                
-                if (mpos.x / global.ratio >= searchBarX && 
+
+                if (mpos.x / global.ratio >= searchBarX &&
                     mpos.x / global.ratio <= searchBarX + searchBarWidth &&
-                    mpos.y / global.ratio >= searchBarY && 
+                    mpos.y / global.ratio >= searchBarY &&
                     mpos.y / global.ratio <= searchBarY + searchBarHeight) {
                     global.searchBarActive = true;
                     break;
@@ -708,22 +832,29 @@ class Canvas {
                 if (respawnCheck !== -1 && !global.disconnected) {
                     this.respawn();
                 } else
-                if (reconnectCheck !== -1) {
-                    if (global.disconnected) global.reconnect();
-                } else
-                if (exitGame !== -1) {
-                    if (global.disconnected || (global.died && !global.cannotRespawn)) global.exit();
-                } else 
-                if (upgradeIndex !== -1 && upgradeIndex < gui.upgrades.length && !global.dailyTankAd.renderUI && !global.died) this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
-                else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI && !global.died) {
-                    this.socket.talk("U", 0, -1);
-                } else if (dailyTankAd == true) {
-                    this.socket.talk("DTA"); // Request to get an ad
-                } else if (dailyTankCloseAd == true && global.dailyTankAd.renderUI) {
-                    this.socket.talk("DTAD");
-                } else if (global.clickables.skipUpgrades.check(mpos) !== -1) {
-                    global.clearUpgrades();
-                } else this.socket.cmd.set(primaryFire, false);
+                    if (reconnectCheck !== -1) {
+                        if (global.disconnected) {
+                            global.reconnect();
+                        }
+                    } else
+                        if (exitGame !== -1) {
+                            if (global.disconnected || (global.died && !global.cannotRespawn)) {
+                                global.exit();
+                            }
+                        } else
+                            if (upgradeIndex !== -1 && upgradeIndex < gui.upgrades.length && !global.dailyTankAd.renderUI && !global.died) {
+                                this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
+                            } else if (dailyTankUpgrade == true && !global.dailyTankAd.renderUI && !global.died) {
+                                this.socket.talk("U", 0, -1);
+                            } else if (dailyTankAd == true) {
+                                this.socket.talk("DTA"); // Request to get an ad
+                            } else if (dailyTankCloseAd == true && global.dailyTankAd.renderUI) {
+                                this.socket.talk("DTAD");
+                            } else if (global.clickables.skipUpgrades.check(mpos) !== -1) {
+                                global.clearUpgrades();
+                            } else {
+                                this.socket.cmd.set(primaryFire, false);
+                            }
                 break;
             case 1:
                 this.socket.cmd.set(5, false);
@@ -738,7 +869,7 @@ class Canvas {
         if (global.showTree && global.classTreeDrag.isDragging) {
             const dx = (mouse.clientX - global.classTreeDrag.lastX) / global.treeScale;
             const dy = (mouse.clientY - global.classTreeDrag.lastY) / global.treeScale;
-            
+
             // Smooth momentum update
             global.classTreeDrag.momentum.x = -dx * 0.01;
             global.classTreeDrag.momentum.y = -dy * 0.01;
@@ -750,9 +881,11 @@ class Canvas {
         global.statHover =
             global.clickables.hover.check({
                 x: mouse.clientX * global.ratio,
-                y: mouse.clientY * global.ratio,
+                y: mouse.clientY * global.ratio
             }) === 0;
-        if (this.spinLock) return;
+        if (this.spinLock) {
+            return;
+        }
         global.mouse.x = mouse.clientX * global.ratio;
         global.mouse.y = mouse.clientY * global.ratio;
         if (global.ingameThemeSliderDrag && global.ingameThemeSlider && global.ingameThemeSetBlend) {
@@ -771,18 +904,18 @@ class Canvas {
         }
     }
     record() {
-        let AdvancedCanvasCapturer = () => {
-            let canvas = this.cvb.cloneNode();
-            let ctx = canvas.getContext("2d");
+        const AdvancedCanvasCapturer = () => {
+            const canvas = this.cvb.cloneNode();
+            const ctx = canvas.getContext("2d");
             let toMerge = [];
             let stop = false;
             return {
                 init: () => {
-                    let glCanvas = global.glCanvas || null;
+                    const glCanvas = global.glCanvas || null;
                     // Merge all layers, including WebGL2 if present
                     toMerge = glCanvas
-                    ? [this.cvb, glCanvas, this.cvg, this.cvu]
-                    : [this.cvb, this.cvg, this.cvu];
+                        ? [this.cvb, glCanvas, this.cvg, this.cvu]
+                        : [this.cvb, this.cvg, this.cvu];
                     ctx.canvas.width = this.cv.width;
                     ctx.canvas.height = this.cv.height;
                 },
@@ -791,7 +924,9 @@ class Canvas {
                     ctx.canvas.width = this.cv.width; // Set Width
                     ctx.canvas.height = this.cv.height; // Set Height
                     const anim = () => {
-                        if (stop) return;
+                        if (stop) {
+                            return;
+                        }
                         if (ctx.canvas.width !== this.cv.width || ctx.canvas.height !== this.cv.height) {
                             global.createMessage("Recorder stopped due to resize change. Saving file...", 5_000);
                             this.videoRecorder.stop();
@@ -799,17 +934,21 @@ class Canvas {
                             setTimeout(() => this.videoRecorder.download(), 200);
                         }
                         ctx.fillRect(0, 0, this.cv.width, this.cv.height);
-                        toMerge.forEach(layer => {
-                            if (layer) ctx.drawImage(layer, 0, 0);
+                        toMerge.forEach((layer) => {
+                            if (layer) {
+                                ctx.drawImage(layer, 0, 0);
+                            }
                         });
                         requestAnimationFrame(anim);
                     };
                     anim();
                 },
-                stop: () => { stop = true; },
+                stop: () => {
+                    stop = true;
+                },
                 getCanvas: () => canvas
-            }
-        }
+            };
+        };
         if (this.cv.captureStream && window.MediaRecorder) {
             if (this.videoRecorder) {
                 switch (this.videoRecorder.state) {
@@ -835,33 +974,35 @@ class Canvas {
         }
     }
     screenshot() {
-        let AdvancedCanvasCapturer = () => {
-            let canvas = this.cvb.cloneNode();
-            let ctx = canvas.getContext("2d");
+        const AdvancedCanvasCapturer = () => {
+            const canvas = this.cvb.cloneNode();
+            const ctx = canvas.getContext("2d");
             let toMerge = [];
             return {
                 init: () => {
-                    let glCanvas = global.glCanvas || null;
+                    const glCanvas = global.glCanvas || null;
                     // Merge all layers, including WebGL2 if present
                     toMerge = glCanvas
-                    ? [this.cvb, glCanvas, this.cvg, this.cvu]
-                    : [this.cvb, this.cvg, this.cvu];
+                        ? [this.cvb, glCanvas, this.cvg, this.cvu]
+                        : [this.cvb, this.cvg, this.cvu];
                     ctx.canvas.width = this.cv.width;
                     ctx.canvas.height = this.cv.height;
                 },
                 capture: () => {
                     ctx.canvas.width = this.cv.width; // Set Width
                     ctx.canvas.height = this.cv.height; // Set Height
-                    ctx.fillStyle = "#FFFFFF"
+                    ctx.fillStyle = "#FFFFFF";
                     ctx.fillRect(0, 0, this.cv.width, this.cv.height);
-                    toMerge.forEach(layer => {
-                        if (layer) ctx.drawImage(layer, 0, 0);
+                    toMerge.forEach((layer) => {
+                        if (layer) {
+                            ctx.drawImage(layer, 0, 0);
+                        }
                     });
-                    
+
                 },
                 getCanvas: () => canvas
-            }
-        }
+            };
+        };
         if (this.screenshotCanvas) {
             this.screenshotCanvas.capture();
         } else {
@@ -869,15 +1010,17 @@ class Canvas {
             this.screenshotCanvas.init();
             this.screenshotCanvas.capture();
         }
-        let cv = this.screenshotCanvas.getCanvas();
-        let save = () => {
+        const cv = this.screenshotCanvas.getCanvas();
+        const save = () => {
             var x = cv.toDataURL(),
                 k = atob(x.split(",")[1]);
             x = x.split(",")[0].split(":")[1].split(";")[0];
-            let p = new Uint8Array(k.length);
-            for (let a = 0; a < k.length; a++) p[a] = k.charCodeAt(a);
-            let q = URL.createObjectURL(new Blob([p], {type: x})),
-            w = document.createElement("a");
+            const p = new Uint8Array(k.length);
+            for (let a = 0; a < k.length; a++) {
+                p[a] = k.charCodeAt(a);
+            }
+            const q = URL.createObjectURL(new Blob([p], {type: x})),
+                w = document.createElement("a");
             w.style.display = "none";
             w.setAttribute("download", "image.png");
             w.setAttribute("href", q);
@@ -891,7 +1034,9 @@ class Canvas {
         };
         if (localStorage.getItem("optCopyScreenshotsChecked") === "true" && navigator.clipboard && window.ClipboardItem) {
             cv.toBlob((blob) => {
-                if (!blob) return save();
+                if (!blob) {
+                    return save();
+                }
                 navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
                     .then(() => global.createMessage("Screenshot copied to clipboard!", 3_000))
                     .catch(() => save());
@@ -900,7 +1045,6 @@ class Canvas {
         }
         save();
     }
-
     // Touchscreen Controls
     touchStart(e) {
         e.preventDefault();
@@ -908,23 +1052,25 @@ class Canvas {
             this.respawn();
             global.resetTarget();
         } else {
-            for (let touch of e.changedTouches) {
-                let mpos = {
+            for (const touch of e.changedTouches) {
+                const mpos = {
                     x: touch.clientX * global.ratio,
-                    y: touch.clientY * global.ratio,
+                    y: touch.clientY * global.ratio
                 };
-                let id = touch.identifier;
+                const id = touch.identifier;
                 // Sandbox mobile keys has priority over ui while its open
-                let operatorKeyIndex = global.clickables.operatorKeys.check(mpos);
+                const operatorKeyIndex = global.clickables.operatorKeys.check(mpos);
                 if (operatorKeyIndex !== -1) {
-                   const heldKey = this.handleOperatorKeyboardTouch(operatorKeyIndex);
-                      if (heldKey) {
-                      if (!this.operatorKeyTouches) this.operatorKeyTouches = {};
+                    const heldKey = this.handleOperatorKeyboardTouch(operatorKeyIndex);
+                    if (heldKey) {
+                        if (!this.operatorKeyTouches) {
+                            this.operatorKeyTouches = {};
+                        }
                         this.operatorKeyTouches[id] = heldKey;
-                      }
+                    }
                     continue;
                 }
-                let buttonIndex = global.clickables.mobileButtons.check(mpos);
+                const buttonIndex = global.clickables.mobileButtons.check(mpos);
                 if (buttonIndex !== -1) {
                     switch (buttonIndex) {
                         case 0:
@@ -934,11 +1080,14 @@ class Canvas {
                             if (global.clickables.mobileButtons.active) {
                                 global.clickables.mobileButtons.altFire =
                                     !global.clickables.mobileButtons.altFire;
-                                if (!global.clickables.mobileButtons.altFire)
+                                if (!global.clickables.mobileButtons.altFire) {
                                     this.socket.cmd.set(6, false);
-                            } else if (global.isInverted)
+                                }
+                            } else if (global.isInverted) {
                                 (global.isInverted = false), this.socket.cmd.set(6, false);
-                            else (global.isInverted = true), this.socket.cmd.set(6, true);
+                            } else {
+                                (global.isInverted = true), this.socket.cmd.set(6, true);
+                            }
                             break;
                         case 2:
                             if (!document.fullscreenElement) {
@@ -989,22 +1138,27 @@ class Canvas {
                             throw new Error("Unknown button index.");
                     }
                 } else {
-                    let statIndex = global.clickables.stat.check(mpos);
-                    let exitGame = global.clickables.exitGame.check(mpos);
-                    let reconnectCheck = global.clickables.reconnect.check(mpos);
+                    const statIndex = global.clickables.stat.check(mpos);
+                    const exitGame = global.clickables.exitGame.check(mpos);
+                    const reconnectCheck = global.clickables.reconnect.check(mpos);
                     if (reconnectCheck !== -1) {
-                        if (global.disconnected) global.reconnect();
+                        if (global.disconnected) {
+                            global.reconnect();
+                        }
                     } else if (exitGame !== -1) {
-                        if (global.disconnected || global.died) global.exit();
-                    } else if (statIndex !== -1) this.socket.talk("x", statIndex, 0);
-                    else if (global.clickables.skipUpgrades.check(mpos) !== -1)
+                        if (global.disconnected || global.died) {
+                            global.exit();
+                        }
+                    } else if (statIndex !== -1) {
+                        this.socket.talk("x", statIndex, 0);
+                    } else if (global.clickables.skipUpgrades.check(mpos) !== -1) {
                         global.clearUpgrades();
-                    else {
-                        let upgradeIndex = global.clickables.upgrade.check(mpos);
-                        if (upgradeIndex !== -1 && !global.died)
+                    } else {
+                        const upgradeIndex = global.clickables.upgrade.check(mpos);
+                        if (upgradeIndex !== -1 && !global.died) {
                             this.socket.talk("U", upgradeIndex, parseInt(gui.upgrades[upgradeIndex][0]));
-                        else {
-                            let onLeft = mpos.x < this.cv.width / 2;
+                        } else {
+                            const onLeft = mpos.x < this.cv.width / 2;
                             if (this.movementTouch === null && onLeft) {
                                 this.movementTouch = id;
                             } else if (this.controlTouch === null && !onLeft) {
@@ -1020,25 +1174,25 @@ class Canvas {
     }
     touchMove(e) {
         e.preventDefault();
-        for (let touch of e.changedTouches) {
-            let mpos = {
+        for (const touch of e.changedTouches) {
+            const mpos = {
                 x: touch.clientX * global.ratio,
-                y: touch.clientY * global.ratio,
+                y: touch.clientY * global.ratio
             };
-            let id = touch.identifier;
+            const id = touch.identifier;
 
             if (this.movementTouch === id) {
-                let ratio = global.canvas.height / global.screenHeight / global.ratio;
-                let radius = Math.min(
+                const ratio = global.canvas.height / global.screenHeight / global.ratio;
+                const radius = Math.min(
                     global.screenWidth * 0.6,
                     global.screenHeight * 0.12
                 );
-                let cx = (mpos.x - (this.cv.width * 1) / 6) / ratio / 2;
-                let cy = (mpos.y - (this.cv.height * 2) / 3) / ratio / 2;
+                const cx = (mpos.x - (this.cv.width * 1) / 6) / ratio / 2;
+                const cy = (mpos.y - (this.cv.height * 2) / 3) / ratio / 2;
                 let touchX = cx;
                 let touchY = cy;
-                let r = Math.sqrt(cx ** 2 + cy ** 2);
-                let angle = Math.atan2(cy, cx);
+                const r = Math.sqrt(cx ** 2 + cy ** 2);
+                const angle = Math.atan2(cy, cx);
                 if (r > radius) {
                     touchX = Math.cos(angle) * radius;
                     touchY = Math.sin(angle) * radius;
@@ -1046,21 +1200,25 @@ class Canvas {
                 this.movementTouchPos = { x: touchX, y: touchY };
                 let x = mpos.x - (this.cv.width * 1) / 6;
                 let y = mpos.y - (this.cv.height * 2) / 3;
-                let norm = Math.sqrt(x * x + y * y);
+                const norm = Math.sqrt(x * x + y * y);
                 x /= norm;
                 y /= norm;
-                let amount = 0.38268323650898;
-                if (y < -amount !== this.movementTop)
+                const amount = 0.38268323650898;
+                if (y < -amount !== this.movementTop) {
                     this.socket.cmd.set(0, (this.movementTop = y < -amount));
-                if (y > amount !== this.movementBottom)
+                }
+                if (y > amount !== this.movementBottom) {
                     this.socket.cmd.set(1, (this.movementBottom = y > amount));
-                if (x < -amount !== this.movementLeft)
+                }
+                if (x < -amount !== this.movementLeft) {
                     this.socket.cmd.set(2, (this.movementLeft = x < -amount));
-                if (x > amount !== this.movementRight)
+                }
+                if (x > amount !== this.movementRight) {
                     this.socket.cmd.set(3, (this.movementRight = x > amount));
+                }
             } else if (this.controlTouch === id) {
                 global.mobileStatus.showCrosshair = true;
-                let ratio = global.canvas.height / global.screenHeight / global.ratio;
+                const ratio = global.canvas.height / global.screenHeight / global.ratio;
                 let radius = Math.min(
                     global.mobileStatus.useBigJoysticks ? global.screenWidth * 0.8 : global.screenWidth * 0.6,
                     global.mobileStatus.useBigJoysticks ? global.screenHeight * 0.16 : global.screenHeight * 0.12
@@ -1069,8 +1227,8 @@ class Canvas {
                 let cy = (mpos.y - (this.cv.height * 2) / 3) / ratio / 2;
                 let touchX = cx;
                 let touchY = cy;
-                let r = Math.sqrt(cx ** 2 + cy ** 2);
-                let angle = Math.atan2(cy, cx);
+                const r = Math.sqrt(cx ** 2 + cy ** 2);
+                const angle = Math.atan2(cy, cx);
                 if (r > radius) {
                     touchX = Math.cos(angle) * radius;
                     touchY = Math.sin(angle) * radius;
@@ -1079,12 +1237,18 @@ class Canvas {
                 radius = Math.min(
                     global.screenWidth * 0.12 / ratio,
                     global.screenHeight * 0.24 / ratio
-                )
+                );
                 if (!this.spinLock) {
-                    if (cx < -radius) cx = -radius;
-                    else if (cx > radius) cx = radius;
-                    if (cy < -radius) cy = -radius;
-                    else if (cy > radius) cy = radius;
+                    if (cx < -radius) {
+                        cx = -radius;
+                    } else if (cx > radius) {
+                        cx = radius;
+                    }
+                    if (cy < -radius) {
+                        cy = -radius;
+                    } else if (cy > radius) {
+                        cy = radius;
+                    }
                     this.target.x = ((cx / radius) * global.screenWidth) / 2;
                     this.target.y = ((cy / radius) * global.screenHeight) / 2;
                 }
@@ -1093,50 +1257,59 @@ class Canvas {
         global.mouse = this.target;
     }
     touchEnd(e) {
-    e.preventDefault();
-    for (let touch of e.changedTouches) {
-        let id = touch.identifier;
-        if (this.operatorKeyTouches && this.operatorKeyTouches[id]) {
-            global.handleOperatorKeyUp(this.operatorKeyTouches[id]);
-            delete this.operatorKeyTouches[id];
-        }
-        if (this.movementTouch === id) {
-            this.movementTouch = null;
-            this.movementTouchPos = { x: 0, y: 0 };
-            if (this.movementTop) this.socket.cmd.set(0, (this.movementTop = false));
-            if (this.movementBottom) this.socket.cmd.set(1, (this.movementBottom = false));
-            if (this.movementLeft) this.socket.cmd.set(2, (this.movementLeft = false));
-            if (this.movementRight) this.socket.cmd.set(3, (this.movementRight = false));
-        } else if (this.controlTouch === id) {
-            this.controlTouch = null;
-            this.controlTouchPos = { x: 0, y: 0 };
-            this.socket.cmd.set(4, false);
-            global.mobileStatus.showCrosshair = false;
+        e.preventDefault();
+        for (const touch of e.changedTouches) {
+            const id = touch.identifier;
+            if (this.operatorKeyTouches && this.operatorKeyTouches[id]) {
+                global.handleOperatorKeyUp(this.operatorKeyTouches[id]);
+                delete this.operatorKeyTouches[id];
+            }
+            if (this.movementTouch === id) {
+                this.movementTouch = null;
+                this.movementTouchPos = { x: 0, y: 0 };
+                if (this.movementTop) {
+                    this.socket.cmd.set(0, (this.movementTop = false));
+                }
+                if (this.movementBottom) {
+                    this.socket.cmd.set(1, (this.movementBottom = false));
+                }
+                if (this.movementLeft) {
+                    this.socket.cmd.set(2, (this.movementLeft = false));
+                }
+                if (this.movementRight) {
+                    this.socket.cmd.set(3, (this.movementRight = false));
+                }
+            } else if (this.controlTouch === id) {
+                this.controlTouch = null;
+                this.controlTouchPos = { x: 0, y: 0 };
+                this.socket.cmd.set(4, false);
+                global.mobileStatus.showCrosshair = false;
             }
         }
-   }
- 
+    }
     handleOperatorKeyboardTouch(index) {
-    if (index === 0) {
-        global.operatorKeyboard.open = !global.operatorKeyboard.open;
-        if (!global.operatorKeyboard.open) global.operatorKeyboard.prefix = null;
-        return null;
-    }
-    let flatIndex = index - 1;
-    for (let row of global.operatorKeyboardRows) {
-        if (flatIndex < row.length) {
-            const key = row[flatIndex];
-            const isHeld = global.handleOperatorKeyDown(key);
-            return isHeld ? key : null;
+        if (index === 0) {
+            global.operatorKeyboard.open = !global.operatorKeyboard.open;
+            if (!global.operatorKeyboard.open) {
+                global.operatorKeyboard.prefix = null;
+            }
+            return null;
         }
-        flatIndex -= row.length;
-    }
-    return null;
+        let flatIndex = index - 1;
+        for (const row of global.operatorKeyboardRows) {
+            if (flatIndex < row.length) {
+                const key = row[flatIndex];
+                const isHeld = global.handleOperatorKeyDown(key);
+                return isHeld ? key : null;
+            }
+            flatIndex -= row.length;
+        }
+        return null;
     }
     // Controller Controls
     runGamepad() {
-        let sendHelp = () => {
-            let helpLines = [
+        const sendHelp = () => {
+            const helpLines = [
                 "Control help menu:",
                 "Options button = Help Menu",
                 "RT / R2 = Fire",
@@ -1146,35 +1319,39 @@ class Canvas {
                 "A / X = Autofire",
                 "B / O = Autospin",
                 "X / ■ = Override",
-                "Y / ▲ = Take Control",
+                "Y / ▲ = Take Control"
             ];
             global.createMessage(JSON.stringify(helpLines), 15_000, true);
-        }
-        let gamepadControls = {
+        };
+        const gamepadControls = {
             A: 0,
             B: 0,
             X: 0,
             Y: 0,
-            help: 0,
-        }
+            help: 0
+        };
         global.gamepadMode = true;
         global.player.target = this.target;
         this.gamepadInterval = setInterval(() => {
-            let gamepads = navigator.getGamepads().find((x) => x !== null)
+            const gamepads = navigator.getGamepads().find((x) => x !== null);
             if (gamepads) {
                 this.gamepad = gamepads;
-            } else this.gamepad = undefined;
+            } else {
+                this.gamepad = undefined;
+            }
             if (this.gamepad) {
                 let angle = (p) => (p < this.gamepad.axes.length ? this.gamepad.axes[p] : 0);
-                let target = this.gamepad.axes.slice(0, 2).map((x) => Math.round(x))
+                const target = this.gamepad.axes.slice(0, 2).map((x) => Math.round(x));
                 var h = angle(2);
                 angle = angle(3);
                 if (0.01 < h * h + angle * angle) {
-                    let p = 0.6 * Math.max(global.screenWidth, global.screenHeight);
+                    const p = 0.6 * Math.max(global.screenWidth, global.screenHeight);
                     this.target.x = (h * p);
                     this.target.y = (angle * p);
                     global.mobileStatus.showCrosshair = true;
-                } else global.mobileStatus.showCrosshair = false;
+                } else {
+                    global.mobileStatus.showCrosshair = false;
+                }
                 /*for (let i = 0; i < this.gamepad.buttons.length; i++) { // If you want to add a button, uncomment this and get the array number.
                     let info = this.gamepad.buttons[i];
                     if (info.pressed) {
@@ -1187,43 +1364,43 @@ class Canvas {
                 }*/
                 // Button presses
                 if (this.gamepad.buttons[0].pressed) {
-                    gamepadControls.A++
+                    gamepadControls.A++;
                 } else {
                     gamepadControls.A = 0;
                 }
                 if (this.gamepad.buttons[1].pressed) {
-                    gamepadControls.B++
+                    gamepadControls.B++;
                 } else {
                     gamepadControls.B = 0;
                 }
                 if (this.gamepad.buttons[2].pressed) {
-                    gamepadControls.X++
+                    gamepadControls.X++;
                 } else {
                     gamepadControls.X = 0;
                 }
                 if (this.gamepad.buttons[3].pressed) {
-                    gamepadControls.Y++
+                    gamepadControls.Y++;
                 } else {
                     gamepadControls.Y = 0;
                 }
                 if (this.gamepad.buttons[9].pressed) {
-                    gamepadControls.help++
+                    gamepadControls.help++;
                 } else {
                     gamepadControls.help = 0;
                 }
                 if (gamepadControls.A === 1) {
                     this.socket.talk("t", 1, true);
                 }
-            
+
                 if (gamepadControls.B === 1) {
                     global.autoSpin = !global.autoSpin;
                     this.socket.talk("t", 0, true);
                 }
-            
+
                 if (gamepadControls.X === 1) {
                     this.socket.talk("t", 2, true);
                 }
-            
+
                 if (gamepadControls.Y === 1) {
                     this.socket.talk("H");
                 }
@@ -1233,7 +1410,7 @@ class Canvas {
                 }
                 // Shoot
                 if (this.gamepad.buttons[7].pressed) {
-        if (global.died && global.readyToRespawn && !global.cannotRespawn) {
+                    if (global.died && global.readyToRespawn && !global.cannotRespawn) {
                         this.socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp);
                         global.died = false;
                     } else {
@@ -1249,10 +1426,10 @@ class Canvas {
                     this.socket.cmd.set(6, false);
                 }
                 // Move body
-                let cx = 0;
-                let cy = 0;
-                let ex = target[0];
-                let ey = target[1];
+                const cx = 0;
+                const cy = 0;
+                const ex = target[0];
+                const ey = target[1];
                 if (ex > cx) {
                     this.socket.cmd.set(2, false);
                     this.socket.cmd.set(3, true);
@@ -1263,7 +1440,7 @@ class Canvas {
                     this.socket.cmd.set(2, false);
                     this.socket.cmd.set(3, false);
                 }
-                
+
                 if (ey > cy) {
                     this.socket.cmd.set(0, false);
                     this.socket.cmd.set(1, true);
@@ -1275,7 +1452,7 @@ class Canvas {
                     this.socket.cmd.set(1, false);
                 }
             }
-        }, 10)
+        }, 10);
         global.createMessage("Gamepad mode initalized and ready to use.");
         sendHelp();
     }
@@ -1291,4 +1468,4 @@ class Canvas {
         this.socket.cmd.set(6, false);
     }
 }
-export { Canvas }
+export { Canvas };

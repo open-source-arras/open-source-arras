@@ -1,7 +1,8 @@
-const { combineStats, LayeredBoss, setTurretProjectileRecoil } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
-const preset = require("../../presets.js");
+import { combineStats, LayeredBoss } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { drone, summoner, pounder, destroyer, battleship } from "../../gunvals.js";
+import { on } from "../../presets.js";
+import { Class } from "../../../../loaders/global.js";
 
 Class.eternal = {
     PARENT: "miniboss",
@@ -19,14 +20,14 @@ Class.eternal = {
         SPEED: base.SPEED * 0.15,
         DAMAGE: 18
     },
-    ON: [preset.on.retrograde_self_destruct]
+    ON: [on.retrograde_self_destruct]
 };
 
-let odin = new LayeredBoss(null, "Odin", "eternal", 11, "teal", "baseTrapTurret", 4.5, 3.5); // formerly Ragnarok
+const odin = new LayeredBoss(null, "Odin", "eternal", 11, "teal", "baseTrapTurret", 4.5, 3.5); // formerly Ragnarok
 odin.addLayer({gun: {
     POSITION: [2.25, 3.25, -1.6, 9, 0, null, 0],
     PROPERTIES: {
-        SHOOT_SETTINGS: combineStats([g.drone, g.summoner, g.pounder, g.destroyer, {speed: 1.25, maxSpeed: 1.25}]),
+        SHOOT_SETTINGS: combineStats([drone, summoner, pounder, destroyer, {speed: 1.25, maxSpeed: 1.25}]),
         TYPE: ["shamanDrone", {FACING_TYPE: ["spin", {speed: 0.2}], INDEPENDENT: true, DRAW_HEALTH: true, COLOR: "teal"}],
         AUTOFIRE: true,
         SYNCS_SKILLS: true
@@ -41,21 +42,21 @@ odin.addLayer({turret: {
     TYPE: "gunnerCruiserTurret"
 }}, true, 4.5);
 
-let kronos = new LayeredBoss(null, "Kronos", "eternal", 11, "veryLightGrey", "baseTrapTurret", 6, 5.5);
+const kronos = new LayeredBoss(null, "Kronos", "eternal", 11, "veryLightGrey", "baseTrapTurret", 6, 5.5);
 kronos.addLayer({turret: {
     POSITION: [6.5, 9, 0, null, 160, 0],
     TYPE: "kronosSkimmerTurret"
 }});
 kronos.addLayer({turret: {
     POSITION: [6.5, 9, 0, null, 160, 0],
-    TYPE: ["carrierTurret", {GUN_STAT_SCALE: g.battleship, COLOR: "mirror"}]
+    TYPE: ["carrierTurret", {GUN_STAT_SCALE: battleship, COLOR: "mirror"}]
 }}, true, 4);
 kronos.addLayer({turret: {
     POSITION: [8.5, 9, 0, null, 160, 0],
     TYPE: ["kronosTripletTurret", {GUN_STAT_SCALE: {health: 1.15, damage: 1.1, resist: 1.3, speed: 1.1, maxSpeed: 0.9}}]
 }}, true, 4);
 
-let amun = new LayeredBoss(null, "Amun", "eternal", 11, "darkGrey", "baseTrapTurret", 6, 5.5);
+const amun = new LayeredBoss(null, "Amun", "eternal", 11, "darkGrey", "baseTrapTurret", 6, 5.5);
 amun.addLayer({turret: {
     POSITION: [6, 9, 0, null, 160, 0],
     TYPE: "desmosTurret"

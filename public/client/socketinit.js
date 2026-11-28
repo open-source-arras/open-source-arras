@@ -23,14 +23,16 @@ const U_COLOR_TABLE = [
     "17 0 1 0 false", "18 0 1 0 false", "19 0 1 0 false", "#000000 0 1 0 false",
     "#96794E 0 1 0 false", "#226ef6 0 1 0 false", "#1c3766 0 1 0 false", "#ff1000 0 1 0 false",
     "#FFFFFF 0 1 0 false", "#5C533F 0 1 0 false", "#ff9000 0 1 0 false", "#f6c6a2 0 1 0 false",
-    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false",
+    "#F49EFF 0 1 0 false", "#fff 0 1 0 false", "#FF0000 0 1 0 false"
 ];
 const FALLBACK_COLOR = U_COLOR_TABLE[1];
-const decodeColor = value => typeof value === "number" ? (U_COLOR_TABLE[value] ?? FALLBACK_COLOR) : value;
+const decodeColor = (value) => typeof value === "number" ? (U_COLOR_TABLE[value] ?? FALLBACK_COLOR) : value;
 // Key table; must match the server.
-const MOCKUP_KEYS = ["index","name","x","y","color","strokeWidth","glow","radius","alpha","recursion","borderless","drawFill","shape","imageInterpolation","size","realSize","mirrorMasterAngle","sendAllMockups","position","axis","middle","rerootUpgradeTree","className","upgrades","tier","guns","offset","direction","length","width","aspect","angle","drawAbove","layer","turrets","props","statnames","body_damage","max_health","bullet_speed","bullet_health","bullet_pen","bullet_damage","reload","move_speed","shield_regen","shield_cap","sizeFactor","isProp","forceAngle","visibleOnBlackout","censor"];
-const decodeMockupVal = v => {
-    if (!Array.isArray(v)) return v;
+const MOCKUP_KEYS = ["index", "name", "x", "y", "color", "strokeWidth", "glow", "radius", "alpha", "recursion", "borderless", "drawFill", "shape", "imageInterpolation", "size", "realSize", "mirrorMasterAngle", "sendAllMockups", "position", "axis", "middle", "rerootUpgradeTree", "className", "upgrades", "tier", "guns", "offset", "direction", "length", "width", "aspect", "angle", "drawAbove", "layer", "turrets", "props", "statnames", "body_damage", "max_health", "bullet_speed", "bullet_health", "bullet_pen", "bullet_damage", "reload", "move_speed", "shield_regen", "shield_cap", "sizeFactor", "isProp", "forceAngle", "visibleOnBlackout", "censor"];
+const decodeMockupVal = (v) => {
+    if (!Array.isArray(v)) {
+        return v;
+    }
     if (v[0] === "o") {
         const o = {};
         for (let i = 1; i < v.length;) {
@@ -51,10 +53,14 @@ const expandRoom = ([cols, forms, runs], blackout) => {
         const f = forms[runs[r]];
         for (let k = 0; k < runs[r + 1]; k++) {
             row.push(blackout ? { color: f[0], visibleOnBlackout: f[1], image: f[2] } : { color: f[0], image: f[1] });
-            if (row.length === cols) { grid.push(row); row = []; }
+            if (row.length === cols) {
+                grid.push(row); row = [];
+            }
         }
     }
-    if (row.length) grid.push(row);
+    if (row.length) {
+        grid.push(row);
+    }
     return grid;
 };
 window.fakeLagMS = 0;
@@ -66,76 +72,77 @@ let deduction = 0;
 let level = 1;
 let kills = [0, 0, 0];
 let sscore = util.AdvancedSmoothBar(0, 2);
-let getNow = () => {
-    return Date.now() - clockDiff - serverStart;
-},
-startSettings = {
-    allowtostartgame: true,
-    neededtoresync: false,
-},
-gui = {
-    getStatNames: data => {
-        return [
-            data?.body_damage ?? "Body Damage",
-            data?.max_health ?? "Max Health",
-            data?.bullet_speed ?? "Bullet Speed",
-            data?.bullet_health ?? "Bullet Health",
-            data?.bullet_pen ?? "Bullet Penetration",
-            data?.bullet_damage ?? "Bullet Damage",
-            data?.reload ?? "Reload",
-            data?.move_speed ?? "Movement Speed",
-            data?.shield_regen ?? "Shield Regeneration",
-            data?.shield_cap ?? "Shield Capacity",
-        ]
+const getNow = () => {
+        return Date.now() - clockDiff - serverStart;
     },
-    skills: [
-        { amount: 0, color: "purple", cap: 1, softcap: 1 },
-        { amount: 0, color: "pink"  , cap: 1, softcap: 1 },
-        { amount: 0, color: "blue"  , cap: 1, softcap: 1 },
-        { amount: 0, color: "lgreen", cap: 1, softcap: 1 },
-        { amount: 0, color: "red"   , cap: 1, softcap: 1 },
-        { amount: 0, color: "yellow", cap: 1, softcap: 1 },
-        { amount: 0, color: "green" , cap: 1, softcap: 1 },
-        { amount: 0, color: "teal"  , cap: 1, softcap: 1 },
-        { amount: 0, color: "gold"  , cap: 1, softcap: 1 },
-        { amount: 0, color: "orange", cap: 1, softcap: 1 }
-    ],
-    points: 0,
-    upgrades: [],
-    playerid: -1,
-    __s: {
-        setScore: d => {
-            d ? (sscore.set(d), deduction > sscore.get() && (deduction = level = 0)) : (levelscore = 3, deduction = level = 0, sscore = util.AdvancedSmoothBar(0, 2))
-        },
-        setKills: (solo, assists, bosses) => {
-            kills = [solo, assists, bosses];
-        },
-        update: () => {
-            levelscore = Math.ceil(Math.pow(level, 3) * 0.3083);
-            levelscore = levelscore - deduction;
-            if (sscore.get() >= deduction + levelscore) deduction += levelscore, level++;
-            else if (sscore.get() < deduction) {
-                var d = level - 1;
-                deduction = Math.ceil(Math.pow(level, 3) * 0.3083);
-                deduction -= levelscore - deduction * d;
-                level--
-            }
-        },
-        getProgress: () => levelscore ? Math.min(1, Math.max(0, (sscore.get() - deduction) / levelscore)) : 0,
-        getScore: () => sscore.get(),
-        getLevel: () => level,
-        getKills: () => kills
+    startSettings = {
+        allowtostartgame: true,
+        neededtoresync: false
     },
-    type: 0,
-    root: "",
-    class: "",
-    visibleEntities: false,
-    dailyTank: {tank: null, ads: false},
-    fps: 0,
-    color: 0,
-    accel: 0,
-    topspeed: 1,
-};
+    gui = {
+        getStatNames: (data) => {
+            return [
+                data?.body_damage ?? "Body Damage",
+                data?.max_health ?? "Max Health",
+                data?.bullet_speed ?? "Bullet Speed",
+                data?.bullet_health ?? "Bullet Health",
+                data?.bullet_pen ?? "Bullet Penetration",
+                data?.bullet_damage ?? "Bullet Damage",
+                data?.reload ?? "Reload",
+                data?.move_speed ?? "Movement Speed",
+                data?.shield_regen ?? "Shield Regeneration",
+                data?.shield_cap ?? "Shield Capacity"
+            ];
+        },
+        skills: [
+            { amount: 0, color: "purple", cap: 1, softcap: 1 },
+            { amount: 0, color: "pink", cap: 1, softcap: 1 },
+            { amount: 0, color: "blue", cap: 1, softcap: 1 },
+            { amount: 0, color: "lgreen", cap: 1, softcap: 1 },
+            { amount: 0, color: "red", cap: 1, softcap: 1 },
+            { amount: 0, color: "yellow", cap: 1, softcap: 1 },
+            { amount: 0, color: "green", cap: 1, softcap: 1 },
+            { amount: 0, color: "teal", cap: 1, softcap: 1 },
+            { amount: 0, color: "gold", cap: 1, softcap: 1 },
+            { amount: 0, color: "orange", cap: 1, softcap: 1 }
+        ],
+        points: 0,
+        upgrades: [],
+        playerid: -1,
+        __s: {
+            setScore: (d) => {
+                d ? (sscore.set(d), deduction > sscore.get() && (deduction = level = 0)) : (levelscore = 3, deduction = level = 0, sscore = util.AdvancedSmoothBar(0, 2));
+            },
+            setKills: (solo, assists, bosses) => {
+                kills = [solo, assists, bosses];
+            },
+            update: () => {
+                levelscore = Math.ceil(Math.pow(level, 3) * 0.3083);
+                levelscore = levelscore - deduction;
+                if (sscore.get() >= deduction + levelscore) {
+                    deduction += levelscore, level++;
+                } else if (sscore.get() < deduction) {
+                    var d = level - 1;
+                    deduction = Math.ceil(Math.pow(level, 3) * 0.3083);
+                    deduction -= levelscore - deduction * d;
+                    level--;
+                }
+            },
+            getProgress: () => levelscore ? Math.min(1, Math.max(0, (sscore.get() - deduction) / levelscore)) : 0,
+            getScore: () => sscore.get(),
+            getLevel: () => level,
+            getKills: () => kills
+        },
+        type: 0,
+        root: "",
+        class: "",
+        visibleEntities: false,
+        dailyTank: {tank: null, ads: false},
+        fps: 0,
+        color: 0,
+        accel: 0,
+        topspeed: 1
+    };
 let xx = 0,
     yy = 0,
     _vx = 0,
@@ -149,31 +156,33 @@ var moveCompensation = {
         if (config.lag.unresponsive) {
             return {
                 x: 0,
-                y: 0,
+                y: 0
             };
         }
         return {
             x: xx,
-            y: yy,
+            y: yy
         };
     },
     iterate: (g) => {
-        if (global.died || global.gameStart) return 0;
+        if (global.died || global.gameStart) {
+            return 0;
+        }
         // Add motion
-        let damp = gui.accel / gui.topSpeed,
+        const damp = gui.accel / gui.topSpeed,
             len = Math.sqrt(g.x * g.x + g.y * g.y);
         _vx += gui.accel * g.x / len;
         _vy += gui.accel * g.y / len;
         // Dampen motion
-        let motion = Math.sqrt(_vx * _vx + _vy * _vy);
+        const motion = Math.sqrt(_vx * _vx + _vy * _vy);
         if (motion > 0 && damp) {
-            let finalvelocity = motion / (damp / config.roomSpeed + 1);
+            const finalvelocity = motion / (damp / config.roomSpeed + 1);
             _vx = finalvelocity * _vx / motion;
             _vy = finalvelocity * _vy / motion;
         }
         xx += _vx;
         yy += _vy;
-    },
+    }
 };
 const Integrate = class {
     constructor(dataLength) {
@@ -184,74 +193,82 @@ const Integrate = class {
         this.elements = {};
     }
     update(delta, index = 0) {
-        let deletedLength = delta[index++]
-        for (let i = 0; i < deletedLength; i++) delete this.elements[delta[index++]]
-        let updatedLength = delta[index++]
-        for (let i = 0; i < updatedLength; i++) {
-            let id = delta[index++]
-            let data = delta.slice(index, index + this.dataLength)
-            index += this.dataLength
-            this.elements[id] = data
+        const deletedLength = delta[index++];
+        for (let i = 0; i < deletedLength; i++) {
+            delete this.elements[delta[index++]];
         }
-        return index
+        const updatedLength = delta[index++];
+        for (let i = 0; i < updatedLength; i++) {
+            const id = delta[index++];
+            const data = delta.slice(index, index + this.dataLength);
+            index += this.dataLength;
+            this.elements[id] = data;
+        }
+        return index;
     }
     entries() {
         return Object.entries(this.elements).map(([id, data]) => ({
             id: +id,
             data
-        }))
+        }));
     }
-}
+};
 const Minimap = class {
     constructor(speed = 250) {
-        this.speed = speed
+        this.speed = speed;
         this.map = {};
         this.lastUpdate = Date.now();
     }
     update(elements) {
-        this.lastUpdate = Date.now()
-        for (let [key, value] of Object.entries(this.map))
+        this.lastUpdate = Date.now();
+        for (const [key, value] of Object.entries(this.map)) {
             if (value.now) {
-                value.old = value.now
-                value.now = null
+                value.old = value.now;
+                value.now = null;
             } else {
-                delete this.map[key]
+                delete this.map[key];
             }
-        for (let element of elements)
+        }
+        for (const element of elements) {
             if (this.map[element.id]) {
-                this.map[element.id].now = element
+                this.map[element.id].now = element;
             } else {
                 this.map[element.id] = {
                     old: null,
                     now: element
-                }
+                };
             }
+        }
     }
     get() {
-        let state = Math.min(1, (Date.now() - this.lastUpdate) / this.speed)
-        let stateOld = 1 - state
+        const state = Math.min(1, (Date.now() - this.lastUpdate) / this.speed);
+        const stateOld = 1 - state;
         return Object.values(this.map).map(({ old, now }) => {
-            if (!now) return {
-                type: old.type,
-                id: old.id,
-                x: old.x,
-                y: old.y,
-                color: old.color,
-                size: old.size,
-                alpha: stateOld,
-                width: old.width,
-                height: old.height
+            if (!now) {
+                return {
+                    type: old.type,
+                    id: old.id,
+                    x: old.x,
+                    y: old.y,
+                    color: old.color,
+                    size: old.size,
+                    alpha: stateOld,
+                    width: old.width,
+                    height: old.height
+                };
             }
-            if (!old) return {
-                type: now.type,
-                id: now.id,
-                x: now.x,
-                y: now.y,
-                color: now.color,
-                size: now.size,
-                alpha: state,
-                width: now.width,
-                height: now.height
+            if (!old) {
+                return {
+                    type: now.type,
+                    id: now.id,
+                    x: now.x,
+                    y: now.y,
+                    color: now.color,
+                    size: now.size,
+                    alpha: state,
+                    width: now.width,
+                    height: now.height
+                };
             }
             return {
                 type: now.type,
@@ -263,10 +280,10 @@ const Minimap = class {
                 alpha: 1,
                 width: state * now.width + stateOld * old.width,
                 height: state * now.height + stateOld * old.height
-            }
-        })
+            };
+        });
     }
-}
+};
 // Build the leaderboard object
 const Entry = class {
     constructor(to) {
@@ -277,13 +294,17 @@ const Entry = class {
     update(to) {
         this.name = to.name;
         this.bar = to.bar;
-        if (typeof to.bar === "string" && to.bar.includes(", ")) this.bar = +to.bar.split(", ")[0];
+        if (typeof to.bar === "string" && to.bar.includes(", ")) {
+            this.bar = +to.bar.split(", ")[0];
+        }
         this.color = to.color;
         this.index = to.index;
         if (this.isNew) {
             this.isNew = false;
             this.score.force(to.score);
-        } else this.score.set(to.score);
+        } else {
+            this.score.set(to.score);
+        }
         this.old = false;
         this.nameColor = to.nameColor;
         this.id = to.id;
@@ -295,7 +316,9 @@ const Entry = class {
         if (!this.published) {
             let indexes = this.index.split("-"),
                 ref = global.mockups[parseInt(indexes[0])];
-            if (!ref) ref = global.missingno[0];
+            if (!ref) {
+                ref = global.missingno[0];
+            }
 
             const label = config.game.dmcaMode && (ref.censor & 1) ? censorText(this.label) : this.label;
             this.published = {
@@ -304,9 +327,9 @@ const Entry = class {
                 image: util.requestEntityImage(this.index, this.color),
                 position: ref.position,
                 barColor: this.bar,
-                label: this.name ? this.name + " - " + label : label,
+                label: this.name ? `${this.name} - ${label}` : label,
                 nameColor: this.nameColor,
-                renderEntity: this.renderEntity,
+                renderEntity: this.renderEntity
             };
         }
         this.published.score = this.score.get();
@@ -318,12 +341,14 @@ const Leaderboard = class {
         this.entries = {};
     }
     get() {
-        let out = [];
+        const out = [];
         let max = 1;
-        for (let value of Object.values(this.entries)) {
-            let data = value.publish();
+        for (const value of Object.values(this.entries)) {
+            const data = value.publish();
             out.push(data);
-            if (data.score > max) max = data.score;
+            if (data.score > max) {
+                max = data.score;
+            }
         }
         out.sort((a, b) => b.score - a.score);
         return {
@@ -333,23 +358,32 @@ const Leaderboard = class {
     }
     update(elements) {
         elements.sort((a, b) => b.score - a.score);
-        for (let value of Object.values(this.entries)) value.old = true;
-        for (let element of elements)
-            if (this.entries[element.id]) this.entries[element.id].update(element);
-            else this.entries[element.id] = new Entry(element);
-        for (let [id, value] of Object.entries(this.entries))
-            if (value.old) delete this.entries[id];
+        for (const value of Object.values(this.entries)) {
+            value.old = true;
+        }
+        for (const element of elements) {
+            if (this.entries[element.id]) {
+                this.entries[element.id].update(element);
+            } else {
+                this.entries[element.id] = new Entry(element);
+            }
+        }
+        for (const [id, value] of Object.entries(this.entries)) {
+            if (value.old) {
+                delete this.entries[id];
+            }
+        }
     }
 };
-let minimapAllInt = new Integrate(5),
+const minimapAllInt = new Integrate(5),
     minimapTeamInt = new Integrate(3),
     leaderboardInt = new Integrate(8),
     leaderboard = new Leaderboard(),
     minimap = new Minimap(200);
-let lags = [];
+const lags = [];
 var lag = {
     get: () => lags.length ? lags.reduce((a, b) => a + b) / lags.length : 0,
-    add: l => {
+    add: (l) => {
         lags.push(l);
         if (lags.length > config.lag.memory) {
             lags.splice(0, 1);
@@ -375,7 +409,7 @@ const get = {
         crawlIndex = 0;
     },
     all: () => crawlData.slice(crawlIndex),
-    take: amount => {
+    take: (amount) => {
         crawlIndex += amount;
         if (crawlIndex > crawlData.length) {
             console.error(crawlData);
@@ -402,8 +436,8 @@ function physics(g) {
     }
 }
 // Some status manager constructors
-const GunContainer = n => {
-    let a = [];
+const GunContainer = (n) => {
+    const a = [];
     for (let i = 0; i < n; i++) {
         a.push({
             motion: 0,
@@ -420,14 +454,14 @@ const GunContainer = n => {
             angle: 0,
             direction: 0,
             offset: 0,
-            layer: 0,
+            layer: 0
         });
     }
     return {
-        getPositions: () => a.map(g => {
+        getPositions: () => a.map((g) => {
             return g.position;
         }),
-        getConfig: () => a.map(g => {
+        getConfig: () => a.map((g) => {
             return {
                 color: g.color,
                 borderless: g.borderless,
@@ -440,11 +474,11 @@ const GunContainer = n => {
                 aspect: g.aspect,
                 angle: g.angle,
                 direction: g.direction,
-                offset: g.offset,
+                offset: g.offset
             };
         }),
         setConfig: (ind, c) => {
-            let g = a[ind];
+            const g = a[ind];
             if (!g.configLoaded) {
                 g.configLoaded = true;
                 g.color = c.color;
@@ -466,24 +500,28 @@ const GunContainer = n => {
             }
         },
         update: () => {
-            for (let instance of a) {
+            for (const instance of a) {
                 physics(instance);
             }
         },
         fire: (i, power) => {
-            if (a[i].isUpdated) a[i].motion += Math.sqrt(power) / 20;
+            if (a[i].isUpdated) {
+                a[i].motion += Math.sqrt(power) / 20;
+            }
             a[i].isUpdated = false;
         },
-        length: a.length,
+        length: a.length
     };
 };
 function Status() {
     let statState = "normal",
         statTime = getNow();
     return {
-        set: val => {
+        set: (val) => {
             if (val !== statState || statState === "injured") {
-                if (statState !== "dying") statTime = getNow();
+                if (statState !== "dying") {
+                    statTime = getNow();
+                }
                 statState = val;
             }
         },
@@ -495,7 +533,7 @@ function Status() {
             return "#FFFFFF";
         },
         getBlend: () => {
-            let o = (statState === "normal" || statState === "dying") ? 0 : 1 - Math.min(1, (getNow() - statTime) / 80);
+            const o = (statState === "normal" || statState === "dying") ? 0 : 1 - Math.min(1, (getNow() - statTime) / 80);
             if (getNow() - statTime > 500 && statState === "injured") {
                 statState = "normal";
             }
@@ -507,7 +545,7 @@ function Status() {
 const process = (z = {}) => {
     let isNew = z.facing == null; // For whatever reason arguments.length is uglified poorly...
     // Figure out what kind of data we're looking at
-    let type = get.next();
+    const type = get.next();
     // Handle it appropiately
     if (type & 0x01) { // issa turret
         z.facing = get.next();
@@ -525,7 +563,7 @@ const process = (z = {}) => {
         z.interval = global.metrics.rendergap;
         z.id = get.next();
         // Determine if this is an new entity or if we already know about it
-        let i = global.entities.findIndex(x => x.id === z.id);
+        const i = global.entities.findIndex((x) => x.id === z.id);
         if (i !== -1) {
             // remove it if needed (this way we'll only be left with the dead/unused entities)
             z = global.entities.splice(i, 1)[0];
@@ -550,7 +588,7 @@ const process = (z = {}) => {
             z.vx = get.next();
             z.vy = get.next();
             z.size = get.next();
-            let oldFacing = z.facing;
+            const oldFacing = z.facing;
             z.facing = get.next();
             z.vfacing = isNew ? z.facing : z.facing - oldFacing;
             z.vfacing = get.next();
@@ -563,7 +601,7 @@ const process = (z = {}) => {
             z.vx = get.next();
             z.vy = get.next();
             z.size = get.next();
-            let oldFacing = z.facing;
+            const oldFacing = z.facing;
             z.facing = get.next();
             z.vfacing = isNew ? z.facing : z.facing - oldFacing;
             z.vfacing = get.next();
@@ -573,14 +611,14 @@ const process = (z = {}) => {
             z.borderless = get.next();
             z.drawFill = get.next();
         }
-        let invuln = type & 0x10 ? 0 : get.next();
+        const invuln = type & 0x10 ? 0 : get.next();
         z.invuln = invuln ? z.invuln || Date.now() : 0;
         // Update health, flagging as injured if needed
         if (isNew) {
             z.health = get.next() / 65535;
             z.shield = get.next() / 65535;
         } else {
-            let hh = z.health,
+            const hh = z.health,
                 ss = z.shield;
             z.health = get.next() / 65535;
             z.shield = get.next() / 65535;
@@ -593,8 +631,8 @@ const process = (z = {}) => {
             }
         }
         z.alpha = get.next() / 255;
-        let hit = get.next();
-        z.drawsHealth = !!(type & 0x02); // force to boolean
+        const hit = get.next();
+        z.drawsHealth = Boolean(type & 0x02); // force to boolean
         // Nameplates
         if (type & 0x04) { // has a nameplate
             z.name = get.next();
@@ -625,7 +663,7 @@ const process = (z = {}) => {
                 shield: util.AdvancedSmoothBar(z.shield, 0.06, 1),
                 xAnim: new util.animBar(),
                 yAnim: new util.animBar(),
-                faceAnim: new util.animBar(true),
+                faceAnim: new util.animBar(true)
             };
         }
         if (invuln) {
@@ -640,19 +678,23 @@ const process = (z = {}) => {
         z.render.xAnim.add(z.x);
         z.render.yAnim.add(z.y);
         z.render.faceAnim.add(z.facing);
-        if (hit) z.render.status.set("injured");
+        if (hit) {
+            z.render.status.set("injured");
+        }
         // Figure out if the class changed (and if so, refresh the guns and turrets)
-        if (!isNew && z.oldIndex !== z.index) isNew = true;
+        if (!isNew && z.oldIndex !== z.index) {
+            isNew = true;
+        }
         z.oldIndex = z.index;
     }
     // If it needs to have a gun container made, make one
-    let gunnumb = get.next();
+    const gunnumb = get.next();
     if (isNew || gunnumb !== z.guns.length) {
         z.guns = GunContainer(gunnumb);
     }
     // Decide if guns need to be fired one by one
     for (let i = 0; i < gunnumb; i++) {
-        let time = get.next(),
+        const time = get.next(),
             power = get.next(),
             color = decodeColor(get.next()),
             alpha = get.next(),
@@ -668,10 +710,12 @@ const process = (z = {}) => {
             offset = get.next(),
             layer = get.next();
         z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer}); // Load gun config into container
-        if (time > global.player.lastUpdate - global.metrics.rendergap) z.guns.fire(i, power); // Shoot it
+        if (time > global.player.lastUpdate - global.metrics.rendergap) {
+            z.guns.fire(i, power);
+        } // Shoot it
     }
     // Update turrets
-    let turnumb = get.next();
+    const turnumb = get.next();
     if (isNew || z.turrets.length !== turnumb) {
         z.turrets = [];
         for (let i = 0; i < turnumb; i++) {
@@ -694,13 +738,13 @@ const killEntity = (e, output) => {
         output.push(e);
     } else {
         if (global.chats[e.id]) {
-            for (let o of global.chats[e.id]) {
+            for (const o of global.chats[e.id]) {
                 util.remove(global.chats[e.id], global.chats[e.id].indexOf(o));
             };
             delete global.chats[e.id];
         };
         if (e.render.textobjs != null) {
-            for (let o of e.render.textobjs) {
+            for (const o of e.render.textobjs) {
                 o.remove();
             }
         }
@@ -716,7 +760,7 @@ const patch = (z, mask) => {
             z.render.lastx = z.x;
             z.render.lasty = z.y;
         }
-        let x = get.next(),
+        const x = get.next(),
             y = get.next();
         if (z) {
             z.x = x;
@@ -728,7 +772,7 @@ const patch = (z, mask) => {
             z.render.lastvx = z.vx;
             z.render.lastvy = z.vy;
         }
-        let vx = get.next(),
+        const vx = get.next(),
             vy = get.next();
         if (z) {
             z.vx = vx;
@@ -736,15 +780,17 @@ const patch = (z, mask) => {
         }
     }
     if (mask & 0x0004) {
-        let size = get.next();
+        const size = get.next();
         if (z) {
             z.size = size;
             z.render.size.add(z.size);
         }
     }
     if (mask & 0x0008) {
-        if (z) z.render.lastf = z.facing;
-        let facing = get.next(),
+        if (z) {
+            z.render.lastf = z.facing;
+        }
+        const facing = get.next(),
             vfacing = get.next();
         if (z) {
             z.facing = facing;
@@ -752,10 +798,10 @@ const patch = (z, mask) => {
         }
     }
     if (mask & 0x0010) {
-        let health = get.next() / 65535,
+        const health = get.next() / 65535,
             shield = get.next() / 65535;
         if (z) {
-            let hh = z.health,
+            const hh = z.health,
                 ss = z.shield;
             z.health = health;
             z.shield = shield;
@@ -769,43 +815,58 @@ const patch = (z, mask) => {
         }
     }
     if (mask & 0x0020) {
-        let alpha = get.next() / 255;
-        if (z) z.alpha = alpha;
+        const alpha = get.next() / 255;
+        if (z) {
+            z.alpha = alpha;
+        }
     }
     if (mask & 0x0040) {
         // bit0 twiggle, bit1 invuln, bit2 borderless, bit3 drawFill
-        let flags = get.next();
+        const flags = get.next();
         if (z) {
-            z.twiggle = !!(flags & 1);
+            z.twiggle = Boolean(flags & 1);
             z.invuln = (flags & 2) ? (z.invuln || Date.now()) : 0;
-            z.borderless = !!(flags & 4);
-            z.drawFill = !!(flags & 8);
-            if (flags & 2) z.render.status.set("invuln");
-            else if (z.render.status.getState() === "invuln") z.render.status.set("normal");
+            z.borderless = Boolean(flags & 4);
+            z.drawFill = Boolean(flags & 8);
+            if (flags & 2) {
+                z.render.status.set("invuln");
+            } else if (z.render.status.getState() === "invuln") {
+                z.render.status.set("normal");
+            }
         }
     }
     if (mask & 0x0080) {
-        let color = decodeColor(get.next());
-        if (z) z.color = color;
+        const color = decodeColor(get.next());
+        if (z) {
+            z.color = color;
+        }
     }
     if (mask & 0x0100) {
-        let name = get.next();
-        if (z) z.name = name;
+        const name = get.next();
+        if (z) {
+            z.name = name;
+        }
     }
     if (mask & 0x0200) {
-        let score = get.next();
-        if (z) z.score = score;
+        const score = get.next();
+        if (z) {
+            z.score = score;
+        }
     }
     if (mask & 0x0400) {
-        let layer = get.next();
-        if (z) z.layer = layer;
+        const layer = get.next();
+        if (z) {
+            z.layer = layer;
+        }
     }
     if (mask & 0x0800) {
-        let gunnumb = get.next();
-        if (z && gunnumb !== z.guns.length) z.guns = GunContainer(gunnumb);
+        const gunnumb = get.next();
+        if (z && gunnumb !== z.guns.length) {
+            z.guns = GunContainer(gunnumb);
+        }
         for (let i = 0; i < gunnumb; i++) {
-            let gunMask = get.next();
-            let time = gunMask & 0x0001 ? get.next() : 0,
+            const gunMask = get.next();
+            const time = gunMask & 0x0001 ? get.next() : 0,
                 power = gunMask & 0x0002 ? get.next() : 0,
                 color = gunMask & 0x0004 ? decodeColor(get.next()) : "",
                 alpha = gunMask & 0x0008 ? get.next() : 1,
@@ -822,29 +883,41 @@ const patch = (z, mask) => {
                 layer = gunMask & 0x4000 ? get.next() : 0;
             if (z) {
                 z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer});
-                if (time > global.player.lastUpdate - global.metrics.rendergap) z.guns.fire(i, power);
+                if (time > global.player.lastUpdate - global.metrics.rendergap) {
+                    z.guns.fire(i, power);
+                }
             }
         }
     }
     if (mask & 0x1000) {
         const turnumb = get.next();
         const rebuild = !z || z.turrets.length !== turnumb;
-        if (z && rebuild) z.turrets = [];
+        if (z && rebuild) {
+            z.turrets = [];
+        }
         for (let i = 0; i < turnumb; i++) {
             const tflag = get.next();
             if (tflag === 1) {
                 const facing = get.next();
-                if (z && !rebuild) z.turrets[i].facing = facing;
+                if (z && !rebuild) {
+                    z.turrets[i].facing = facing;
+                }
             } else if (tflag === 2) {
-                if (!z) process();
-                else if (rebuild) z.turrets.push(process());
-                else z.turrets[i] = process(z.turrets[i]);
+                if (!z) {
+                    process();
+                } else if (rebuild) {
+                    z.turrets.push(process());
+                } else {
+                    z.turrets[i] = process(z.turrets[i]);
+                }
             }
         }
     }
     if (mask & 0x2000) {
-        let hit = get.next();
-        if (z && hit) z.render.status.set("injured");
+        const hit = get.next();
+        if (z && hit) {
+            z.render.status.set("injured");
+        }
     }
     if (z) {
         z.render.xAnim.add(z.x);
@@ -854,39 +927,51 @@ const patch = (z, mask) => {
 };
 // This is what we use to figure out what the hell the server is telling us to look at
 const convert = {
-    begin: data => get.set(data),
+    begin: (data) => get.set(data),
     // Make a data convertor
     data: () => {
-        let output = [];
+        const output = [];
         for (let i = 0, len = get.next(); i < len; i++) {
             output.push(process());
         }
         for (let i = 0, len = get.next(); i < len; i++) {
-            let id = get.next(),
+            const id = get.next(),
                 mask = get.next(),
-                index = global.entities.findIndex(x => x.id === id),
+                index = global.entities.findIndex((x) => x.id === id),
                 z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
             patch(z, mask);
-            if (z) output.push(z);
+            if (z) {
+                output.push(z);
+            }
         }
         for (let i = 0, len = get.next(); i < len; i++) {
-            let id = get.next();
-            let index = global.entities.findIndex(x => x.id === id);
-            if (index !== -1) killEntity(global.entities.splice(index, 1)[0], output);
+            const id = get.next();
+            const index = global.entities.findIndex((x) => x.id === id);
+            if (index !== -1) {
+                killEntity(global.entities.splice(index, 1)[0], output);
+            }
         }
-        for (let e of global.entities) if (e.render.status.getFade() !== 0) output.push(e);
+        for (const e of global.entities) {
+            if (e.render.status.getFade() !== 0) {
+                output.push(e);
+            }
+        }
         // Save the new entities list
         global.entities = output;
         global.entities.sort((a, b) => {
             let sort = a.layer - b.layer;
-            if (!sort) sort = b.id - a.id;
-            if (!sort) throw new Error("tha fuq is up now");
+            if (!sort) {
+                sort = b.id - a.id;
+            }
+            if (!sort) {
+                throw new Error("tha fuq is up now");
+            }
             return sort;
         });
     },
     // Define our gui convertor
     gui: () => {
-        let index = get.next(),
+        const index = get.next(),
             // Translate the encoded index
             indices = {
                 dailyTank: index & 0x1000,
@@ -901,7 +986,7 @@ const convert = {
                 points: index & 0x0008,
                 score: index & 0x0004,
                 label: index & 0x0002,
-                fps: index & 0x0001,
+                fps: index & 0x0001
             };
         // Operate only on the values provided
         if (indices.fps) {
@@ -913,7 +998,7 @@ const convert = {
             gui.playerid = get.next();
         }
         if (indices.score) {
-            let score = JSON.parse(get.next());
+            const score = JSON.parse(get.next());
             gui.__s.setScore(score[0]);
             gui.__s.setKills(score[1], score[2], score[3]);
         }
@@ -935,12 +1020,12 @@ const convert = {
             }
         }
         if (indices.skills) {
-            let skk = get.next();
-            gui.skills[0].amount = parseInt(skk.slice( 0,  2), 16);
-            gui.skills[1].amount = parseInt(skk.slice( 2,  4), 16);
-            gui.skills[2].amount = parseInt(skk.slice( 4,  6), 16);
-            gui.skills[3].amount = parseInt(skk.slice( 6,  8), 16);
-            gui.skills[4].amount = parseInt(skk.slice( 8, 10), 16);
+            const skk = get.next();
+            gui.skills[0].amount = parseInt(skk.slice(0,  2), 16);
+            gui.skills[1].amount = parseInt(skk.slice(2,  4), 16);
+            gui.skills[2].amount = parseInt(skk.slice(4,  6), 16);
+            gui.skills[3].amount = parseInt(skk.slice(6,  8), 16);
+            gui.skills[4].amount = parseInt(skk.slice(8, 10), 16);
             gui.skills[5].amount = parseInt(skk.slice(10, 12), 16);
             gui.skills[6].amount = parseInt(skk.slice(12, 14), 16);
             gui.skills[7].amount = parseInt(skk.slice(14, 16), 16);
@@ -963,22 +1048,23 @@ const convert = {
             gui.visibleEntities = get.next();
         }
         if (indices.dailyTank) {
-            let dailyTank = JSON.parse(get.next());
-            if (!dailyTank[0]) gui.dailyTank = {tank: null, ads: false};
-            else {
+            const dailyTank = JSON.parse(get.next());
+            if (!dailyTank[0]) {
+                gui.dailyTank = {tank: null, ads: false};
+            } else {
                 gui.dailyTank.tank = dailyTank[0];
                 gui.dailyTank.ads = dailyTank[1];
             }
         }
     },
     broadcast: () => {
-        let all = get.all();
+        const all = get.all();
         let by = minimapAllInt.update(all);
         by = minimapTeamInt.update(all, by);
         by = leaderboardInt.update(all, by);
         get.take(by);
-        let map = [];
-        for (let {
+        const map = [];
+        for (const {
             id,
             data
         } of minimapAllInt.entries()) {
@@ -991,7 +1077,7 @@ const convert = {
                 size: data[4]
             });
         }
-        for (let {
+        for (const {
             id,
             data
         } of minimapTeamInt.entries()) {
@@ -1005,8 +1091,8 @@ const convert = {
             });
         }
         minimap.update(map);
-        let entries = [];
-        for (let {
+        const entries = [];
+        for (const {
             id,
             data
         } of leaderboardInt.entries()) {
@@ -1019,8 +1105,8 @@ const convert = {
                 bar: decodeColor(data[4]),
                 nameColor: decodeColor(data[5]),
                 label: data[6],
-                renderEntity: data[7],
-            })
+                renderEntity: data[7]
+            });
         }
         leaderboard.update(entries);
     }
@@ -1030,13 +1116,13 @@ const protocols = {
     "http:": "ws://",
     "https:": "wss://"
 };
-let incoming = async function(message, socket) {
+const incoming = async function(message, socket) {
     global.metrics.lastPacketTime = Date.now();
-    await new Promise(Resolve => setTimeout(Resolve, window.fakeLagMS));
+    await new Promise((Resolve) => setTimeout(Resolve, window.fakeLagMS));
     // Make sure it looks legit.
     global.bandwidth.currentFa += message.data.byteLength;
     global.bandwidth.totalFa += message.data.byteLength;
-    let m = protocol.decode(message.data);
+    const m = protocol.decode(message.data);
     if (m === -1) {
         throw new Error("Malformed packet.");
     }
@@ -1051,49 +1137,52 @@ let incoming = async function(message, socket) {
                     socket.talk("p", payload);
                 };
                 socket.commandCycle = setInterval(() => {
-                    if (socket.cmd.check()) socket.cmd.talk();
+                    if (socket.cmd.check()) {
+                        socket.cmd.talk();
+                    }
                 });
             }
         }; break;
 
 
-            case "w": { // welcome to the game
-                socket.welcomeReceived = true;
-                if (m[0]) { // Ask to get the room data first
-                    socket.talk("s", "", 1, 0, false, 0);
-                }
-            }; break;
-            case "R": { // room setup
-                global.gameWidth = m[0];
-                global.gameHeight = m[1];
-                global.player.roomAnim.x.add(m[0]);
-                global.player.roomAnim.y.add(m[1]);
-                global.roomSetup = expandRoom(JSON.parse(m[2]), true);
-                serverStart = JSON.parse(m[3]);
-                global.serverStart = serverStart;
-                config.roomSpeed = m[4];
-                let blackoutData = JSON.parse(m[5]);
-                global.advanced.blackout.active = blackoutData.active;
-                global.advanced.blackout.color = blackoutData.color;
-                global.advanced.roundArena = m[6];
-                config.game.instantRespawn = m[7];
-                // Start syncing
-                socket.talk("S", getNow());
-            } break;
-            case "r": {
-                global.gameWidth = m[0];
-                global.gameHeight = m[1];
-                global.player.roomAnim.x.add(m[0]);
-                global.player.roomAnim.y.add(m[1]);
-                global.roomSetup = expandRoom(JSON.parse(m[2]), false);
-            } break;
-            case "ru": {
-                let x = m[0], y = m[1];
-                if (global.roomSetup[y] && global.roomSetup[y][x]) {
-                    global.roomSetup[y][x].color = m[2];
-                    global.roomSetup[y][x].image = m[3];
-                }
-            } break;
+        case "w": { // welcome to the game
+            socket.welcomeReceived = true;
+            if (m[0]) { // Ask to get the room data first
+                socket.talk("s", "", 1, 0, false, 0);
+            }
+        }; break;
+        case "R": { // room setup
+            global.gameWidth = m[0];
+            global.gameHeight = m[1];
+            global.player.roomAnim.x.add(m[0]);
+            global.player.roomAnim.y.add(m[1]);
+            global.roomSetup = expandRoom(JSON.parse(m[2]), true);
+            serverStart = JSON.parse(m[3]);
+            global.serverStart = serverStart;
+            config.roomSpeed = m[4];
+            const blackoutData = JSON.parse(m[5]);
+            global.advanced.blackout.active = blackoutData.active;
+            global.advanced.blackout.color = blackoutData.color;
+            global.advanced.roundArena = m[6];
+            config.game.instantRespawn = m[7];
+            // Start syncing
+            socket.talk("S", getNow());
+        } break;
+        case "r": {
+            global.gameWidth = m[0];
+            global.gameHeight = m[1];
+            global.player.roomAnim.x.add(m[0]);
+            global.player.roomAnim.y.add(m[1]);
+            global.roomSetup = expandRoom(JSON.parse(m[2]), false);
+        } break;
+        case "ru": {
+            const x = m[0],
+                y = m[1];
+            if (global.roomSetup[y] && global.roomSetup[y][x]) {
+                global.roomSetup[y][x].color = m[2];
+                global.roomSetup[y][x].image = m[3];
+            }
+        } break;
             /*
                 TODO:
                 - Display ban ID when trying to connect under any of these circumstances (right now just a "XXXXXXXX" placeholder)
@@ -1101,85 +1190,89 @@ let incoming = async function(message, socket) {
                 - Each IP ban generates a different code, each temp/perm ban uses the same one from the ban it's referring to
                 - Try to avoid duplicate ban IDs just in case of a 1 in 4 billion chance
             */
-            case "ipBan": {
-                global.message = `Your network has been flagged and is currently restricted.\nIf you are using a VPN or proxy, please turn it off.\nIf you are not using a VPN or proxy of any kind, please contact support at [DISCORD LINK HERE].\nConnection ID: C-${"XXXXXXXX"}`;
-            } break;
-            case "temporaryBan": {
-                global.message = `You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.\nBan ID: B-${"XXXXXXXX"}`;
-            } break;
-            case "tempModBan": {
-                global.message = `You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.\nBan ID: M-${"XXXXXXXX"}`;
-            } break;
-            case "permanentBan": {
-                global.message = `You have been permanently banned from the game.\nReason: \nBan ID: U-${"XXXXXXXX"}`;
-            } break;
-            case "svInfo": {
-                // For debugging.
-                global.serverStats.serverGamemodeName = m[0];
-                global.serverStats.mspt = m[1];
-                if (global.showDebug) console.log(`mspt: ${global.serverStats.mspt} total entities on screen: ${global.entities.length} Player X: ${(global.player.renderx).toFixed(1)} Player Y: ${(global.player.rendery).toFixed(1)}`);
-            } break;
-            case "gSvInfo": {
-                global.serverStats.players = m[1];
-            } break;
-            case "c": { // force camera move
-                global.player.renderx = global.player.cx.x = m[0];
-                global.player.rendery = global.player.cy.y = m[1];
-                global.player.renderv = global.player.view = m[2];
-                global.player.isAiming = global.player.isScoping = false;
-                global.player.scopeSettle = 0;
-                global.player.animX.add(m[0]);
-                global.player.animY.add(m[1]);
-            } break;
-            case "S": { // clock syncing
-                let clientTime = m[0],
-                    serverTime = m[1],
-                    laten = (getNow() - clientTime) / 2,
-                    delta = getNow() - laten - serverTime;
+        case "ipBan": {
+            global.message = `Your network has been flagged and is currently restricted.\nIf you are using a VPN or proxy, please turn it off.\nIf you are not using a VPN or proxy of any kind, please contact support at [DISCORD LINK HERE].\nConnection ID: C-${"XXXXXXXX"}`;
+        } break;
+        case "temporaryBan": {
+            global.message = `You have been temporarily banned from the game.\nYou will be able to rejoin after a server restart.\nBan ID: B-${"XXXXXXXX"}`;
+        } break;
+        case "tempModBan": {
+            global.message = `You have been temporarily banned by a game moderator.\nYou will be able to rejoin after a server restart.\nBan ID: M-${"XXXXXXXX"}`;
+        } break;
+        case "permanentBan": {
+            global.message = `You have been permanently banned from the game.\nReason: \nBan ID: U-${"XXXXXXXX"}`;
+        } break;
+        case "svInfo": {
+            // For debugging.
+            global.serverStats.serverGamemodeName = m[0];
+            global.serverStats.mspt = m[1];
+            if (global.showDebug) {
+                console.log(`mspt: ${global.serverStats.mspt} total entities on screen: ${global.entities.length} Player X: ${(global.player.renderx).toFixed(1)} Player Y: ${(global.player.rendery).toFixed(1)}`);
+            }
+        } break;
+        case "gSvInfo": {
+            global.serverStats.players = m[1];
+        } break;
+        case "c": { // force camera move
+            global.player.renderx = global.player.cx.x = m[0];
+            global.player.rendery = global.player.cy.y = m[1];
+            global.player.renderv = global.player.view = m[2];
+            global.player.isAiming = global.player.isScoping = false;
+            global.player.scopeSettle = 0;
+            global.player.animX.add(m[0]);
+            global.player.animY.add(m[1]);
+        } break;
+        case "S": { // clock syncing
+            const clientTime = m[0],
+                serverTime = m[1],
+                laten = (getNow() - clientTime) / 2,
+                delta = getNow() - laten - serverTime;
                 // Add the datapoint to the syncing data
-                sync.push({
-                    delta: delta,
-                    latency: laten,
-                });
-                // Do it again a couple times
-                if (sync.length < 10) {
-                    // Erase entities if resync is needed.
-                    if (startSettings.neededtoresync) global.entities = [];
-                    // Wait a bit just to space things out
-                    setTimeout(() => socket.talk("S", getNow()), 10);
-                } else {
-                    // Calculate the clock error
-                    sync.sort((e, f) => e.latency - f.latency);
-                    let median = sync[Math.floor(sync.length / 2)].latency;
-                    let sd = 0,
-                        sum = 0,
-                        valid = 0;
-                    for (let e of sync) {
-                        sd += Math.pow(e.latency - median, 2);
-                    }
-                    sd = Math.sqrt(sd / sync.length);
-                    for (let e of sync) {
-                        if (Math.abs(e.latency - median) < sd) {
-                            sum += e.delta;
-                            valid++;
-                        }
-                    }
-                    clockDiff = Math.round(sum / valid);
-                    if (startSettings.neededtoresync) {
-                        startSettings.neededtoresync = false;
-                        startSettings.allowtostartgame = true;
-                        global.pullSkillBar = false;
-                        global.pullUpgradeMenu = false;
-                        socket.talk("NWB"); // Ask for new broadcast.
-                    }
-                    global.metrics.rendertimes = 1;
-                    util.pullTotalPlayers();
-                    global.gameUpdate = true;
-                    // Now we can ask for spawn.
-                    socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, global.bodyID ? global.bodyID : false, 1 * config.game.incognitoMode);
-                    global.bodyID = undefined;
+            sync.push({
+                delta: delta,
+                latency: laten
+            });
+            // Do it again a couple times
+            if (sync.length < 10) {
+                // Erase entities if resync is needed.
+                if (startSettings.neededtoresync) {
+                    global.entities = [];
                 }
-            } break;
+                // Wait a bit just to space things out
+                setTimeout(() => socket.talk("S", getNow()), 10);
+            } else {
+                // Calculate the clock error
+                sync.sort((e, f) => e.latency - f.latency);
+                const median = sync[Math.floor(sync.length / 2)].latency;
+                let sd = 0,
+                    sum = 0,
+                    valid = 0;
+                for (const e of sync) {
+                    sd += Math.pow(e.latency - median, 2);
+                }
+                sd = Math.sqrt(sd / sync.length);
+                for (const e of sync) {
+                    if (Math.abs(e.latency - median) < sd) {
+                        sum += e.delta;
+                        valid++;
+                    }
+                }
+                clockDiff = Math.round(sum / valid);
+                if (startSettings.neededtoresync) {
+                    startSettings.neededtoresync = false;
+                    startSettings.allowtostartgame = true;
+                    global.pullSkillBar = false;
+                    global.pullUpgradeMenu = false;
+                    socket.talk("NWB"); // Ask for new broadcast.
+                }
+                global.metrics.rendertimes = 1;
+                util.pullTotalPlayers();
+                global.gameUpdate = true;
+                // Now we can ask for spawn.
+                socket.talk("s", global.playerName, 0, 1 * config.game.autoLevelUp, global.bodyID ? global.bodyID : false, 1 * config.game.incognitoMode);
+                global.bodyID = undefined;
+            }
+        } break;
         case "m": { // message
             global.createMessage(m[1], m[0]);
         } break;
@@ -1194,14 +1287,16 @@ let incoming = async function(message, socket) {
             global.cached = {};
         } break;
         case "M": {
-            if (!m[1]) return;
+            if (!m[1]) {
+                return;
+            }
             const raw = JSON.parse(m[1]);
             global.mockups[m[0]] = Array.isArray(raw) ? decodeMockupVal(raw) : raw;
         } break;
         case "u": { // uplink
             // Pull the camera info
             if (m[0] == true) { // Update camera only if we want to.
-                let camx = m[1],
+                const camx = m[1],
                     camy = m[2];
                 global.player.cx.x = camx;
                 global.player.cy.y = camy;
@@ -1210,7 +1305,7 @@ let incoming = async function(message, socket) {
                 global.player.animY.add(m[2]);
                 return;
             }
-            let camtime = m[0],
+            const camtime = m[0],
                 camx = m[1],
                 camy = m[2],
                 camfov = m[3],
@@ -1220,7 +1315,7 @@ let incoming = async function(message, socket) {
                 // We'll have to do protocol decoding on the remaining data
                 theshit = m.slice(7);
                 // More stuff
-                let defaultFov = 2000;
+            const defaultFov = 2000;
             if (!global.gameStart && startSettings.allowtostartgame) {
                 // Start the game
                 global.gameStart = true;
@@ -1228,7 +1323,9 @@ let incoming = async function(message, socket) {
             };
             // Process the data
             if (camtime > global.player.lastUpdate) { // Don't accept out-of-date information.
-                if (startSettings.neededtoresync) return; // Do not update anything when the client is out of sync.
+                if (startSettings.neededtoresync) {
+                    return;
+                } // Do not update anything when the client is out of sync.
                 // Time shenanigans
                 lag.add(getNow() - camtime);
                 global.player.time = camtime + lag.get();
@@ -1267,7 +1364,7 @@ let incoming = async function(message, socket) {
                 global.metrics.lastlag = global.metrics.lag;
                 global.metrics.lastuplink = getNow();
             } else {
-                console.log("Old data! Last given time: " + global.player.time + "; offered packet timestamp: " + camtime + ".");
+                console.log(`Old data! Last given time: ${global.player.time}; offered packet timestamp: ${camtime}.`);
             }
             // Send the downlink and the target
             socket.talk("d", Math.max(global.player.lastUpdate, camtime));
@@ -1275,7 +1372,9 @@ let incoming = async function(message, socket) {
             global.updateTimes++; // metrics
         } break;
         case "b": {
-            if (startSettings.neededtoresync) return;
+            if (startSettings.neededtoresync) {
+                return;
+            }
             convert.begin(m);
             convert.broadcast();
         } break;
@@ -1286,7 +1385,7 @@ let incoming = async function(message, socket) {
                 } catch (e) { };
             }, 50);
             16 <= global.metrics.latency.length && global.metrics.latency.shift();
-            let c = Date.now() - clockDiff - serverStart - m[0];
+            const c = Date.now() - clockDiff - serverStart - m[0];
             0 < c && global.metrics.latency.push(c);
         } break;
         case "F": { // to pay respects
@@ -1300,7 +1399,9 @@ let incoming = async function(message, socket) {
             global.finalKills = [util.AdvancedSmoothBar(0, 4), util.AdvancedSmoothBar(0, 5.5), util.AdvancedSmoothBar(0, 2.5), util.AdvancedSmoothBar(0, 6)];
             global.respawnTimeout = m[2];
             global.readyToRespawn = false;
-            if (global.respawnReadyTimeout) clearTimeout(global.respawnReadyTimeout);
+            if (global.respawnReadyTimeout) {
+                clearTimeout(global.respawnReadyTimeout);
+            }
             if (config.game.instantRespawn) {
                 global.readyToRespawn = true;
             } else {
@@ -1311,7 +1412,7 @@ let incoming = async function(message, socket) {
             if (global.respawnTimeout > 0) {
                 global.cannotRespawn = true;
                 setTimeout(() => {
-                    let respawnTimeoutloop = setInterval(() => {
+                    const respawnTimeoutloop = setInterval(() => {
                         if (global.respawnTimeout <= 1) {
                             global.cannotRespawn = false;
                             global.respawnTimeout = false;
@@ -1320,7 +1421,7 @@ let incoming = async function(message, socket) {
                             global.respawnTimeout--;
                         }
                     }, 1000); // One second.
-                }, 3000)
+                }, 3000);
             }
             global.finalKills[0].set(m[3]);
             global.finalKills[1].set(m[4]);
@@ -1344,9 +1445,9 @@ let incoming = async function(message, socket) {
             }
         } break;
         case "DTA": {
-            let data = JSON.parse(m[0]);
+            const data = JSON.parse(m[0]);
             if (data.waitTime == "isVideo") {
-                let renderDoc = document.createElement("video");
+                const renderDoc = document.createElement("video");
                 renderDoc.onloadeddata = function() {
                     renderDoc.muted = false;
                     renderDoc.volume = 1;
@@ -1363,10 +1464,10 @@ let incoming = async function(message, socket) {
                 renderDoc.onerror = () => {
                     global.dailyTankAd.renderUI = false;
                     global.createMessage("Failed to load the ad!");
-                }
+                };
                 renderDoc.src = `./img/ads/${data.src}`;
             } else {
-                let renderDoc = new Image();
+                const renderDoc = new Image();
                 renderDoc.onload = () => {
                     global.dailyTankAd.render = renderDoc;
                     global.dailyTankAd.orginWidth = global.dailyTankAd.width;
@@ -1379,33 +1480,35 @@ let incoming = async function(message, socket) {
                     setTimeout(() => {
                         global.dailyTankAd.closeable = true;
                     }, `${data.waitTime}000`);
-                }
+                };
                 renderDoc.onerror = () => {
                     global.dailyTankAd.renderUI = false;
                     global.createMessage("Failed to load the ad!");
-                }
+                };
                 renderDoc.src = `./img/ads/${data.src}`;
             }
             global.dailyTankAd.renderUI = true;
         } break;
         case "DTAD": {
-            if (global.dailyTankAd.requestInterval) clearInterval(global.dailyTankAd.requestInterval)
+            if (global.dailyTankAd.requestInterval) {
+                clearInterval(global.dailyTankAd.requestInterval);
+            }
             global.dailyTankAd.exit();
         } break;
         case "DTAST": {
             global.dailyTankAd.render.onended = () => {
                 global.dailyTankAd.requestInterval = setInterval(() => {
                     socket.talk("DTAD");
-                }, 2000)
+                }, 2000);
                 socket.talk("DTAD");
-            }
+            };
             global.dailyTankAd.render.play();
             global.dailyTankAd.readyToRender = true;
         } break;
         case "SH": {
-            let data = JSON.parse(m[0]);
+            const data = JSON.parse(m[0]);
             if (data.type == "camera") { // If the server wants to shake our camera...
-                let set = config.graphical.shakeProperties.CameraShake; // Quick define
+                const set = config.graphical.shakeProperties.CameraShake; // Quick define
                 if (data.push) {
                     set.shakeDuration += data.duration; // add duration
                     set.shakeAmount += data.amount; // Add amount the shake
@@ -1422,7 +1525,7 @@ let incoming = async function(message, socket) {
                 set.shakeStartTime = Date.now();
             }
             if (data.type == "gui") { // If the server wants to shake our GUI...
-                let set = config.graphical.shakeProperties.UIShake; // Quick define
+                const set = config.graphical.shakeProperties.UIShake; // Quick define
                 if (data.push) {
                     set.shakeDuration += data.duration; // add duration
                     set.shakeAmount += data.amount; // Add amount the shake
@@ -1455,11 +1558,15 @@ let incoming = async function(message, socket) {
             global.gameLoading = true;
             global.serverAdd = m[0];
             global.bodyID = m[1];
-            if (global.serverMap[global.serverAdd]) global.serverMap[global.serverAdd].onclick();
+            if (global.serverMap[global.serverAdd]) {
+                global.serverMap[global.serverAdd].onclick();
+            }
 
             // Update the location hash
-            let server = global.servers.find(s => s.ip === m[0]);
-            if (server) location.hash = "#" + server.id;
+            const server = global.servers.find((s) => s.ip === m[0]);
+            if (server) {
+                location.hash = `#${server.id}`;
+            }
             global.locationHash = location.hash;
 
             // Reconnect server
@@ -1499,28 +1606,34 @@ let incoming = async function(message, socket) {
             config.graphical.smoothcamera = true;
         } break;
         case "DS": { // Deactivate smooth camera if needed.
-            if (!config.graphical.smoothcamera2) config.graphical.smoothcamera = false;
+            if (!config.graphical.smoothcamera2) {
+                config.graphical.smoothcamera = false;
+            }
             delete config.graphical.smoothcamera2;
         } break;
         case "CHAT_MESSAGE_ENTITY": {
-            if (!global.chats) global.chats = {};
-            for (let data of JSON.parse(m[0])) {
-                if (!global.chats[data.id]) global.chats[data.id] = [];
-                for (let e of data.messages) {
-                    const alreadyExists = global.chats[data.id].find(msg => msg.id === e.id);
+            if (!global.chats) {
+                global.chats = {};
+            }
+            for (const data of JSON.parse(m[0])) {
+                if (!global.chats[data.id]) {
+                    global.chats[data.id] = [];
+                }
+                for (const e of data.messages) {
+                    const alreadyExists = global.chats[data.id].find((msg) => msg.id === e.id);
                     if (!alreadyExists) {
-                        let alpha = util.AdvancedSmoothBar(0, 0.3, 1.5);
+                        const alpha = util.AdvancedSmoothBar(0, 0.3, 1.5);
                         global.chats[data.id].push({
                             text: e.text,
                             id: e.id,
                             alpha: alpha
-                        })
+                        });
                         alpha.set(1);
                     }
                 }
                 for (let i = 0; i < global.chats[data.id].length; i++) {
-                    let e = global.chats[data.id][i];
-                    const existing = data.messages.find(o => o.id === e.id);
+                    const e = global.chats[data.id][i];
+                    const existing = data.messages.find((o) => o.id === e.id);
                     if (!existing && !e.erased) {
                         e.erased = true;
                         e.alpha.set(0);
@@ -1529,16 +1642,16 @@ let incoming = async function(message, socket) {
             }
         } break;
     };
-}
+};
 const socketInit = () => {
     window.resizeEvent();
-    let socket = new WebSocket(protocols[location.protocol] + global.serverAdd);
+    const socket = new WebSocket(protocols[location.protocol] + global.serverAdd);
     // Set up our socket
     socket.binaryType = "arraybuffer";
     socket.open = false;
     // Handle commands
     let flag = false;
-    let commands = [
+    const commands = [
         false, // up
         false, // down
         false, // left
@@ -1546,7 +1659,7 @@ const socketInit = () => {
         false, // lmb
         false, // mmb
         false, // rmb
-        false,
+        false
     ];
     socket.cmd = {
         set: (index, value) => {
@@ -1559,15 +1672,17 @@ const socketInit = () => {
             flag = false;
             let o = 0;
             for (let i = 0; i < 8; i++) {
-                if (commands[i]) o += Math.pow(2, i);
+                if (commands[i]) {
+                    o += Math.pow(2, i);
+                }
             }
-            let ratio = util.getRatio();
+            const ratio = util.getRatio();
             socket.talk("C", Math.round(global.target.x / ratio), Math.round(global.target.y / ratio), global.reverseTank, o);
         },
         check: () => flag,
         getMotion: () => ({
             x: commands[3] - commands[2],
-            y: commands[1] - commands[0],
+            y: commands[1] - commands[0]
         }),
         reactNow: () => {
             flag = true;
@@ -1576,10 +1691,12 @@ const socketInit = () => {
     };
 
     socket.talk = async (...message) => {
-        await new Promise(Resolve => setTimeout(Resolve, window.fakeLagMS));
+        await new Promise((Resolve) => setTimeout(Resolve, window.fakeLagMS));
         // Make sure the socket is open before we do anything
-        if (!socket.open) return 1;
-        message = protocol.encode(message)
+        if (!socket.open) {
+            return 1;
+        }
+        message = protocol.encode(message);
         socket.send(message);
         global.bandwidth.currentHa += message.byteLength;
         global.bandwidth.totalHa += message.byteLength;
@@ -1588,27 +1705,33 @@ const socketInit = () => {
     socket.onopen = function socketOpen() {
         socket.open = true;
         // define a pinging function
-        socket.ping = payload => socket.talk("p", payload);
+        socket.ping = (payload) => socket.talk("p", payload);
     };
 
     socket.onmessage = (msg) => incoming(msg, socket);
 
     socket.onclose = () => {
-        if (!global.gameLoading) return;
+        if (!global.gameLoading) {
+            return;
+        }
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
-        if (global.dailyTankAd.render) global.dailyTankAd.exit();
+        if (global.dailyTankAd.render) {
+            global.dailyTankAd.exit();
+        }
         socket.open = false;
         global.disconnected = true;
         global.disconnectTimestamp = Date.now();
         if (socket.welcomeReceived && !global.died && localStorage.getItem("optAutoReconnectChecked") === "true") {
             setTimeout(() => {
-                if (global.disconnected && !global.died) global.reconnect();
+                if (global.disconnected && !global.died) {
+                    global.reconnect();
+                }
             }, config.game.autoReconnectDelay);
         }
     };
 
-    socket.onerror = error => {
+    socket.onerror = (error) => {
         clearInterval(socket.commandCycle);
         clearInterval(global.socketMotionCycle);
         //global.message = "Socket timed out.";
@@ -1618,7 +1741,7 @@ const socketInit = () => {
 };
 
 const resync = () => {
-    let socket = global.socket;
+    const socket = global.socket;
     startSettings.neededtoresync = true;
     startSettings.allowtostartgame = false;
     sync = [];
@@ -1666,6 +1789,6 @@ global.reconnectSocket = () => {
     leaderboardInt.reset();
     global.socket = [];
     global.socket = socketInit();
-}
+};
 
-export { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow, clockDiff, serverStart }
+export { socketInit, resync, gui, leaderboard, minimap, moveCompensation, lag, getNow, clockDiff, serverStart };

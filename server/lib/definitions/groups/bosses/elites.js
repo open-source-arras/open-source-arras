@@ -1,6 +1,7 @@
-const { combineStats, weaponArray } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, weaponArray } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { basic, pounder, destroyer, trap, setTrap, swarm, battleship, drone, twin, gunner, launcher, fake } from "../../gunvals.js";
+import { Class } from "../../../../loaders/global.js";
 
 Class.elite = {
     PARENT: "miniboss",
@@ -27,7 +28,7 @@ Class.eliteDestroyer = {
     GUNS: weaponArray({
         POSITION: [5, 16, 1, 6, 0, 60, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer]),
             TYPE: "bullet",
             LABEL: "Devastator"
         }
@@ -55,7 +56,7 @@ Class.eliteGunner = {
         }, {
             POSITION: [4, 16, 1.5, 14, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.pounder, {speed: 1.5, range: 0.3}]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, pounder, {speed: 1.5, range: 0.3}]),
                 TYPE: "unsetPillbox",
                 NO_LIMITATIONS: true,
                 STAT_CALCULATOR: "trap"
@@ -95,7 +96,7 @@ Class.eliteSprayer = {
             }, {
                 POSITION: [9, 6, 5, 60, 130, 0],
                 TYPE: ["sprayer", { COLOR: "grey", GUN_STAT_SCALE: {damage: 0.9, resist: 0.95} }]
-            } 
+            }
         ], 3)
     ]
 };
@@ -117,25 +118,25 @@ Class.eliteBattleship = {
         {
             POSITION: [4, 6, 0.6, 7, -8, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, 0, 60, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, 8, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
-        } 
+        }
     ], 3),
     TURRETS: weaponArray({
         POSITION: [5, 7, 0, 0, 360, 1],
@@ -160,7 +161,7 @@ Class.eliteSpawner = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
                 TYPE: "sentrySwarmMinion",
                 NO_LIMITATIONS: true,
                 SYNCS_SKILLS: true,
@@ -170,7 +171,7 @@ Class.eliteSpawner = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
                 TYPE: "sentryTrapMinion",
                 NO_LIMITATIONS: true,
                 SYNCS_SKILLS: true,
@@ -180,7 +181,7 @@ Class.eliteSpawner = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 300, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.6, maxSpeed: 0.6, heath: 1.35}]),
                 TYPE: "sentryGunMinion",
                 NO_LIMITATIONS: true,
                 SYNCS_SKILLS: true,
@@ -207,7 +208,7 @@ Class.eliteTrapGuard = {
         }, {
             POSITION: [3, 6, 1.7, 10.5, 0, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, {speed: 1.1, maxSpeed: 1.1, reload: 1.5, damage: 1.6}]),
+                SHOOT_SETTINGS: combineStats([trap, {speed: 1.1, maxSpeed: 1.1, reload: 1.5, damage: 1.6}]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
@@ -239,19 +240,19 @@ Class.eliteSpinner = {
         {
             POSITION: [9.5, 2, 1, -1.5, 11.5, 10, 2 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.5, maxSpeed: 1.25 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.5, maxSpeed: 1.25 }]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [9.5, 2, 1, 3.5, 6.5, 10, 1 / 3],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.5, maxSpeed: 1.25 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.5, maxSpeed: 1.25 }]),
                 TYPE: "bullet"
             }
         }, {
             POSITION: [9.5, 2, 1, 8.5, 1.5, 10, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.5, maxSpeed: 1.25 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.5, maxSpeed: 1.25 }]),
                 TYPE: "bullet"
             }
         }, {
@@ -289,7 +290,7 @@ Class.deltaDestroyer = {
         ...weaponArray({
             POSITION: [7, 10.5, -1.4, 6, 0, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer, g.launcher, g.fake, {damage: 1.1, speed: 1.05}]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer, launcher, fake, {damage: 1.1, speed: 1.05}]),
                 TYPE: "launcherMissile",
                 LABEL: "Devastator",
                 NO_LIMITATIONS: true,
@@ -299,7 +300,7 @@ Class.deltaDestroyer = {
         ...weaponArray({
             POSITION: [5, 16, 1, 6, 0, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer, g.launcher, {damage: 1.1, speed: 1.05}]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer, launcher, {damage: 1.1, speed: 1.05}]),
                 TYPE: "launcherMissile",
                 LABEL: "Devastator",
                 NO_LIMITATIONS: true
@@ -330,7 +331,7 @@ Class.deltaGunner = {
         }, {
             POSITION: [4, 16, 1.5, 14, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.pounder, {speed: 1.5, range: 0.3, size: 0.6}]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, pounder, {speed: 1.5, range: 0.3, size: 0.6}]),
                 TYPE: "legionaryPillbox",
                 STAT_CALCULATOR: "trap",
                 NO_LIMITATIONS: true
@@ -385,28 +386,28 @@ Class.deltaBattleship = {
         {
             POSITION: [4, 6, 0.6, 7, 3.5, 60, 1 / 4],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, -3.5, 60, 2 / 4],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, -10, 60, 3 / 4],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, 10, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 0.95, maxSpeed: 0.95, health: 1.1, resist: 1.05}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
@@ -432,7 +433,7 @@ Class.destroyerLegion = {
     GUNS: weaponArray({
         POSITION: [5, 16, 1, 6, 0, 60, 0],
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.pounder, g.destroyer, {health: 1.1}]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, pounder, destroyer, {health: 1.1}]),
             TYPE: "bullet",
             LABEL: "Devastator"
         }
@@ -465,7 +466,7 @@ Class.gunnerLegion = {
         }, {
             POSITION: [4, 16, 1.5, 14, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.pounder, {health: 1.1, speed: 1.5, range: 0.3}]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, pounder, {health: 1.1, speed: 1.5, range: 0.3}]),
                 TYPE: "unsetPillbox",
                 STAT_CALCULATOR: "trap"
             }
@@ -516,25 +517,25 @@ Class.battleshipLegion = {
         {
             POSITION: [4, 6, 0.6, 7, -8, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, 0, 60, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
         }, {
             POSITION: [4, 6, 0.6, 7, 8, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
+                SHOOT_SETTINGS: combineStats([swarm, battleship, {speed: 1.05, maxSpeed: 1.05, health: 1.2, resist: 1.1}]),
                 TYPE: ["swarm", { AI: { FARMER: true }, INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm"
             }
-        } 
+        }
     ], 3),
     TURRETS: weaponArray({
         POSITION: [5, 7, 0, 0, 360, 1],
@@ -561,7 +562,7 @@ Class.spawnerLegion = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
                 TYPE: "sentrySwarmMinion",
                 SYNCS_SKILLS: true,
                 AUTOFIRE: true,
@@ -570,7 +571,7 @@ Class.spawnerLegion = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 180, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
                 TYPE: "sentryTrapMinion",
                 SYNCS_SKILLS: true,
                 AUTOFIRE: true,
@@ -579,7 +580,7 @@ Class.spawnerLegion = {
         }, {
             POSITION: [2, 18, 1, 11, 0, 300, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
+                SHOOT_SETTINGS: combineStats([drone, {reload: 2, size: 0.5, speed: 0.65, maxSpeed: 0.65, heath: 1.5}]),
                 TYPE: "sentryGunMinion",
                 SYNCS_SKILLS: true,
                 AUTOFIRE: true,
@@ -606,16 +607,16 @@ Class.legionaryCrasherTop = {
         {
             POSITION: [4, 9.5, 0.7, 7, 5, 60, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.pounder, { speed: 2, maxSpeed: 1.7, size: 0.6, range: 2.8}]),
+                SHOOT_SETTINGS: combineStats([swarm, pounder, { speed: 2, maxSpeed: 1.7, size: 0.6, range: 2.8}]),
                 TYPE: ["swarm", { INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm",
                 AUTOFIRE: true
-                
+
             }
         }, {
             POSITION: [4, 9.5, 0.7, 7, -5, 60, 0.5],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.pounder, { speed: 2, maxSpeed: 1.7, size: 0.6, range: 2.8}]),
+                SHOOT_SETTINGS: combineStats([swarm, pounder, { speed: 2, maxSpeed: 1.7, size: 0.6, range: 2.8}]),
                 TYPE: ["swarm", { INDEPENDENT: true }],
                 STAT_CALCULATOR: "swarm",
                 AUTOFIRE: true
@@ -671,7 +672,7 @@ Class.legionaryCrasher = {
             }, {
                 POSITION: [3, 13, 1.7, 14.5, 0, 0, 0],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.pounder, { reload: 2, speed: 2, size: 0.65, maxSpeed: 2, range: 0.65 }]),
+                    SHOOT_SETTINGS: combineStats([trap, setTrap, pounder, { reload: 2, speed: 2, size: 0.65, maxSpeed: 2, range: 0.65 }]),
                     TYPE: "legionaryPillbox",
                     NO_LIMITATIONS: true,
                     STAT_CALCULATOR: "trap"
@@ -741,7 +742,7 @@ Class.legionaryCrasherFix = {
             }, {
                 POSITION: [3, 13, 1.7, 14.5, 0, 0, 0],
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.pounder, { reload: 2, speed: 2, size: 0.65, maxSpeed: 2, range: 0.65 }]),
+                    SHOOT_SETTINGS: combineStats([trap, setTrap, pounder, { reload: 2, speed: 2, size: 0.65, maxSpeed: 2, range: 0.65 }]),
                     TYPE: "legionaryPillbox",
                     NO_LIMITATIONS: true,
                     STAT_CALCULATOR: "trap"

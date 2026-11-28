@@ -1,3 +1,1 @@
-module.exports = {
-    level_cap_cheat: 0
-};
+export const level_cap_cheat = 0;

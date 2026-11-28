@@ -1,5 +1,16 @@
-let EventEmitter = require("events");
-class turretEntity extends EventEmitter {
+import EventEmitter from "events";
+import { Gun } from "./gun";
+import { Vector } from "./vector";
+import { getRealSizeLazy } from "./subFunctions.js";
+import { Color } from "../../miscFiles/color.js";
+import { Skill } from "./skills.js";
+import { Entity } from "./entity.js";
+import { remove } from "../../lib/util.js";
+import { bringToLife, ensureIsClass, entities, targetableEntities } from "../../loaders/global.js";
+import { ioTypes } from "../../miscFiles/controllers.js";
+
+
+export class TurretEntity extends EventEmitter {
     constructor(position, bond, master) {
         super();
         if (!master) {
@@ -15,7 +26,7 @@ class turretEntity extends EventEmitter {
         this.drawFill = true;
         this.invisible = [0, 0];
         this.alphaRange = [0, 1];
-        this.id = entitiesIdLog++;
+        this.id = Entity.entitiesIdLog++;
         this.control = {
             target: new Vector(0, 0),
             goal: new Vector(0, 0),
@@ -48,24 +59,24 @@ class turretEntity extends EventEmitter {
         this.source = bond;
         this.bond.turrets.set(this.id, this);
         this.skill = this.bond.skill;
-        this.label = this.bond.label + " " + this.label;
+        this.label = `${this.bond.label} ${this.label}`;
         this.team = this.id;
         this.team = bond.team;
         // Fake activation stuff
         this.activation = {
             check: () => {
                 return this.bond.activation.check();
-            }   
+            }
         };
         // Get my position.
         if (Array.isArray(position)) {
-            position = { 
-                SIZE: position[0], 
-                X: position[1], 
-                Y: position[2], 
-                ANGLE: position[3], 
-                ARC: position[4], 
-                LAYER: position[5] 
+            position = {
+                SIZE: position[0],
+                X: position[1],
+                Y: position[2],
+                ANGLE: position[3],
+                ARC: position[4],
+                LAYER: position[5]
             };
         }
         position.SIZE ??= 10;
@@ -74,33 +85,34 @@ class turretEntity extends EventEmitter {
         position.ANGLE ??= 0;
         position.ARC ??= 360;
         position.LAYER ??= 0;
-        let _off = new Vector(position.X, position.Y);
-        this.bound = { 
-            size: position.SIZE / 20, 
-            angle: position.ANGLE * Math.PI / 180, 
-            direction: _off.direction, 
-            offset: _off.length / 10, 
-            arc: position.ARC * Math.PI / 180, 
+        const _off = new Vector(position.X, position.Y);
+        this.bound = {
+            size: position.SIZE / 20,
+            angle: position.ANGLE * Math.PI / 180,
+            direction: _off.direction,
+            offset: _off.length / 10,
+            arc: position.ARC * Math.PI / 180,
             layer: position.LAYER
         };
     }
     fixFacing() {
         this.facing = this.bond.facing + this.bound.angle;
         if (this.facingType.includes("Target") || this.facingType.includes("Speed")) {
-            this.facingType = "bound", this.facingTypeArgs = {}, 
-            this.facingTypeArgs = {smoothness: this.settings.smoothness ?? 4}; 
-        } 
+            this.facingType = "bound", this.facingTypeArgs = {},
+            this.facingTypeArgs = {smoothness: this.settings.smoothness ?? 4};
+        }
     }
     life() {
-        bringToLife(this); 
+        bringToLife(this);
     }
-
     addController(newIO) {
-        if (!Array.isArray(newIO)) newIO = [newIO];
+        if (!Array.isArray(newIO)) {
+            newIO = [newIO];
+        }
         for (let oldId = 0; oldId < this.controllers.length; oldId++) {
             for (let newId = 0; newId < newIO.length; newId++) {
-                let oldIO = this.controllers[oldId];
-                let io = newIO[newId];
+                const oldIO = this.controllers[oldId];
+                const io = newIO[newId];
                 if (io.constructor === oldIO.constructor) {
                     this.controllers[oldId] = io;
                     newIO.splice(newId, 1);
@@ -109,14 +121,17 @@ class turretEntity extends EventEmitter {
         }
         this.controllers = this.controllers.concat(newIO);
     }
-
     define(defs) {
-        if (!Array.isArray(defs)) defs = [defs];
+        if (!Array.isArray(defs)) {
+            defs = [defs];
+        }
 
         // Define all primary stats
-        let set = ensureIsClass(defs[0]);
+        const set = ensureIsClass(defs[0]);
         this.store = {};
-        for (let gun of this.guns.values()) gun.store = {};
+        for (const gun of this.guns.values()) {
+            gun.store = {};
+        }
         if (set.PARENT != null) {
             if (Array.isArray(set.PARENT)) {
                 for (let i = 0; i < set.PARENT.length; i++) {
@@ -126,17 +141,39 @@ class turretEntity extends EventEmitter {
                 this.define(set.PARENT, false);
             }
         }
-        if (set.LAYER != null) this.layerID = set.LAYER;
-        if (set.index != null) this.index = set.index.toString();
-        if (set.NAME != null) this.name = set.NAME;
-        if (set.LABEL != null) this.label = set.LABEL;
-        if (set.ANGLE != null) this.angle = set.ANGLE;
-        if (set.DISPLAY_NAME != null) this.displayName = set.DISPLAY_NAME;
-        if (set.TYPE != null) this.type = set.TYPE;
-        if (set.WALL_TYPE != null) this.walltype = set.WALL_TYPE;
-        if (set.MIRROR_MASTER_ANGLE != null) this.settings.mirrorMasterAngle = set.MIRROR_MASTER_ANGLE;
-        if (set.INDEPENDENT != null) this.settings.independent = set.INDEPENDENT;
-        if (set.SMOOTHNESS != null) this.settings.smoothness = set.SMOOTHNESS;
+        if (set.LAYER != null) {
+            this.layerID = set.LAYER;
+        }
+        if (set.index != null) {
+            this.index = set.index.toString();
+        }
+        if (set.NAME != null) {
+            this.name = set.NAME;
+        }
+        if (set.LABEL != null) {
+            this.label = set.LABEL;
+        }
+        if (set.ANGLE != null) {
+            this.angle = set.ANGLE;
+        }
+        if (set.DISPLAY_NAME != null) {
+            this.displayName = set.DISPLAY_NAME;
+        }
+        if (set.TYPE != null) {
+            this.type = set.TYPE;
+        }
+        if (set.WALL_TYPE != null) {
+            this.walltype = set.WALL_TYPE;
+        }
+        if (set.MIRROR_MASTER_ANGLE != null) {
+            this.settings.mirrorMasterAngle = set.MIRROR_MASTER_ANGLE;
+        }
+        if (set.INDEPENDENT != null) {
+            this.settings.independent = set.INDEPENDENT;
+        }
+        if (set.SMOOTHNESS != null) {
+            this.settings.smoothness = set.SMOOTHNESS;
+        }
         if (set.SHAPE != null) {
             this.shape = typeof set.SHAPE === "number" ? set.SHAPE : (set.SHAPE_NUM ?? 0);
             this.shapeData = set.SHAPE;
@@ -147,17 +184,19 @@ class turretEntity extends EventEmitter {
         if (set.CONTROLLERS != null) {
             let addedSuccess = false;
             try {
-                let toAdd = [];
+                const toAdd = [];
                 for (let i = 0; i < set.CONTROLLERS.length; i++) {
                     let io = set.CONTROLLERS[i];
-                    if ("string" == typeof io) io = [io];
+                    if ("string" == typeof io) {
+                        io = [io];
+                    }
                     toAdd.push(new ioTypes[io[0]](this, io[1], global.gameManager));
                     addedSuccess = true;
                 }
                 this.addController(toAdd);
-            } catch(e) {
-                console.error(addedSuccess ? `Controller ${set.CONTROLLERS} ran into an error!` : `Controller "${set.CONTROLLERS}" was attempted to be gotten but does not exist!`);
-                throw new Error(e);
+            } catch (err) {
+                const errorMessage = addedSuccess ? `Controller ${set.CONTROLLERS} ran into an error!` : `Controller "${set.CONTROLLERS}" was attempted to be gotten but does not exist!`;
+                throw new Error(errorMessage, {cause: err});
             }
         }
         if (set.FACING_TYPE != null) {
@@ -169,91 +208,142 @@ class turretEntity extends EventEmitter {
                 this.facingTypeArgs = {};
             }
         };
-        if ("function" === typeof set.defineLevelSkillPoints) this.skill.LSPF = set.defineLevelSkillPoints;
+        if ("function" === typeof set.defineLevelSkillPoints) {
+            this.skill.LSPF = set.defineLevelSkillPoints;
+        }
         if (set.RECALC_SKILL != null) {
-            let score = this.skill.score;
+            const score = this.skill.score;
             this.skill.reset();
             this.skill.score = score;
-            while (this.skill.maintain()) { }
+            let hasMaintained = true;
+            while (hasMaintained) {
+                hasMaintained = this.skill.maintain();
+            }
         }
-        if (set.EXTRA_SKILL != null) this.skill.points += set.EXTRA_SKILL;
-        if (set.MAX_CHILDREN != null) this.maxChildren = set.MAX_CHILDREN;
-        if (set.HAS_NO_RECOIL != null) this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
-        if (set.AI != null) this.aiSettings = set.AI;
+        if (set.EXTRA_SKILL != null) {
+            this.skill.points += set.EXTRA_SKILL;
+        }
+        if (set.MAX_CHILDREN != null) {
+            this.maxChildren = set.MAX_CHILDREN;
+        }
+        if (set.HAS_NO_RECOIL != null) {
+            this.settings.hasNoRecoil = set.HAS_NO_RECOIL;
+        }
+        if (set.AI != null) {
+            this.aiSettings = set.AI;
+        }
         if (set.GUNS != null) {
             this.guns.clear();
-            let newGuns = [];
+            const newGuns = [];
             for (let i = 0; i < set.GUNS.length; i++) {
                 newGuns.push(new Gun(this, set.GUNS[i]));
             }
-            for (let guns of newGuns) {
+            for (const guns of newGuns) {
                 this.guns.set(guns.id, guns);
             }
         }
-        if (set.SIZE != null) this.SIZE = set.SIZE;
+        if (set.SIZE != null) {
+            this.SIZE = set.SIZE;
+        }
         if (set.TURRETS != null) {
-            for (let turret of this.turrets.values()) turret.destroy();
+            for (const turret of this.turrets.values()) {
+                turret.destroy();
+            }
             this.turrets.clear();
             for (let i = 0; i < set.TURRETS.length; i++) {
-                let def = set.TURRETS[i],
-                    o = new turretEntity(def.POSITION, this, this.master),
-                    turretDanger = false,
+                let turretDanger = false;
+                const def = set.TURRETS[i],
+                    o = new TurretEntity(def.POSITION, this, this.master),
                     type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
                 for (let j = 0; j < type.length; j++) {
                     o.define(type[j]);
-                    if (type.TURRET_DANGER) turretDanger = true;
+                    if (type.TURRET_DANGER) {
+                        turretDanger = true;
+                    }
                 }
-                if (!turretDanger) o.define({ DANGER: 0 });
+                if (!turretDanger) {
+                    o.define({ DANGER: 0 });
+                }
                 o.collidingBond = def.VULNERABLE;
                 o.fixFacing();
             }
         }
         if (set.BODY != null) {
-            if (set.BODY.ACCELERATION != null) this.ACCELERATION = set.BODY.ACCELERATION;
-            if (set.BODY.SPEED != null) this.SPEED = set.BODY.SPEED;
-            if (set.BODY.HEALTH != null) this.HEALTH = set.BODY.HEALTH;
-            if (set.BODY.RESIST != null) this.RESIST = set.BODY.RESIST;
-            if (set.BODY.SHIELD != null) this.SHIELD = set.BODY.SHIELD;
-            if (set.BODY.REGEN != null) this.REGEN = set.BODY.REGEN;
-            if (set.BODY.DAMAGE != null) this.DAMAGE = set.BODY.DAMAGE;
-            if (set.BODY.PENETRATION != null) this.PENETRATION = set.BODY.PENETRATION;
-            if (set.BODY.RANGE != null) this.RANGE = set.BODY.RANGE;
-            if (set.BODY.FOV != null) this.FOV = set.BODY.FOV;
-            if (set.BODY.SHOCK_ABSORB != null) this.SHOCK_ABSORB = set.BODY.SHOCK_ABSORB;
-            if (set.BODY.RECOIL_MULTIPLIER != null) this.RECOIL_MULTIPLIER = set.BODY.RECOIL_MULTIPLIER;
-            if (set.BODY.DENSITY != null) this.DENSITY = set.BODY.DENSITY;
-            if (set.BODY.STEALTH != null) this.STEALTH = set.BODY.STEALTH;
-            if (set.BODY.PUSHABILITY != null) this.PUSHABILITY = set.BODY.PUSHABILITY;
-            if (set.BODY.KNOCKBACK != null) this.KNOCKBACK = set.BODY.KNOCKBACK;
-            if (set.BODY.HETERO != null) this.heteroMultiplier = set.BODY.HETERO;
+            if (set.BODY.ACCELERATION != null) {
+                this.ACCELERATION = set.BODY.ACCELERATION;
+            }
+            if (set.BODY.SPEED != null) {
+                this.SPEED = set.BODY.SPEED;
+            }
+            if (set.BODY.HEALTH != null) {
+                this.HEALTH = set.BODY.HEALTH;
+            }
+            if (set.BODY.RESIST != null) {
+                this.RESIST = set.BODY.RESIST;
+            }
+            if (set.BODY.SHIELD != null) {
+                this.SHIELD = set.BODY.SHIELD;
+            }
+            if (set.BODY.REGEN != null) {
+                this.REGEN = set.BODY.REGEN;
+            }
+            if (set.BODY.DAMAGE != null) {
+                this.DAMAGE = set.BODY.DAMAGE;
+            }
+            if (set.BODY.PENETRATION != null) {
+                this.PENETRATION = set.BODY.PENETRATION;
+            }
+            if (set.BODY.RANGE != null) {
+                this.RANGE = set.BODY.RANGE;
+            }
+            if (set.BODY.FOV != null) {
+                this.FOV = set.BODY.FOV;
+            }
+            if (set.BODY.SHOCK_ABSORB != null) {
+                this.SHOCK_ABSORB = set.BODY.SHOCK_ABSORB;
+            }
+            if (set.BODY.RECOIL_MULTIPLIER != null) {
+                this.RECOIL_MULTIPLIER = set.BODY.RECOIL_MULTIPLIER;
+            }
+            if (set.BODY.DENSITY != null) {
+                this.DENSITY = set.BODY.DENSITY;
+            }
+            if (set.BODY.STEALTH != null) {
+                this.STEALTH = set.BODY.STEALTH;
+            }
+            if (set.BODY.PUSHABILITY != null) {
+                this.PUSHABILITY = set.BODY.PUSHABILITY;
+            }
+            if (set.BODY.KNOCKBACK != null) {
+                this.KNOCKBACK = set.BODY.KNOCKBACK;
+            }
+            if (set.BODY.HETERO != null) {
+                this.heteroMultiplier = set.BODY.HETERO;
+            }
             this.refreshBodyAttributes();
         }
     };
-    
     get size() {
         return this.bond.size * this.bound.size;
     };
     get realSize() {
-        return this.size * lazyRealSizes[Math.floor(Math.abs(this.shape))];
+        return this.size * getRealSizeLazy(Math.floor(Math.abs(this.shape)));
     };
-
-    updateBodyInfo() { 
-        this.fov = 1 * this.FOV * 275 * Math.sqrt(this.size); 
+    updateBodyInfo() {
+        this.fov = this.FOV * 275 * Math.sqrt(this.size);
     }
-
     refreshBodyAttributes() {
-        this.damage = 1 * this.DAMAGE * this.skill.atk;
+        this.damage = this.DAMAGE * this.skill.atk;
         this.penetration = 1 * (this.PENETRATION + 1.5 * (this.skill.brst + 0.8 * (this.skill.atk - 1)));
         this.density = 1 * (1 + 0.08 * this.level) * this.DENSITY;
-        this.stealth = 1 * this.STEALTH;
-        this.pushability = 1 * this.PUSHABILITY;
+        this.stealth = this.STEALTH;
+        this.pushability = this.PUSHABILITY;
         this.knockback = this.KNOCKBACK ?? false;
         this.sizeMultiplier = 1;
-        this.recoilMultiplier = this.RECOIL_MULTIPLIER * 1;
+        this.recoilMultiplier = this.RECOIL_MULTIPLIER;
     };
-
     move() {
-        let bound = this.bound,
+        const bound = this.bound,
             ref = this.bond;
         this.x = ref.x + ref.size * bound.offset * Math.cos(bound.direction + bound.angle + ref.facing);
         this.y = ref.y + ref.size * bound.offset * Math.sin(bound.direction + bound.angle + ref.facing);
@@ -264,22 +354,23 @@ class turretEntity extends EventEmitter {
         this.accel.null();
         this.blend = ref.blend;
     };
-
     face() {
-        global.runFace(this); 
+        global.runFace(this);
     };
-    
     syncTurrets() {
-        for (let gun of this.guns.values()) gun.syncChildren();
-        for (let turret of this.turrets.values()) {
+        for (const gun of this.guns.values()) {
+            gun.syncChildren();
+        }
+        for (const turret of this.turrets.values()) {
             turret.skill = this.skill;
             turret.refreshBodyAttributes();
             turret.syncTurrets();
         }
     };
-
     camera() {
-        if (!this.cameraInfo) this.cameraInfo = { guns: [], turrets: [] };
+        if (!this.cameraInfo) {
+            this.cameraInfo = { guns: [], turrets: [] };
+        }
         const info = this.cameraInfo;
         info.type = 0x01;
         info.index = this.index;
@@ -294,22 +385,27 @@ class turretEntity extends EventEmitter {
         info.layer = this.bound.layer;
         info.color = this.color.compiled;
         info.guns.length = 0;
-        for (const gun of this.guns.values()) info.guns.push(gun.getPhotoInfo());
+        for (const gun of this.guns.values()) {
+            info.guns.push(gun.getPhotoInfo());
+        }
         info.turrets.length = 0;
-        for (const turret of this.turrets.values()) info.turrets.push(turret.camera());
+        for (const turret of this.turrets.values()) {
+            info.turrets.push(turret.camera());
+        }
         return info;
     };
-
     destroy() {
     // Remove from bullet lists if needed
         if (this.bulletparent != null) {
-            util.remove(this.bulletparent.bulletchildren, this.bulletparent.bulletchildren.indexOf(this)); // the only reason this exists is for bacteria.
-            for (let gun of this.bulletparent.guns.values()) {
-                util.remove(gun.bulletchildren, gun.bulletchildren.indexOf(this));
+            remove(this.bulletparent.bulletchildren, this.bulletparent.bulletchildren.indexOf(this)); // the only reason this exists is for bacteria.
+            for (const gun of this.bulletparent.guns.values()) {
+                remove(gun.bulletchildren, gun.bulletchildren.indexOf(this));
             }
         }
         // Remove from parent lists if needed
-        if (this.parent != null) util.remove(this.parent.children, this.parent.children.indexOf(this));
+        if (this.parent != null) {
+            remove(this.parent.children, this.parent.children.indexOf(this));
+        }
         // Kill all of its children
         for (const instance of entities.values()) {
             if (instance.source.id === this.id) {
@@ -337,5 +433,3 @@ class turretEntity extends EventEmitter {
         }
     }
 }
-
-module.exports = { turretEntity };

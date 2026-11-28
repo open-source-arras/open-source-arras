@@ -1,4 +1,5 @@
-class Sandbox {
+import { gameManager } from "../../../game";
+export class Sandbox {
     constructor() {
         this.clients = gameManager.clients;
     }
@@ -15,7 +16,9 @@ class Sandbox {
             this.ygrid -= 20;
             changed = true;
         }
-        if (changed && !global.gameManager.room.settings.sandbox.do_not_change_arena_size) global.gameManager.updateBounds(this.xgrid * 30, this.ygrid * 30);
+        if (changed && !gameManager.room.settings.sandbox.do_not_change_arena_size) {
+            gameManager.updateBounds(this.xgrid * 30, this.ygrid * 30);
+        }
     }
     redefine(theshit) {
         this.clients = theshit.clients;
@@ -24,5 +27,3 @@ class Sandbox {
         this.length = 0;
     }
 }
-
-module.exports = { Sandbox };

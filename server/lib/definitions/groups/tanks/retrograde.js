@@ -1,6 +1,8 @@
-const { combineStats, makeFlank, makeGuard, makeGunner, weaponArray, weaponMirror, weaponStack } = require("../../facilitators.js");
-const { base } = require("../../constants.js");
-const g = require("../../gunvals.js");
+import { combineStats, makeFlank, makeGuard, makeGunner, weaponArray, weaponMirror, weaponStack } from "../../facilitators.js";
+import { base } from "../../constants.js";
+import { basic, machineGun, blaster, gatlingGun, doubleTwin, sniper, rifle, twin, gunner, pounder, flankGuard, trap, tripleTwin, assassin, lowPower, pelleter, crossbow, minigun } from "../../gunvals.js";
+import { Config } from "../../../../loaders/global.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Set the below variable to true to enable OSA-specific fixes and adjustments for Retrograde and certain tank designs.
 // This also enables the Arms Race Retrograde addon if it is present.
@@ -24,7 +26,7 @@ Class.blaster = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster]),
                 TYPE: "bullet"
             }
         }
@@ -44,14 +46,14 @@ Class.gatlingGun = {
                 ASPECT: 1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, gatlingGun]),
                 TYPE: "bullet"
             }
         }
     ],
     UPGRADES_TIER_3: ["sprayer_RG", "accurator", "halfNHalf"]
 };
-Class.machineFlank = makeFlank("machineGun", 2, "Machine Flank", { extraStats: [g.doubleTwin] });
+Class.machineFlank = makeFlank("machineGun", 2, "Machine Flank", { extraStats: [doubleTwin] });
 Class.machineFlank.UPGRADES_TIER_3 = ["machineTriple", "halfNHalf"];
 Class.rifle_old = {
     PARENT: "genericTank",
@@ -66,7 +68,7 @@ Class.rifle_old = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle]),
                 TYPE: "bullet"
             }
         },
@@ -102,7 +104,7 @@ Class.accurator = {
                 ASPECT: 1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, gatlingGun]),
                 TYPE: "speedBullet"
             }
         }
@@ -121,7 +123,7 @@ Class.battery = {
                 DELAY: 0.6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         },
@@ -133,7 +135,7 @@ Class.battery = {
                 DELAY: 0.2
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         }], {delayIncrement: 0.2}),
@@ -143,7 +145,7 @@ Class.battery = {
                 WIDTH: 3.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, { speed: 1.2 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, { speed: 1.2 }]),
                 TYPE: "bullet"
             }
         }
@@ -175,7 +177,7 @@ Class.deathStar = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, flankGuard, flankGuard]),
                 TYPE: "bullet"
             }
         },
@@ -185,7 +187,7 @@ Class.deathStar = {
                 WIDTH: 12
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.flankGuard, g.flankGuard]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, flankGuard, flankGuard]),
                 TYPE: "bullet"
             }
         }
@@ -203,7 +205,7 @@ Class.doubleTrapGuard = {
                 Y: 5.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.flankGuard, g.twin]),
+                SHOOT_SETTINGS: combineStats([basic, flankGuard, flankGuard, twin]),
                 TYPE: "bullet"
             }
         },
@@ -225,7 +227,7 @@ Class.doubleTrapGuard = {
                 ANGLE: 180
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.twin]),
+                SHOOT_SETTINGS: combineStats([trap, twin]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
@@ -246,7 +248,7 @@ Class.halfNHalf = {
                 ASPECT: 1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun, g.doubleTwin]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, gatlingGun, doubleTwin]),
                 TYPE: "bullet"
             }
         },
@@ -259,13 +261,13 @@ Class.halfNHalf = {
                 ANGLE: 180
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.doubleTwin]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, doubleTwin]),
                 TYPE: "bullet"
             }
         }
     ]
 };
-Class.machineTriple = makeFlank("machineGun", 3, "Machine Triple", { extraStats: [g.doubleTwin, g.tripleTwin], danger: 7 });
+Class.machineTriple = makeFlank("machineGun", 3, "Machine Triple", { extraStats: [doubleTwin, tripleTwin], danger: 7 });
 Class.rifleGuard = makeGuard("rifle_old");
 Class.sniperRifle = {
     PARENT: "genericTank",
@@ -279,7 +281,7 @@ Class.sniperRifle = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.assassin, g.rifle]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, assassin, rifle]),
                 TYPE: "bullet"
             }
         },
@@ -302,7 +304,7 @@ Class.splasher = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.lowPower, g.pelleter, { recoil: 1.15 }]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, lowPower, pelleter, { recoil: 1.15 }]),
                 TYPE: "bullet"
             }
         },
@@ -314,7 +316,7 @@ Class.splasher = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster]),
                 TYPE: "bullet"
             }
         }
@@ -334,7 +336,7 @@ Class.sprayer_RG = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.lowPower, g.pelleter, { recoil: 1.15 }]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, lowPower, pelleter, { recoil: 1.15 }]),
                 TYPE: "bullet"
             }
         },
@@ -346,7 +348,7 @@ Class.sprayer_RG = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.gatlingGun]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, gatlingGun]),
                 TYPE: "bullet"
             }
         }
@@ -366,7 +368,7 @@ Class.spreadRifle = {
                 ANGLE: 2
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
@@ -379,7 +381,7 @@ Class.spreadRifle = {
                 DELAY: 0.08
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         },
@@ -392,7 +394,7 @@ Class.spreadRifle = {
                 DELAY: 0.16
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.crossbow, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, crossbow, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }]),
@@ -402,7 +404,7 @@ Class.spreadRifle = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle]),
                 TYPE: "bullet"
             }
         },
@@ -425,7 +427,7 @@ Class.subverter = {
             WIDTH: 14
         },
         PROPERTIES: {
-            SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.minigun]),
+            SHOOT_SETTINGS: combineStats([basic, pounder, minigun]),
             TYPE: "bullet"
         }
     }, 3, {lengthOffset: 2, delayIncrement: 1 / 3})
@@ -445,7 +447,7 @@ Class.triBlaster = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, { recoil: 0.5 }, g.lowPower]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster, { recoil: 0.5 }, lowPower]),
                 TYPE: "bullet"
             }
         }),
@@ -457,7 +459,7 @@ Class.triBlaster = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }
@@ -469,7 +471,9 @@ if (Config.retrograde) {
     Class.machineGun.UPGRADES_TIER_2.push("blaster", "gatlingGun", "machineFlank");
     Class.sniper.UPGRADES_TIER_2.push("gatlingGun");
 
-    if (!better_retrograde && !Config.arms_race) Class.hexaTank.UPGRADES_TIER_3.push("tornado_AR");
+    if (!better_retrograde && !Config.arms_race) {
+        Class.hexaTank.UPGRADES_TIER_3.push("tornado_AR");
+    }
     Class.tripleShot.UPGRADES_TIER_3.push("triBlaster");
 };
 
@@ -483,15 +487,14 @@ if (Config.arms_race || Config.retrograde) {
 };
 
 // OSA Retrograde Fixes
-module.exports = { better_retrograde, label_correction };
 if (label_correction) {
     Class.machineFlank.LABEL = "Double Machine";
     Class.machineTriple.LABEL = "Triple Machine";
     Class.triBlaster.LABEL = "Bent Blaster";
 };
 if (better_retrograde) {
-    g.blasterFix = { size: 1.25 };
-    g.flamethrowerRG = {
+    const blasterFix = { size: 1.25 };
+    const flamethrowerRG = {
         reload: 1.75,
         recoil: 4 / 3,
         shudder: 2,
@@ -522,7 +525,7 @@ if (better_retrograde) {
         ASPECT: 1.9,
         X: 4
     };
-    Class.blaster.GUNS[0].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix]);
+    Class.blaster.GUNS[0].PROPERTIES.SHOOT_SETTINGS = combineStats([basic, machineGun, blaster, blasterFix]);
     Class.flamethrower_RG = {
         PARENT: "genericTank",
         LABEL: "Flamethrower",
@@ -536,7 +539,7 @@ if (better_retrograde) {
                     X: 13
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.flamethrowerRG]),
+                    SHOOT_SETTINGS: combineStats([basic, machineGun, blaster, blasterFix, flamethrowerRG]),
                     TYPE: "growBullet"
                 }
             },
@@ -569,7 +572,7 @@ if (better_retrograde) {
         X: 4,
         ANGLE: 180
     };
-    Class.halfNHalf.GUNS[1].PROPERTIES.SHOOT_SETTINGS = combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, g.doubleTwin]);
+    Class.halfNHalf.GUNS[1].PROPERTIES.SHOOT_SETTINGS = combineStats([basic, machineGun, blaster, blasterFix, doubleTwin]);
     Class.splasher.GUNS[0].POSITION = {
         LENGTH: 20,
         WIDTH: 7
@@ -587,7 +590,7 @@ if (better_retrograde) {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, { recoil: 0.5 }, g.lowPower]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster, blasterFix, { recoil: 0.5 }, lowPower]),
                 TYPE: "bullet"
             }
         }),
@@ -599,7 +602,7 @@ if (better_retrograde) {
                 X: 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun, g.blaster, g.blasterFix, { recoil: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun, blaster, blasterFix, { recoil: 0.5 }]),
                 TYPE: "bullet"
             }
         }
@@ -617,7 +620,7 @@ if (better_retrograde) {
         Class.sprayer.UPGRADES_TIER_3.push("splasher");
 
         if (Config.arms_race) {
-            require("./armsRace.js");
+            import("./armsRace.js");
         } else {
             Class.pounder.UPGRADES_TIER_3.push("subverter", "deathStar");
         };

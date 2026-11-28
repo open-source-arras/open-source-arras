@@ -1,11 +1,11 @@
 "use strict";
 
-let u32 = new Uint32Array(1);
-let c32 = new Uint8Array(u32.buffer);
-let f32 = new Float32Array(u32.buffer);
+const u32 = new Uint32Array(1);
+const c32 = new Uint8Array(u32.buffer);
+const f32 = new Float32Array(u32.buffer);
 
-let u16 = new Uint16Array(1);
-let c16 = new Uint8Array(u16.buffer);
+const u16 = new Uint16Array(1);
+const c16 = new Uint8Array(u16.buffer);
 
 /** Header Codes
  * S = sign bit, 0 = positive or 0, 1 = negative
@@ -31,22 +31,22 @@ let c16 = new Uint8Array(u16.buffer);
  * The new fasttalk system, named fasttalk 2.0, is designed to be backward compatible with fasttalk 1.0.
  * Instead of operating on a string, the data is put onto a Uint8Array, which makes it much faster.
  * The type indicators are also made shorter, changing from 1 byte to 4 bits, and special compressions for 0 and 1 and type repeats are also added, which reduced bandwidth usage.
- * 
+ *
  * The algorithm compresses an array of JavaScript numbers and strings into a single packets. Booleans are automatically casted to 0 and 1.
  * Each packet consists of two main parts: the header codes, and the data.
  * The header codes are 4 bit each, and there must be an even number of them.
  * In a packet, the header code always start and end with code 15 (0b1111). The actual headers are put between them. The starting code allows the client to instantly check to see which version of the protocol is used, and fall back if necessary. The encding codes allows the client to signal the start of the data section. Since there must be an even number of header codes, if there is an odd number of headers, there will be two code 15s at the end instead of only one.
- * 
+ *
  * When the data is being compressed, each element of the array is labeled to one of 12 types, which is the first 12 header codes in the table above. If more than 3 header codes of the same type is used, they are compressed into shorter blocks to indicate repeats.
  */
 
-let encode = message => {
-    let headers = [];
-    let headerCodes = [];
+export function encode(message) {
+    const headers = [];
+    const headerCodes = [];
     let contentSize = 0;
     let lastTypeCode = 0b1111;
     let repeatTypeCount = 0;
-    for (let block of message) {
+    for (const block of message) {
         let typeCode = 0;
         if (block === 0 || block === false) {
             typeCode = 0b0000;
@@ -101,7 +101,7 @@ let encode = message => {
             }
         } else {
             console.error(`Unencodable data type: ${block}`);
-            let packetType = message[0];
+            const packetType = message[0];
             console.error(`Packet type: ${packetType}`);
             console.error(`Unencoded packet: \n${message.join(" ")}`);
             if (packetType == "u") {
@@ -123,11 +123,11 @@ let encode = message => {
                     repeatTypeCount -= 19;
                 }
                 if (repeatTypeCount === 1) {
-                    headerCodes.push(lastTypeCode); 
+                    headerCodes.push(lastTypeCode);
                 } else if (repeatTypeCount === 2) {
-                    headerCodes.push(0b1100); 
+                    headerCodes.push(0b1100);
                 } else if (repeatTypeCount === 3) {
-                    headerCodes.push(0b1101); 
+                    headerCodes.push(0b1101);
                 } else if (repeatTypeCount < 20) {
                     headerCodes.push(0b1110);
                     headerCodes.push(repeatTypeCount - 4);
@@ -145,11 +145,11 @@ let encode = message => {
             repeatTypeCount -= 19;
         }
         if (repeatTypeCount === 1) {
-            headerCodes.push(lastTypeCode); 
+            headerCodes.push(lastTypeCode);
         } else if (repeatTypeCount === 2) {
-            headerCodes.push(0b1100); 
+            headerCodes.push(0b1100);
         } else if (repeatTypeCount === 3) {
-            headerCodes.push(0b1101); 
+            headerCodes.push(0b1101);
         } else if (repeatTypeCount < 20) {
             headerCodes.push(0b1110);
             headerCodes.push(repeatTypeCount - 4);
@@ -157,18 +157,18 @@ let encode = message => {
     }
     headerCodes.push(0b1111);
     if (headerCodes.length % 2 === 1) {
-        headerCodes.push(0b1111); 
+        headerCodes.push(0b1111);
     }
 
-    let output = new Uint8Array((headerCodes.length >> 1) + contentSize);
+    const output = new Uint8Array((headerCodes.length >> 1) + contentSize);
     for (let i = 0; i < headerCodes.length; i += 2) {
-        let upper = headerCodes[i];
-        let lower = headerCodes[i + 1];
+        const upper = headerCodes[i];
+        const lower = headerCodes[i + 1];
         output[i >> 1] = (upper << 4) | lower;
     }
     let index = headerCodes.length >> 1;
     for (let i = 0; i < headers.length; i++) {
-        let block = message[i];
+        const block = message[i];
         switch (headers[i]) {
             case 0b0000:
             case 0b0001:
@@ -196,7 +196,7 @@ let encode = message => {
                 break;
             case 0b1001:
                 {
-                    let byte = block.length === 0 ? 0 : block.charCodeAt(0);
+                    const byte = block.length === 0 ? 0 : block.charCodeAt(0);
                     output[index++] = byte;
                 }
                 break;
@@ -208,7 +208,7 @@ let encode = message => {
                 break;
             case 0b1011:
                 for (let i = 0; i < block.length; i++) {
-                    let charCode = block.charCodeAt(i);
+                    const charCode = block.charCodeAt(i);
                     output[index++] = charCode & 0xff;
                     output[index++] = charCode >> 8;
                 }
@@ -221,19 +221,19 @@ let encode = message => {
     return output;
 };
 
-let decode = packet => {
-    let data = new Uint8Array(packet);
+export function decode(packet) {
+    const data = new Uint8Array(packet);
     if (data[0] >> 4 !== 0b1111) {
-        return null; 
+        return null;
     }
 
-    let headers = [];
+    const headers = [];
     let lastTypeCode = 0b1111;
     let index = 0;
     let consumedHalf = true;
     while (true) {
         if (index >= data.length) {
-            return null; 
+            return null;
         }
         let typeCode = data[index];
 
@@ -248,7 +248,7 @@ let decode = packet => {
         if ((typeCode & 0b1100) === 0b1100) {
             if (typeCode === 0b1111) {
                 if (consumedHalf) {
-                    index++; 
+                    index++;
                 }
                 break;
             }
@@ -256,7 +256,7 @@ let decode = packet => {
             let repeat = typeCode - 10; // 0b1100 - 2
             if (typeCode === 0b1110) {
                 if (index >= data.length) {
-                    return null; 
+                    return null;
                 }
                 let repeatCode = data[index];
 
@@ -272,7 +272,7 @@ let decode = packet => {
             }
 
             for (let i = 0; i < repeat; i++) {
-                headers.push(lastTypeCode); 
+                headers.push(lastTypeCode);
             }
         } else {
             headers.push(typeCode);
@@ -280,8 +280,8 @@ let decode = packet => {
         }
     }
 
-    let output = [];
-    for (let header of headers) {
+    const output = [];
+    for (const header of headers) {
         switch (header) {
             case 0b0000:
                 output.push(0);
@@ -328,16 +328,17 @@ let decode = packet => {
                 break;
             case 0b1001:
                 {
-                    let byte = data[index++];
+                    const byte = data[index++];
                     output.push(byte === 0 ? "" : String.fromCharCode(byte));
                 }
                 break;
             case 0b1010:
                 {
                     let string = "";
-                    let byte = 0;
-                    while (byte = data[index++]) {
+                    let byte = data[index++];
+                    while (byte !== 0) {
                         string += String.fromCharCode(byte);
+                        byte = data[index++];
                     }
                     output.push(string);
                 }
@@ -345,9 +346,10 @@ let decode = packet => {
             case 0b1011:
                 {
                     let string = "";
-                    let byte = 0;
-                    while (byte = data[index++] | (data[index++] << 8)) {
+                    let byte = data[index++] | (data[index++] << 8);
+                    while (byte !== 0) {
                         string += String.fromCharCode(byte);
+                        byte = data[index++] | (data[index++] << 8);
                     }
                     output.push(string);
                 }
@@ -357,6 +359,3 @@ let decode = packet => {
 
     return output;
 };
-
-exports.encode = encode;
-exports.decode = decode;

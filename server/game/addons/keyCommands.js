@@ -1,31 +1,29 @@
+import { gameManager } from "../../game";
+import { getDistance } from "../../lib/util";
+import { Class, Config, entities, getTeamColor, key, permissionLevelValue, setPermissionLevel, TEAM_BLUE, TEAM_BROWN, TEAM_CYAN, TEAM_ENEMIES, TEAM_GREEN, TEAM_ORANGE, TEAM_PURPLE, TEAM_RED, TEAM_YELLOW, wallTypes } from "../../loaders/global";
+import { Entity } from "../entities/entity";
+import { getRealSizeLazy } from "../entities/subFunctions";
+
 function init() {
-    let useOldMenu = false;
+    const useOldMenu = false;
     function selectedEntities(player, run) {
         for (const o of entities.values()) {
-            if (
-                (o !== player.body) != null &&
-            util.getDistance(o, {
+            if (o !== player.body && getDistance(o, {
                 x: player.target.x + player.body.x,
                 y: player.target.y + player.body.y
-            }) <
-              o.size * 1
-            ) {
+            }) < o.size) {
                 run(o);
             }
         }
     }
     function targetEntities(player, test = () => true) {
-        let array = [];
+        const array = [];
         for (const o of entities.values()) {
-            if (
-                (o !== player.body) != null &&
-            test(o) &&
-            util.getDistance(o, {
+            if (o !== player.body && test(o) &&
+            getDistance(o, {
                 x: player.target.x + player.body.x,
                 y: player.target.y + player.body.y
-            }) <
-              o.size * 1
-            ) {
+            }) < o.size) {
                 array.push(o);
             }
         };
@@ -38,9 +36,10 @@ function init() {
         };
     }
     function nearest(array, location, test = () => true) {
-        let lowest = Infinity, closest;
+        let lowest = Infinity,
+            closest;
         for (const instance of array.values()) {
-            let distance = (instance.x - location.x) ** 2 + (instance.y - location.y) ** 2;
+            const distance = (instance.x - location.x) ** 2 + (instance.y - location.y) ** 2;
             if (distance < lowest && test(instance, distance)) {
                 lowest = distance;
                 closest = instance;
@@ -49,34 +48,41 @@ function init() {
         return closest;
     }
     function makeHelpList(command, showPrefix = true) {
-        let name = command.name;
+        const name = command.name;
         let keyStr, defaultChar;
         if (command.displayKey) {
             keyStr = command.displayKey;
             defaultChar = command.displayKey;
         } else {
-            keyStr = command.keys.map(keys => {
-                if (!showPrefix) keys = keys.slice(-1);
-                return keys.map(k => {
-                    if (typeof k[0] === "number") return k[1];
-                    let prefix = k[0].startsWith("-") ? "-" : "";
+            keyStr = command.keys.map((keys) => {
+                if (!showPrefix) {
+                    keys = keys.slice(-1);
+                }
+                return keys.map((k) => {
+                    if (typeof k[0] === "number") {
+                        return k[1];
+                    }
+                    const prefix = k[0].startsWith("-") ? "-" : "";
                     return prefix + key(prefix ? k[0].slice(1) : k[0]);
                 }).join("+");
             }).join(" / ");
             defaultChar = showPrefix ? command.keys[0][0][1] : "";
         }
-        let description = command.description ?? false;
-        let asterisk = permissionLevelValue(command.permissionLevel) > 1 ? "*" : "";
-        let text = "";
-        if (name.slice(0, 1).toUpperCase() === defaultChar) text = `- [${keyStr}]${name.slice(1)}${asterisk}`;
-        else text = `- [${keyStr}] ${name}${asterisk}`;
-        if (description) text += ` - ${description}`;
+        const description = command.description ?? false;
+        const asterisk = permissionLevelValue(command.permissionLevel) > 1 ? "*" : "";
+        let text = `- [${keyStr}] ${name}${asterisk}`;
+        if (name.slice(0, 1).toUpperCase() === defaultChar) {
+            text = `- [${keyStr}]${name.slice(1)}${asterisk}`;
+        }
+        if (description) {
+            text += ` - ${description}`;
+        }
         return text;
     }
-    
+
     // This is your commands does things.
-    let permissionLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Shiny Member", "Beta Tester", "Game Mod", "Game Admin", "Developer"];
-    let commands = [
+    const permissionLevelNames = ["player", "Arena Conductor", "Arena Supervisor", "Arena Operator", "Shiny Member", "Beta Tester", "Game Mod", "Game Admin", "Developer"];
+    const commands = [
         {
             name: "Help",
             description: "Shows this command list",
@@ -84,21 +90,23 @@ function init() {
             permissionLevel: 1,
             hidden: true,
             run: ({ socket }) => {
-                let lines = [
+                const lines = [
                     "Help menu:",
                     ...commands
                         .filter(
                             (c) =>
                                 socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden && !c.attribute && !c.skill
                         )
-                        .map(command => makeHelpList(command)),
+                        .map((command) => makeHelpList(command)),
                     "Warning: Avoid zooming all the way out to prevent lagging the server."
                 ];
                 if (useOldMenu) {
-                    for (let line of lines.reverse()) {
+                    for (const line of lines.reverse()) {
                         socket.talk("m", 15_000, line);
                     }
-                } else socket.talk("Em", 15_000, JSON.stringify(lines));
+                } else {
+                    socket.talk("Em", 15_000, JSON.stringify(lines));
+                }
             }
         },
         {
@@ -190,7 +198,9 @@ function init() {
             run: ({ socket, player }) => {
                 let killed = 0;
                 selectedEntities(player, (o) => {
-                    if (o.bond) return;
+                    if (o.bond) {
+                        return;
+                    }
                     o.kill();
                     killed++;
                 });
@@ -208,9 +218,13 @@ function init() {
             permissionLevel: 1,
             run: ({ player }) => {
                 let e = player.body.store.selectedWhirlpool;
-                let t = target(player);
-                if (!e) e = player.body.store.selectedWhirlpool = nearest(entities, t);
-                if (!e) return;
+                const t = target(player);
+                if (!e) {
+                    e = player.body.store.selectedWhirlpool = nearest(entities, t);
+                }
+                if (!e) {
+                    return;
+                }
                 e.x = t.x;
                 e.y = t.y;
                 e.wake();
@@ -233,11 +247,13 @@ function init() {
             permissionLevel: 1,
             run({ socket, player }) {
                 if (!player.body.store.dragInterval) {
-                    let dragged = [];
-                    let tx = player.body.x + player.target.x;
-                    let ty = player.body.y + player.target.y;
+                    const dragged = [];
+                    const tx = player.body.x + player.target.x;
+                    const ty = player.body.y + player.target.y;
                     for (const e of entities.values()) {
-                        if (e.bond) continue;
+                        if (e.bond) {
+                            continue;
+                        }
                         if (
                             !(e.type === "mazeWall" && e.shape === 4) &&
                             (e.x - tx) * (e.x - tx) + (e.y - ty) * (e.y - ty) <
@@ -250,16 +266,16 @@ function init() {
                         socket.talk("m", 4_000, "No entity picked up!");
                         return;
                     }
-                    let body = player.body;
+                    const body = player.body;
                     body.store.dragInterval = setInterval(() => {
                         if (body.isGhost) {
                             clearInterval(body.store.dragInterval);
                             delete body.store.dragInterval;
                             return;
                         }
-                        let tx = player.body.x + player.target.x;
-                        let ty = player.body.y + player.target.y;
-                        for (let { e: entity, dx, dy } of dragged) {
+                        const tx = player.body.x + player.target.x;
+                        const ty = player.body.y + player.target.y;
+                        for (const { e: entity, dx, dy } of dragged) {
                             if (!entity.isGhost) {
                                 entity.x = dx + tx;
                                 entity.y = dy + ty;
@@ -269,7 +285,7 @@ function init() {
                             } else {
                                 clearInterval(body.store.dragInterval);
                                 delete body.store.dragInterval;
-                            } 
+                            }
                         }
                     });
                 }
@@ -293,22 +309,24 @@ function init() {
                 const colors = [
                     "teal", "shiny", "triangle",
                     "yellow", "lavender", "aqua",
-                    "crasher", "egg", "wall", 
+                    "crasher", "egg", "wall",
                     "pureWhite", "black", "blue",
                     "green", "red", "square",
                     "pentagon", "magenta", "grey",
                     "rogue", "white", "pureBlack",
                     "animatedBlueRed", "animatedBlueGrey", "animatedGreyBlue",
                     "animatedRedGrey", "animatedGreyRed", "mustard",
-                    "tangerine", "brown", "cyan", 
+                    "tangerine", "brown", "cyan",
                     "lesbian", "rainbow", "trans",
                     "trueTrans", "bi", "animatedMagenta"
                 ];
-                let target = targetEntities(player);
+                const target = targetEntities(player);
                 if (target.length) {
-                    let o = target[0];
+                    const o = target[0];
                     const color = typeof o.color.base === "number" ? colors[o.color.base + 1] : colors[colors.indexOf(o.color.base) + 1];
-                    if (!color) return o.color.base = colors[0];
+                    if (!color) {
+                        return o.color.base = colors[0];
+                    }
                     o.color.base = color;
                 }
             }
@@ -319,8 +337,7 @@ function init() {
             keys: [[["KEY_SPECIAL_WALL", "X"]]],
             permissionLevel: 1,
             run: ({ socket, player, gameManager }) => {
-                let pos = {};
-                let dwall = player.body.store.wallCMD;
+                const dwall = player.body.store.wallCMD;
                 if (!dwall) {
                     const targetPos = {
                         x: player.body.x + player.target.x,
@@ -330,15 +347,15 @@ function init() {
                     if (!gridCell) {
                         return socket.talk("m", 3_000, "No valid grid.");
                     }
-                    pos = { x: gridCell.x, y: gridCell.y };
-                    let checkWall = targetEntities(player, o => o.type === "wall");
+                    const pos = { x: gridCell.x, y: gridCell.y };
+                    const checkWall = targetEntities(player, (o) => o.type === "wall");
                     if (!checkWall.length) {
-                        let o = new Entity(pos);
+                        const o = new Entity(pos);
                         o.define("wall");
-                        o.SIZE = gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2 / lazyRealSizes[4] * Math.SQRT2 - 2;
+                        o.SIZE = gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2 / getRealSizeLazy(4) * Math.SQRT2 - 2;
                         o.team = -101;
                         o.isWallSpawn = true;
-                        let pt = target(player);
+                        const pt = target(player);
                         player.body.store.wallCMD = {
                             wall: o,
                             target: pt,
@@ -346,7 +363,7 @@ function init() {
                             size: gameManager.room.wallGrid.width / gameManager.room.wallGrid.xgrid / 2
                         };
                     } else {
-                        for (let wall of checkWall) {
+                        for (const wall of checkWall) {
                             wall.destroy();
                         }
                     }
@@ -370,9 +387,9 @@ function init() {
                             player.body.store.wallCMD.size * scaleFactor,
                             player.body.store.wallCMD.size
                         );
-                        player.body.store.wallCMD.wall.SIZE = (newWallSize / lazyRealSizes[4]) * Math.SQRT2 - 2;
+                        player.body.store.wallCMD.wall.SIZE = (newWallSize / getRealSizeLazy(4)) * Math.SQRT2 - 2;
                         const xOffset = newWallSize - player.body.store.wallCMD.size;
-                        player.body.store.wallCMD.wall.x = player.body.store.wallCMD.position.x + 
+                        player.body.store.wallCMD.wall.x = player.body.store.wallCMD.position.x +
                             (player.body.store.wallCMD.position.x > pos.x ? -xOffset : xOffset);
                         const yOffset = newWallSize - player.body.store.wallCMD.size;
                         player.body.store.wallCMD.wall.y = player.body.store.wallCMD.position.y +
@@ -382,25 +399,29 @@ function init() {
             }
         },
         {
-            name: "Wall Type", 
+            name: "Wall Type",
             keys: [[["KEY_SPECIAL_WALL_TYPE", "Z"]]],
             permissionLevel: 1,
             run: ({ player }) => {
-                let walling = targetEntities(player, o => o.type === "wall");
+                const walling = targetEntities(player, (o) => o.type === "wall");
                 if (walling.length) {
-                    let o = walling[0];
-                    for (let tur of o.turrets.values()) tur.destroy();
+                    const o = walling[0];
+                    for (const tur of o.turrets.values()) {
+                        tur.destroy();
+                    }
                     o.turrets.clear();
-                    if (o.walltype === global.wallTypes.length) o.walltype = 0;
+                    if (o.walltype === wallTypes.length) {
+                        o.walltype = 0;
+                    }
                     o.walltype = o.walltype + 1;
-                    let wallsettings = global.wallTypes[o.walltype - 1];
-                    let newWalltype = o.walltype;
-                    let wallSize = o.SIZE;
+                    const wallsettings = wallTypes[o.walltype - 1];
+                    const newWalltype = o.walltype;
+                    const wallSize = o.SIZE;
                     o.define(Class[wallsettings.class]);
                     o.walltype = newWalltype;
                     o.SIZE = wallSize;
                     o.coreSize = o.SIZE;
-                    o.color.base = wallsettings.color; 
+                    o.color.base = wallsettings.color;
                     o.label = wallsettings.label;
                     o.alpha = wallsettings.alpha;
                 }
@@ -421,7 +442,7 @@ function init() {
             keys: [[["KEY_SPECIAL_POLYGON", "F"]]],
             permissionLevel: 1,
             run: ({ player }) => {
-                let o = new Entity(target(player));
+                const o = new Entity(target(player));
                 o.define("egg");
                 o.team = TEAM_ENEMIES;
             }
@@ -469,11 +490,15 @@ function init() {
             run: ({ player, socket }) => {
                 let changedTeamToEntity = false;
                 selectedEntities(player, (o) => {
-                    if (o.bond) return;
-                    let color = getTeamColor(o.team);
+                    if (o.bond) {
+                        return;
+                    }
+                    const color = getTeamColor(o.team);
                     player.body.team = o.team;
-                    
-                    if (color < 0) player.body.color.base = color;
+
+                    if (color < 0) {
+                        player.body.color.base = color;
+                    }
                     changedTeamToEntity = {
                         team: o.team
                     };
@@ -515,9 +540,9 @@ function init() {
             run: ({ player, socket }) => {
                 selectedEntities(player, (o) => {
                     o.team = player.body.team;
-                    let color = getTeamColor(o.team);
+                    const color = getTeamColor(o.team);
                     o.color.base = color;
-                    socket.talk("m", 5_000, "Changed entity to team " + player.body.team);
+                    socket.talk("m", 5_000, `Changed entity to team ${player.body.team}`);
                 });
             }
         },
@@ -528,7 +553,9 @@ function init() {
             run: ({ socket, player }) => {
                 let healed = 0;
                 selectedEntities(player, (o) => {
-                    if (o.bond) return;
+                    if (o.bond) {
+                        return;
+                    }
                     o.health.amount = o.health.max;
                     o.shield.amount = o.shield.max;
                     healed++;
@@ -548,20 +575,22 @@ function init() {
             displayKey: "S+?",
             permissionLevel: 1,
             run: ({ socket }) => {
-                let lines = [
+                const lines = [
                     "Help menu:",
                     ...commands
                         .filter(
                             (c) =>
                                 socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden && c.skill
                         )
-                        .map(command => makeHelpList(command, false))
+                        .map((command) => makeHelpList(command, false))
                 ];
                 if (useOldMenu) {
-                    for (let line of lines.reverse()) {
+                    for (const line of lines.reverse()) {
                         socket.talk("m", 15_000, line);
                     }
-                } else socket.talk("Em", 15_000, JSON.stringify(lines));
+                } else {
+                    socket.talk("Em", 15_000, JSON.stringify(lines));
+                }
             }
         },
         {
@@ -572,13 +601,16 @@ function init() {
             run: ({ player }) => {
                 player.body.skill.setCaps(Array(10).fill(9));
                 player.body.skill.set(Array(10).fill(0));
-                let score = player.body.skill.score;
+                const score = player.body.skill.score;
                 player.body.skill.reset();
                 player.body.skill.score = score;
-                while (player.body.skill.maintain()) { }
+                let hasMaintained = true;
+                while (hasMaintained) {
+                    hasMaintained = player.body.skill.maintain();
+                }
                 player.body.syncTurrets();
                 player.body.refreshBodyAttributes();
-                
+
             }
         },
         {
@@ -587,7 +619,7 @@ function init() {
             skill: true,
             permissionLevel: 1,
             run: ({ player }) => {
-                let refundedSkillPoints = player.body.skill.raw.reduce((total, amount) => total + amount, 0);
+                const refundedSkillPoints = player.body.skill.raw.reduce((total, amount) => total + amount, 0);
                 player.body.skill.set(Array(10).fill(0));
                 player.body.skill.points += refundedSkillPoints;
                 player.body.syncTurrets();
@@ -622,8 +654,8 @@ function init() {
             skill: true,
             permissionLevel: 1,
             run: ({ player }) => {
-                let currentUsedPoints = player.body.skill.raw.reduce((total, v) => total + v, 0);
-                let maxSkills = player.body.skill.caps.reduce((total, capAmount) => total + capAmount, 0);
+                const currentUsedPoints = player.body.skill.raw.reduce((total, v) => total + v, 0);
+                const maxSkills = player.body.skill.caps.reduce((total, capAmount) => total + capAmount, 0);
                 player.body.skill.points = Math.min(maxSkills - currentUsedPoints, player.body.skill.points + 1);
                 player.body.syncTurrets();
                 player.body.refreshBodyAttributes();
@@ -635,7 +667,7 @@ function init() {
             skill: true,
             permissionLevel: 1,
             run: ({ player }) => {
-                let newSkillCaps = player.body.skill.caps.map((x) => Math.max(0, x - 1));
+                const newSkillCaps = player.body.skill.caps.map((x) => Math.max(0, x - 1));
                 let maxSkillPoints = newSkillCaps.reduce((total, x) => total + x, 0);
                 player.body.skill.setCaps(newSkillCaps);
                 maxSkillPoints -= player.body.skill.raw.reduce((total, x) => total + x, 0);
@@ -650,7 +682,7 @@ function init() {
             skill: true,
             permissionLevel: 1,
             run: ({ player }) => {
-                let skills = player.body.skill.caps.map((cap) => cap = Math.min(20, cap + 1));
+                const skills = player.body.skill.caps.map((cap) => Math.min(255, cap + 1));
                 player.body.skill.setCaps(skills);
                 player.body.syncTurrets();
                 player.body.refreshBodyAttributes();
@@ -663,8 +695,10 @@ function init() {
             run: ({ socket, player }) => {
                 const t = target(player);
                 const e = nearest(entities, t);
-                if (e.bond) return;
-                let message = [
+                if (e.bond) {
+                    return;
+                }
+                const message = [
                     `Selected ${e.name || (e.isPlayer ? "an unnamed player" : "a")}${(e.name || e.isPlayer) ? "'s" : ""} ${e.label} (ID #${e.id}).`,
                     `Score: ${e.skill.score};`,
                     `Build: ${e.skill.raw.join("/")};`
@@ -689,16 +723,18 @@ function init() {
             run: ({ player }) => {
                 const range = 255; // 10 ** 2 was 100, but should be radius, not squared
                 const force = 45;
-                let t = target(player);
-                for (let entity of entities.values()) {
-                    if (entity.type == "wall" || entity.bond) continue;
-                    let dx = entity.x - t.x;
-                    let dy = entity.y - t.y;
-                    let dist = Math.sqrt(dx * dx + dy * dy);
+                const t = target(player);
+                for (const entity of entities.values()) {
+                    if (entity.type == "wall" || entity.bond) {
+                        continue;
+                    }
+                    const dx = entity.x - t.x;
+                    const dy = entity.y - t.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < range && dist > 0) {
                         // Normalize direction and scale by force, inversely proportional to distance
-                        let fx = (dx / dist) * force * (1 - dist / range);
-                        let fy = (dy / dist) * force * (1 - dist / range);
+                        const fx = (dx / dist) * force * (1 - dist / range);
+                        const fy = (dy / dist) * force * (1 - dist / range);
                         entity.velocity.x += fx;
                         entity.velocity.y += fy;
                     }
@@ -711,20 +747,22 @@ function init() {
             displayKey: "A+?",
             permissionLevel: 1,
             run: ({ socket }) => {
-                let lines = [
+                const lines = [
                     "Help menu:",
                     ...commands
                         .filter(
                             (c) =>
                                 socket.status.permissionLevel >= permissionLevelValue(c.permissionLevel) && !c.hidden && c.attribute
                         )
-                        .map(command => makeHelpList(command, false))
+                        .map((command) => makeHelpList(command, false))
                 ];
                 if (useOldMenu) {
-                    for (let line of lines.reverse()) {
+                    for (const line of lines.reverse()) {
                         socket.talk("m", 15_000, line);
                     }
-                } else socket.talk("Em", 15_000, JSON.stringify(lines));
+                } else {
+                    socket.talk("Em", 15_000, JSON.stringify(lines));
+                }
             }
         },
         {
@@ -821,25 +859,25 @@ function init() {
                         if (
                             o !== player.body &&
                             o.isPlayer &&
-                            util.getDistance(o, {
+                            getDistance(o, {
                                 x: player.target.x + player.body.x,
                                 y: player.target.y + player.body.y
-                            }) < o.size * 1
+                            }) < o.size
                         ) {
                             found = o;
                         }
                     };
                     return found;
                 }
-                let selected = selectPlayer(player);
+                const selected = selectPlayer(player);
                 if (selected && selected.socket) {
                     if (selected.socket.status.permissionLevel >= 5) {
                         socket.talk("m", 5_000, "You cannot ban this player!");
                         return;
                     }
-                    let type = player.body.store.banCommandType ?? 0;
-                    let name = selected.name ? selected.name.trim() : "unnamed";
-                    let typeName = typeNames[type][1];
+                    const type = player.body.store.banCommandType ?? 0;
+                    const name = selected.name ? selected.name.trim() : "unnamed";
+                    const typeName = typeNames[type][1];
                     socket.talk("m", 5_000, `${typeName.charAt(0).toUpperCase() + typeName.slice(1)} banned ${name}.`);
                     if (type === 1) {
                         selected.socket.ban("Banned by operator.");
@@ -848,7 +886,9 @@ function init() {
                     }
                 } else {
                     player.body.store.banCommandType = (player.body.store.banCommandType ?? -1) + 1;
-                    if (player.body.store.banCommandType >= types) player.body.store.banCommandType = 0;
+                    if (player.body.store.banCommandType >= types) {
+                        player.body.store.banCommandType = 0;
+                    }
                     socket.talk("m", 5_000, `Switched to ${typeNames[player.body.store.banCommandType][0]} bans.`);
                 }
             }
@@ -906,15 +946,21 @@ function init() {
             keys: [[["KEY_SPECIAL_PROMOTE", ";"]]],
             permissionLevel: 2,
             run: ({ player, socket }) => {
-                let role = socket.status.permissionLevel;
-                if (role < 2) return player.body.sendMessage("You do not have access to this command.");
+                const role = socket.status.permissionLevel;
+                if (role < 2) {
+                    return player.body.sendMessage("You do not have access to this command.");
+                }
                 selectedEntities(player, (o) => {
-                    if (!o.isPlayer || !o.socket || o.socket === socket) return;
-                    let target = o.socket.status.permissionLevel;
-                    if (target >= 3 || (role === 2 && target !== 0)) return player.body.sendMessage("You do not have sufficient permission to promote this player!");
+                    if (!o.isPlayer || !o.socket || o.socket === socket) {
+                        return;
+                    }
+                    const target = o.socket.status.permissionLevel;
+                    if (target >= 3 || (role === 2 && target !== 0)) {
+                        return player.body.sendMessage("You do not have sufficient permission to promote this player!");
+                    }
                     setPermissionLevel(o.socket, target + 1);
-                    o.socket.talk("m", 8_000, "You have been promoted to " + permissionLevelNames[target + 1] + "!");
-                    player.body.sendMessage("Player promoted to " + permissionLevelNames[target + 1] + "!");
+                    o.socket.talk("m", 8_000, `You have been promoted to ${permissionLevelNames[target + 1]}!`);
+                    player.body.sendMessage(`Player promoted to ${permissionLevelNames[target + 1]}!`);
                 });
             }
         },
@@ -923,15 +969,21 @@ function init() {
             keys: [[["KEY_SPECIAL_DEMOTE", "'"]]],
             permissionLevel: 2,
             run: ({ player, socket }) => {
-                let role = socket.status.permissionLevel;
-                if (role < 2) return player.body.sendMessage("You do not have access to this command.");
+                const role = socket.status.permissionLevel;
+                if (role < 2) {
+                    return player.body.sendMessage("You do not have access to this command.");
+                }
                 selectedEntities(player, (o) => {
-                    if (!o.isPlayer || !o.socket || o.socket === socket) return;
-                    let target = o.socket.status.permissionLevel;
-                    if (!target || (target > 3 && target >= role) || (role === 2 && target !== 1)) return player.body.sendMessage("You do not have sufficient permission to demote this player!");
+                    if (!o.isPlayer || !o.socket || o.socket === socket) {
+                        return;
+                    }
+                    const target = o.socket.status.permissionLevel;
+                    if (!target || (target > 3 && target >= role) || (role === 2 && target !== 1)) {
+                        return player.body.sendMessage("You do not have sufficient permission to demote this player!");
+                    }
                     setPermissionLevel(o.socket, target - 1);
-                    o.socket.talk("m", 8_000, "You have been demoted to " + permissionLevelNames[target - 1] + "!");
-                    player.body.sendMessage("Player demoted to " + permissionLevelNames[target - 1] + "!");
+                    o.socket.talk("m", 8_000, `You have been demoted to ${permissionLevelNames[target - 1]}!`);
+                    player.body.sendMessage(`Player demoted to ${permissionLevelNames[target - 1]}!`);
                 });
             }
         },
@@ -948,11 +1000,17 @@ function init() {
             }
         }
     ];
-    global.runKeyCommand = (socket, codes) => {
-        if (!socket?.player?.body) return 1;
-        if (!codes.length) codes = ["default"];
-        let name = codes.find((code) => code.startsWith("-")) || codes[codes.length - 1];
-        let command, length = 0;
+
+    runKeyCommandInternal = (socket, codes) => {
+        if (!socket?.player?.body) {
+            return;
+        }
+        if (!codes.length) {
+            codes = ["default"];
+        }
+        const name = codes.find((code) => code.startsWith("-")) || codes[codes.length - 1];
+        let command,
+            length = 0;
         for (const cmd of commands) {
             for (const keys of cmd.keys) {
                 if (keys.length > length && keys[keys.length - 1][0] === name && keys.slice(0, -1).every((key) => codes.includes(key[0]))) {
@@ -961,23 +1019,31 @@ function init() {
                 }
             }
         }
-        if (command && (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel) || (command.tokenClass && socket.permissions?.class === command.tokenClass))) {
+        if (!command) {
+            return;
+        }
+        if (socket.status.permissionLevel >= permissionLevelValue(command.permissionLevel) || (command.tokenClass && socket.permissions?.class === command.tokenClass)) {
             try {
                 command.run({
                     socket,
                     player: socket.player,
-                    gameManager: global.gameManager
+                    gameManager: gameManager
                 });
                 socket.player.body.refreshBodyAttributes();
                 socket.player.body.minimapColor = "lime";
-            } catch(e) {
+            } catch (e) {
                 console.error(`${command.name.toLowerCase()} key command error`, e);
             }
         }
     };
 }
 
-
 // If you dont want to add the key commands, just uncomment the return line.
 // return;
 init();
+
+let runKeyCommandInternal = () => undefined;
+
+export function runKeyCommand(socket, codes) {
+    runKeyCommandInternal(socket, codes);
+}

@@ -1,13 +1,15 @@
-let { MockupEntity } = require("./mockupEntity");
-let { getDimensions } = require("./mockupDimensions.js");
+import { MockupEntity } from "./mockupEntity";
+import { getDimensions } from "./mockupDimensions.js";
+import { rounder } from "../lib/util";
+import { Class, mockupData, mockupMap } from "../loaders/global.js";
 
 function getMockup(e, positionInfo) {
-    let turretsAndProps = e.turrets.concat(e.props);
+    const turretsAndProps = e.turrets.concat(e.props);
     return {
         index: e.index,
         name: e.label,
-        x: util.rounder(e.x),
-        y: util.rounder(e.y),
+        x: rounder(e.x),
+        y: rounder(e.y),
         upgradeName: e.upgradeLabel,
         upgradeTooltip: e.upgradeTooltip,
         color: e.color,
@@ -20,8 +22,8 @@ function getMockup(e, positionInfo) {
         censor: e.censor,
         shape: e.shapeData,
         imageInterpolation: e.imageInterpolation,
-        size: util.rounder(e.size),
-        realSize: util.rounder(e.realSize),
+        size: rounder(e.size),
+        realSize: rounder(e.realSize),
         mirrorMasterAngle: e.settings.mirrorMasterAngle,
         layer: e.layer,
         statnames: e.settings.skillNames,
@@ -29,18 +31,18 @@ function getMockup(e, positionInfo) {
         position: positionInfo,
         rerootUpgradeTree: e.rerootUpgradeTree,
         className: e.className,
-        upgrades: e.upgrades.map(r => ({
+        upgrades: e.upgrades.map((r) => ({
             tier: r.tier,
             index: r.index
         })),
         guns: e.guns.map(function(gun) {
             return {
-                offset: util.rounder(gun.offset),
-                direction: util.rounder(gun.direction),
-                length: util.rounder(gun.length),
-                width: util.rounder(gun.width),
-                aspect: util.rounder(gun.aspect),
-                angle: util.rounder(gun.angle),
+                offset: rounder(gun.offset),
+                direction: rounder(gun.direction),
+                length: rounder(gun.length),
+                width: rounder(gun.width),
+                aspect: rounder(gun.aspect),
+                angle: rounder(gun.angle),
                 color: gun.color,
                 strokeWidth: gun.strokeWidth,
                 alpha: gun.alpha,
@@ -52,22 +54,22 @@ function getMockup(e, positionInfo) {
         }),
         turrets: turretsAndProps.map(function(t) {
             // Merge turrets and props for the entity images.
-            let out = getMockup(t, {});
-            out.sizeFactor = util.rounder(t.bound.size);
-            out.offset = util.rounder(t.bound.offset);
-            out.direction = util.rounder(t.bound.direction);
-            out.layer = util.rounder(t.bound.layer);
-            out.angle = util.rounder(t.bound.angle);
+            const out = getMockup(t, {});
+            out.sizeFactor = rounder(t.bound.size);
+            out.offset = rounder(t.bound.offset);
+            out.direction = rounder(t.bound.direction);
+            out.layer = rounder(t.bound.layer);
+            out.angle = rounder(t.bound.angle);
             out.isProp = t.isProp;
             return out;
         }),
         props: e.props.map(function(p) {
-            let out = getMockup(p, {});
-            out.sizeFactor = util.rounder(p.bound.size);
-            out.offset = util.rounder(p.bound.offset);
-            out.direction = util.rounder(p.bound.direction);
-            out.layer = util.rounder(p.bound.layer);
-            out.angle = util.rounder(p.bound.angle);
+            const out = getMockup(p, {});
+            out.sizeFactor = rounder(p.bound.size);
+            out.offset = rounder(p.bound.offset);
+            out.direction = rounder(p.bound.direction);
+            out.layer = rounder(p.bound.layer);
+            out.angle = rounder(p.bound.angle);
             out.forceAngle = p.forceAngle;
             out.isProp = true;
             return out;
@@ -75,10 +77,10 @@ function getMockup(e, positionInfo) {
     };
 }
 
-function buildMockup(className, Manager) {
+export function buildMockup(className, Manager) {
     try {
-        let type = Class[className];
-        let mockup = new MockupEntity(Manager);
+        const type = Class[className];
+        const mockup = new MockupEntity(Manager);
         mockup.set(className);
         mockup.className = className;
         mockup.name = type.LABEL; // Rename it (for the upgrades menu).
@@ -89,14 +91,12 @@ function buildMockup(className, Manager) {
         // Add the new data to the thing.
         mockupMap[mockup.index] = mockupData.length;
         mockupData.push(getMockup(mockup, type.mockup.position));
-    } catch(error) {
-        util.error("[WARNING]: An error has occured during mockup loading:");
-        util.error(`When attempting to generate mockup "${className}":`);
-        for (let i in Class[className]) util.error("\t" + i + ": " + Class[className][i]);
+    } catch (error) {
+        error("[WARNING]: An error has occured during mockup loading:");
+        error(`When attempting to generate mockup "${className}":`);
+        for (const i in Class[className]) {
+            error(`\t${i}: ${Class[className][i]}`);
+        }
         throw error;
     }
 }
-
-module.exports = {
-    buildMockup
-};

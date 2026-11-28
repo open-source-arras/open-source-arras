@@ -1,8 +1,9 @@
-const { combineStats, weaponArray, weaponMirror } = require("../facilitators.js");
-const { base } = require("../constants.js");
+import { combineStats, weaponArray, weaponMirror } from "../facilitators.js";
+import { base } from "../constants.js";
+import { Class } from "../../../../loaders/global.js";
+import { Config } from "../../../loaders/global.js";
 
-
-let suffix = "Generator";
+const suffix = "Generator";
 // Generators
 const shapeGeneratorUpgrades = [
     ["wall", "egg", "gem"],
@@ -15,7 +16,7 @@ const shapeGeneratorUpgrades = [
     [null, "sentrySwarm", "shinySentrySwarm"],
     [null, "sentryGun", "shinySentryGun"],
     [null, "sentryTrap", "shinySentryTrap"]
-].map(array => array.map(x => x + suffix));
+].map((array) => array.map((x) => x + suffix));
 
 Class.genBody = {
     PARENT: "spectator",
@@ -36,16 +37,16 @@ Class.genCrasher = {
     PARENT: "crasher",
     ACCEPTS_SCORE: false
 };
-for (let def of ["sentryTrap", "sentryGun", "sentrySwarm"]) {
-    Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+for (const def of ["sentryTrap", "sentryGun", "sentrySwarm"]) {
+    Class[`gen${def.at(0).toUpperCase()}${def.slice(1, def.length)}`] = {
         TYPE: [],
         PARENT: def,
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
     };
 }
-for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
-    Class["gen" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+for (const def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
+    Class[`gen${def.at(0).toUpperCase()}${def.slice(1, def.length)}`] = {
         TYPE: [],
         PARENT: def,
         VALUE: Class.sentry.VALUE,
@@ -53,18 +54,18 @@ for (let def of ["shinySentryTrap", "shinySentryGun", "shinySentrySwarm"]) {
         ACCEPTS_SCORE: false,
         CONTROLLERS: ["nearestDifferentMaster", "mapTargetToGoal", "hangOutNearMaster"]
     };
-    Class["genDisplay" + def.at(0).toUpperCase() + def.slice(1, def.length)] = {
+    Class[`genDisplay${def.at(0).toUpperCase()}${def.slice(1, def.length)}`] = {
         PARENT: def,
         SIZE: Class.sentry.SIZE
     };
 }
 
-Class["gaybabyjail" + suffix + "arrow"] = {
+Class[`gaybabyjail${suffix}arrow`] = {
     PARENT: "genericTank",
     SHAPE: "M -1 -0.3 L 1 -0.3 L 1 -0.9 L 2 0 L 1 0.9 L 1 0.3 L -1 0.3 Z",
     INDEPENDENT: true
 };
-Class["gaybabyjail" + suffix + "ring"] = {
+Class[`gaybabyjail${suffix}ring`] = {
     PARENT: "genericTank",
     SHAPE: "M0-1A1 1 0 000 1 1 1 0 000-1M0-.7A.7 .7 0 010 .7 .7 .7 0 010-.7",
     INDEPENDENT: true
@@ -247,24 +248,36 @@ function rarities(type = "") {
     return Array(rarities.length).fill().map((v, i) => rarities[i] + (type.at(0).toUpperCase() + type.slice(1, type.length)));
 }
 function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, variesInSize = true, spawnOffset = 0.75) {
-    if (!Class[entity]) return {PARENT: "spectator", LABEL: "Error"};
-    let found = {entity: {}, displayEntity: {}};
-    let toFind = [
+    if (!Class[entity]) {
+        return {PARENT: "spectator", LABEL: "Error"};
+    }
+    const found = {entity: {}, displayEntity: {}};
+    const toFind = [
         "SHAPE", "LABEL", "COLOR", "SIZE", "VALUE"
     ];
     const findProperties = (type, returnTo, ...properties) => {
         let canContinue = true;
-        if (!Class[type]) canContinue = false;
+        if (!Class[type]) {
+            canContinue = false;
+        }
         if (canContinue) {
-            if (!properties.length) properties = toFind; 
-            properties.forEach(k => {
-                if (Class[type][k] !== undefined) returnTo[k] = Class[type][k];
-                else if (Class[type].PARENT !== undefined) findProperties(Class[type].PARENT, returnTo, k);
-                else returnTo[k] = Class.genericTank[k];
+            if (!properties.length) {
+                properties = toFind;
+            }
+            properties.forEach((k) => {
+                if (Class[type][k] !== undefined) {
+                    returnTo[k] = Class[type][k];
+                } else if (Class[type].PARENT !== undefined) {
+                    findProperties(Class[type].PARENT, returnTo, k);
+                } else {
+                    returnTo[k] = Class.genericTank[k];
+                }
             });
         }
     };
-    if (!displayEntity) displayEntity = entity;
+    if (!displayEntity) {
+        displayEntity = entity;
+    }
     findProperties(entity, found.entity);
     findProperties(displayEntity, found.displayEntity);
 
@@ -273,8 +286,8 @@ function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, va
         LABEL: `${found.entity.LABEL} Generator`,
         SHAPE: found.entity.SHAPE,
         COLOR: { // prevent shifts from affecting us
-            BASE: found.entity.COLOR?.BASE ?? found.entity.COLOR, 
-            BRIGHTNESS_SHIFT: found.entity.COLOR?.BRIGHTNESS_SHIFT ?? 0, 
+            BASE: found.entity.COLOR?.BASE ?? found.entity.COLOR,
+            BRIGHTNESS_SHIFT: found.entity.COLOR?.BRIGHTNESS_SHIFT ?? 0,
             HUE_SHIFT: found.entity.COLOR?.HUE_SHIFT ?? 0
         },
         UPGRADES_TIER_0: [],
@@ -323,7 +336,7 @@ function makeGenerator(entity, displayEntity, launchSpeed = 1, extraSize = 0, va
 // GENERATOR UPGRADES
 function generatorMatrix(matrix, previous, next) {
     const height = matrix.length;
-    
+
     for (let y = 0; y < height; y++) {
 
         for (let x = 0; x < matrix[y].length; x++) {
@@ -339,23 +352,33 @@ function generatorMatrix(matrix, previous, next) {
             right = matrix[y][right];
 
             for (let i = 0; i < height; i++) {
-                if (Class[bottom]) break;
+                if (Class[bottom]) {
+                    break;
+                }
                 bottom = matrix[(y + height + i + 1) % height][x];
             }
             for (let i = 0; i < height; i++) {
-                if (Class[top]) break;
+                if (Class[top]) {
+                    break;
+                }
                 top = matrix[(y + height - i - 1) % height][x];
             }
             for (let i = 0; i < matrix[y].length; i++) {
-                if (Class[left]) break;
+                if (Class[left]) {
+                    break;
+                }
                 left = matrix[y][(x + matrix[y].length - i - 1) % matrix[y].length];
             }
             for (let i = 0; i < matrix[y].length; i++) {
-                if (Class[right]) break;
+                if (Class[right]) {
+                    break;
+                }
                 right = matrix[y][(x + matrix[y].length + i + 1) % matrix[y].length];
             }
-            let gen = Class[center];
-            if (!gen) continue;
+            const gen = Class[center];
+            if (!gen) {
+                continue;
+            }
             gen.UPGRADES_TIER_0 = [
                 Config.spawn_class,
                 left, right,

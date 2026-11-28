@@ -4,15 +4,19 @@ const keybindStorage = "keybinds";
 let keybinds = {};
 
 function loadKeybinds() {
-    let raw = localStorage.getItem(keybindStorage);
+    const raw = localStorage.getItem(keybindStorage);
     keybinds = typeof raw === "string" && raw.startsWith("{") ? JSON.parse(raw) : {};
 }
 loadKeybinds();
 
 export function getKeyName(keyId) {
-    if (keybinds[keyId]) return keybinds[keyId][0];
-    let code = global[keyId];
-    if (!code) return null;
+    if (keybinds[keyId]) {
+        return keybinds[keyId][0];
+    }
+    const code = global[keyId];
+    if (!code) {
+        return null;
+    }
     return codeLabel(code) ?? code;
 }
 
@@ -67,16 +71,26 @@ const CODE_LABELS = {
     numpadadd: "Num +",
     numpadsubtract: "Num -",
     numpaddecimal: "Num .",
-    numpaddivide: "Num /",
+    numpaddivide: "Num /"
 };
 
 function codeLabel(name) {
     const key = name.toLowerCase();
-    if (/^f([1-9]|1\d|2[0-4])$/.test(key)) return key.toUpperCase();
-    if (/^digit([0-9])$/.test(key)) return key.slice(5);
-    if (/^numpad([0-9])$/.test(key)) return "Num " + key.slice(6);
-    if (/^key([a-z])$/.test(key)) return key.slice(3).toUpperCase();
-    if (/^lang([a-z0-9]+)$/.test(key)) return key;
+    if (/^f([1-9]|1\d|2[0-4])$/.test(key)) {
+        return key.toUpperCase();
+    }
+    if (/^digit([0-9])$/.test(key)) {
+        return key.slice(5);
+    }
+    if (/^numpad([0-9])$/.test(key)) {
+        return `Num ${key.slice(6)}`;
+    }
+    if (/^key([a-z])$/.test(key)) {
+        return key.slice(3).toUpperCase();
+    }
+    if (/^lang([a-z0-9]+)$/.test(key)) {
+        return key;
+    }
     return CODE_LABELS[key] ?? null;
 }
 
@@ -155,7 +169,7 @@ const ACTION_KEYS = {
     spinlock: "KEY_SPIN_LOCK",
     ability: "KEY_ABILITY",
     useaction: "KEY_ABILITY",
-    action: "KEY_ABILITY",
+    action: "KEY_ABILITY"
 };
 
 function normalizeAction(name) {
@@ -166,28 +180,40 @@ export function resolveKeyReference(name) {
     const action = ACTION_KEYS[normalizeAction(name)];
     if (action) {
         const bound = getKeyName(action);
-        if (bound) return bound;
+        if (bound) {
+            return bound;
+        }
     }
     const upgrade = normalizeAction(name).match(/^upgrade(10|[1-9])$/);
     if (upgrade) {
         const bound = getKeyName(`KEY_UPGRADE_${upgrade[1]}`);
-        if (bound) return bound;
+        if (bound) {
+            return bound;
+        }
     }
     const skill = normalizeAction(name).match(/^skill(10|[1-9])$/);
     if (skill) {
         const bound = getKeyName(`KEY_UPGRADE_${skill[1]}`);
-        if (bound) return bound;
+        if (bound) {
+            return bound;
+        }
     }
     if (name.startsWith("KEY_")) {
         const bound = getKeyName(name);
-        if (bound) return bound;
+        if (bound) {
+            return bound;
+        }
     }
     return codeLabel(name) ?? name;
 }
 
 export function translateServerMessage(raw) {
-    if (typeof raw !== "string") return "" + raw;
-    if (!raw || raw.indexOf("\x01") === -1) return raw;
+    if (typeof raw !== "string") {
+        return `${raw}`;
+    }
+    if (!raw || raw.indexOf("\x01") === -1) {
+        return raw;
+    }
     const translated = raw.replace(KEY_REF, (_, name) => resolveKeyReference(name));
     return translated.replace(STRAY_MARKER, "");
 }

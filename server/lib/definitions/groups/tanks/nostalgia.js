@@ -1,14 +1,8 @@
-const { combineStats, removeUpgrades, makeAuto, makeBird, makeFlank, makeGuard, makeGunner, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror } = require("../../facilitators.js");
-const { base, smshskl, statnames } = require("../../constants.js");
-const g = require("../../gunvals.js");
-const preset = require("../../presets.js");
-
-
-const placeholder = {
-    UPGRADE_COLOR: "black",
-    UPGRADE_TOOLTIP: "THIS IS A PLACEHOLDER MOCKUP IT DOES NOT ACTUALLY WORK!!!"
-};
-
+import { combineStats, makeAuto, makeBird, makeFlank, makeGuard, makeGunner, makeRadialAuto, makeWhirlwind, weaponArray, weaponMirror } from "../../facilitators.js";
+import { base, smshskl, statnames } from "../../constants.js";
+import { basic, desmos, trap, setTrap, twin, sniper, rifle, blunderbuss, drone, commander, pounder, destroyer, flankGuard, triAngle, thruster, weak, gunner, hexaTrapper, artillery, spreadshot, launcher, rocketeer, pelleter, lowPower, machineGun, cyclone, swarm, bee, dustStorm, spam, doubleTwin, tripleTwin, hewnDouble, minigun } from "../../gunvals.js";
+import { placeholder } from "../../presets.js";
+import { Class } from "../../../../loaders/global.js";
 
 // Tier 1 (Level 15)
 Class.desmos = {
@@ -22,7 +16,7 @@ Class.desmos = {
                 ASPECT: -1.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                SHOOT_SETTINGS: combineStats([basic, desmos]),
                 TYPE: ["bullet", {CONTROLLERS: ["snake"]}]
             }
         },
@@ -53,7 +47,7 @@ Class.repeater = {
                 ASPECT: -1.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.desmos]),
+                SHOOT_SETTINGS: combineStats([basic, desmos]),
                 TYPE: ["splitterBullet", {CONTROLLERS: ["snake"]}]
             }
         },
@@ -100,7 +94,7 @@ Class.spiral = {
                 ASPECT: -1.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.desmos, { reload: 5 / 3 }]),
+                SHOOT_SETTINGS: combineStats([basic, desmos, { reload: 5 / 3 }]),
                 TYPE: ["spiralBullet", {CONTROLLERS: ["snake"]}]
             }
         },
@@ -139,7 +133,7 @@ Class.oldBentBoomer = {
         {
             POSITION: [2, 10, 1.3, 16, -2, -35, 0],
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.twin, {speed: 1.2}]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, twin, {speed: 1.2}]),
                 TYPE: "boomerang"
             }
         }
@@ -161,7 +155,7 @@ Class.blunderbuss = {
                 ANGLE: 9
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.blunderbuss]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, blunderbuss]),
                 TYPE: "bullet",
                 LABEL: "Pellet"
             }
@@ -174,7 +168,7 @@ Class.blunderbuss = {
                 ANGLE: 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.blunderbuss]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, blunderbuss]),
                 TYPE: "bullet",
                 LABEL: "Pellet"
             }
@@ -187,7 +181,7 @@ Class.blunderbuss = {
                 ANGLE: 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle, g.blunderbuss]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle, blunderbuss]),
                 TYPE: "bullet",
                 LABEL: "Pellet"
             }
@@ -198,7 +192,7 @@ Class.blunderbuss = {
                 WIDTH: 7
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.sniper, g.rifle]),
+                SHOOT_SETTINGS: combineStats([basic, sniper, rifle]),
                 TYPE: "bullet"
             }
         },
@@ -228,7 +222,7 @@ Class.oldCommander = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.commander]),
+                SHOOT_SETTINGS: combineStats([drone, commander]),
                 TYPE: "drone",
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -245,7 +239,7 @@ Class.oldCommander = {
                 ANGLE: 120
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.drone, g.commander]),
+                SHOOT_SETTINGS: combineStats([drone, commander]),
                 TYPE: ["drone", {INDEPENDENT: true}],
                 AUTOFIRE: true,
                 SYNCS_SKILLS: true,
@@ -266,7 +260,7 @@ Class.oldDeathStar = {
                 WIDTH: 14
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, {reload: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, {reload: 2}]),
                 TYPE: "bullet"
             }
         },
@@ -278,7 +272,7 @@ Class.oldDeathStar = {
                 DELAY: 0.05
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.destroyer, {reload: 2}]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, destroyer, {reload: 2}]),
                 TYPE: "bullet"
             }
         }
@@ -302,7 +296,7 @@ Class.master = {
                 WIDTH: 16
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic]),
+                SHOOT_SETTINGS: combineStats([basic]),
                 TYPE: "masterBullet",
                 MAX_CHILDREN: 4,
                 DESTROY_OLDEST_CHILD: true
@@ -317,7 +311,7 @@ Class.master = {
                     DELAY: 0.6
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "Thruster"
                 }
@@ -330,7 +324,7 @@ Class.master = {
                     DELAY: 0.1
                 },
                 PROPERTIES: {
-                    SHOOT_SETTINGS: combineStats([g.basic, g.flankGuard, g.triAngle, g.thruster]),
+                    SHOOT_SETTINGS: combineStats([basic, flankGuard, triAngle, thruster]),
                     TYPE: "bullet",
                     LABEL: "Thruster"
                 }
@@ -374,7 +368,7 @@ Class.quadBuilder = {
                 ANGLE: 45
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.setTrap, g.weak]),
+                SHOOT_SETTINGS: combineStats([trap, setTrap, weak]),
                 TYPE: "setTrap"
             }
         }
@@ -394,7 +388,7 @@ Class.oldRimfire = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, {speed: 1.2}]),
                 TYPE: "bullet"
             }
         },
@@ -405,13 +399,13 @@ Class.oldRimfire = {
                 Y: 3.75
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, {speed: 1.2}]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, {speed: 1.2}]),
                 TYPE: "bullet"
             }
         }
     ], {delayIncrement: 0.25})
 };
-Class.oldSeptaTrapper = makeFlank("trapper", 7, "Old Septa Trapper", { extraStats: [g.hexaTrapper], delayIncrement: 4 / 7, danger: 7, noRecoil: true });
+Class.oldSeptaTrapper = makeFlank("trapper", 7, "Old Septa Trapper", { extraStats: [hexaTrapper], delayIncrement: 4 / 7, danger: 7, noRecoil: true });
 Class.weirdSpike = {
     PARENT: "genericSmasher",
     LABEL: "Weird Spike",
@@ -463,7 +457,7 @@ Class.oldSpreadshot = {
                 DELAY: 5 / 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, gunner, artillery, twin, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Spread"
             }
@@ -477,7 +471,7 @@ Class.oldSpreadshot = {
                 DELAY: 4 / 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, gunner, artillery, twin, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Spread"
             }
@@ -491,7 +485,7 @@ Class.oldSpreadshot = {
                 DELAY: 3 / 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, gunner, artillery, twin, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Spread"
             }
@@ -505,7 +499,7 @@ Class.oldSpreadshot = {
                 DELAY: 2 / 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, gunner, artillery, twin, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Spread"
             }
@@ -519,7 +513,7 @@ Class.oldSpreadshot = {
                 DELAY: 1 / 6
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.gunner, g.artillery, g.twin, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, gunner, artillery, twin, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Spread"
             }
@@ -532,14 +526,14 @@ Class.oldSpreadshot = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.spreadshot, g.spreadshot]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, spreadshot, spreadshot]),
                 TYPE: "bullet",
                 LABEL: "Pounder"
             }
         }
     ]
 };
-Class.tornado_old = makeWhirlwind("genericTank", { hat: "circleHat", hatSize: 30, hatLayer: 0, satellites: 1, satelliteSize: 16, satelliteType: "satellite_old", extraStats: [g.pounder, g.destroyer], label: "Tornado", danger: 7 });
+Class.tornado_old = makeWhirlwind("genericTank", { hat: "circleHat", hatSize: 30, hatLayer: 0, satellites: 1, satelliteSize: 16, satelliteType: "satellite_old", extraStats: [pounder, destroyer], label: "Tornado", danger: 7 });
 Class.typhoon_old = makeWhirlwind("genericTank", { dualLayer: true, hat: "circleHat", hatSize: 28, hatLayer: 0, hat2: "circleHat", hat2Size: 24, hat2Layer: 0, satellites: 6, satelliteType: "satellite_old", label: "Typhoon" });
 Class.vortex_old = makeWhirlwind("genericTank", { enableHat2: true, hat: "pentagonHat_spin", hatSize: 21.5, hatLayer: 0, hat2: "pentagonHat_spin", hat2Size: 21.5, hat2Layer: 0, satellites: 10, satelliteType: "satellite_old", label: "Vortex" });
 
@@ -565,7 +559,7 @@ Class.aeronaut = {
                 ASPECT: -1.4
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pounder, g.launcher, g.rocketeer, { size: 0.5 }]),
+                SHOOT_SETTINGS: combineStats([basic, pounder, launcher, rocketeer, { size: 0.5 }]),
                 TYPE: "aeronautMissile",
                 STAT_CALCULATOR: "sustained"
             }
@@ -599,7 +593,7 @@ Class.duster = {
                 DELAY: 2 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.lowPower, g.machineGun, { recoil: 1.15 }]),
+                SHOOT_SETTINGS: combineStats([basic, pelleter, lowPower, machineGun, { recoil: 1.15 }]),
                 TYPE: "bullet"
             }
         },
@@ -610,7 +604,7 @@ Class.duster = {
                 DELAY: 1 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.pelleter, g.lowPower, g.machineGun, { recoil: 1.15 }]),
+                SHOOT_SETTINGS: combineStats([basic, pelleter, lowPower, machineGun, { recoil: 1.15 }]),
                 TYPE: "bullet"
             }
         },
@@ -622,7 +616,7 @@ Class.duster = {
                 X: 8
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.machineGun]),
+                SHOOT_SETTINGS: combineStats([basic, machineGun]),
                 TYPE: "bullet"
             }
         }
@@ -647,7 +641,7 @@ Class.oldBand = makeAuto({
                 X: 15
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.trap, g.hexaTrapper]),
+                SHOOT_SETTINGS: combineStats([trap, hexaTrapper]),
                 TYPE: "trap",
                 STAT_CALCULATOR: "trap"
             }
@@ -675,7 +669,7 @@ Class.oldDustStorm = {
                 ANGLE: 25
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -686,7 +680,7 @@ Class.oldDustStorm = {
                 ANGLE: 51
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -702,7 +696,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -714,7 +708,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -729,7 +723,7 @@ Class.oldDustStorm = {
                 ANGLE: 128
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -740,7 +734,7 @@ Class.oldDustStorm = {
                 ANGLE: 154
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -756,7 +750,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -768,7 +762,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -783,7 +777,7 @@ Class.oldDustStorm = {
                 ANGLE: 231
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -794,7 +788,7 @@ Class.oldDustStorm = {
                 ANGLE: 257
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -810,7 +804,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -822,7 +816,7 @@ Class.oldDustStorm = {
                 DELAY: 0.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -837,7 +831,7 @@ Class.oldDustStorm = {
                 ANGLE: 334
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.gunner, g.cyclone]),
+                SHOOT_SETTINGS: combineStats([basic, twin, gunner, cyclone]),
                 TYPE: "bullet"
             }
         },
@@ -847,7 +841,7 @@ Class.oldDustStorm = {
                 WIDTH: 4.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.swarm, g.bee, g.dustStorm]),
+                SHOOT_SETTINGS: combineStats([swarm, bee, dustStorm]),
                 TYPE: ["bee", { INDEPENDENT: true }],
                 SYNCS_SKILLS: true,
                 STAT_CALCULATOR: "drone",
@@ -870,7 +864,7 @@ Class.oldHewnTriple = {
                 ANGLE: -25
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble, { recoil: 1.15 }]),
+                SHOOT_SETTINGS: combineStats([basic, twin, twin, spam, doubleTwin, tripleTwin, hewnDouble, { recoil: 1.15 }]),
                 TYPE: "bullet"
             }
         }, {delayIncrement: 0.5}),
@@ -881,7 +875,7 @@ Class.oldHewnTriple = {
                 Y: 5.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.twin, g.spam, g.doubleTwin, g.tripleTwin, g.hewnDouble]),
+                SHOOT_SETTINGS: combineStats([basic, twin, spam, doubleTwin, tripleTwin, hewnDouble]),
                 TYPE: "bullet"
             }
         }, {delayIncrement: 0.5}), 3)
@@ -891,7 +885,7 @@ Class.oldRattler = {
     PARENT: "genericTank",
     LABEL: "Old Rattler",
     DANGER: 8,
-    ...preset.placeholder,
+    ...placeholder,
     GUNS: [
         {
             POSITION: {
@@ -938,7 +932,7 @@ Class.shikra = makeBird({
                 ASPECT: -1.5
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun]),
+                SHOOT_SETTINGS: combineStats([basic, minigun]),
                 TYPE: "bullet"
             }
         },
@@ -950,7 +944,7 @@ Class.shikra = makeBird({
                 DELAY: 1 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, {size: 7 / 7.5}]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, {size: 7 / 7.5}]),
                 TYPE: "bullet"
             }
         },
@@ -962,7 +956,7 @@ Class.shikra = makeBird({
                 DELAY: 2 / 3
             },
             PROPERTIES: {
-                SHOOT_SETTINGS: combineStats([g.basic, g.minigun, {size: 7 / 8}]),
+                SHOOT_SETTINGS: combineStats([basic, minigun, {size: 7 / 8}]),
                 TYPE: "bullet"
             }
         }

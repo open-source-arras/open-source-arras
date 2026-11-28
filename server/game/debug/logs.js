@@ -1,3 +1,5 @@
+import { averageArray, sumArray } from "../../lib/util";
+
 class Logger {
     constructor() {
         this.logTimes = [];
@@ -11,13 +13,13 @@ class Logger {
         this.logTimes.push(performance.now() - this.trackingStart);
     }
     record() {
-        let average = util.averageArray(this.logTimes);
-        let sum = util.sumArray(this.logTimes);
+        const average = averageArray(this.logTimes);
+        const sum = sumArray(this.logTimes);
         this.logTimes = [];
         return { sum: sum, average: average };
     }
     sum() {
-        let sum = util.sumArray(this.logTimes);
+        const sum = sumArray(this.logTimes);
         this.logTimes = [];
         return sum;
     }
@@ -25,29 +27,44 @@ class Logger {
         this.tallyCount++;
     }
     getTallyCount() {
-        let tally = this.tallyCount;
+        const tally = this.tallyCount;
         this.tallyCount = 0;
         return tally;
     }
 }
 
-let logs = {
-    entities: new Logger(),
-    update: new Logger(),
-    collide: new Logger(),
-    network: new Logger(),
-    minimap: new Logger(),
-    misc2: new Logger(),
-    misc3: new Logger(),
-    physics: new Logger(),
-    life: new Logger(),
-    though: new Logger(),
-    selfie: new Logger(),
-    master: new Logger(),
-    activation: new Logger(),
-    loops: new Logger(),
-    gamemodeLoop: new Logger(),
-    lagtesting: new Logger()
-};
+const entities = new Logger();
+const update = new Logger();
+const collide = new Logger();
+const network = new Logger();
+const minimap = new Logger();
+const misc2 = new Logger();
+const misc3 = new Logger();
+const physics = new Logger();
+const life = new Logger();
+const though = new Logger();
+const selfie = new Logger();
+const master = new Logger();
+const activation = new Logger();
+const loops = new Logger();
+const gamemodeLoop = new Logger();
+const lagtesting = new Logger();
 
-module.exports = { logs };
+export {
+    entities,
+    update,
+    collide,
+    network,
+    minimap,
+    misc2,
+    misc3,
+    physics,
+    life,
+    though,
+    selfie,
+    master,
+    activation,
+    loops,
+    gamemodeLoop,
+    lagtesting
+};
