@@ -2,11 +2,11 @@ import { choose } from "../../../lib/random";
 import { Config, Tile, tileClass } from "../../../loaders/global";
 import { entities } from "../../debug/logs";
 
-const launchForce = 7500,
-    gravity = 33500,
-    minibossPush = 30000,
+const launchForce = 7500;
+const gravity = 33500;
+const minibossPush = 30000;
 
-    portals = [];
+const portals = [];
 
 tileClass.portal = new Tile({
     COLOR: "black",
@@ -16,9 +16,9 @@ tileClass.portal = new Tile({
             if (entity.passive || entity.settings.goThruObstacle || entity.facingType === "bound" || entity.cannotTeleport) {
                 continue;
             }
-            const dx = entity.x - tile.loc.x,
-                dy = entity.y - tile.loc.y,
-                dist2 = dx ** 2 + dy ** 2;
+            const dx = entity.x - tile.loc.x;
+            const dy = entity.y - tile.loc.y;
+            const dist2 = dx ** 2 + dy ** 2;
             let force = Config.room_bound_force;
 
             //push away big boys
@@ -45,10 +45,10 @@ tileClass.portal = new Tile({
 
             //calc stuff for teleporting and launching them
             force *= launchForce;
-            const angle = Math.random() * Math.PI * 2,
-                ax = Math.cos(angle),
-                ay = Math.sin(angle),
-                exitport = choose(portals.filter((p) => p !== tile) || room.random());
+            const angle = Math.random() * Math.PI * 2;
+            const ax = Math.cos(angle);
+            const ay = Math.sin(angle);
+            const exitport = choose(portals.filter((p) => p !== tile) || room.random());
 
             //launch that idiot from the outportal
             entity.x = exitport.loc.x;

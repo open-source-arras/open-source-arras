@@ -10,14 +10,14 @@ export class speedcheckloop {
         this.isRestarting = false;
     }
     update() {
-        const activationtime = activation.sum(),
-            collidetime = collide.sum(),
-            movetime = entities.sum(),
-            maptime = minimap.sum(),
-            physicstime = physics.sum(),
-            lifetime = life.sum(),
-            thoughtime = though.sum(),
-            selfietime = selfie.sum();
+        const activationtime = activation.sum();
+        const collidetime = collide.sum();
+        const movetime = entities.sum();
+        const maptime = minimap.sum();
+        const physicstime = physics.sum();
+        const lifetime = life.sum();
+        const thoughtime = though.sum();
+        const selfietime = selfie.sum();
         const playertime = network.record();
         const masterrecord = master.record();
         const sum = masterrecord.average + playertime.average;

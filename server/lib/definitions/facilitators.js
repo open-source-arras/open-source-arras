@@ -1620,9 +1620,9 @@ export function makeCrasher(type) {
 }
 export function makeLaby(type, tier, rarity, level, baseScale = 1) {
     type = ensureIsClass(type);
-    const usableSHAPE = Math.max(type.SHAPE, 3),
-        downscale = Math.cos(Math.PI / usableSHAPE),
-        healthMultiplier = Math.pow(5, level) - (level > 2 ? Math.pow(5, level) / Math.pow(5, level - 2) : 0);
+    const usableSHAPE = Math.max(type.SHAPE, 3);
+    const downscale = Math.cos(Math.PI / usableSHAPE);
+    const healthMultiplier = Math.pow(5, level) - (level > 2 ? Math.pow(5, level) / Math.pow(5, level - 2) : 0);
 
     let value = type.VALUE;
     if (level > 0) {
@@ -1713,43 +1713,43 @@ export function makeRelic(type, scale = 1, gem, SIZE, yBase = 8.25) {
     // Code by Damocles (albeit heavily modified because the math in the original didn't work LOL)
     type = ensureIsClass(type);
     const relicCasing = {
-            PARENT: "genericEntity",
-            LABEL: "Relic Casing",
-            LEVEL_CAP: 45,
-            COLOR: type.COLOR,
-            MIRROR_MASTER_ANGLE: true,
-            SHAPE: [[-0.4, -1], [0.4, -0.25], [0.4, 0.25], [-0.4, 1]].map((r) => r.map((s) => s * scale))
-        },
-        relicBody = {
-            PARENT: "genericEntity",
-            LABEL: "Relic Mantle",
-            LEVEL_CAP: 45,
-            COLOR: type.COLOR,
-            MIRROR_MASTER_ANGLE: true,
-            SHAPE: type.SHAPE
-        };
+        PARENT: "genericEntity",
+        LABEL: "Relic Casing",
+        LEVEL_CAP: 45,
+        COLOR: type.COLOR,
+        MIRROR_MASTER_ANGLE: true,
+        SHAPE: [[-0.4, -1], [0.4, -0.25], [0.4, 0.25], [-0.4, 1]].map((r) => r.map((s) => s * scale))
+    };
+    const relicBody = {
+        PARENT: "genericEntity",
+        LABEL: "Relic Mantle",
+        LEVEL_CAP: 45,
+        COLOR: type.COLOR,
+        MIRROR_MASTER_ANGLE: true,
+        SHAPE: type.SHAPE
+    };
     Class[Math.random().toString(36)] = relicCasing;
     Class[Math.random().toString(36)] = relicBody;
-    const width = 6 * scale,
-        y = yBase + ((scale % 1) * 5),
-        isEgg = type.SHAPE == 0,
-        casings = isEgg ? 8 : type.SHAPE,
-        fraction = 360 / casings,
-        GUNS = [],
-        TURRETS = [
-            {
-                TYPE: relicBody,
-                POSITION: {
-                    SIZE: 32.5
-                }
+    const width = 6 * scale;
+    const y = yBase + ((scale % 1) * 5);
+    const isEgg = type.SHAPE == 0;
+    const casings = isEgg ? 8 : type.SHAPE;
+    const fraction = 360 / casings;
+    const GUNS = [];
+    const TURRETS = [
+        {
+            TYPE: relicBody,
+            POSITION: {
+                SIZE: 32.5
             }
-        ],
-        PARENT = type,
-        additionalAngle = type.SHAPE % 2 === 0 ? 0 : fraction / 2;
+        }
+    ];
+    const PARENT = type;
+    const additionalAngle = type.SHAPE % 2 === 0 ? 0 : fraction / 2;
 
     for (let i = 0; i < casings; i++) {
-        const angle = i * fraction,
-            gunAngle = angle + additionalAngle;
+        const angle = i * fraction;
+        const gunAngle = angle + additionalAngle;
         if (isEgg) {
             GUNS.push({
                 POSITION: {
@@ -1944,7 +1944,7 @@ export function makePolygon(options = {}) {
  * @returns {`3d=${string}`}
  */
 export function makePolyhedron(info) {
-    let vertexes, faces;
+    let vertexes; let faces;
 
     if (info.VERTEXES) {
         vertexes = info.VERTEXES;
@@ -2001,7 +2001,7 @@ export function makePolyhedron(info) {
  * @returns {`4d=${string}`}
  */
 export function makePolychoron(info) {
-    let vertexes, faces;
+    let vertexes; let faces;
 
     if (info.VERTEXES) {
         vertexes = info.VERTEXES;

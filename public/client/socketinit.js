@@ -43,7 +43,7 @@ const decodeMockupVal = (v) => {
     }
     return v.slice(1).map(decodeMockupVal);
 };
-// Room grids arrive as [cols, forms, runs].
+    // Room grids arrive as [cols, forms, runs].
 const expandRoom = ([cols, forms, runs], blackout) => {
     const grid = [];
     let row = [];
@@ -71,80 +71,80 @@ let level = 1;
 let kills = [0, 0, 0];
 let sscore = util.AdvancedSmoothBar(0, 2);
 const getNow = () => {
-        return Date.now() - clockDiff - serverStart;
+    return Date.now() - clockDiff - serverStart;
+};
+const startSettings = {
+    allowtostartgame: true,
+    neededtoresync: false
+};
+const gui = {
+    getStatNames: (data) => {
+        return [
+            data?.body_damage ?? "Body Damage",
+            data?.max_health ?? "Max Health",
+            data?.bullet_speed ?? "Bullet Speed",
+            data?.bullet_health ?? "Bullet Health",
+            data?.bullet_pen ?? "Bullet Penetration",
+            data?.bullet_damage ?? "Bullet Damage",
+            data?.reload ?? "Reload",
+            data?.move_speed ?? "Movement Speed",
+            data?.shield_regen ?? "Shield Regeneration",
+            data?.shield_cap ?? "Shield Capacity"
+        ];
     },
-    startSettings = {
-        allowtostartgame: true,
-        neededtoresync: false
+    skills: [
+        { amount: 0, color: "purple", cap: 1, softcap: 1 },
+        { amount: 0, color: "pink", cap: 1, softcap: 1 },
+        { amount: 0, color: "blue", cap: 1, softcap: 1 },
+        { amount: 0, color: "lgreen", cap: 1, softcap: 1 },
+        { amount: 0, color: "red", cap: 1, softcap: 1 },
+        { amount: 0, color: "yellow", cap: 1, softcap: 1 },
+        { amount: 0, color: "green", cap: 1, softcap: 1 },
+        { amount: 0, color: "teal", cap: 1, softcap: 1 },
+        { amount: 0, color: "gold", cap: 1, softcap: 1 },
+        { amount: 0, color: "orange", cap: 1, softcap: 1 }
+    ],
+    points: 0,
+    upgrades: [],
+    playerid: -1,
+    __s: {
+        setScore: (d) => {
+            d ? (sscore.set(d), deduction > sscore.get() && (deduction = level = 0)) : (levelscore = 3, deduction = level = 0, sscore = util.AdvancedSmoothBar(0, 2));
+        },
+        setKills: (solo, assists, bosses) => {
+            kills = [solo, assists, bosses];
+        },
+        update: () => {
+            levelscore = Math.ceil(Math.pow(level, 3) * 0.3083);
+            levelscore = levelscore - deduction;
+            if (sscore.get() >= deduction + levelscore) {
+                deduction += levelscore, level++;
+            } else if (sscore.get() < deduction) {
+                var d = level - 1;
+                deduction = Math.ceil(Math.pow(level, 3) * 0.3083);
+                deduction -= levelscore - deduction * d;
+                level--;
+            }
+        },
+        getProgress: () => levelscore ? Math.min(1, Math.max(0, (sscore.get() - deduction) / levelscore)) : 0,
+        getScore: () => sscore.get(),
+        getLevel: () => level,
+        getKills: () => kills
     },
-    gui = {
-        getStatNames: (data) => {
-            return [
-                data?.body_damage ?? "Body Damage",
-                data?.max_health ?? "Max Health",
-                data?.bullet_speed ?? "Bullet Speed",
-                data?.bullet_health ?? "Bullet Health",
-                data?.bullet_pen ?? "Bullet Penetration",
-                data?.bullet_damage ?? "Bullet Damage",
-                data?.reload ?? "Reload",
-                data?.move_speed ?? "Movement Speed",
-                data?.shield_regen ?? "Shield Regeneration",
-                data?.shield_cap ?? "Shield Capacity"
-            ];
-        },
-        skills: [
-            { amount: 0, color: "purple", cap: 1, softcap: 1 },
-            { amount: 0, color: "pink", cap: 1, softcap: 1 },
-            { amount: 0, color: "blue", cap: 1, softcap: 1 },
-            { amount: 0, color: "lgreen", cap: 1, softcap: 1 },
-            { amount: 0, color: "red", cap: 1, softcap: 1 },
-            { amount: 0, color: "yellow", cap: 1, softcap: 1 },
-            { amount: 0, color: "green", cap: 1, softcap: 1 },
-            { amount: 0, color: "teal", cap: 1, softcap: 1 },
-            { amount: 0, color: "gold", cap: 1, softcap: 1 },
-            { amount: 0, color: "orange", cap: 1, softcap: 1 }
-        ],
-        points: 0,
-        upgrades: [],
-        playerid: -1,
-        __s: {
-            setScore: (d) => {
-                d ? (sscore.set(d), deduction > sscore.get() && (deduction = level = 0)) : (levelscore = 3, deduction = level = 0, sscore = util.AdvancedSmoothBar(0, 2));
-            },
-            setKills: (solo, assists, bosses) => {
-                kills = [solo, assists, bosses];
-            },
-            update: () => {
-                levelscore = Math.ceil(Math.pow(level, 3) * 0.3083);
-                levelscore = levelscore - deduction;
-                if (sscore.get() >= deduction + levelscore) {
-                    deduction += levelscore, level++;
-                } else if (sscore.get() < deduction) {
-                    var d = level - 1;
-                    deduction = Math.ceil(Math.pow(level, 3) * 0.3083);
-                    deduction -= levelscore - deduction * d;
-                    level--;
-                }
-            },
-            getProgress: () => levelscore ? Math.min(1, Math.max(0, (sscore.get() - deduction) / levelscore)) : 0,
-            getScore: () => sscore.get(),
-            getLevel: () => level,
-            getKills: () => kills
-        },
-        type: 0,
-        root: "",
-        class: "",
-        visibleEntities: false,
-        dailyTank: {tank: null, ads: false},
-        fps: 0,
-        color: 0,
-        accel: 0,
-        topspeed: 1
-    };
-let xx = 0,
-    yy = 0,
-    _vx = 0,
-    _vy = 0;
+    type: 0,
+    root: "",
+    class: "",
+    visibleEntities: false,
+    dailyTank: {tank: null, ads: false},
+    fps: 0,
+    color: 0,
+    accel: 0,
+    topspeed: 1
+};
+let xx = 0;
+let yy = 0;
+let _vx = 0;
+let _vy = 0;
 var moveCompensation = {
     reset: () => {
         xx = 0;
@@ -167,8 +167,8 @@ var moveCompensation = {
             return 0;
         }
         // Add motion
-        const damp = gui.accel / gui.topSpeed,
-            len = Math.sqrt(g.x * g.x + g.y * g.y);
+        const damp = gui.accel / gui.topSpeed;
+        const len = Math.sqrt(g.x * g.x + g.y * g.y);
         _vx += gui.accel * g.x / len;
         _vy += gui.accel * g.y / len;
         // Dampen motion
@@ -282,7 +282,7 @@ const Minimap = class {
         });
     }
 };
-// Build the leaderboard object
+    // Build the leaderboard object
 const Entry = class {
     constructor(to) {
         this.score = util.Smoothbar(0, 10, 3, .03);
@@ -312,8 +312,8 @@ const Entry = class {
     }
     publish() {
         if (!this.published) {
-            let indexes = this.index.split("-"),
-                ref = global.mockups[parseInt(indexes[0])];
+            const indexes = this.index.split("-");
+            let ref = global.mockups[parseInt(indexes[0])];
             if (!ref) {
                 ref = global.missingno[0];
             }
@@ -373,11 +373,11 @@ const Leaderboard = class {
         }
     }
 };
-const minimapAllInt = new Integrate(5),
-    minimapTeamInt = new Integrate(3),
-    leaderboardInt = new Integrate(8),
-    leaderboard = new Leaderboard(),
-    minimap = new Minimap(200);
+const minimapAllInt = new Integrate(5);
+const minimapTeamInt = new Integrate(3);
+const leaderboardInt = new Integrate(8);
+const leaderboard = new Leaderboard();
+const minimap = new Minimap(200);
 const lags = [];
 var lag = {
     get: () => lags.length ? lags.reduce((a, b) => a + b) / lags.length : 0,
@@ -391,8 +391,8 @@ var lag = {
 // Inital setup stuff
 window.WebSocket = window.WebSocket || window.MozWebSocket;
 // Make a data crawler
-let crawlIndex = 0,
-    crawlData = [];
+let crawlIndex = 0;
+let crawlData = [];
 const get = {
     next: () => {
         if (crawlIndex >= crawlData.length) {
@@ -512,8 +512,8 @@ const GunContainer = (n) => {
     };
 };
 function Status() {
-    let statState = "normal",
-        statTime = getNow();
+    let statState = "normal";
+    let statTime = getNow();
     return {
         set: (val) => {
             if (val !== statState || statState === "injured") {
@@ -616,8 +616,8 @@ const process = (z = {}) => {
             z.health = get.next() / 65535;
             z.shield = get.next() / 65535;
         } else {
-            const hh = z.health,
-                ss = z.shield;
+            const hh = z.health;
+            const ss = z.shield;
             z.health = get.next() / 65535;
             z.shield = get.next() / 65535;
             // Update stuff
@@ -692,21 +692,21 @@ const process = (z = {}) => {
     }
     // Decide if guns need to be fired one by one
     for (let i = 0; i < gunnumb; i++) {
-        const time = get.next(),
-            power = get.next(),
-            color = decodeColor(get.next()),
-            alpha = get.next(),
-            strokeWidth = get.next(),
-            borderless = get.next(),
-            drawFill = get.next(),
-            drawAbove = get.next(),
-            length = get.next(),
-            width = get.next(),
-            aspect = get.next(),
-            angle = get.next(),
-            direction = get.next(),
-            offset = get.next(),
-            layer = get.next();
+        const time = get.next();
+        const power = get.next();
+        const color = decodeColor(get.next());
+        const alpha = get.next();
+        const strokeWidth = get.next();
+        const borderless = get.next();
+        const drawFill = get.next();
+        const drawAbove = get.next();
+        const length = get.next();
+        const width = get.next();
+        const aspect = get.next();
+        const angle = get.next();
+        const direction = get.next();
+        const offset = get.next();
+        const layer = get.next();
         z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer}); // Load gun config into container
         if (time > global.player.lastUpdate - global.metrics.rendergap) {
             z.guns.fire(i, power);
@@ -758,8 +758,8 @@ const patch = (z, mask) => {
             z.render.lastx = z.x;
             z.render.lasty = z.y;
         }
-        const x = get.next(),
-            y = get.next();
+        const x = get.next();
+        const y = get.next();
         if (z) {
             z.x = x;
             z.y = y;
@@ -770,8 +770,8 @@ const patch = (z, mask) => {
             z.render.lastvx = z.vx;
             z.render.lastvy = z.vy;
         }
-        const vx = get.next(),
-            vy = get.next();
+        const vx = get.next();
+        const vy = get.next();
         if (z) {
             z.vx = vx;
             z.vy = vy;
@@ -788,19 +788,19 @@ const patch = (z, mask) => {
         if (z) {
             z.render.lastf = z.facing;
         }
-        const facing = get.next(),
-            vfacing = get.next();
+        const facing = get.next();
+        const vfacing = get.next();
         if (z) {
             z.facing = facing;
             z.vfacing = vfacing;
         }
     }
     if (mask & 0x0010) {
-        const health = get.next() / 65535,
-            shield = get.next() / 65535;
+        const health = get.next() / 65535;
+        const shield = get.next() / 65535;
         if (z) {
-            const hh = z.health,
-                ss = z.shield;
+            const hh = z.health;
+            const ss = z.shield;
             z.health = health;
             z.shield = shield;
             z.render.health.set(z.health);
@@ -864,21 +864,21 @@ const patch = (z, mask) => {
         }
         for (let i = 0; i < gunnumb; i++) {
             const gunMask = get.next();
-            const time = gunMask & 0x0001 ? get.next() : 0,
-                power = gunMask & 0x0002 ? get.next() : 0,
-                color = gunMask & 0x0004 ? decodeColor(get.next()) : "",
-                alpha = gunMask & 0x0008 ? get.next() : 1,
-                strokeWidth = gunMask & 0x0010 ? get.next() : 1,
-                borderless = gunMask & 0x0020 ? get.next() : false,
-                drawFill = gunMask & 0x0040 ? get.next() : true,
-                drawAbove = gunMask & 0x0080 ? get.next() : false,
-                length = gunMask & 0x0100 ? get.next() : 0,
-                width = gunMask & 0x0200 ? get.next() : 0,
-                aspect = gunMask & 0x0400 ? get.next() : 0,
-                angle = gunMask & 0x0800 ? get.next() : 0,
-                direction = gunMask & 0x1000 ? get.next() : 0,
-                offset = gunMask & 0x2000 ? get.next() : 0,
-                layer = gunMask & 0x4000 ? get.next() : 0;
+            const time = gunMask & 0x0001 ? get.next() : 0;
+            const power = gunMask & 0x0002 ? get.next() : 0;
+            const color = gunMask & 0x0004 ? decodeColor(get.next()) : "";
+            const alpha = gunMask & 0x0008 ? get.next() : 1;
+            const strokeWidth = gunMask & 0x0010 ? get.next() : 1;
+            const borderless = gunMask & 0x0020 ? get.next() : false;
+            const drawFill = gunMask & 0x0040 ? get.next() : true;
+            const drawAbove = gunMask & 0x0080 ? get.next() : false;
+            const length = gunMask & 0x0100 ? get.next() : 0;
+            const width = gunMask & 0x0200 ? get.next() : 0;
+            const aspect = gunMask & 0x0400 ? get.next() : 0;
+            const angle = gunMask & 0x0800 ? get.next() : 0;
+            const direction = gunMask & 0x1000 ? get.next() : 0;
+            const offset = gunMask & 0x2000 ? get.next() : 0;
+            const layer = gunMask & 0x4000 ? get.next() : 0;
             if (z) {
                 z.guns.setConfig(i, {color, alpha, strokeWidth, borderless, drawFill, drawAbove, length, width, aspect, angle, direction, offset, layer});
                 if (time > global.player.lastUpdate - global.metrics.rendergap) {
@@ -923,7 +923,7 @@ const patch = (z, mask) => {
         z.render.faceAnim.add(z.facing);
     }
 };
-// This is what we use to figure out what the hell the server is telling us to look at
+    // This is what we use to figure out what the hell the server is telling us to look at
 const convert = {
     begin: (data) => get.set(data),
     // Make a data convertor
@@ -933,10 +933,10 @@ const convert = {
             output.push(process());
         }
         for (let i = 0, len = get.next(); i < len; i++) {
-            const id = get.next(),
-                mask = get.next(),
-                index = global.entities.findIndex((x) => x.id === id),
-                z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
+            const id = get.next();
+            const mask = get.next();
+            const index = global.entities.findIndex((x) => x.id === id);
+            const z = index !== -1 ? global.entities.splice(index, 1)[0] : null;
             patch(z, mask);
             if (z) {
                 output.push(z);
@@ -969,24 +969,24 @@ const convert = {
     },
     // Define our gui convertor
     gui: () => {
-        const index = get.next(),
-            // Translate the encoded index
-            indices = {
-                dailyTank: index & 0x1000,
-                visibleName: index & 0x0800,
-                class: index & 0x0400,
-                root: index & 0x0200,
-                topspeed: index & 0x0100,
-                accel: index & 0x0080,
-                skills: index & 0x0040,
-                statsdata: index & 0x0020,
-                upgrades: index & 0x0010,
-                points: index & 0x0008,
-                score: index & 0x0004,
-                label: index & 0x0002,
-                fps: index & 0x0001
-            };
-        // Operate only on the values provided
+        const index = get.next();
+        // Translate the encoded index
+        const indices = {
+            dailyTank: index & 0x1000,
+            visibleName: index & 0x0800,
+            class: index & 0x0400,
+            root: index & 0x0200,
+            topspeed: index & 0x0100,
+            accel: index & 0x0080,
+            skills: index & 0x0040,
+            statsdata: index & 0x0020,
+            upgrades: index & 0x0010,
+            points: index & 0x0008,
+            score: index & 0x0004,
+            label: index & 0x0002,
+            fps: index & 0x0001
+        };
+            // Operate only on the values provided
         if (indices.fps) {
             gui.fps = get.next();
         }
@@ -1174,8 +1174,8 @@ const incoming = async function(message, socket) {
             global.roomSetup = expandRoom(JSON.parse(m[2]), false);
         } break;
         case "ru": {
-            const x = m[0],
-                y = m[1];
+            const x = m[0];
+            const y = m[1];
             if (global.roomSetup[y] && global.roomSetup[y][x]) {
                 global.roomSetup[y][x].color = m[2];
                 global.roomSetup[y][x].image = m[3];
@@ -1221,11 +1221,11 @@ const incoming = async function(message, socket) {
             global.player.animY.add(m[1]);
         } break;
         case "S": { // clock syncing
-            const clientTime = m[0],
-                serverTime = m[1],
-                laten = (getNow() - clientTime) / 2,
-                delta = getNow() - laten - serverTime;
-                // Add the datapoint to the syncing data
+            const clientTime = m[0];
+            const serverTime = m[1];
+            const laten = (getNow() - clientTime) / 2;
+            const delta = getNow() - laten - serverTime;
+            // Add the datapoint to the syncing data
             sync.push({
                 delta: delta,
                 latency: laten
@@ -1242,9 +1242,9 @@ const incoming = async function(message, socket) {
                 // Calculate the clock error
                 sync.sort((e, f) => e.latency - f.latency);
                 const median = sync[Math.floor(sync.length / 2)].latency;
-                let sd = 0,
-                    sum = 0,
-                    valid = 0;
+                let sd = 0;
+                let sum = 0;
+                let valid = 0;
                 for (const e of sync) {
                     sd += Math.pow(e.latency - median, 2);
                 }
@@ -1294,8 +1294,8 @@ const incoming = async function(message, socket) {
         case "u": { // uplink
             // Pull the camera info
             if (m[0] == true) { // Update camera only if we want to.
-                const camx = m[1],
-                    camy = m[2];
+                const camx = m[1];
+                const camy = m[2];
                 global.player.cx.x = camx;
                 global.player.cy.y = camy;
                 global.player.loc = { x: camx, y: camy };
@@ -1303,16 +1303,16 @@ const incoming = async function(message, socket) {
                 global.player.animY.add(m[2]);
                 return;
             }
-            const camtime = m[0],
-                camx = m[1],
-                camy = m[2],
-                camfov = m[3],
-                camvx = m[4],
-                camvy = m[5],
-                camscoping = m[6],
-                // We'll have to do protocol decoding on the remaining data
-                theshit = m.slice(7);
-                // More stuff
+            const camtime = m[0];
+            const camx = m[1];
+            const camy = m[2];
+            const camfov = m[3];
+            const camvx = m[4];
+            const camvy = m[5];
+            const camscoping = m[6];
+            // We'll have to do protocol decoding on the remaining data
+            const theshit = m.slice(7);
+            // More stuff
             const defaultFov = 2000;
             if (!global.gameStart && startSettings.allowtostartgame) {
                 // Start the game
@@ -1689,7 +1689,7 @@ const socketInit = () => {
             right: commands[3],
             lmb: commands[4],
             mmb: commands[5],
-            rmb: commands[6],
+            rmb: commands[6]
         }),
         reactNow: () => {
             flag = true;

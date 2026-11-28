@@ -207,20 +207,20 @@ export class Gun extends EventEmitter {
     }
     shoot() {
     // Find gun's current angle position and length
-        const angle1 = this.direction + this.angle + this.body.facing,
-            angle2 = this.angle + this.body.facing,
-            gunlength = this.length + this.spawnOffset * this.width * this.settings.size / 2,
+        const angle1 = this.direction + this.angle + this.body.facing;
+        const angle2 = this.angle + this.body.facing;
+        const gunlength = this.length + this.spawnOffset * this.width * this.settings.size / 2;
 
-            //calculate offsets based on lengths and directions
-            offset_base_x = this.offset * Math.cos(angle1),
-            offset_base_y = this.offset * Math.sin(angle1),
-            offset_end_x = gunlength * Math.cos(angle2),
-            offset_end_y = gunlength * Math.sin(angle2),
+        //calculate offsets based on lengths and directions
+        const offset_base_x = this.offset * Math.cos(angle1);
+        const offset_base_y = this.offset * Math.sin(angle1);
+        const offset_end_x = gunlength * Math.cos(angle2);
+        const offset_end_y = gunlength * Math.sin(angle2);
 
-            //finally get the final bullet offset
-            offsetFinalX = offset_base_x + offset_end_x,
-            offsetFinalY = offset_base_y + offset_end_y,
-            skill = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
+        //finally get the final bullet offset
+        const offsetFinalX = offset_base_x + offset_end_x;
+        const offsetFinalY = offset_base_y + offset_end_y;
+        const skill = this.bulletStats === "master" ? this.body.skill : this.bulletStats;
 
         this.fire(offsetFinalX, offsetFinalY, skill);
     }
@@ -298,8 +298,8 @@ export class Gun extends EventEmitter {
         return shootPermission;
     };
     destroyOldest() {
-        let oldestChild,
-            oldestTime = Infinity;
+        let oldestChild;
+        let oldestTime = Infinity;
         for (let i = 0; i < this.children.length; i++) {
             const child = this.children[i];
             if (child && child.creationTime < oldestTime) {
@@ -330,8 +330,8 @@ export class Gun extends EventEmitter {
         this.lastShot.power = 3 * Math.log(Math.sqrt(sk.spd) + this.trueRecoil + 1) + 1;
         this.motion += this.lastShot.power;
         // Find inaccuracy
-        let shudder = 0,
-            spread = 0;
+        let shudder = 0;
+        let spread = 0;
         if (this.settings.shudder) {
             do {
                 shudder = gauss(0, Math.sqrt(this.settings.shudder));
@@ -344,12 +344,12 @@ export class Gun extends EventEmitter {
         }
         spread *= Math.PI / 180;
         // Find speed
-        const vecLength = (this.negRecoil ? -1 : 1) * this.settings.speed * global.gameManager.runSpeed * sk.spd * (1 + shudder),
-            vecAngle = this.angle + this.body.facing + spread,
-            s = new Vector(
-                vecLength * Math.cos(vecAngle),
-                vecLength * Math.sin(vecAngle)
-            );
+        const vecLength = (this.negRecoil ? -1 : 1) * this.settings.speed * global.gameManager.runSpeed * sk.spd * (1 + shudder);
+        const vecAngle = this.angle + this.body.facing + spread;
+        const s = new Vector(
+            vecLength * Math.cos(vecAngle),
+            vecLength * Math.sin(vecAngle)
+        );
         // Boost it if we should
         if (this.body.velocity.length) {
             const extraBoost = Math.max(0, s.x * this.body.velocity.x + s.y * this.body.velocity.y) /  this.body.velocity.length / s.length;

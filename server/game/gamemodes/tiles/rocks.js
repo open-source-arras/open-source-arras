@@ -9,8 +9,8 @@ const placeRoids = (defs, tile, room, gameManager) => {
         def = ensureIsClass(def);
         const checkRadius = 10 + def.SIZE;
         for (; amount; amount--) {
-            let i = 200,
-                position;
+            let i = 200;
+            let position;
             do {
                 position = tile.randomInside();
             } while (i-- && dirtyCheck(position, checkRadius, gameManager));

@@ -1,13 +1,13 @@
 import { global } from "./global.js";
 
-const svFilterRegionDoc = document.getElementById("serverFilterRegion"),
-    svFilterModeDoc = document.getElementById("serverFilterMode");
+const svFilterRegionDoc = document.getElementById("serverFilterRegion");
+const svFilterModeDoc = document.getElementById("serverFilterMode");
 
 let servers;
 
-let serverMap = {},
-    tbody,
-    serversDocs;
+let serverMap = {};
+let tbody;
+let serversDocs;
 
 let availableServers = [];
 
@@ -107,8 +107,8 @@ global.loadServerSelector = (serverData, text) => {
 };
 
 const loadEmptyServerSelector = (text) => {
-    const serverSelector = document.getElementById("serverSelector"),
-        tbody = document.createElement("tbody");
+    const serverSelector = document.getElementById("serverSelector");
+    const tbody = document.createElement("tbody");
     serverSelector.innerHTML = "";
     serverSelector.appendChild(tbody);
     const tr = document.createElement("tr");

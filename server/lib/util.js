@@ -133,7 +133,7 @@ const deepClone = (obj, hash = new WeakMap()) => {
     } // Cyclic reference
     try { // Try to run constructor (without arguments, as we don't know them)
         result = new obj.constructor();
-    } catch (_) { // Constructor failed, create object without running the constructor
+    } catch { // Constructor failed, create object without running the constructor
         result = Object.create(Object.getPrototypeOf(obj));
     }
     // Optional: support for some standard constructors (extend as desired)
@@ -179,7 +179,7 @@ const error = (text) => {
 const remove = (array, index) => {
     // there is more than one object in the container
     if (index === array.length - 1) {
-    // special case if the obj is the newest in the container
+        // special case if the obj is the newest in the container
         return array.pop();
     } else {
         const o = array[index];
@@ -187,7 +187,7 @@ const remove = (array, index) => {
         return o;
     }
 };
-// convenience
+    // convenience
 const forcePush = (object, property, ...items) => {
     if (Array.isArray(object[property])) {
         object[property].push(...items);
@@ -211,7 +211,7 @@ const flattenDefinition = (output, definition) => {
     }
 
     for (const key in definition) {
-    // Skip parents
+        // Skip parents
         if (key === "PARENT") {
             continue;
         }
@@ -236,7 +236,7 @@ const flattenDefinition = (output, definition) => {
 const isStringified = (str) => {
     try {
         return JSON.parse(str);
-    } catch (_) {
+    } catch {
         return str;
     }
 };

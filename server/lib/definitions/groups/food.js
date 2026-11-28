@@ -354,9 +354,9 @@ if (!classic_3D_shapes) {
     });
     dodecahedron_shape = makePolyhedron({
         FACES: (function() {
-            let x = 1,
-                y = 1 / phi,
-                z = 2 - phi;
+            let x = 1;
+            let y = 1 / phi;
+            let z = 2 - phi;
 
             x *= 1.5;
             y *= 1.5;
@@ -454,8 +454,8 @@ if (!classic_3D_shapes) {
     });
     icosahedron_shape = makePolyhedron({
         FACES: (function() {
-            let x = 1 / 2,
-                y = 1 / (2 * phi);
+            let x = 1 / 2;
+            let y = 1 / (2 * phi);
             x *= 3;
             y *= 3;
 
@@ -822,8 +822,8 @@ for (const [gemColor, name] of [
 }
 
 // Tiered Food
-const polyNames = ["egg", "square", "triangle", "pentagon", "hexagon"],
-    shinyNames = ["", "shiny", "legendary", "shadow", "rainbow", "trans"];
+const polyNames = ["egg", "square", "triangle", "pentagon", "hexagon"];
+const shinyNames = ["", "shiny", "legendary", "shadow", "rainbow", "trans"];
 for (let tier = 0; tier < 4; tier++) {
     for (const poly in polyNames) {
         let polyName = polyNames[poly];

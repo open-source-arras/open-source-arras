@@ -6,94 +6,94 @@ import { angleDifference, clamp, getDirection, getDistance, getDistanceSquared, 
 import { entities, targetableEntities, TEAM_ROOM, walls } from "../loaders/global";
 
 const compressMovementOffsets = [
-        { x: 1, y: 0},
-        { x: 1, y: 1},
-        { x: 0, y: 1},
-        { x:-1, y: 1},
-        { x:-1, y: 0},
-        { x:-1, y:-1},
-        { x: 0, y:-1},
-        { x: 1, y:-1}
-    ],
-    compressMovement = (current, goal) => {
-        const offset = compressMovementOffsets[Math.round((Math.atan2(current.y - goal.y, current.x - goal.x) / (Math.PI * 2)) * 8 + 4) % 8];
-        return {
-            x: current.x + offset.x,
-            y: current.y + offset.y
-        };
-    },
-    CLLonSegment = (p0, p1, q0, q1, r0, r1) => {
-        return q0 <= Math.max(p0, r0) && q0 >= Math.min(p0, r0) && q1 <= Math.max(p1, r1) && q1 >= Math.min(p1, r1);
-    },
-    CLLorientation = (p0, p1, q0, q1, r0, r1) => {
-        const v = (q1 - p1) * (r0 - q0) - (q0 - p0) * (r1 - q1);
-        return !v ? 0 : v > 0 ? 1 : 2; // clock or counterclock wise
-    },
-    collisionLineLine = (p10, p11, q10, q11, p20, p21, q20, q21) => {
+    { x: 1, y: 0},
+    { x: 1, y: 1},
+    { x: 0, y: 1},
+    { x:-1, y: 1},
+    { x:-1, y: 0},
+    { x:-1, y:-1},
+    { x: 0, y:-1},
+    { x: 1, y:-1}
+];
+const compressMovement = (current, goal) => {
+    const offset = compressMovementOffsets[Math.round((Math.atan2(current.y - goal.y, current.x - goal.x) / (Math.PI * 2)) * 8 + 4) % 8];
+    return {
+        x: current.x + offset.x,
+        y: current.y + offset.y
+    };
+};
+const CLLonSegment = (p0, p1, q0, q1, r0, r1) => {
+    return q0 <= Math.max(p0, r0) && q0 >= Math.min(p0, r0) && q1 <= Math.max(p1, r1) && q1 >= Math.min(p1, r1);
+};
+const CLLorientation = (p0, p1, q0, q1, r0, r1) => {
+    const v = (q1 - p1) * (r0 - q0) - (q0 - p0) * (r1 - q1);
+    return !v ? 0 : v > 0 ? 1 : 2; // clock or counterclock wise
+};
+const collisionLineLine = (p10, p11, q10, q11, p20, p21, q20, q21) => {
     // Find the four orientations needed for general and special cases
-        const o1 = CLLorientation(p10, p11, q10, q11, p20, p21),
-            o2 = CLLorientation(p10, p11, q10, q11, q20, q21),
-            o3 = CLLorientation(p20, p21, q20, q21, p10, p11),
-            o4 = CLLorientation(p20, p21, q20, q21, q10, q11);
+    const o1 = CLLorientation(p10, p11, q10, q11, p20, p21);
+    const o2 = CLLorientation(p10, p11, q10, q11, q20, q21);
+    const o3 = CLLorientation(p20, p21, q20, q21, p10, p11);
+    const o4 = CLLorientation(p20, p21, q20, q21, q10, q11);
 
-        return (
-            (o1 == 0 && CLLonSegment(p10, p11, p20, p21, q10, q11)) ||
+    return (
+        (o1 == 0 && CLLonSegment(p10, p11, p20, p21, q10, q11)) ||
         (o2 == 0 && CLLonSegment(p10, p11, q20, q21, q10, q11)) ||
         (o3 == 0 && CLLonSegment(p20, p21, p10, p11, q20, q21)) ||
         (o4 == 0 && CLLonSegment(p20, p21, q10, q11, q20, q21)) ||
         (o1 != o2 && o3 != o4)
-        );
-    },
+    );
+};
     // me: { ...Vector }
     // enemy: data to calculte where it is gonna be soon
     // walls: Array<{ ...Vector, hitboxRadius, hitbox: Array<[Vector, Vector]> }>
-    wouldHitWall = (me, enemy, directWallCheck = false) => {
-        if (directWallCheck) {
-            if (!me.justHittedAWallTimeout) {
-                me.justHittedAWallTimeout = "ready";
-            }
-            if (me.justHittedAWall && me.justHittedAWallTimeout === "ready") {
-                me.justHittedAWall = false;
-                me.justHittedAWallTimeout = "null";
-                setTimeout(() => {
-                    me.justHittedAWallTimeout = "ready";
-                    me.justHittedAWall = false;
-                }, 300);
-                return true;
-            }
-            return false;
+const wouldHitWall = (me, enemy, directWallCheck = false) => {
+    if (directWallCheck) {
+        if (!me.justHittedAWallTimeout) {
+            me.justHittedAWallTimeout = "ready";
         }
-        // thing for culling off walls where theres no point of checking
-        const inclusionCircle = {
-            x: (me.x + enemy.x) / 2,
-            y: (me.y + enemy.y) / 2,
-            radius: getDistance(me, enemy) / 2
-        };
-
-        for (let i = 0; i < walls.length; i++) {
-            const crate = walls[i];
-
-            //avoid calculating collisions if it would just be a waste
-            if (getDistanceSquared(inclusionCircle, crate) > (inclusionCircle.radius + crate.hitboxRadius) ** 2) {
-                continue;
-            }
-
-            //if the crate intersects with the line, add them to the list of walls that have been hit
-            //works by checking if the line from the gun end to the enemy position collides with any line from the crate hitbox
-            for (let j = 0; j < crate.hitbox.length; j++) {
-                const hitboxLine = crate.hitbox[j];
-                if (collisionLineLine(
-                    me.x, me.y,
-                    enemy.x, enemy.y,
-                    crate.x + hitboxLine[0].x, crate.y + hitboxLine[0].y,
-                    crate.x + hitboxLine[1].x, crate.y + hitboxLine[1].y
-                )) {
-                    return true;
-                }
-            }
+        if (me.justHittedAWall && me.justHittedAWallTimeout === "ready") {
+            me.justHittedAWall = false;
+            me.justHittedAWallTimeout = "null";
+            setTimeout(() => {
+                me.justHittedAWallTimeout = "ready";
+                me.justHittedAWall = false;
+            }, 300);
+            return true;
         }
         return false;
+    }
+    // thing for culling off walls where theres no point of checking
+    const inclusionCircle = {
+        x: (me.x + enemy.x) / 2,
+        y: (me.y + enemy.y) / 2,
+        radius: getDistance(me, enemy) / 2
     };
+
+    for (let i = 0; i < walls.length; i++) {
+        const crate = walls[i];
+
+        //avoid calculating collisions if it would just be a waste
+        if (getDistanceSquared(inclusionCircle, crate) > (inclusionCircle.radius + crate.hitboxRadius) ** 2) {
+            continue;
+        }
+
+        //if the crate intersects with the line, add them to the list of walls that have been hit
+        //works by checking if the line from the gun end to the enemy position collides with any line from the crate hitbox
+        for (let j = 0; j < crate.hitbox.length; j++) {
+            const hitboxLine = crate.hitbox[j];
+            if (collisionLineLine(
+                me.x, me.y,
+                enemy.x, enemy.y,
+                crate.x + hitboxLine[0].x, crate.y + hitboxLine[0].y,
+                crate.x + hitboxLine[1].x, crate.y + hitboxLine[1].y
+            )) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
 
 export class IO {
     constructor(body) {
@@ -185,8 +185,8 @@ class io_listenToPlayer extends IO {
     }
     // THE PLAYER MUST HAVE A VALID COMMAND AND TARGET OBJECT
     think() {
-        const fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb),
-            alt = this.player.command.autoalt || this.player.command.rmb;
+        const fire = this.player.command.autofire || this.player.command.lmb || (this.body.settings.middleFire && this.player.command.mmb);
+        const alt = this.player.command.autoalt || this.player.command.rmb;
         let target = {
             x: this.player.target.x,
             y: this.player.target.y
@@ -424,15 +424,15 @@ class io_stackGuns extends IO {
         }
 
         //find gun that is about to shoot
-        let lowestReadiness = Infinity,
-            readiestGun;
+        let lowestReadiness = Infinity;
+        let readiestGun;
         for (let i = 0; i < this.body.guns.length; i++) {
             const gun = this.body.guns[i];
             if (!gun.canShoot || !gun.stack) {
                 continue;
             }
-            const reloadStat = (gun.calculator == "necro" || gun.calculator == "fixed reload") ? 1 : (gun.bulletStats === "master" ? this.body.skill : gun.bulletStats).rld,
-                readiness = (1 - gun.cycle) / (gun.settings.reload * reloadStat);
+            const reloadStat = (gun.calculator == "necro" || gun.calculator == "fixed reload") ? 1 : (gun.bulletStats === "master" ? this.body.skill : gun.bulletStats).rld;
+            const readiness = (1 - gun.cycle) / (gun.settings.reload * reloadStat);
             if (lowestReadiness > readiness) {
                 lowestReadiness = readiness;
                 readiestGun = gun;
@@ -445,8 +445,8 @@ class io_stackGuns extends IO {
         }
 
         //rotate the target vector based on the gun
-        const targetAngle = Math.atan2(target.y, target.x) - readiestGun.angle,
-            targetLength = Math.sqrt(target.x ** 2 + target.y ** 2);
+        const targetAngle = Math.atan2(target.y, target.x) - readiestGun.angle;
+        const targetLength = Math.sqrt(target.x ** 2 + target.y ** 2);
         return {
             target: {
                 x: targetLength * Math.cos(targetAngle),
@@ -565,8 +565,8 @@ class io_nearestDifferentMaster extends IO {
             this.targetLock = undefined;
             return {};
         }
-        let tracking = this.body.topSpeed,
-            range = this.body.fov;
+        let tracking = this.body.topSpeed;
+        let range = this.body.fov;
         // Use whether we have functional guns to decide
         for (let i = 0; i < this.body.guns.length; i++) {
             if (this.body.guns[i].canShoot && !this.body.aiSettings.SKYNET) {
@@ -610,11 +610,11 @@ class io_nearestDifferentMaster extends IO {
             }
         }
         if (this.targetLock != null) {
-            const radial = this.targetLock.velocity,
-                diff = {
-                    x: this.targetLock.x - this.body.x,
-                    y: this.targetLock.y - this.body.y
-                };
+            const radial = this.targetLock.velocity;
+            const diff = {
+                x: this.targetLock.x - this.body.x,
+                y: this.targetLock.y - this.body.y
+            };
             if (this.tick % 2 === 0) {
                 this.lead = 0;
                 if (!this.body.aiSettings.CHASE) {
@@ -777,11 +777,11 @@ class io_healTeamMasters extends IO {
             }
         }
         if (this.targetLock != null) {
-            const radial = this.targetLock.velocity,
-                diff = {
-                    x: this.targetLock.x - this.body.x,
-                    y: this.targetLock.y - this.body.y
-                };
+            const radial = this.targetLock.velocity;
+            const diff = {
+                x: this.targetLock.x - this.body.x,
+                y: this.targetLock.y - this.body.y
+            };
             if (this.tick % 2 === 0) {
                 this.lead = 0;
             }
@@ -1200,10 +1200,10 @@ class io_orbit extends IO {
         this.invert = opts.invert ?? false;
     }
     think(_) {
-        const invertFactor = this.invert ? -1 : 1,
-            master = this.body.master.useOwnMaster ? this.body.master : this.body.master.master,
-            dist = this.invert ? master.inverseDist : master.dist,
-            angle = (this.body.angle * Math.PI / 180 + master.angle) * invertFactor;
+        const invertFactor = this.invert ? -1 : 1;
+        const master = this.body.master.useOwnMaster ? this.body.master : this.body.master.master;
+        const dist = this.invert ? master.inverseDist : master.dist;
+        const angle = (this.body.angle * Math.PI / 180 + master.angle) * invertFactor;
 
         if(this.realDist > dist) {
             this.realDist -= Math.min(10, Math.abs(this.realDist - dist));
@@ -1240,12 +1240,12 @@ class io_advancedOrbit extends IO {
         this.accountForVelocity = opts.accountForVelocity ?? false; // fixes satellites that trail
     }
     think(_) {
-        const invertRotationFactor = this.invertRotation ? -1 : 1,
-            // invertDistance = this.invertDistance ? -1 : 1,
-            master = this.changeMaster ? this.body.source : this.body.master.master,
-            dist = this.invertDistance ? master.inverseDist : master.dist,
-            angle = (this.body.angle * Math.PI / 180 + (master.angle * (this.spinMulti)) + (this.realDist * (Math.PI / 180) * this.speedWithDistance)) * invertRotationFactor,
-            rotation = this.rotation * (Math.PI / 180);
+        const invertRotationFactor = this.invertRotation ? -1 : 1;
+        // invertDistance = this.invertDistance ? -1 : 1,
+        const master = this.changeMaster ? this.body.source : this.body.master.master;
+        const dist = this.invertDistance ? master.inverseDist : master.dist;
+        const angle = (this.body.angle * Math.PI / 180 + (master.angle * (this.spinMulti)) + (this.realDist * (Math.PI / 180) * this.speedWithDistance)) * invertRotationFactor;
+        const rotation = this.rotation * (Math.PI / 180);
         const finalRotation = rotation + (master.angle * (this.gradualSpin / master.aiSettings.SPEED));
 
         if (this.realDist > dist) {
@@ -1254,18 +1254,18 @@ class io_advancedOrbit extends IO {
             this.realDist += Math.min(10, Math.abs(dist - this.realDist));
         }
         const fixAmount = this.minDistanceForFix * (this.distanceMulti - 1) * -1;
-        const radiusSizeMulti = master.size * this.offset,
-            ovalLengthMultiplier = (this.ovalLengthMulti * master.size),
-            ovalWidthMultiplier = (this.ovalWidthMulti * master.size),
-            distanceMulti = this.realDist * this.distanceMulti,
-            fixAmountMulti = fixAmount * this.fixDistance * master.size,
-            xDistance = (Math.cos(angle) * (distanceMulti + radiusSizeMulti + ovalLengthMultiplier + fixAmountMulti)),
-            yDistance = (Math.sin(angle) * (distanceMulti + radiusSizeMulti + ovalWidthMultiplier + fixAmountMulti));
+        const radiusSizeMulti = master.size * this.offset;
+        const ovalLengthMultiplier = (this.ovalLengthMulti * master.size);
+        const ovalWidthMultiplier = (this.ovalWidthMulti * master.size);
+        const distanceMulti = this.realDist * this.distanceMulti;
+        const fixAmountMulti = fixAmount * this.fixDistance * master.size;
+        const xDistance = (Math.cos(angle) * (distanceMulti + radiusSizeMulti + ovalLengthMultiplier + fixAmountMulti));
+        const yDistance = (Math.sin(angle) * (distanceMulti + radiusSizeMulti + ovalWidthMultiplier + fixAmountMulti));
 
         const addedX = this.accountForVelocity ? this.body.velocity.x : 0;
         const addedY = this.accountForVelocity ? this.body.velocity.y : 0;
-        const centerX = master.x + ((this.centerOffset * Math.cos(this.centerOffsetAngle * (Math.PI / 180))) * master.size),
-            centerY = master.y + ((this.centerOffset * Math.sin(this.centerOffsetAngle * (Math.PI / 180))) * master.size);
+        const centerX = master.x + ((this.centerOffset * Math.cos(this.centerOffsetAngle * (Math.PI / 180))) * master.size);
+        const centerY = master.y + ((this.centerOffset * Math.sin(this.centerOffsetAngle * (Math.PI / 180))) * master.size);
 
         this.body.x = (centerX + addedX) + (xDistance * Math.cos(finalRotation) - yDistance * Math.sin(finalRotation));
         this.body.y = (centerY + addedY) + (xDistance * Math.sin(finalRotation) + yDistance * Math.cos(finalRotation));
@@ -1456,14 +1456,14 @@ class io_rcs extends IO {
         this.body = body;
     }
     think(_) {
-        const master = this.body.master,
-            {x: vx, y: vy} = master.velocity,
-            goal = {x: master.control.goal.x - master.x, y: master.control.goal.y - master.y},
-            target = {
-                x: goal.x > 0 ? -goal.x : Math.abs(goal.x),
-                y: goal.y > 0 ? -goal.y : Math.abs(goal.y)
-            },
-            isMoving = () => master.control.goal && Math.hypot(master.control.goal.x - master.x, master.control.goal.y - master.y);
+        const master = this.body.master;
+        const {x: vx, y: vy} = master.velocity;
+        const goal = {x: master.control.goal.x - master.x, y: master.control.goal.y - master.y};
+        const target = {
+            x: goal.x > 0 ? -goal.x : Math.abs(goal.x),
+            y: goal.y > 0 ? -goal.y : Math.abs(goal.y)
+        };
+        const isMoving = () => master.control.goal && Math.hypot(master.control.goal.x - master.x, master.control.goal.y - master.y);
         let output = {};
         if (isMoving()) {
             output = {

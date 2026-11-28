@@ -252,9 +252,9 @@ export class TurretEntity extends EventEmitter {
             this.turrets.clear();
             for (let i = 0; i < set.TURRETS.length; i++) {
                 let turretDanger = false;
-                const def = set.TURRETS[i],
-                    o = new TurretEntity(def.POSITION, this, this.master),
-                    type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
+                const def = set.TURRETS[i];
+                const o = new TurretEntity(def.POSITION, this, this.master);
+                const type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
                 for (let j = 0; j < type.length; j++) {
                     o.define(type[j]);
                     if (type.TURRET_DANGER) {
@@ -343,8 +343,8 @@ export class TurretEntity extends EventEmitter {
         this.recoilMultiplier = this.RECOIL_MULTIPLIER;
     };
     move() {
-        const bound = this.bound,
-            ref = this.bond;
+        const bound = this.bound;
+        const ref = this.bond;
         this.x = ref.x + ref.size * bound.offset * Math.cos(bound.direction + bound.angle + ref.facing);
         this.y = ref.y + ref.size * bound.offset * Math.sin(bound.direction + bound.angle + ref.facing);
         ref.velocity.x += bound.size * this.accel.x;

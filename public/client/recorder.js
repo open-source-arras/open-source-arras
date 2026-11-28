@@ -12,8 +12,8 @@ class AdvancedRecorder extends MediaRecorder {
     download() {
         const a = new Blob(this.frames, { type: this.mimeType });
         this.frames.length = 0;
-        const k = URL.createObjectURL(a),
-            q = document.createElement("a");
+        const k = URL.createObjectURL(a);
+        const q = document.createElement("a");
         q.style.display = "none";
         q.setAttribute("download", this.fileName);
         q.setAttribute("href", k);

@@ -1,8 +1,8 @@
 import { Class, Config } from "../../../../loaders/global";
 
 if (Config.march_madness) {
-    const s = Math.floor(Math.random() * 5) + 1,
-        r = 1;
+    const s = Math.floor(Math.random() * 5) + 1;
+    const r = 1;
     const t = [
         "bullet",
         ["bullet", { CONTROLLERS: ["snake"] }],

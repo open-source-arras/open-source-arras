@@ -1698,24 +1698,24 @@ Class.AEMKShipBoss = {
         }
     ],
     GUNS: (() => {
-        const e = [],
-            T = [1];
+        const e = [];
+        const T = [1];
         for (let e = 1; e < 8.5; e += 0.5) {
             const t = e / 16;
             T.push(t);
         }
         for (let t = 0; t < 16; t++) {
-            const S = 22.5 * (t + 1),
-                E = {
-                    MAX_CHILDREN: 2,
-                    SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
-                    TYPE: "MKDrone",
-                    AUTOFIRE: true,
-                    SYNCS_SKILLS: true,
-                    STAT_CALCULATOR: "drone",
-                    WAIT_TO_CYCLE: true,
-                    NO_LIMITATIONS: true
-                };
+            const S = 22.5 * (t + 1);
+            const E = {
+                MAX_CHILDREN: 2,
+                SHOOT_SETTINGS: combineStats([drone, overseer, mothership]),
+                TYPE: "MKDrone",
+                AUTOFIRE: true,
+                SYNCS_SKILLS: true,
+                STAT_CALCULATOR: "drone",
+                WAIT_TO_CYCLE: true,
+                NO_LIMITATIONS: true
+            };
             t % 2 == 0 &&
             (E.NO_LIMITATIONS = true),
             (E.TYPE = [

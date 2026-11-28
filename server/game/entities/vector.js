@@ -40,8 +40,8 @@ export class Vector {
 }
 
 export function nearest(array, location, test = () => true) {
-    let lowest = Infinity,
-        closest;
+    let lowest = Infinity;
+    let closest;
     for (const instance of array) {
         const distance = (instance.x - location.x) ** 2 + (instance.y - location.y) ** 2;
         if (distance < lowest && test(instance, distance)) {

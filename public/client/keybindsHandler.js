@@ -3,12 +3,12 @@ import { global } from "./global.js";
 const keybindsInits = [];
 const keybinderHandler = {
     initalize: (control, resetBtn, keybindStorage) => {
-        let controls = document.getElementById(control),
-            resetButton = document.getElementById(resetBtn),
-            selectedElement = null,
-            controlsArray = [],
-            defaultKeybinds = {},
-            keybinds = {};
+        const controls = document.getElementById(control);
+        const resetButton = document.getElementById(resetBtn);
+        let selectedElement = null;
+        let controlsArray = [];
+        const defaultKeybinds = {};
+        let keybinds = {};
 
         function getKeybinds() {
             const kb = localStorage.getItem(keybindStorage);

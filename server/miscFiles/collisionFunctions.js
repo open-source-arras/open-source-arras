@@ -6,15 +6,15 @@ import { Config } from "../loaders/global";
 
 function simplecollide(my, n) {
     // Cache values to avoid redundant calculations
-    const dx = my.x - n.x,
-        dy = my.y - n.y;
+    const dx = my.x - n.x;
+    const dy = my.y - n.y;
     const dist = Math.hypot(dx, dy);
     const difference = (1 + dist / 2) * gameManager.runSpeed;
     const pushability1 = my.intangibility ? 1 : my.pushability;
     const pushability2 = n.intangibility ? 1 : n.pushability;
     const factor = pushability1 / (pushability2 + 0.3) * 0.05 / difference;
-    const fx = dx * factor,
-        fy = dy * factor;
+    const fx = dx * factor;
+    const fy = dy * factor;
     my.accel.x += fx;
     my.accel.y += fy;
     n.accel.x -= fx;
@@ -23,12 +23,12 @@ function simplecollide(my, n) {
 
 function firmcollide(my, n, buffer = 0) {
     // Cache positions and motions
-    const mx = my.x + my.xMotion,
-        myy = my.y + my.yMotion;
-    const nx = n.x + n.xMotion,
-        ny = n.y + n.yMotion;
-    const dx = nx - mx,
-        dy = ny - myy;
+    const mx = my.x + my.xMotion;
+    const myy = my.y + my.yMotion;
+    const nx = n.x + n.xMotion;
+    const ny = n.y + n.yMotion;
+    const dx = nx - mx;
+    const dy = ny - myy;
     const distSq = dx * dx + dy * dy;
     if (distSq === 0) {
         return;
@@ -40,8 +40,8 @@ function firmcollide(my, n, buffer = 0) {
         const dist = Math.sqrt(distSq);
         const factor = ((my.acceleration + n.acceleration) * (bufferLimit - dist)) /
             (buffer * gameManager.runSpeed * dist);
-        const accelX = dx * factor,
-            accelY = dy * factor;
+        const accelX = dx * factor;
+        const accelY = dy * factor;
         my.accel.x -= accelX;
         my.accel.y -= accelY;
         n.accel.x += accelX;
@@ -55,8 +55,8 @@ function firmcollide(my, n, buffer = 0) {
     const overlap = totalSize - dist;
     const iterations = Math.min(20, (overlap * 20) | 0);
     const factor = 0.01 * iterations / (dist * gameManager.runSpeed);
-    const adjustX = dx * factor,
-        adjustY = dy * factor;
+    const adjustX = dx * factor;
+    const adjustY = dy * factor;
 
     const mySpeed = Math.hypot(my.velocity.x, my.velocity.y);
     const nSpeed = Math.hypot(n.velocity.x, n.velocity.y);
@@ -100,7 +100,7 @@ function firmcollidehard(my, n, buffer = 0) {
     let dist = getDistance(item1, item2);
     const s1 = Math.max(my.velocity.length, my.topSpeed);
     const s2 = Math.max(n.velocity.length, n.topSpeed);
-    let strike1, strike2;
+    let strike1; let strike2;
     if (buffer > 0 && dist <= my.realSize + n.realSize + buffer) {
         const repel = (my.acceleration + n.acceleration) * (my.realSize + n.realSize + buffer - dist) / buffer / Config.runSpeed;
         my.accel.x += repel * (item1.x - item2.x) / dist;
@@ -139,8 +139,8 @@ function firmcollidehard(my, n, buffer = 0) {
 
 function reflectcollide(wall, bounce) {
     // Use cached values and avoid repeated Math.sqrt
-    const dx = wall.x - bounce.x,
-        dy = wall.y - bounce.y;
+    const dx = wall.x - bounce.x;
+    const dy = wall.y - bounce.y;
     const dist = Math.hypot(dx, dy);
     const difference = wall.size + bounce.size - dist;
     if (difference > 0) {
@@ -153,19 +153,19 @@ function reflectcollide(wall, bounce) {
 }
 
 function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
-    const tock = Math.min(my.stepRemaining, n.stepRemaining),
-        combinedRadius = n.size + my.size,
-        motion = {
-            _me: new Vector(my.xMotion, my.yMotion),
-            _n: new Vector(n.xMotion, n.yMotion)
-        },
-        delta = new Vector(
-            tock * (motion._me.x - motion._n.x),
-            tock * (motion._me.y - motion._n.y)
-        );
-    let difference = new Vector(my.x - n.x, my.y - n.y),
-        direction = new Vector((n.x - my.x) / difference.length, (n.y - my.y) / difference.length),
-        component = Math.max(0, direction.x * delta.x + direction.y * delta.y);
+    const tock = Math.min(my.stepRemaining, n.stepRemaining);
+    const combinedRadius = n.size + my.size;
+    const motion = {
+        _me: new Vector(my.xMotion, my.yMotion),
+        _n: new Vector(n.xMotion, n.yMotion)
+    };
+    const delta = new Vector(
+        tock * (motion._me.x - motion._n.x),
+        tock * (motion._me.y - motion._n.y)
+    );
+    let difference = new Vector(my.x - n.x, my.y - n.y);
+    let direction = new Vector((n.x - my.x) / difference.length, (n.y - my.y) / difference.length);
+    let component = Math.max(0, direction.x * delta.x + direction.y * delta.y);
 
     // radius check
     if (component < difference.length - combinedRadius) {
@@ -173,22 +173,22 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
     }
 
     // A more complex check
-    let goahead = false,
-        t;
-    const tmin = 1 - tock,
-        tmax = 1,
-        deltaLengthSquared = delta.lengthSquared,
-        B = 2 * delta.x * difference.x + 2 * delta.y * difference.y,
-        C = difference.lengthSquared - combinedRadius ** 2,
-        det = B ** 2 - (4 * deltaLengthSquared * C);
+    let goahead = false;
+    let t;
+    const tmin = 1 - tock;
+    const tmax = 1;
+    const deltaLengthSquared = delta.lengthSquared;
+    const B = 2 * delta.x * difference.x + 2 * delta.y * difference.y;
+    const C = difference.lengthSquared - combinedRadius ** 2;
+    const det = B ** 2 - (4 * deltaLengthSquared * C);
     if (!deltaLengthSquared || det < 0 || C < 0) { // This shall catch mathematical errors
         t = 0;
         if (C < 0) { // We have already hit without moving
             goahead = true;
         }
     } else {
-        const t1 = (-B - Math.sqrt(det)) / (2 * deltaLengthSquared),
-            t2 = (-B + Math.sqrt(det)) / (2 * deltaLengthSquared);
+        const t1 = (-B - Math.sqrt(det)) / (2 * deltaLengthSquared);
+        const t2 = (-B + Math.sqrt(det)) / (2 * deltaLengthSquared);
         if (t1 < tmin || t1 > tmax) { // 1 is out of range
             if (t2 < tmin || t2 > tmax) { // 2 is out of range;
                 t = false;
@@ -230,36 +230,36 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
 
     const componentNorm = component / delta.length;
     const deathFactor = {
-            _me: 1,
-            _n: 1
+        _me: 1,
+        _n: 1
+    };
+    const accelerationFactor = (delta.length) ? (
+        (combinedRadius / 4) / (Math.floor(combinedRadius / delta.length) + 1)
+    ) : (
+        0.001
+    );
+    const depth = {
+        _me: clamp((combinedRadius - difference.length) / (2 * my.size), 0, 1), //1: I am totally within it
+        _n: clamp((combinedRadius - difference.length) / (2 * n.size), 0, 1) //1: It is totally within me
+    };
+    const combinedDepth = {
+        up: depth._me * depth._n,
+        down: (1 - depth._me) * (1 - depth._n)
+    };
+    const pen = {
+        _me: {
+            sqr: Math.pow(my.penetration, 2),
+            sqrt: Math.sqrt(my.penetration)
         },
-        accelerationFactor = (delta.length) ? (
-            (combinedRadius / 4) / (Math.floor(combinedRadius / delta.length) + 1)
-        ) : (
-            0.001
-        ),
-        depth = {
-            _me: clamp((combinedRadius - difference.length) / (2 * my.size), 0, 1), //1: I am totally within it
-            _n: clamp((combinedRadius - difference.length) / (2 * n.size), 0, 1) //1: It is totally within me
-        },
-        combinedDepth = {
-            up: depth._me * depth._n,
-            down: (1 - depth._me) * (1 - depth._n)
-        },
-        pen = {
-            _me: {
-                sqr: Math.pow(my.penetration, 2),
-                sqrt: Math.sqrt(my.penetration)
-            },
-            _n: {
-                sqr: Math.pow(n.penetration, 2),
-                sqrt: Math.sqrt(n.penetration)
-            }
-        },
-        savedHealthRatio = {
-            _me: my.health.ratio,
-            _n: n.health.ratio
-        };
+        _n: {
+            sqr: Math.pow(n.penetration, 2),
+            sqrt: Math.sqrt(n.penetration)
+        }
+    };
+    const savedHealthRatio = {
+        _me: my.health.ratio,
+        _n: n.health.ratio
+    };
     if (doDamage) {
         const speedFactor = { // Avoid NaNs and infinities
             _me: my.maxSpeed ? Math.pow(motion._me.length / my.maxSpeed, 0.25) : 1,
@@ -274,11 +274,11 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
         }
         if (!bail && !my.invuln && !n.invuln) {
             // Calculate base damage
-            const resistDiff = my.health.resist - n.health.resist,
-                damage = {
-                    _me: Config.damage_multiplier * my.damage * (1 + resistDiff) * (1 + n.heteroMultiplier  * (my.settings.damageClass === n.settings.damageClass)) * ((my.settings.buffVsFood && n.settings.damageType === 1) ? 3 : 1) * my.damageMultiplier() * Math.min(2, Math.max(speedFactor._me, 1) * speedFactor._me),
-                    _n:  Config.damage_multiplier * n.damage  * (1 - resistDiff) * (1 + my.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((n.settings.buffVsFood && my.settings.damageType === 1) ? 3 : 1) * n.damageMultiplier()  * Math.min(2, Math.max(speedFactor._n, 1) * speedFactor._n)
-                };
+            const resistDiff = my.health.resist - n.health.resist;
+            const damage = {
+                _me: Config.damage_multiplier * my.damage * (1 + resistDiff) * (1 + n.heteroMultiplier  * (my.settings.damageClass === n.settings.damageClass)) * ((my.settings.buffVsFood && n.settings.damageType === 1) ? 3 : 1) * my.damageMultiplier() * Math.min(2, Math.max(speedFactor._me, 1) * speedFactor._me),
+                _n:  Config.damage_multiplier * n.damage  * (1 - resistDiff) * (1 + my.heteroMultiplier * (my.settings.damageClass === n.settings.damageClass)) * ((n.settings.buffVsFood && my.settings.damageType === 1) ? 3 : 1) * n.damageMultiplier()  * Math.min(2, Math.max(speedFactor._n, 1) * speedFactor._n)
+            };
             // Advanced damage calculations
             if (my.settings.ratioEffects) {
                 damage._me *= Math.min(1, Math.pow(Math.max(my.health.ratio, my.shield.ratio), 1 / my.penetration));
@@ -364,22 +364,22 @@ function advancedcollide(my, n, doDamage, doInelastic, nIsFirmCollide = false) {
         } else {
             elasticity *= 2;
         }
-        const spring = 2 * Math.sqrt(savedHealthRatio._me * savedHealthRatio._n) / Config.run_speed,
-            elasticImpulse =
-                Math.pow(combinedDepth.down, 2) *
+        const spring = 2 * Math.sqrt(savedHealthRatio._me * savedHealthRatio._n) / Config.run_speed;
+        const elasticImpulse =
+            Math.pow(combinedDepth.down, 2) *
             elasticity * component *
-            my.mass * n.mass / (my.mass + n.mass),
-            springImpulse =
-                knockback * spring * combinedDepth.up,
-            impulse = -(elasticImpulse + springImpulse) * (1 - my.intangibility) * (1 - n.intangibility),
-            force = {
-                x: impulse * direction.x,
-                y: impulse * direction.y
-            },
-            modifiers = {
-                _me: knockback * my.pushability / my.mass * deathFactor._n,
-                _n: knockback * n.pushability / n.mass * deathFactor._me
-            };
+            my.mass * n.mass / (my.mass + n.mass);
+        const springImpulse =
+            knockback * spring * combinedDepth.up;
+        const impulse = -(elasticImpulse + springImpulse) * (1 - my.intangibility) * (1 - n.intangibility);
+        const force = {
+            x: impulse * direction.x,
+            y: impulse * direction.y
+        };
+        const modifiers = {
+            _me: knockback * my.pushability / my.mass * deathFactor._n,
+            _n: knockback * n.pushability / n.mass * deathFactor._me
+        };
         // Apply impulse as force
         my.accel.x += modifiers._me * force.x;
         my.accel.y += modifiers._me * force.y;

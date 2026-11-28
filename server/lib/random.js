@@ -24,8 +24,8 @@ export function irandomRange(min, max) {
 
 // does not clump the points in the middle
 export function pointInUnitCircle() {
-    const angle = randomAngle(),
-        distance = Math.sqrt(Math.random());
+    const angle = randomAngle();
+    const distance = Math.sqrt(Math.random());
     return {
         x: Math.cos(angle) * distance,
         y: Math.sin(angle) * distance
@@ -75,8 +75,8 @@ export function choose(arr) {
 }
 
 export function chooseN(arr, num) {
-    const result = [],
-        extendedArr = [];
+    const result = [];
+    const extendedArr = [];
     while (extendedArr.length < num) {
         extendedArr.push(...shuffle(arr));
     }

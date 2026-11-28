@@ -4,9 +4,9 @@ import { rounder } from "../lib/util";
 function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets, the current dimensions handler does not like turrets
     let endPoints;
     function getFurthestFrom(x, y) {
-        let furthestDistance = 0,
-            furthestPoint = [x, y],
-            furthestIndex = 0;
+        let furthestDistance = 0;
+        let furthestPoint = [x, y];
+        let furthestIndex = 0;
         for (let i = 0; i < endPoints.length; i++) {
             const point = endPoints[i];
             const distance = (point[0] - x) ** 2 + (point[1] - y) ** 2;
@@ -25,17 +25,17 @@ function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets
     }
 
     function checkIfOnLine(endpoint1, endpoint2, checkPoint) {
-        const xDiff = endpoint2[0] - endpoint1[0],
-            yDiff = endpoint2[1] - endpoint1[1];
+        const xDiff = endpoint2[0] - endpoint1[0];
+        const yDiff = endpoint2[1] - endpoint1[1];
 
         // Endpoints on the same vertical line
         if (xDiff == 0) {
             return (checkPoint[0] == endpoint1[0]);
         }
 
-        const slope = yDiff / xDiff,
-            xLengthToCheck = checkPoint[0] - endpoint1[0],
-            predictedY = endpoint1[1] + xLengthToCheck * slope;
+        const slope = yDiff / xDiff;
+        const xLengthToCheck = checkPoint[0] - endpoint1[0];
+        const predictedY = endpoint1[1] + xLengthToCheck * slope;
         // Check point is on the line with a small margin
         return Math.abs(checkPoint[1] - predictedY) <= 1e-5;
     }
@@ -55,8 +55,8 @@ function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets
             point2 = getFurthestFrom(...point1);
         }
 
-        const avgX = (point1[0] + point2[0]) / 2,
-            avgY = (point1[1] + point2[1]) / 2;
+        const avgX = (point1[0] + point2[0]) / 2;
+        const avgY = (point1[1] + point2[1]) / 2;
         let point3 = getFurthestFrom(avgX, avgY);
 
         // Repeat selecting the third point until it's actually different from the other points, and it's not collinear with them
@@ -121,10 +121,10 @@ function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets
         // Process guns
         for (const g of entity.guns) {
             // Construct a trapezoid at angle 0
-            const widths = g.aspect > 0 ? [g.width * g.aspect / 2, g.width / 2] : [g.width / 2, -g.width * g.aspect / 2],
-                points = [],
-                sinT = Math.sin(g.angle + angle),
-                cosT = Math.cos(g.angle + angle);
+            const widths = g.aspect > 0 ? [g.width * g.aspect / 2, g.width / 2] : [g.width / 2, -g.width * g.aspect / 2];
+            const points = [];
+            const sinT = Math.sin(g.angle + angle);
+            const cosT = Math.cos(g.angle + angle);
             points.push([0, widths[1]]);
             points.push([g.length, widths[0]]);
             points.push([g.length, -widths[0]]);
@@ -132,8 +132,8 @@ function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets
 
             for (const point of points) {
                 // Rotate it to the new angle via vector rotation
-                let newX = point[0] * cosT - point[1] * sinT,
-                    newY = point[0] * sinT + point[1] * cosT;
+                let newX = point[0] * cosT - point[1] * sinT;
+                let newY = point[0] * sinT + point[1] * cosT;
                 // Translate it to the right position
                 newX += g.offset * Math.cos(g.direction + g.angle + angle);
                 newY += g.offset * Math.sin(g.direction + g.angle + angle);
@@ -145,9 +145,9 @@ function getDimensionsForTurrets(Dentity) { // This is specialy made for turrets
         // Process turrets and props
         const turretsAndProps = entity.turrets.concat(entity.props);
         for (const t of turretsAndProps) {
-            const trueAngle = angle + t.bound.angle,
-                xShift = t.bound.offset * Math.cos(t.bound.direction + trueAngle),
-                yShift = t.bound.offset * Math.sin(t.bound.direction + trueAngle);
+            const trueAngle = angle + t.bound.angle;
+            const xShift = t.bound.offset * Math.cos(t.bound.direction + trueAngle);
+            const yShift = t.bound.offset * Math.sin(t.bound.direction + trueAngle);
             sizeEntity(t, x + xShift * scale, y + yShift * scale, trueAngle, t.bound.size * scale);
         }
     }
@@ -165,8 +165,8 @@ function getDimensionsNormal(Dentity) {
                 return { x: R[0][0], y: R[0][1], r: 0 };
             }
             if (R.length === 2) {
-                const cx = (R[0][0] + R[1][0]) / 2,
-                    cy = (R[0][1] + R[1][1]) / 2;
+                const cx = (R[0][0] + R[1][0]) / 2;
+                const cy = (R[0][1] + R[1][1]) / 2;
                 return { x: cx, y: cy, r: Math.hypot(R[0][0] - R[1][0], R[0][1] - R[1][1]) / 2 };
             }
             return constructCircumcirle(R[0], R[1], R[2]);
@@ -245,10 +245,10 @@ function getDimensionsNormal(Dentity) {
         // Process guns
         for (const g of entity.guns) {
             // Construct a trapezoid at angle 0
-            const widths = g.aspect > 0 ? [g.width * g.aspect / 2, g.width / 2] : [g.width / 2, -g.width * g.aspect / 2],
-                points = [],
-                sinT = Math.sin(g.angle + angle),
-                cosT = Math.cos(g.angle + angle);
+            const widths = g.aspect > 0 ? [g.width * g.aspect / 2, g.width / 2] : [g.width / 2, -g.width * g.aspect / 2];
+            const points = [];
+            const sinT = Math.sin(g.angle + angle);
+            const cosT = Math.cos(g.angle + angle);
             points.push([0, widths[1]]);
             points.push([g.length, widths[0]]);
             points.push([g.length, -widths[0]]);
@@ -256,8 +256,8 @@ function getDimensionsNormal(Dentity) {
 
             for (const point of points) {
                 // Rotate it to the new angle via vector rotation
-                let newX = point[0] * cosT - point[1] * sinT,
-                    newY = point[0] * sinT + point[1] * cosT;
+                let newX = point[0] * cosT - point[1] * sinT;
+                let newY = point[0] * sinT + point[1] * cosT;
                 // Translate it to the right position
                 newX += g.offset * Math.cos(g.direction + g.angle + angle);
                 newY += g.offset * Math.sin(g.direction + g.angle + angle);
@@ -269,9 +269,9 @@ function getDimensionsNormal(Dentity) {
         // Process turrets and props
         const turretsAndProps = entity.turrets.concat(entity.props);
         for (const t of turretsAndProps) {
-            const trueAngle = angle + t.bound.angle,
-                xShift = t.bound.offset * Math.cos(t.bound.direction + trueAngle),
-                yShift = t.bound.offset * Math.sin(t.bound.direction + trueAngle);
+            const trueAngle = angle + t.bound.angle;
+            const xShift = t.bound.offset * Math.cos(t.bound.direction + trueAngle);
+            const yShift = t.bound.offset * Math.sin(t.bound.direction + trueAngle);
             sizeEntity(t, x + xShift * scale, y + yShift * scale, trueAngle, t.bound.size * scale);
         }
     }

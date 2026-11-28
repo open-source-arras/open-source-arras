@@ -752,9 +752,9 @@ export class Entity extends EventEmitter {
             this.turrets.clear();
             for (let i = 0; i < set.TURRETS.length; i++) {
                 let turretDanger = false;
-                const def = set.TURRETS[i],
-                    o = new TurretEntity(def.POSITION, this, this.master),
-                    type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
+                const def = set.TURRETS[i];
+                const o = new TurretEntity(def.POSITION, this, this.master);
+                const type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
                 for (let j = 0; j < type.length; j++) {
                     o.define(type[j]);
                     if (type.TURRET_DANGER) {
@@ -1198,8 +1198,8 @@ export class Entity extends EventEmitter {
             if (!this.inBase() && now - lastAction < Config.upgrade_delay) {
                 let tankLabel = "Unknown";
 
-                let upgrade,
-                    list;
+                let upgrade;
+                let list;
                 if (dailyTankRequest) {
                     if (Config.daily_tank) {
                         list = false;
@@ -1255,10 +1255,10 @@ export class Entity extends EventEmitter {
             };
             if (number < this.upgrades.length && this.skill.level >= this.upgrades[number].level) {
                 upgraded = true;
-                const upgrade = this.upgrades[number],
-                    upgradeClass = upgrade.class,
-                    upgradeBranch = upgrade.branch,
-                    redefineAll = upgrade.redefineAll;
+                const upgrade = this.upgrades[number];
+                const upgradeClass = upgrade.class;
+                const upgradeBranch = upgrade.branch;
+                const redefineAll = upgrade.redefineAll;
                 if (redefineAll) {
                     for (let i = 0; i < upgradeClass.length; i++) {
                         upgradeClass[i] = ensureIsClass(...upgradeClass[i]);
@@ -1370,12 +1370,12 @@ export class Entity extends EventEmitter {
         this.y += this.stepRemaining * this.velocity.y / global.gameManager.roomSpeed;
     }
     friction() {
-        var motion = this.velocity.length,
-            excess = motion - this.maxSpeed;
+        var motion = this.velocity.length;
+        var excess = motion - this.maxSpeed;
         if (excess > 0 && this.damp) {
-            var k = this.damp / global.gameManager.roomSpeed,
-                drag = excess / (k + 1),
-                finalvelocity = this.maxSpeed + drag;
+            var k = this.damp / global.gameManager.roomSpeed;
+            var drag = excess / (k + 1);
+            var finalvelocity = this.maxSpeed + drag;
             this.velocity.x = finalvelocity * this.velocity.x / motion;
             this.velocity.y = finalvelocity * this.velocity.y / motion;
         }
@@ -1393,10 +1393,10 @@ export class Entity extends EventEmitter {
         if (!this.settings.canGoOutsideRoom) {
             if (Config.round_arena) {
                 const centerPoint = {
-                        x: global.gameManager.room.width - global.gameManager.room.width,
-                        y: global.gameManager.room.height - global.gameManager.room.height
-                    },
-                    dist = getDistance(this, centerPoint);
+                    x: global.gameManager.room.width - global.gameManager.room.width,
+                    y: global.gameManager.room.height - global.gameManager.room.height
+                };
+                const dist = getDistance(this, centerPoint);
                 if (dist > global.gameManager.room.width - global.gameManager.room.width / 2) {
                     const strength = (dist - global.gameManager.room.width / 2) * Config.room_bound_force / (Config.run_speed * 350);
                     this.x = lerp(this.x, centerPoint.x, strength);
@@ -1426,12 +1426,12 @@ export class Entity extends EventEmitter {
         if (!tiles || !tiles.length) {
             return;
         }
-        const halfW = room.tileWidth / 2,
-            halfH = room.tileHeight / 2,
-            margin = Math.max(50, this.realSize || 0);
-        let seen = false,
-            nx = 0,
-            ny = 0;
+        const halfW = room.tileWidth / 2;
+        const halfH = room.tileHeight / 2;
+        const margin = Math.max(50, this.realSize || 0);
+        let seen = false;
+        let nx = 0;
+        let ny = 0;
         const owned = new Set();
         for (const t of tiles) {
             owned.add(`${t.gridLoc.x},${t.gridLoc.y}`);
@@ -1442,8 +1442,8 @@ export class Entity extends EventEmitter {
                 continue;
             }
             seen = true;
-            const gx = t.gridLoc.x,
-                gy = t.gridLoc.y;
+            const gx = t.gridLoc.x;
+            const gy = t.gridLoc.y;
             if (!owned.has(`${gx},${gy - 1}`) && this.y - (t.loc.y - halfH) < margin) {
                 ny++;
             }
@@ -1467,15 +1467,15 @@ export class Entity extends EventEmitter {
             return;
         }
         // Outside: head for the closest point of the base border, not a tile's center.
-        let dist = Infinity,
-            cx = 0,
-            cy = 0;
+        let dist = Infinity;
+        let cx = 0;
+        let cy = 0;
         for (const tile of tiles) {
-            const px = Math.max(tile.loc.x - halfW, Math.min(this.x, tile.loc.x + halfW)),
-                py = Math.max(tile.loc.y - halfH, Math.min(this.y, tile.loc.y + halfH)),
-                dx = px - this.x,
-                dy = py - this.y,
-                d = dx * dx + dy * dy;
+            const px = Math.max(tile.loc.x - halfW, Math.min(this.x, tile.loc.x + halfW));
+            const py = Math.max(tile.loc.y - halfH, Math.min(this.y, tile.loc.y + halfH));
+            const dx = px - this.x;
+            const dy = py - this.y;
+            const d = dx * dx + dy * dy;
             if (d < dist) {
                 dist = d;
                 cx = px;
@@ -1564,8 +1564,8 @@ export class Entity extends EventEmitter {
 
             // Initalize message arrays
             const killTools = [];
-            let killers = [],
-                notJustFood = false;
+            let killers = [];
+            let notJustFood = false;
             // If I'm a tank, call me a nameless player
             const name = this.master.name == ""
                 ? this.master.type === "tank"
@@ -1573,7 +1573,7 @@ export class Entity extends EventEmitter {
                         ? `a visiting ${this.label}` : this.label.substring(0, 3) == "The"
                             ? this.label : addArticle(this.label)
                 : `${this.master.name}'s ${this.label}`;
-            // Calculate the jackpot
+                // Calculate the jackpot
             const jackpot = getJackpot(this.skill.score) / this.collisionArray.length;
             // Now for each of the things that kill me...
             for (let i = 0; i < this.collisionArray.length; i++) {
@@ -1597,8 +1597,8 @@ export class Entity extends EventEmitter {
             killers = killers.filter((elem, index, self) => index == self.indexOf(elem));
             killers.forEach((e) => e.emit("kill", { body: e, entity: this }));
             // If there's no valid killers (you were killed by food), change the message to be more passive
-            let killText = notJustFood ? "" : "You have been killed by ",
-                killSuffix = ".";
+            let killText = notJustFood ? "" : "You have been killed by ";
+            let killSuffix = ".";
             const doISendAText = this.settings.givesKillMessage;
 
             for (let i = 0; i < killers.length; i++) {

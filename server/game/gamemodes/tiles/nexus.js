@@ -10,10 +10,10 @@ tileClass.nexus = new Tile({
                 !entity.nexus_alerted && entity.sendMessage("You need to be level 90 to enter this room!");
                 entity.nexus_alerted = true;
                 setTimeout(() => entity.nexus_alerted = false, 50);
-                const dx = entity.x - tile.loc.x,
-                    dy = entity.y - tile.loc.y,
-                    dist2 = dx ** 2 + dy ** 2,
-                    force = 0.3;
+                const dx = entity.x - tile.loc.x;
+                const dy = entity.y - tile.loc.y;
+                const dist2 = dx ** 2 + dy ** 2;
+                const force = 0.3;
                 entity.accel.x += (((3e4 * dx) / dist2) * force);
                 entity.accel.y += (((3e4 * dy) / dist2) * force);
             }

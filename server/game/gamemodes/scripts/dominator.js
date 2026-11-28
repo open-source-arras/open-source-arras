@@ -42,8 +42,8 @@ export class Domination {
                 delete this.teamcounts[team];
             }
 
-            let newTeam = TEAM_ENEMIES,
-                newColor = getTeamColor(newTeam);
+            let newTeam = TEAM_ENEMIES;
+            let newColor = getTeamColor(newTeam);
 
             if (team === TEAM_ENEMIES) {
                 const killers = [];

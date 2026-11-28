@@ -269,20 +269,20 @@ const util = {
         return x > -r && x < global.screenWidth / ratio + r && y > -r && y < global.screenHeight / ratio + r;
     },
     getEntityImageFromMockup: (index, color) => {
-        let firstIndex = parseInt(index.split("-")[0]),
-            mainMockup = global.mockups[firstIndex];
+        const firstIndex = parseInt(index.split("-")[0]);
+        let mainMockup = global.mockups[firstIndex];
         if (!mainMockup) {
             mainMockup = global.missingno[0];
         }
-        let guns = [],
-            turrets = [],
-            props = [],
-            name = "",
-            upgradeTooltip = "",
-            positionData = [],
-            rerootUpgradeTree = [],
-            allRoots = [],
-            trueColor = mainMockup.color;
+        const guns = [];
+        const turrets = [];
+        const props = [];
+        let name = "";
+        let upgradeTooltip = "";
+        const positionData = [];
+        const rerootUpgradeTree = [];
+        const allRoots = [];
+        let trueColor = mainMockup.color;
         if (trueColor == "16 0 1 0 false" && color) {
             trueColor = color;
         }
@@ -409,9 +409,9 @@ const util = {
         }
 
         function getFurthestFrom(x, y) {
-            let furthestDistance = 0,
-                furthestPoint = [x, y],
-                furthestIndex = 0;
+            let furthestDistance = 0;
+            let furthestPoint = [x, y];
+            let furthestIndex = 0;
             for (let i = 0; i < endPoints.length; i++) {
                 const point = endPoints[i];
                 const distance = (point[0] - x) ** 2 + (point[1] - y) ** 2;
@@ -430,18 +430,18 @@ const util = {
         }
 
         function checkIfOnLine(endpoint1, endpoint2, checkPoint) {
-            const xDiff = endpoint2[0] - endpoint1[0],
-                yDiff = endpoint2[1] - endpoint1[1];
+            const xDiff = endpoint2[0] - endpoint1[0];
+            const yDiff = endpoint2[1] - endpoint1[1];
 
             // Endpoints on the same vertical line
             if (xDiff == 0) {
                 return (checkPoint[0] == endpoint1[0]);
             }
 
-            const slope = yDiff / xDiff,
-                xLengthToCheck = checkPoint[0] - endpoint1[0],
-                predictedY = endpoint1[1] + xLengthToCheck * slope;
-                // Check point is on the line with a small margin
+            const slope = yDiff / xDiff;
+            const xLengthToCheck = checkPoint[0] - endpoint1[0];
+            const predictedY = endpoint1[1] + xLengthToCheck * slope;
+            // Check point is on the line with a small margin
             return Math.abs(checkPoint[1] - predictedY) <= 1e-5;
         }
 
@@ -484,17 +484,17 @@ const util = {
 
         // Convert to useful info
         endPoints.sort((a, b) => (b[0] ** 2 + b[1] ** 2 - a[0] ** 2 - a[1] ** 2));
-        let point1 = getFurthestFrom(0, 0),
-            point2 = getFurthestFrom(...point1);
+        const point1 = getFurthestFrom(0, 0);
+        let point2 = getFurthestFrom(...point1);
 
         // Repeat selecting the second point until at least one of the first two points is off the centerline
         while (point1[0] == 0 && point2[0] == 0 || point1[1] == 0 && point2[1] == 0) {
             point2 = getFurthestFrom(...point1);
         }
 
-        let avgX = (point1[0] + point2[0]) / 2,
-            avgY = (point1[1] + point2[1]) / 2,
-            point3 = getFurthestFrom(avgX, avgY);
+        const avgX = (point1[0] + point2[0]) / 2;
+        const avgY = (point1[1] + point2[1]) / 2;
+        let point3 = getFurthestFrom(avgX, avgY);
 
         // Repeat selecting the third point until it's actually different from the other points and it's not collinear with them
         while (checkIfSamePoint(point3, point1) || checkIfSamePoint(point3, point2) || checkIfOnLine(point1, point2, point3)) {

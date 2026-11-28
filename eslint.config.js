@@ -20,6 +20,9 @@ export default defineConfig([{
     },
     rules: {
         "curly": "error",
+        "no-fallthrough": ["error", {
+            allowEmptyCase: true
+        }],
         "no-implicit-coercion": "error",
         "no-unreachable": "error",
         "no-unused-vars": ["error", {
@@ -27,6 +30,7 @@ export default defineConfig([{
             caughtErrorsIgnorePattern: IDENTIFIER_IGNORE_PATTERN,
             varsIgnorePattern: IDENTIFIER_IGNORE_PATTERN
         }],
+        "one-var": ["error", "never"],
         "prefer-const": "error",
         "prefer-template": "error",
         "@stylistic/array-bracket-spacing": ["error", "never"],

@@ -56,8 +56,8 @@ export class Mothership {
             y: global.gameManager.room.height * 0.1 - global.gameManager.room.height / 2
         }].sort(() => 0.5 - Math.random());
         for (let i = 0; i < Config.teams; i++) {
-            const o = new Entity(locs[i]),
-                team = -i - 1;
+            const o = new Entity(locs[i]);
+            const team = -i - 1;
             o.define(choose(this.choices));
             o.define({ ACCEPTS_SCORE: false, VALUE: 643890 });
             o.color.base = getTeamColor(team);

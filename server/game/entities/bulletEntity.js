@@ -570,12 +570,12 @@ export class BulletEntity { // Basically an (Entity) but with heavy limitations 
         this.y += this.stepRemaining * this.velocity.y / gameManager.roomSpeed;
     };
     friction() {
-        var motion = this.velocity.length,
-            excess = motion - this.maxSpeed;
+        var motion = this.velocity.length;
+        var excess = motion - this.maxSpeed;
         if (excess > 0 && this.damp) {
-            var k = this.damp / gameManager.roomSpeed,
-                drag = excess / (k + 1),
-                finalvelocity = this.maxSpeed + drag;
+            var k = this.damp / gameManager.roomSpeed;
+            var drag = excess / (k + 1);
+            var finalvelocity = this.maxSpeed + drag;
             this.velocity.x = finalvelocity * this.velocity.x / motion;
             this.velocity.y = finalvelocity * this.velocity.y / motion;
         }
@@ -593,10 +593,10 @@ export class BulletEntity { // Basically an (Entity) but with heavy limitations 
         if (!this.settings.canGoOutsideRoom) {
             if (Config.round_arena) {
                 const centerPoint = {
-                        x: gameManager.room.width - gameManager.room.width,
-                        y: gameManager.room.height - gameManager.room.height
-                    },
-                    dist = getDistance(this, centerPoint);
+                    x: gameManager.room.width - gameManager.room.width,
+                    y: gameManager.room.height - gameManager.room.height
+                };
+                const dist = getDistance(this, centerPoint);
                 if (dist > gameManager.room.width - gameManager.room.width / 2) {
                     const strength = (dist - gameManager.room.width / 2) * Config.room_bound_force / (Config.run_speed * 350);
                     this.x = lerp(this.x, centerPoint.x, strength);

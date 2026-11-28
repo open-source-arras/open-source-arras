@@ -150,8 +150,8 @@ export class Siege {
         const waves = [];
         for (let i = 0; i < this.length; i++) {
             const wave = [];
-            let points = calculatePoints(i),
-                choices = this.bossChoices;
+            let points = calculatePoints(i);
+            let choices = this.bossChoices;
 
             while (points > 0 && choices.length) {
                 choices = choices.filter(([cost]) => cost <= points);

@@ -1293,7 +1293,7 @@ class MazeGenerator {
                     console.log("Invalid maze type! Generating aborted.");
                     return null;
             }
-        } catch (_) {
+        } catch {
             return null;
         }
         if (this.isClosed()) {

@@ -1760,8 +1760,8 @@ function spectatorSelect(body, playersOnly, canSelectSelf) {
         x: body.control.target.x + body.x,
         y: body.control.target.y + body.y
     };
-    let lowest = Infinity,
-        closest;
+    let lowest = Infinity;
+    let closest;
     for (const instance of entities.values()) {
         if (instance.source === body && (instance !== body || !canSelectSelf)) {
             continue;

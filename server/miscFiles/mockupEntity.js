@@ -433,7 +433,7 @@ export class MockupEntity {
                         const e = ensureIsClass(k);
                         index += `${e.index}-`;
                     }
-                    let i = parseInt(prop.split("_")[2]);
+                    const i = parseInt(prop.split("_")[2]);
                     this.upgrades.push({
                         class: trueUpgrades,
                         level: Config.tier_multiplier * i,
@@ -482,9 +482,9 @@ export class MockupEntity {
         if (set.PROPS != null) {
             this.props = [];
             for (let i = 0; i < set.PROPS.length; i++) {
-                const def = set.PROPS[i],
-                    type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE],
-                    o = new MockupEntityProp(def, this);
+                const def = set.PROPS[i];
+                const type = Array.isArray(def.TYPE) ? def.TYPE : [def.TYPE];
+                const o = new MockupEntityProp(def, this);
                 for (let j = 0; j < type.length; j++) {
                     o.define(type[j]);
                 }

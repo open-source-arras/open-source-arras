@@ -2,26 +2,26 @@ import { Config, getTeamColor, TEAM_BLUE, TEAM_BROWN, TEAM_CYAN, TEAM_GREEN, TEA
 import { Entity } from "../../entities/entity";
 
 const spawnPermanentBaseProtector = (loc, team) => {
-        const o = new Entity(loc);
-        o.define("baseProtector");
-        o.team = team;
-        o.color.base = getTeamColor(team);
-        o.on("dead", () => spawnPermanentBaseProtector(loc, team));
-    },
-    teamCheck = (tile, team) => {
-        for (let i = 0; i < tile.entities.length; i++) {
-            const entity = tile.entities[i];
-            if (entity.team !== team && entity.team !== -101 && !entity.ac && (!entity.master.master.ac || entity.ac === false) && !entity.isArenaCloser && (!entity.master.master.isArenaCloser || entity.isArenaCloser === false) && !Config.disable_base_check) {
-                entity.kill();
-            };
-        }
-    },
-    teamRoomCheck = (tile, team, room) => {
-        if (!room.spawnable[team]) {
-            room.spawnable[team] = [];
-        }
-        room.spawnable[team].push(tile);
-    };
+    const o = new Entity(loc);
+    o.define("baseProtector");
+    o.team = team;
+    o.color.base = getTeamColor(team);
+    o.on("dead", () => spawnPermanentBaseProtector(loc, team));
+};
+const teamCheck = (tile, team) => {
+    for (let i = 0; i < tile.entities.length; i++) {
+        const entity = tile.entities[i];
+        if (entity.team !== team && entity.team !== -101 && !entity.ac && (!entity.master.master.ac || entity.ac === false) && !entity.isArenaCloser && (!entity.master.master.isArenaCloser || entity.isArenaCloser === false) && !Config.disable_base_check) {
+            entity.kill();
+        };
+    }
+};
+const teamRoomCheck = (tile, team, room) => {
+    if (!room.spawnable[team]) {
+        room.spawnable[team] = [];
+    }
+    room.spawnable[team].push(tile);
+};
 
 // Team -1 (blue)
 tileClass.base1 = new Tile({
