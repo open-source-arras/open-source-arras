@@ -1,4 +1,4 @@
-var color = {
+export const color = {
     // Ingame arras themes
     "normal": {
         "blue": "#3ca4cb", // Blue Team
@@ -783,4 +783,3 @@ var color = {
         "neon": false
     }
 };
-export { color };

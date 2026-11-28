@@ -1239,7 +1239,7 @@ function addChangelog(b, a = null) { // From CX Client (Modified) + decoded;
         var y = document.createElement("b");
         var f = [c[1]];
         if (c[2]) {
-            var e = +new Date(`${c[2]}T00:00:00Z`) + 252e5;
+            var e = new Date(`${c[2]}T00:00:00Z`) + 252e5;
             if (null != a && e + a < Date.now()) {
                 return !1;
             }
