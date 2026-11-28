@@ -2,9 +2,73 @@ import { config } from "./config.js";
 import { util } from "./util.js";
 import { gui } from "./socketinit.js";
 
+const staticStringColorNameMap = new Map([
+    [0, "teal"],
+    ["teal", "teal"],
+    [1, "lgreen"],
+    ["lime", "lgreen"],
+    ["lightGreen", "lgreen"],
+    [2, "orange"],
+    ["orange", "orange"],
+    [3, "yellow"],
+    ["yellow", "yellow"],
+    ["lavender", "lavender"],
+    [4, "aqua"],
+    ["aqua", "aqua"],
+    [5, "pink"],
+    ["pink", "pink"],
+    [6, "vlgrey"],
+    ["veryLightGrey", "vlgrey"],
+    [7, "lgrey"],
+    ["lightGrey", "lgrey"],
+    [8, "guiwhite"],
+    ["pureWhite", "guiwhite"],
+    [9, "black"],
+    ["black", "black"],
+    [10, "blue"],
+    ["blue", "blue"],
+    [11, "green"],
+    ["green", "green"],
+    [12, "red"],
+    ["red", "red"],
+    [13, "gold"],
+    ["gold", "gold"],
+    [14, "purple"],
+    ["purple", "purple"],
+    [15, "magenta"],
+    ["magenta", "magenta"],
+    [16, "grey"],
+    ["grey", "grey"],
+    [17, "dgrey"],
+    ["darkGrey", "dgrey"],
+    [18, "white"],
+    ["white", "white"],
+    [19, "guiblack"],
+    ["pureBlack", "guiblack"],
+    [25, "mustard"],
+    ["mustard", "mustard"],
+    [26, "tangerine"],
+    ["tangerine", "tangerine"],
+    [27, "brown"],
+    ["brown", "brown"],
+    [28, "cyan"],
+    ["cyan", "cyan"]
+]);
+
+const animatedColorNameMap = new Map([
+    ["flashBlueRed", "blue_red"],
+    ["flashBlueGrey", "blue_grey"],
+    ["flashGreyBlue", "grey_blue"],
+    ["flashRedGrey", "red_grey"],
+    ["flashGreyRed", "grey_red"],
+    ["rainbow", "rainbow"],
+    ["trans", "trans"],
+    ["aeBoss_magenta", "magenta"]
+]);
+
 const mixCache = new Map();
 const intCache = new Map();
-var gameDraw = {
+const gameDraw = {
     color: null,
     // Color functions
     /** https://gist.github.com/jedfoster/7939513 **/
@@ -300,134 +364,21 @@ var gameDraw = {
                 return gameDraw.color.black;
             }
         }
-        switch (colorNumber) {
-            case 0:
-            case "teal":
-                return gameDraw.color.teal;
-
-            case 1:
-            case "lime":
-            case "lightGreen":
-                return gameDraw.color.lgreen;
-
-            case 2:
-            case "orange":
-                return gameDraw.color.orange;
-
-            case 3:
-            case "yellow":
-                return gameDraw.color.yellow;
-
-            case "lavender":
-                return gameDraw.color.lavender;
-
-            case 4:
-            case "aqua":
-                return gameDraw.color.aqua;
-
-            case 5:
-            case "pink":
-                return gameDraw.color.pink;
-
-            case 6:
-            case "veryLightGrey":
-                return gameDraw.color.vlgrey;
-
-            case 7:
-            case "lightGrey":
-                return gameDraw.color.lgrey;
-
-            case 8:
-            case "pureWhite":
-                return gameDraw.color.guiwhite;
-
-            case 9:
-            case "black":
-                return gameDraw.color.black;
-
-            case 10:
-            case "blue":
-                return gameDraw.color.blue;
-
-            case 11:
-            case "green":
-                return gameDraw.color.green;
-
-            case 12:
-            case "red":
-                return gameDraw.color.red;
-
-            case 13:
-            case "gold":
-                return gameDraw.color.gold;
-
-            case 14:
-            case "purple":
-                return gameDraw.color.purple;
-
-            case 15:
-            case "magenta":
-                return gameDraw.color.magenta;
-
-            case 16:
-            case "grey":
-                return gameDraw.color.grey;
-
-            case 17:
-            case "darkGrey":
-                return gameDraw.color.dgrey;
-
-            case 18:
-            case "white":
-                return gameDraw.color.white;
-
-            case 19:
-            case "pureBlack":
-                return gameDraw.color.guiblack;
-
-            case "flashBlueRed":
-                return gameDraw.animatedColor.blue_red;
-
-            case "flashBlueGrey":
-                return gameDraw.animatedColor.blue_grey;
-
-            case "flashGreyBlue":
-                return gameDraw.animatedColor.grey_blue;
-
-            case "flashRedGrey":
-                return gameDraw.animatedColor.red_grey;
-
-            case "flashGreyRed":
-                return gameDraw.animatedColor.grey_red;
-
-            case 25:
-            case "mustard":
-                return gameDraw.color.mustard;
-
-            case 26:
-            case "tangerine":
-                return gameDraw.color.tangerine;
-
-            case 27:
-            case "brown":
-                return gameDraw.color.brown;
-
-            case 28:
-            case "cyan":
-                return gameDraw.color.cyan;
-
-            case "rainbow":
-                return gameDraw.animatedColor.rainbow;
-
-            case "trans":
-                return gameDraw.animatedColor.trans;
-
-            case "aeBoss_magenta":
-                return gameDraw.animatedColor.magenta;
-
-            case "border":
-                return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);
+        if (colorNumber === "border") {
+            return gameDraw.mixColors(gameDraw.color.white, gameDraw.color.guiblack, 1 / 3);
         }
+
+        const animatedColorKey = animatedColorNameMap.get(colorNumber);
+        if (animatedColorKey) {
+            return gameDraw.animatedColor[animatedColorKey];
+        }
+
+        const staticColorName = staticStringColorNameMap.get(colorNumber);
+        if (staticColorName) {
+            return gameDraw.color[staticColorName];
+        }
+
+        return "#000000";
     },
     getColorDark: (givenColor) => {
         const dark = config.graphical.neon ? gameDraw.color.white : gameDraw.color.black;
