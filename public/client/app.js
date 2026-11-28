@@ -2,7 +2,7 @@ import { util } from "./util.js";
 import { global } from "./global.js";
 import { config } from "./config.js";
 import { Canvas } from "./canvas.js";
-import { color as colors } from "./color.js";
+import { color } from "./color.js";
 import { gameDraw } from "./gameDraw.js";
 import { keybinderHandler } from "./keybindsHandler.js";
 import { skinShape } from "./skins.js";
@@ -831,7 +831,7 @@ function snowAndFireworkEffects() {
                     vanished: false
                 }));
             if (global.gameStart) {
-                a.remove();
+                // a.remove();
             } else {
                 requestAnimationFrame(updateFireworks);
             }
@@ -868,8 +868,8 @@ function resizeEvent() {
 window.resizeEvent = resizeEvent;
 global.canvas = new Canvas();
 var c = global.canvas.cv;
-var fullScreenWidth = global.screenWidth; var
-    fullScreenHeight = global.screenHeight;
+var fullScreenWidth = global.screenWidth;
+var fullScreenHeight = global.screenHeight;
 var ctx = [
     document.getElementById("gameCanvas-background").getContext("2d"),
     document.getElementById("gameCanvas-gameplay").getContext("2d"),
@@ -910,16 +910,16 @@ function AdvancedSmoothBar(a, b, d = 3) {
     const speed = b;
     const h = d;
     let time = Date.now();
-    let display;
-    let S = display = a;
+    let display = a;
+    let S = display;
     const set = (a) => {
         value !== a &&
                 ((S = get()), (value = a), (time = Date.now()));
     };
     const get = () => {
         const a = (Date.now() - time) / 1e3;
-        return (display =
-            a >= speed ? value : S + (value - S) * Math.pow(a / speed, 1 / h));
+        display = a >= speed ? value : S + (value - S) * Math.pow(a / speed, 1 / h);
+        return display;
     };
     return {
         set: (a) => set(a),
@@ -959,11 +959,13 @@ const handleScreenDistance = (alpha, instance, fade = true) => {
             (alpha *= GetScreenDistanceV(instance.render.y - global.player.loc.y, instance.size));
             break;
         case false:
+        {
             let size = instance.size;
             size *= m.position.axis;
             const realSize = size.toFixed(0);
             alpha *= GetScreenDistance(instance.render.x - global.player.loc.x, instance.render.y - global.player.loc.y, parseInt(realSize));
             break;
+        }
     }
     return alpha;
 };
@@ -1102,7 +1104,7 @@ function parseTheme(string, logError = true) {
             border
         };
         return { name, author, content };
-    } catch { }
+    } catch { /* empty */ }
     // Decode from JSON
     try {
         const output = JSON.parse(string);
@@ -1159,7 +1161,7 @@ function parseTheme(string, logError = true) {
             author: (typeof author === "string" && author) || "",
             content
         };
-    } catch (e) {
+    } catch {
         logError && alert("An error has accoured while reading your theme, it may be corrupted or outdated.");
     }
 
@@ -1271,7 +1273,7 @@ function addChangelog(b, a = null) { // From CX Client (Modified) + decoded;
             -1 !== p && (p = u.href.slice(p + 1),
             "options-menu" === p ? h[a].addEventListener("click", (r) => {
                 r.preventDefault();
-                tc();
+                // tc();
             }
             ) : triggerChangelog[p] && h[a].addEventListener("click", (r) => {
                 r.preventDefault();
@@ -1280,7 +1282,9 @@ function addChangelog(b, a = null) { // From CX Client (Modified) + decoded;
             ));
         }
         d.appendChild(g);
-        a && d.appendChild(document.createElement("hr"));
+        if (a) {
+            d.appendChild(document.createElement("hr"));
+        }
         sa.appendChild(d);
 
         return d;
@@ -1376,13 +1380,13 @@ function loadSettings() {
     global.refreshSecretThemes();
     util.submitToLocalStorage("optColors");
     const a = document.getElementById("optColors").value;
-    colors = colors[a === "" ? "normal" : a];
+    color = color[a === "" ? "normal" : a];
     if (a == "custom") {
         const customTheme = document.getElementById("optCustom").value;
-        colors = parseTheme(customTheme).content;
+        color = parseTheme(customTheme).content;
         util.submitToLocalStorage("optCustom");
     }
-    gameDraw.color = colors;
+    gameDraw.color = color;
     gameDraw.colorCache = {};
     global.refreshMonitorColoring(gameDraw);
     if (global.themeOverlay) {
@@ -1520,7 +1524,7 @@ function graph() {
         const range = max - min;
         // Draw zero
         if (max > 0 && min < 0) {
-            drawBar(x, x + w, y + (h * max) / range, 2, colors.guiwhite);
+            drawBar(x, x + w, y + (h * max) / range, 2, color.guiwhite);
         }
         // Draw points
         ctx[2].beginPath();
@@ -1849,7 +1853,7 @@ function drawText(rawText, x, y, size, defaultFillStyle, align = "left", center 
     context.lineWidth = (size + 1) / strokeRatio;
     context.textAlign = "left";
     context.textBaseline = "middle";
-    context.strokeStyle = colors.black;
+    context.strokeStyle = color.black;
     context.fillStyle = defaultFillStyle;
     context.save();
     context.lineCap = "round";
@@ -1898,7 +1902,7 @@ function scaleScreenRatio(by, unset) {
     ctx[1].scale(by, by);
     ctx[2].scale(by, by);
     if (!unset) {
-        ratio *= by;
+        global.ratio *= by;
     }
 };
 
@@ -1938,6 +1942,7 @@ function drawBar(x1, x2, y, width, color, context = ctx[2]) {
     context.lineTo(x2, y);
     context.stroke();
 }
+
 
 function drawBarStroke(x1, y, width, color, h2) {
     ctx[2].lineWidth = 2.5;
@@ -1982,21 +1987,21 @@ function drawButton(x, y, width, height, alpha, type = "rect", text, textSize, c
     }
     // Draw boxes
     ctx[2].globalAlpha = /*0.5 * */alpha;
-    ctx[2].fillStyle = color1 ? color1 : colors.grey;
+    ctx[2].fillStyle = color1 ? color1 : color.grey;
     if (type == "rect") {
         drawGuiRect(x - width / 2, y, width, height);
     } else if (type == "bar") {
-        drawBar(x - width / 2, x + width / 2, y + height / 2, height, color1 ? color1 : colors.grey);
+        drawBar(x - width / 2, x + width / 2, y + height / 2, height, color1 ? color1 : color.grey);
     }
     ctx[2].globalAlpha = 0.2 * alpha;
     // Shaders
     if (clickable && (index !== false && hover == index) || hover === true) {
         if (global.clickables.clicked) {
             ctx[2].globalAlpha = 0.2 * alpha;
-            ctx[2].fillStyle = colors.black;
+            ctx[2].fillStyle = color.black;
         } else {
             ctx[2].globalAlpha = 0.15 * alpha;
-            ctx[2].fillStyle = colors.guiwhite;
+            ctx[2].fillStyle = color.guiwhite;
         }
         if (type == "rect") {
             drawGuiRect(x - width / 2, y, width, height);
@@ -2005,28 +2010,28 @@ function drawButton(x, y, width, height, alpha, type = "rect", text, textSize, c
         }
 
     }
-    ctx[2].fillStyle = color2 ? color2 : colors.black;
+    ctx[2].fillStyle = color2 ? color2 : color.black;
     if (type == "rect") {
         drawGuiRect(x - width / 2, y + height * 0.6, width, height * 0.4);
     } else if (type == "bar") {
-        drawBar(x - width / 1.9, x + width / 1.9, y + height * 0.7, height * 0.6, color2 ? color2 : colors.black);
+        drawBar(x - width / 1.9, x + width / 1.9, y + height * 0.7, height * 0.6, color2 ? color2 : color.black);
     }
-    ctx[2].globalAlpha = 1 * alpha;
-    ctx[2].fillStyle = colors.guiwhite;
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].globalAlpha = alpha;
+    ctx[2].fillStyle = color.guiwhite;
+    ctx[2].strokeStyle = color.black;
 
     // Draw text
     if (text) {
-        drawText(text, x, y + height * 0.5, textSize ? textSize : height * 0.6, colors.guiwhite, "center", true, 1, options.textOutline ??= true);
+        drawText(text, x, y + height * 0.5, textSize ? textSize : height * 0.6, color.guiwhite, "center", true, 1, options.textOutline ??= true);
     }
 
     // Draw the borders
-    ctx[2].strokeStyle = color3 ? color3 : colors.black;
+    ctx[2].strokeStyle = color3 ? color3 : color.black;
     ctx[2].lineWidth = 3;
     if (type == "rect") {
         drawGuiRect(x - width / 2, y, width, height, true);
     } else if (type == "bar") {
-        drawBarStroke(x - width / 2, y, width, color3 ? color3 : colors.black, height);
+        drawBarStroke(x - width / 2, y, width, color3 ? color3 : color.black, height);
     }
 }
 // Entity drawing (this is a function that makes a function)
@@ -2244,7 +2249,7 @@ const drawEntity = (() => {
                                     }
                                     try {
                                         return gameDraw.modifyColor(tok.includes(" ") ? tok : `${tok} 0 1 0 false`);
-                                    } catch (e) {
+                                    } catch {
                                         return null;
                                     }
                                 });
@@ -2325,7 +2330,7 @@ const drawEntity = (() => {
                                     }
                                     try {
                                         return gameDraw.modifyColor(tok.includes(" ") ? tok : `${tok} 0 1 0 false`);
-                                    } catch (e) {
+                                    } catch {
                                         return null;
                                     }
                                 });
@@ -2482,8 +2487,7 @@ const drawEntity = (() => {
     };
         // Draw gun function, (AKA: drawTrapezoid)
     const drawGun = (context, x, y, length, height, aspect, angle, borderless, fill, alpha, strokeWidth, position) => {
-        let h = [];
-        h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
+        const h = aspect > 0 ? [height * aspect, height] : [height, -height * aspect];
 
         // Construct a trapezoid at angle 0
         const points = [];
@@ -2543,7 +2547,7 @@ const drawEntity = (() => {
         let context = assignedContext || ctx[1];
         const indexStr = instance.index;
         const indexes = indexStr.split("-");
-        const mockupIndex = +indexes[0];
+        const mockupIndex = parseInt(indexes[0]);
         const m = global.mockups[mockupIndex] || global.missingno[0];
         const dmcaDesign = config.game.dmcaMode && (m.censor & 2);
         const source = turretInfo === false ? instance : turretInfo;
@@ -2579,8 +2583,8 @@ const drawEntity = (() => {
         source.guns.update();
 
         // --- Fancy canvas with reduced state setup ---
-        let xx = x; let
-            yy = y;
+        let xx = x;
+        let yy = y;
         const useFancyCanvas = !dmcaDesign && DEAIC(assignedContext, alphaFade, m.shape, m.glow, source.guns.length, turrets.length);
 
         if (useFancyCanvas) {
@@ -2689,7 +2693,7 @@ const drawEntity = (() => {
                 }
 
                 // Minimize color calculations
-                const gunColor = g.color == null ? colors.grey : gameDraw.modifyColor(g.color, baseColor);
+                const gunColor = g.color == null ? color.grey : gameDraw.modifyColor(g.color, baseColor);
                 const gunAlpha = g.alpha === undefined ? 1 : g.alpha;
                 let mixedColor = gameDraw.mixColors(gunColor, statusColor, blend);
                 global.gameUpdate && instance.invuln !== 0 && 100 > (Date.now() - instance.invuln) % 200 && ((mixedColor = gameDraw.mixColors(gunColor, gameDraw.getColor(6), 0.3)));
@@ -2877,9 +2881,7 @@ function colorBlend(color1, color2, d = 0.5) {
 }
 function getOldIconColor(index) {
     let color = gameDraw.getColor((index % 9) + 10);
-    if (9 <= index) {
-        color = colorBlend(color, gameDraw.getColor(((index + Math.floor(index / 9)) % 9) + 10));
-    }
+    9 <= index && (color = colorBlend(color, gameDraw.getColor(((index + Math.floor(index / 9)) % 9) + 10)));
     return color;
 }
 
@@ -2907,15 +2909,15 @@ function drawEntityIcon(model, x, y, len, height, lineWidthMult, angle, alpha, c
     if (hover) {
         if (global.clickables.clicked) {
             ctx[2].globalAlpha = 0.3;
-            ctx[2].fillStyle = colors.black;
+            ctx[2].fillStyle = color.black;
         } else {
             ctx[2].globalAlpha = 0.15;
-            ctx[2].fillStyle = colors.guiwhite;
+            ctx[2].fillStyle = color.guiwhite;
         }
         drawGuiRect(x, y, len, global.clickables.clicked ? height * 0.6 : height);
     }
     ctx[2].globalAlpha = (config.graphical.oldUIStyle ? 0.25 : 0.2) * alpha;
-    ctx[2].fillStyle = colors.black;
+    ctx[2].fillStyle = color.black;
     drawGuiRect(x, y + height * 0.6, len, height * 0.4);
     ctx[2].globalAlpha = 1;
 
@@ -2923,13 +2925,13 @@ function drawEntityIcon(model, x, y, len, height, lineWidthMult, angle, alpha, c
     drawEntity(baseColor, entityX, entityY, picture, 1, 1, scale / picture.size, lineWidthMult, angle, true, ctx[2]);
 
     // Tank name
-    drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.925 * len : len) / 2, y + height * 0.94, height / 10.25, colors.guiwhite, "center");
+    drawText(picture.upgradeName ?? picture.name, x + (upgradeKey ? 0.925 * len : len) / 2, y + height * 0.94, height / 10.25, color.guiwhite, "center");
 
     // Upgrade key
     if (upgradeKey) {
-        drawText(`[${upgradeKey}]`, x + len - 4, y + height - 6, height / 8 - (config.graphical.oldUIStyle ? 3 : 5), colors.guiwhite, "right");
+        drawText(`[${upgradeKey}]`, x + len - 4, y + height - 6, height / 8 - (config.graphical.oldUIStyle ? 3 : 5), color.guiwhite, "right");
     }
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].strokeStyle = color.black;
     ctx[2].lineWidth = 3 * lineWidthMult;
     drawGuiRect(x, y, len, height, true); // Border
 }
@@ -2955,15 +2957,15 @@ function drawHexagon(x, y, size) {
 }
 function drawFloor(px, py, ratio, tick) {
     // Clear the background + draw grid
-    clearScreen(colors.white, 1, ctx[0]);
-    clearScreen(colors.guiblack, 0.1, ctx[0]);
+    clearScreen(color.white, 1, ctx[0]);
+    clearScreen(color.guiblack, 0.1, ctx[0]);
 
     const gameWidth = global.gameWidth = global.player.roomAnim.x.get(tick);
     const gameHeight = global.gameHeight = global.player.roomAnim.y.get(tick);
 
     //loop through the entire room setup
     ctx[0].globalAlpha = 1;
-    ctx[0].fillStyle = colors.white;
+    ctx[0].fillStyle = color.white;
     // Draw the room
     const roomX = -px + global.screenWidth / 2 - ratio * gameWidth / 2;
     const roomY = -py + global.screenHeight / 2 - ratio * gameHeight / 2;
@@ -3013,7 +3015,7 @@ function drawFloor(px, py, ratio, tick) {
                 }
                 const tileColor = gameDraw.getColor(tile.color, true);
                 // If not default tile color, draw that tile!
-                if (tileColor !== colors.white) {
+                if (tileColor !== color.white) {
                     ctx[0].fillStyle = tileColor;
                     ctx[0].fillRect(top, bottom, left - top, right - bottom);
                 }
@@ -3027,7 +3029,7 @@ function drawFloor(px, py, ratio, tick) {
     if (config.graphical.showGrid && 2.5 < gridsize) { // Draw grid if the user wants to.
         ctx[0].save();
         ctx[0].lineWidth = config.graphical.gridDrawSize * ratio;
-        ctx[0].strokeStyle = colors.guiblack;
+        ctx[0].strokeStyle = color.guiblack;
         ctx[0].globalAlpha = 0.04;
         ctx[0].beginPath();
         gridsize *= config.graphical.gridDrawSize;
@@ -3042,7 +3044,6 @@ function drawFloor(px, py, ratio, tick) {
                 }
             }
             ctx[0].stroke();
-            gridsize /= 2;
             ctx[0].globalAlpha = 1;
             ctx[0].restore();
         } else {
@@ -3225,7 +3226,7 @@ let filteredTiles = null;
 const searchCache = new Map(); // Cache search results
 
 // Optimize rendering with culling
-const SHOW_NAMES_ZOOM_THRESHOLD = 1.5;
+// const SHOW_NAMES_ZOOM_THRESHOLD = 1.5;
 const CULL_MARGIN = 200;
 
 const tankNameCache = new Map();
@@ -3343,7 +3344,7 @@ function drawUpgradeTree(spacing, alcoveSize) {
             searchResults = [];
             filteredTiles = null;
             searchCache.clear();
-        } catch { }
+        } catch { /* empty */ }
     }
 
     if (!tankTree) {
@@ -3352,7 +3353,7 @@ function drawUpgradeTree(spacing, alcoveSize) {
     }
     // Draw semi-transparent overlay
     ctx[2].globalAlpha = 0.5;
-    ctx[2].fillStyle = colors.guiwhite;
+    ctx[2].fillStyle = color.guiwhite;
     ctx[2].fillRect(0, 0, global.screenWidth, global.screenHeight);
     ctx[2].globalAlpha = 1;
 
@@ -3421,7 +3422,7 @@ function drawUpgradeTree(spacing, alcoveSize) {
         const halfSize = 0.5 * size;
 
         // Draw branches (optimized with culling)
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         ctx[2].lineWidth = 2 * global.treeScale;
         ctx[2].beginPath();
 
@@ -3478,7 +3479,7 @@ function drawClassTreeUI(spacing) {
     const buttonSpacing = 10;
 
     // Draw text for a tip
-    drawText("Arrow keys or mouse to navigate the class tree. Shift to navigate faster. Scroll wheel, (+/- keys) or zoom buttons to zoom in/out.", global.screenWidth / 2, spacing + 10, 17, colors.guiwhite, "center");
+    drawText("Arrow keys or mouse to navigate the class tree. Shift to navigate faster. Scroll wheel, (+/- keys) or zoom buttons to zoom in/out.", global.screenWidth / 2, spacing + 10, 17, color.guiwhite, "center");
 
     // Draw search bar (centered)
     const searchBarWidth = 300;
@@ -3488,9 +3489,9 @@ function drawClassTreeUI(spacing) {
 
     // Highlight if active
     ctx[2].globalAlpha = global.searchBarActive ? 0.95 : 0.8;
-    ctx[2].fillStyle = global.searchBarActive ? colors.vlgrey : colors.white;
+    ctx[2].fillStyle = global.searchBarActive ? color.vlgrey : color.white;
     ctx[2].fillRect(searchBarX, searchBarY, searchBarWidth, searchBarHeight);
-    ctx[2].strokeStyle = global.searchBarActive ? colors.blue : colors.black;
+    ctx[2].strokeStyle = global.searchBarActive ? color.blue : color.black;
     ctx[2].lineWidth = global.searchBarActive ? 3 : 2;
     ctx[2].strokeRect(searchBarX, searchBarY, searchBarWidth, searchBarHeight);
     ctx[2].globalAlpha = 1;
@@ -3498,7 +3499,7 @@ function drawClassTreeUI(spacing) {
     const displayText = global.searchBarActive && !global.searchQuery
         ? "Type to search..."
         : global.searchQuery || "Search";
-    const textColor = colors.white;
+    const textColor = color.white;
     const showCursor = global.searchBarActive && Date.now() % 1000 < 500;
 
     drawText(
@@ -3525,9 +3526,9 @@ function drawClassTreeUI(spacing) {
         "rect",
         "+",
         20,
-        colors.grey,
-        colors.black,
-        colors.black,
+        color.grey,
+        color.black,
+        color.black,
         true,
         "classTreeZoomIn",
         global.canvas.height / global.screenHeight / global.ratio,
@@ -3546,9 +3547,9 @@ function drawClassTreeUI(spacing) {
         "rect",
         "-",
         20,
-        colors.grey,
-        colors.black,
-        colors.black,
+        color.grey,
+        color.black,
+        color.black,
         true,
         "classTreeZoomOut",
         global.canvas.height / global.screenHeight / global.ratio,
@@ -3571,9 +3572,9 @@ function drawClassTreeUI(spacing) {
         "rect",
         "✕",
         32,
-        colors.red,
-        colors.black,
-        colors.black,
+        color.red,
+        color.black,
+        color.black,
         true,
         "classTreeClose",
         global.canvas.height / global.screenHeight / global.ratio,
@@ -3594,7 +3595,7 @@ function drawClassTreeUI(spacing) {
             global.screenWidth / 2,
             instructionY + 10,
             11,
-            searchResults.length > 0 ? colors.green : colors.orange,
+            searchResults.length > 0 ? color.green : color.orange,
             "center"
         );
     }
@@ -3639,13 +3640,13 @@ function drawMessages(spacing, alcoveSize) {
             });
             ctx[2].globalAlpha = 0.5 * K;
             // Draw the background
-            drawBarAdvanced(x - len / 2, x + len / 2, y + yy / 2, height, colors.black, 17.5 * (msg.textJSON.length) - 17.5 + 1);
+            drawBarAdvanced(x - len / 2, x + len / 2, y + yy / 2, height, color.black, 17.5 * (msg.textJSON.length) - 17.5 + 1);
             ctx[2].globalAlpha = K;
             // Draw the text
             msg.textobjs = [];
             msg.textJSON.forEach((txt) => {
                 msg.textobjs[msg.textobjs.length] = function() { }; // For some reason this fixes the text's location i guess.
-                drawText(txt, x - len / 2 + 2, y + 16 + 17.5 * (msg.textobjs.length - 1), height - 4.3, colors.guiwhite, "left", false, 1, 5.5);
+                drawText(txt, x - len / 2 + 2, y + 16 + 17.5 * (msg.textobjs.length - 1), height - 4.3, color.guiwhite, "left", false, 1, 5.5);
             });
             y += 23 * K + 17.5 * (3 - 2 * K) * (msg.textJSON.length - 1) * K * K;
         } else {
@@ -3655,10 +3656,10 @@ function drawMessages(spacing, alcoveSize) {
             }
             // Draw the background
             ctx[2].globalAlpha = 0.5 * K;
-            drawBar(x - msg.len / 2, x + msg.len / 2, y + yy / 2, height + 2, colors.black);
+            drawBar(x - msg.len / 2, x + msg.len / 2, y + yy / 2, height + 2, color.black);
             // Draw the text
             ctx[2].globalAlpha = K;
-            drawText(text, x, y + yy / 1.3, height - 4.3, colors.guiwhite, "center", false, 1, 5.5);
+            drawText(text, x, y + yy / 1.3, height - 4.3, color.guiwhite, "center", false, 1, 5.5);
             y += 23 * (3 - 2 * K) * K * K;
         }
     }
@@ -3677,7 +3678,7 @@ function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
 
     if (!y) {
         y = instance.id === gui.playerid
-            ? global.player.screeny - 1 * global.showChatGlide * g
+            ? global.player.screeny - global.showChatGlide * g
             : ratio * instance.render.y - py;
     }
     //put chat msg above name
@@ -3729,7 +3730,7 @@ function drawChatMessages(x, y, py, instance, ratio, alpha, isize) {
         drawBar(x - msgLengthHalf, x + msgLengthHalf, y - g * (instance.id === gui.playerid ? 2.26 : barScale) - slideOffset, 0.75 * g, gameDraw.getColorDark(gameDraw.getColor(instance.color.split(" ")[0])), ctx[1]);
         ctx[1].globalAlpha = valpha * alpha * fade;
         config.graphical.fontStrokeRatio *= 1.2;
-        drawText(text, x, y - g * (instance.id === gui.playerid ? 2.05 : textScale) - slideOffset, 0.50 * g, colors.guiwhite, "center", false, 1, true, ctx[1]);
+        drawText(text, x, y - g * (instance.id === gui.playerid ? 2.05 : textScale) - slideOffset, 0.50 * g, color.guiwhite, "center", false, 1, true, ctx[1]);
         config.graphical.fontStrokeRatio /= 1.2;
     }
 }
@@ -3757,16 +3758,16 @@ function drawHealth(x, y, instance, ratio, alpha, isize) {
             y += global.screenHeight / 2;
 
             if (health < 0.99 || shield < 0.99 && global.GUIStatus.renderhealth) {
-                const col = config.graphical.coloredHealthbars ? gameDraw.mixColors(gameDraw.modifyColor(instance.color), colors.guiwhite, 0.5) : colors.lgreen;
+                const col = config.graphical.coloredHealthbars ? gameDraw.mixColors(gameDraw.modifyColor(instance.color), color.guiwhite, 0.5) : color.lgreen;
                 const yy = y + realSize + 14.3 * ratio;
-                const barWidth = 1 * ratio;
+                const barWidth = ratio;
                 const barChunk = (config.graphical.barChunk || 0) * ratio;
                 const seperated = config.graphical.separatedHealthbars;
 
                 ctx[1].globalAlpha = alpha * alpha * fade;
 
                 // Background bar
-                drawBar(x - size, x + size, yy, seperated ? barWidth + barChunk * 1.6 : barWidth + barChunk, colors.black, ctx[1]);
+                drawBar(x - size, x + size, yy, seperated ? barWidth + barChunk * 1.6 : barWidth + barChunk, color.black, ctx[1]);
 
                 // HP bar
                 drawBar(x - size, x - size + 2 * size * health, seperated ? yy + barWidth * 1.45 : yy, barWidth + barChunk * 0.35, col, ctx[1]);
@@ -3776,10 +3777,10 @@ function drawHealth(x, y, instance, ratio, alpha, isize) {
                         ctx[1].globalAlpha *= 0.7;
                     }
                     ctx[1].globalAlpha *= 0.3 + 0.3 * shield;
-                    drawBar(x - size, x - size + 2 * size * shield, seperated ? yy - barWidth * 1.45 : yy, barWidth + barChunk * 0.35, config.graphical.coloredHealthbars ? gameDraw.mixColors(col, colors.guiblack, 0.25) : colors.teal, ctx[1]);
+                    drawBar(x - size, x - size + 2 * size * shield, seperated ? yy - barWidth * 1.45 : yy, barWidth + barChunk * 0.35, config.graphical.coloredHealthbars ? gameDraw.mixColors(col, color.guiblack, 0.25) : color.teal, ctx[1]);
                 }
                 if (gui.showhealthtext) {
-                    drawText(`${Math.round(instance.healthN)}/${Math.round(instance.maxHealthN)}`, x, yy + barWidth * 2 + barWidth * config.graphical.separatedHealthbars * 2 + 10, 12 * ratio, colors.guiwhite, "center");
+                    drawText(`${Math.round(instance.healthN)}/${Math.round(instance.maxHealthN)}`, x, yy + barWidth * 2 + barWidth * config.graphical.separatedHealthbars * 2 + 10, 12 * ratio, color.guiwhite, "center");
                 }
                 ctx[1].globalAlpha = alpha;
             }
@@ -3803,10 +3804,10 @@ function drawName(x, y, instance, ratio, alpha, isize) {
             ctx[1].globalAlpha = alpha * alpha * fade;
             const g = Math.max(20, size);
             if (global.GUIStatus.renderPlayerNames) {
-                drawText(name, x, y - g * (global.GUIStatus.renderPlayerScores ? 1.9 : 1.45), 0.55 * g, namecolor == "#FFFFFF" ? colors.guiwhite : namecolor, "center", false, 1, true, ctx[1]);
+                drawText(name, x, y - g * (global.GUIStatus.renderPlayerScores ? 1.9 : 1.45), 0.55 * g, namecolor == "#FFFFFF" ? color.guiwhite : namecolor, "center", false, 1, true, ctx[1]);
             }
             if (global.GUIStatus.renderPlayerScores || typeof instance.score === "string") {
-                drawText(typeof instance.score === "string" ? instance.score : util.handleLargeNumber(instance.score, 1), x, y - 1.45 * g, 0.3 * g, namecolor == "#FFFFFF" ? colors.guiwhite : namecolor, "center", false, 1, true, ctx[1]);
+                drawText(typeof instance.score === "string" ? instance.score : util.handleLargeNumber(instance.score, 1), x, y - 1.45 * g, 0.3 * g, namecolor == "#FFFFFF" ? color.guiwhite : namecolor, "center", false, 1, true, ctx[1]);
             }
             ctx[1].globalAlpha = 1;
         }
@@ -3832,7 +3833,7 @@ function drawSkillBars(spacing, alcoveSize) {
     let namedata;
     try {
         namedata = gui.getStatNames(global.mockups[parseInt(gui.type.split("-")[0])].statnames);
-    } catch (e) {
+    } catch {
         namedata = gui.getStatNames(global.missingno[0].statnames);
     }
     const clickableRatio = global.canvas.height / global.screenHeight / global.ratio;
@@ -3843,7 +3844,7 @@ function drawSkillBars(spacing, alcoveSize) {
         const skill = gui.skills[i];
         const name = namedata[ticker - 1];
         const level = skill.amount;
-        const col = colors[skill.color];
+        const col = color[skill.color];
         const cap = skill.softcap;
         const maxLevel = skill.cap;
 
@@ -3860,22 +3861,22 @@ function drawSkillBars(spacing, alcoveSize) {
         }
 
         //bar fills
-        drawBar(x + height / 2, x - height / 2 + len * ska(cap) - 14, y + height / 2, height - 2.8 + config.graphical.barChunk, colors.black);
-        drawBar(x + height / 2, x + height / 2 + len * ska(cap) - gap, y + height / 2, height - 3, colors.grey);
-        drawBar(x + height / 2, x + height / 2 + len * ska(level) - gap, y + height / 2, height - 5.5 + config.graphical.barChunk, colors.black);
+        drawBar(x + height / 2, x - height / 2 + len * ska(cap) - 14, y + height / 2, height - 2.8 + config.graphical.barChunk, color.black);
+        drawBar(x + height / 2, x + height / 2 + len * ska(cap) - gap, y + height / 2, height - 3, color.grey);
+        drawBar(x + height / 2, x + height / 2 + len * ska(level) - gap, y + height / 2, height - 5.5 + config.graphical.barChunk, color.black);
         drawBar(x + height / 2, x + height / 2 + len * ska(level) - gap, y + height / 2, height - 3.5, col);
 
         // Blocked-off area
         if (blocking) {
             ctx[2].lineWidth = 1;
-            ctx[2].strokeStyle = colors.grey;
+            ctx[2].strokeStyle = color.grey;
             for (let j = cap + 1; j < max; j++) {
                 drawGuiLine(x + len * ska(j) - gap, y + 1.5, x + len * ska(j) - gap, y - 3 + height);
             }
         }
 
         // Vertical dividers
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         ctx[2].lineWidth = 1;
         for (let j = 1; j < level + 1; j++) {
             drawGuiLine(x + len * ska(j) - gap, y + 1.5, x + len * ska(j) - gap, y - 3 + height);
@@ -3883,12 +3884,12 @@ function drawSkillBars(spacing, alcoveSize) {
 
         // Skill name
         len = save * ska(max);
-        const textcolor = level == maxLevel ? col : !gui.points || (cap !== maxLevel && level == cap) ? colors.grey : colors.guiwhite;
+        const textcolor = level == maxLevel ? col : !gui.points || (cap !== maxLevel && level == cap) ? color.grey : color.guiwhite;
         drawText(name, Math.round(x + len / 2) - 5.5, y + height / 2, height - 4.1, textcolor, "center", true);
 
         // Skill key
         drawText(`[${getKeybind(`KEY_SKILL_${ticker}`)}]`, Math.round(x + len - height * 0.25) - 14.5, y + height / 2, height - 6, textcolor, "right", true);
-        if (textcolor === colors.guiwhite) {
+        if (textcolor === color.guiwhite) {
             // If it's active
             global.clickables.stat.place(ticker - 1, x * clickableRatio, y * clickableRatio, len * clickableRatio, height * clickableRatio);
         }
@@ -3905,7 +3906,7 @@ function drawSkillBars(spacing, alcoveSize) {
     global.clickables.hover.place(0, 0, y * clickableRatio, 0.8 * len * clickableRatio, (global.screenHeight - y) * clickableRatio);
     if (gui.points !== 0) {
         // Draw skillpoints to spend
-        drawText(`x${gui.points}`, Math.round(x + len - 2) - 13, Math.round(y + height - 4) + 2, 18.5, colors.guiwhite, "right");
+        drawText(`x${gui.points}`, Math.round(x + len - 2) - 13, Math.round(y + height - 4) + 2, 18.5, color.guiwhite, "right");
     }
 }
 
@@ -3929,11 +3930,11 @@ function drawSelfInfo(max) {
     }
     ctx[2].lineWidth = 10;
     let extraHeight = config.graphical.oldUIStyle ? 5 : 3;
-    drawBar(x, x + width, y + height / 2, height - 3 + config.graphical.barChunk, colors.black);
-    drawBar(x, x + width, y + height / 2, height - 3, colors.grey);
-    drawBar(x, x + width * gui.__s.getProgress(), y + height / 2, height - 3.5, colors.gold);
+    drawBar(x, x + width, y + height / 2, height - 3 + config.graphical.barChunk, color.black);
+    drawBar(x, x + width, y + height / 2, height - 3, color.grey);
+    drawBar(x, x + width * gui.__s.getProgress(), y + height / 2, height - 3.5, color.gold);
     const censorClass = config.game.dmcaMode && typeof gui.type === "string" && (global.mockups[parseInt(gui.type)]?.censor & 1);
-    drawText(`Level ${gui.__s.getLevel()} ${censorClass ? censorText(gui.class) : gui.class}`, x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, colors.guiwhite, "center", false, 6);
+    drawText(`Level ${gui.__s.getLevel()} ${censorClass ? censorText(gui.class) : gui.class}`, x + width / 2, config.graphical.oldUIStyle ? y + height / 2 + 8 : y + height / 2 + 9, config.graphical.oldUIStyle ? 20.5 : 21, color.guiwhite, "center", false, 6);
     height = 17;
     y -= height + 5;
     if (config.graphical.oldUIStyle) {
@@ -3947,11 +3948,11 @@ function drawSelfInfo(max) {
             scorelength = -90.2;
             scorewidth = 120;
         }
-        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, colors.black);
-        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, colors.grey);
-        drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * Math.min(1, gui.__s.getKills()[0] / 1)), y + height / 2, height - extraHeight - 0.5, (gui.__s.getScore() / gui.__s.getKills()[0] <= 40000) ? colors.teal : colors.purple);
+        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, color.black);
+        drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, color.grey);
+        drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * Math.min(1, gui.__s.getKills()[0] / 1)), y + height / 2, height - extraHeight - 0.5, (gui.__s.getScore() / gui.__s.getKills()[0] <= 40000) ? color.teal : color.purple);
         extraHeight = config.graphical.oldUIStyle ? 5 : 6;
-        drawText(`Kills: ${util.formatKills(...gui.__s.getKills())}`, x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12 : 13, colors.guiwhite, "center");
+        drawText(`Kills: ${util.formatKills(...gui.__s.getKills())}`, x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12 : 13, color.guiwhite, "center");
         extraHeight = config.graphical.oldUIStyle ? 5 : 3;
         scorelength = 72.5;
         scorewidth = 120;
@@ -3960,33 +3961,33 @@ function drawSelfInfo(max) {
             scorewidth = 95;
         }
     }
-    drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, colors.black);
-    drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, colors.grey);
-    drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (max ? Math.min(1, gui.__s.getScore() / max) : 1)), y + height / 2, height - extraHeight - 0.5, colors.green);
+    drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight + config.graphical.barChunk, color.black);
+    drawBar(x + scorewidth - scorelength, x + width - scorewidth - scorelength, y + height / 2, height - extraHeight, color.grey);
+    drawBar(x + scorewidth - scorelength, x - scorelength + width * ((scorewidth / width) + ((width - scorewidth * 2) / width) * (max ? Math.min(1, gui.__s.getScore() / max) : 1)), y + height / 2, height - extraHeight - 0.5, color.green);
     extraHeight = config.graphical.oldUIStyle ? 6 : 6;
-    drawText(`Score: ${util.formatLargeNumber(Math.round(gui.__s.getScore()))}`, x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12.5 : 13, colors.guiwhite, "center");
+    drawText(`Score: ${util.formatLargeNumber(Math.round(gui.__s.getScore()))}`, x + width / 2 - scorelength, y + height / 2 + extraHeight, config.graphical.oldUIStyle ? 12.5 : 13, color.guiwhite, "center");
     ctx[2].lineWidth = 4;
     var name = global.player.name.substring(7, global.player.name.length + 1);
-    drawText(name, Math.round(x + width / 2) + 1.5, Math.round(y - 10 - 4) - 1, 31, global.nameColor == "#FFFFFF" ? colors.guiwhite : global.nameColor, "center");
+    drawText(name, Math.round(x + width / 2) + 1.5, Math.round(y - 10 - 4) - 1, 31, global.nameColor == "#FFFFFF" ? color.guiwhite : global.nameColor, "center");
 }
 
 function handleSpeedMonitor() {
     if ((100 * gui.fps) < 100) {
-        global.serverStats.lag_color = colors.orange;
+        global.serverStats.lag_color = color.orange;
     } else {
-        global.serverStats.lag_color = colors.guiwhite;
+        global.serverStats.lag_color = color.guiwhite;
     }
     if (global.metrics.rendertime < 10) {
-        global.metrics.rendertime_color = colors.orange;
+        global.metrics.rendertime_color = color.orange;
     } else {
-        global.metrics.rendertime_color = colors.guiwhite;
+        global.metrics.rendertime_color = color.guiwhite;
     }
     if (global.serverStats.mspt > 28.0) {
-        global.serverStats.mspt_color = colors.red;
+        global.serverStats.mspt_color = color.red;
     } else if (global.serverStats.mspt > 20.0) {
-        global.serverStats.mspt_color = colors.orange;
+        global.serverStats.mspt_color = color.orange;
     } else {
-        global.serverStats.mspt_color = colors.guiwhite;
+        global.serverStats.mspt_color = color.guiwhite;
     }
 }
 function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
@@ -4013,7 +4014,7 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
 
         ctx[2].globalAlpha = 0.4;
         ctx[2].save();
-        ctx[2].fillStyle = colors.white;
+        ctx[2].fillStyle = color.white;
         global.advanced.roundArena == true ? drawGuiCircle(x + len / 2, y + height / 2, len / 2) : drawGuiRect(x, y, len, height);
         ctx[2].beginPath(); // We will not allow to draw outside of the minimap so we are only allowing minimap entities to draw INSIDE the minimap only
         global.advanced.roundArena == true ? ctx[2].arc(x + len / 2, y + height / 2, len / 2, 0, 2 * Math.PI) : ctx[2].rect(x, y, len, height); // Draw everything inside the minimap
@@ -4070,7 +4071,7 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
         }
         ctx[2].globalAlpha = 1;
         for (const entity of minimap.get()) {
-            ctx[2].fillStyle = gameDraw.mixColors(gameDraw.modifyColor(entity.color), colors.black, 0.3);
+            ctx[2].fillStyle = gameDraw.mixColors(gameDraw.modifyColor(entity.color), color.black, 0.3);
             ctx[2].globalAlpha = entity.alpha;
 
             // Calculate entity position relative to player
@@ -4084,15 +4085,19 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
             switch (entity.type) {
                 case 2:
                 // Draw wall entities
-                { const trueSize = (entity.size + 2) / 1.1283791671;
+                {
+                    const trueSize = (entity.size + 2) / 1.1283791671;
                     const sizeOnMap = (trueSize / global.gameWidth) * len;
                     drawGuiRect(minimapX - sizeOnMap, minimapY - sizeOnMap, sizeOnMap * 2, sizeOnMap * 2);
-                    break; }
+                    break;
+                }
                 case 1:
                 // Draw rock/other entities
-                { const entitySize = (entity.size / global.gameWidth) * len;
+                {
+                    const entitySize = (entity.size / global.gameWidth) * len;
                     drawGuiCircle(minimapX, minimapY, entitySize);
-                    break; }
+                    break;
+                }
                 case 0:
                     // Draw other players
                     if (entity.id !== gui.playerid) {
@@ -4104,13 +4109,13 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
 
         ctx[2].globalAlpha = 1;
         ctx[2].lineWidth = 1;
-        ctx[2].strokeStyle = colors.guiblack;
-        ctx[2].fillStyle = colors.guiblack;
+        ctx[2].strokeStyle = color.guiblack;
+        ctx[2].fillStyle = color.guiblack;
         // Draw yourself in the minimap
         drawGuiCircle(config.game.centeredMinimap ? centerX : x + (global.player.camX / global.gameWidth + 0.5) * len, config.game.centeredMinimap ? centerY : y + (global.player.camY / global.gameHeight + 0.5) * height, !global.mobile ? 2 : 3.5, false);
         ctx[2].restore();
         ctx[2].globalAlpha = 1;
-        ctx[2].fillStyle = colors.black;
+        ctx[2].fillStyle = color.black;
         // Draw border of the minimap
         ctx[2].lineWidth = 3;
         global.advanced.roundArena == true ? drawGuiCircle(x + len / 2, y + height / 2, len / 2, true) : drawGuiRect(x, y, len, height, true); // Border
@@ -4121,9 +4126,9 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
     }
     if (global.showDebug) {
         drawGuiRect(x, y - 40, len, 30);
-        lagGraph(lag.get(), x, y - 40, len, 30, colors.teal);
-        gapGraph(global.metrics.rendergap, x, y - 40, len, 30, colors.pink);
-        timingGraph(GRAPHDATA, x, y - 40, len, 30, colors.yellow);
+        lagGraph(lag.get(), x, y - 40, len, 30, color.teal);
+        gapGraph(global.metrics.rendergap, x, y - 40, len, 30, color.pink);
+        timingGraph(GRAPHDATA, x, y - 40, len, 30, color.yellow);
     }
     // Minimap stuff ends here
     // Debug stuff
@@ -4144,7 +4149,7 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
     const length = Math.max(measureText(watermarkText, 32)) / 16;
     const gradientTransition = global.showDebug ? 4.1 : 2;
     const watermarkTextPos1 = Math.round(x + len / gradientTransition) + 0.5;
-    const watermarkColor = gameDraw.getColor({gradient: true, asset: [{color: `${colors.blue}`}, {color: `${colors.green}`}]}, ctx[2], watermarkTextPos1 - length, length * 0.085, watermarkTextPos1 + length, 0);
+    const watermarkColor = gameDraw.getColor({gradient: true, asset: [{color: `${color.blue}`}, {color: `${color.green}`}]}, ctx[2], watermarkTextPos1 - length, length * 0.085, watermarkTextPos1 + length, 0);
     if (global.showDebug) {
         const getRenderingInfo = (data, isTurret) => {
             isTurret ? global.renderingInfo.turretEntities += data.length : global.renderingInfo.entities += data.length;
@@ -4172,24 +4177,24 @@ function drawMinimapAndDebug(spacing, alcoveSize, GRAPHDATA) {
         const fmtData = (n) => n >= 1073741824 ? `${(n / 1073741824).toFixed(2)} GB` : n >= 1048576 ? `${(n / 1048576).toFixed(2)} MB` : n >= 1024 ? `${(n / 1024).toFixed(1)} KB` : `${n} B`;
         const lastPacketMs = global.metrics.lastPacketTime ? Math.max(0, Date.now() - global.metrics.lastPacketTime) : 0;
         drawText(watermarkText, x + len - versionLength - 4, y - 50 - 12 * 14 - 2, 15, watermarkColor, "right");
-        drawText(global.version ?? "v?", x + len, y - 50 - 12 * 14 - 2, 15, colors.guiwhite, "right");
-        drawText(`§${global.serverStats.lag_color}§ ${(100 * gui.fps).toFixed(2)}% §reset§/ ${global.serverStats.players} player${global.serverStats.players == 1 ? "" : "s"}`, x + len, y - 50 - 11 * 14, 10, colors.guiwhite, "right");
-        drawText(`Coordinates: (${xloc.toFixed(2)}, ${yloc.toFixed(2)})`, x + len, y - 50 - 10 * 14, 10, colors.guiwhite, "right");
-        drawText(`Speed: ${tankSpeed.toFixed(2)} gu/s`, x + len, y - 50 - 9 * 14, 10, colors.guiwhite, "right");
-        drawText(`Memory: ${global.metrics.rendergap.toFixed(1)} MiB`, x + len, y - 50 - 8 * 14, 10, colors.guiwhite, "right");
-        drawText(`Rendering: e ${global.renderingInfo.entities} t: ${global.renderingInfo.turretEntities} n: ${global.renderingInfo.entitiesWithName}`, x + len, y - 50 - 7 * 14, 10, colors.guiwhite, "right");
-        drawText(`WS sent: ${fmtData(global.bandwidth.totalHa)}`, x + len, y - 50 - 6 * 14, 10, colors.guiwhite, "right");
-        drawText(`WS received: ${fmtData(global.bandwidth.totalFa)}`, x + len, y - 50 - 5 * 14, 10, colors.guiwhite, "right");
-        drawText(`Update Rate: ${global.metrics.updatetime}Hz`, x + len, y - 50 - 4 * 14, 10, colors.guiwhite, "right");
-        drawText(`Prediction: ${Math.round(GRAPHDATA)}ms`, x + len, y - 50 - 3 * 14, 10, colors.guiwhite, "right");
-        drawText(`Last packet: ${lastPacketMs}ms ago`, x + len, y - 50 - 2 * 14, 10, colors.guiwhite, "right");
-        drawText(`§${global.metrics.rendertime_color}§ ${global.metrics.rendertime} FPS §reset§/` + `§${global.serverStats.mspt_color}§ ${global.serverStats.mspt} mspt : ${global.metrics.mspt.toFixed(1)} gmspt`, x + len, y - 50 - 1 * 14, 10, colors.guiwhite, "right");
-        drawText(`${ping.toFixed(1)} ms  ${global.serverStats.serverGamemodeName} ${global.locationHash}`, x + len, y - 50, 10, colors.guiwhite, "right");
+        drawText(global.version ?? "v?", x + len, y - 50 - 12 * 14 - 2, 15, color.guiwhite, "right");
+        drawText(`§${global.serverStats.lag_color}§ ${(100 * gui.fps).toFixed(2)}% §reset§/ ${global.serverStats.players} player${global.serverStats.players == 1 ? "" : "s"}`, x + len, y - 50 - 11 * 14, 10, color.guiwhite, "right");
+        drawText(`Coordinates: (${xloc.toFixed(2)}, ${yloc.toFixed(2)})`, x + len, y - 50 - 10 * 14, 10, color.guiwhite, "right");
+        drawText(`Speed: ${tankSpeed.toFixed(2)} gu/s`, x + len, y - 50 - 9 * 14, 10, color.guiwhite, "right");
+        drawText(`Memory: ${global.metrics.rendergap.toFixed(1)} MiB`, x + len, y - 50 - 8 * 14, 10, color.guiwhite, "right");
+        drawText(`Rendering: e ${global.renderingInfo.entities} t: ${global.renderingInfo.turretEntities} n: ${global.renderingInfo.entitiesWithName}`, x + len, y - 50 - 7 * 14, 10, color.guiwhite, "right");
+        drawText(`WS sent: ${fmtData(global.bandwidth.totalHa)}`, x + len, y - 50 - 6 * 14, 10, color.guiwhite, "right");
+        drawText(`WS received: ${fmtData(global.bandwidth.totalFa)}`, x + len, y - 50 - 5 * 14, 10, color.guiwhite, "right");
+        drawText(`Update Rate: ${global.metrics.updatetime}Hz`, x + len, y - 50 - 4 * 14, 10, color.guiwhite, "right");
+        drawText(`Prediction: ${Math.round(GRAPHDATA)}ms`, x + len, y - 50 - 3 * 14, 10, color.guiwhite, "right");
+        drawText(`Last packet: ${lastPacketMs}ms ago`, x + len, y - 50 - 2 * 14, 10, color.guiwhite, "right");
+        drawText(`§${global.metrics.rendertime_color}§ ${global.metrics.rendertime} FPS §reset§/` + `§${global.serverStats.mspt_color}§ ${global.serverStats.mspt} mspt : ${global.metrics.mspt.toFixed(1)} gmspt`, x + len, y - 50 - 14, 10, color.guiwhite, "right");
+        drawText(`${ping.toFixed(1)} ms  ${global.serverStats.serverGamemodeName} ${global.locationHash}`, x + len, y - 50, 10, color.guiwhite, "right");
     } else if (!global.GUIStatus.minimapReducedInfo) {
         drawText(watermarkText, x + len, y - 50 - 3 * 14 - 2, 15, watermarkColor, "right");
-        drawText(`${global.serverStats.players} player${global.serverStats.players == 1 ? "" : "s"}`, x + len, y - 50 - 2 * 14, 10, colors.guiwhite, "right");
-        drawText(`§${global.metrics.rendertime_color}§ ${global.metrics.rendertime} FPS §reset§/` + `§${global.serverStats.mspt_color}§ ${global.serverStats.mspt} mspt`, x + len, y - 50 - 1 * 14, 10, colors.guiwhite, "right");
-        drawText(`${ping.toFixed(1)} ms  ${global.serverStats.serverGamemodeName} ${global.locationHash}`, x + len, y - 50, 10, colors.guiwhite, "right");
+        drawText(`${global.serverStats.players} player${global.serverStats.players == 1 ? "" : "s"}`, x + len, y - 50 - 2 * 14, 10, color.guiwhite, "right");
+        drawText(`§${global.metrics.rendertime_color}§ ${global.metrics.rendertime} FPS §reset§/` + `§${global.serverStats.mspt_color}§ ${global.serverStats.mspt} mspt`, x + len, y - 50 - 14, 10, color.guiwhite, "right");
+        drawText(`${ping.toFixed(1)} ms  ${global.serverStats.serverGamemodeName} ${global.locationHash}`, x + len, y - 50, 10, color.guiwhite, "right");
     } else {
         drawText(watermarkText, x + len, y - 22 - 2 * 14 - 2, 15, watermarkColor, "right");
     }
@@ -4219,7 +4224,7 @@ function drawLeaderboard(spacing, alcoveSize, max) {
         }
         y += global.canSkill || global.showSkill ? (alcoveSize / 2.2 /*+ spacing * 2*/) * statMenu.get() : 0;
     }
-    drawText("Leaderboard", Math.round(x + len / 2) + 0.5, Math.round(y - 6) + 0.5, height + 3.5, colors.guiwhite, "center", false, 1, 5.5);
+    drawText("Leaderboard", Math.round(x + len / 2) + 0.5, Math.round(y - 6) + 0.5, height + 3.5, color.guiwhite, "center", false, 1, 5.5);
     y += 7;
 
     for (let i = 0; i < lb.data.length; i++) {
@@ -4290,8 +4295,8 @@ function drawLeaderboard(spacing, alcoveSize, max) {
             }
             const entryY = y + (vspacing + height) * entryPos;
 
-            drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3 + config.graphical.barChunk, colors.black);
-            drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3, colors.grey);
+            drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3 + config.graphical.barChunk, color.black);
+            drawBar(entryX, entryX + len, entryY + height / 2 - .7, height - 3, color.grey);
             const shift = Math.min(1, entry.score / max);
             drawBar(entryX, entryX + len * shift, entryY + height / 2 - .7, height - 3.5, gameDraw.modifyColor(entry.barColor, "mirror 0 1 0 false"));
 
@@ -4300,7 +4305,7 @@ function drawLeaderboard(spacing, alcoveSize, max) {
             const overwritelabel = entry.label.includes("#")
                 ? entry.label.replace("##", Math.round(entry.score).toString()).replace("#s", 1 === Math.round(entry.score) ? "" : "s")
                 : false;
-            drawText(overwritelabel ? overwritelabel : `${entry.label}: ${util.handleLargeNumber(Math.round(entry.score))}`, entryX + len / 2, entryY + height / 2, height - 4.5, nameColor == "#FFFFFF" ? colors.guiwhite : nameColor, "center", true);
+            drawText(overwritelabel ? overwritelabel : `${entry.label}: ${util.handleLargeNumber(Math.round(entry.score))}`, entryX + len / 2, entryY + height / 2, height - 4.5, nameColor == "#FFFFFF" ? color.guiwhite : nameColor, "center", true);
 
             // Mini-image
             if (entry.renderEntity) {
@@ -4367,7 +4372,7 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
                 y += height + internalSpacing;
                 if (upgradeBranch != lastBranch) {
                     if (upgradeBranchLabel.length > 0) {
-                        drawText(` ${upgradeBranchLabel}`, xStart, y + internalSpacing * 2, internalSpacing * 2.3, colors.guiwhite, "left", false);
+                        drawText(` ${upgradeBranchLabel}`, xStart, y + internalSpacing * 2, internalSpacing * 2.3, color.guiwhite, "left", false);
                         y += 3 * internalSpacing;
                     }
                     y += 1.8 * internalSpacing;
@@ -4400,7 +4405,7 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
         const buttonX = initialX + (rowWidth + len - initialX) / 2;
         const buttonY = initialY + height + internalSpacing - 5;
 
-        drawButton(buttonX, buttonY, m, h, 1, config.graphical.oldUIStyle ? "bar" : "rect", msg, textScale - 3.3, colors.vlgrey, false, false, true, "skipUpgrades", clickableRatio, {
+        drawButton(buttonX, buttonY, m, h, 1, config.graphical.oldUIStyle ? "bar" : "rect", msg, textScale - 3.3, color.vlgrey, false, false, true, "skipUpgrades", clickableRatio, {
             index: 0
         });
 
@@ -4411,7 +4416,7 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
             drawEntityIcon(image, xStart, initialY + height + internalSpacing + 50, len, height, 1, upgradeSpin, 0.4, 10, false, hover);
             drawText("Daily Tank!", xStart + 50, initialY + height + internalSpacing + 67, 12, gameDraw.getColor(36), "center");
             global.clickables.dailyTankUpgrade.set(xStart * clickableRatio, (initialY + height + internalSpacing + 50) * clickableRatio, len * clickableRatio, height * clickableRatio);
-            gui.dailyTank.ads && drawButton(xStart + 50, initialY + height + internalSpacing + 160, m, h, 1, "rect", "Watch An Ad", textScale - 3.3, colors.vlgrey, false, false, true, "dailyTankAd", clickableRatio, {
+            gui.dailyTank.ads && drawButton(xStart + 50, initialY + height + internalSpacing + 160, m, h, 1, "rect", "Watch An Ad", textScale - 3.3, color.vlgrey, false, false, true, "dailyTankAd", clickableRatio, {
                 index: false
             });
         }
@@ -4433,16 +4438,16 @@ function drawAvailableUpgrades(spacing, alcoveSize) {
                 }
 
                 // Draw tooltip box
-                gameDraw.setColor(ctx[2], colors.dgrey);
+                gameDraw.setColor(ctx[2], color.dgrey);
                 ctx[2].lineWidth /= 1.5;
                 drawGuiRect(boxX, boxY, boxWidth + boxPadding * 3, alcoveSize * (splitTooltip.length + 1) / 10 + boxPadding * 3, false);
                 drawGuiRect(boxX, boxY, boxWidth + boxPadding * 3, alcoveSize * (splitTooltip.length + 1) / 10 + boxPadding * 3, true);
                 ctx[2].lineWidth *= 1.5;
-                drawText(picture.name, boxX + boxPadding * 1.5, textY, alcoveSize / 10, colors.guiwhite);
+                drawText(picture.name, boxX + boxPadding * 1.5, textY, alcoveSize / 10, color.guiwhite);
 
                 for (const t of splitTooltip) {
                     textY += boxPadding + alcoveSize / 15;
-                    drawText(t, boxX + boxPadding * 1.5, textY, alcoveSize / 15, colors.guiwhite);
+                    drawText(t, boxX + boxPadding * 1.5, textY, alcoveSize / 15, color.guiwhite);
                 }
             }
         }
@@ -4466,7 +4471,7 @@ function drawMobileJoysticks() {
     ctx[2].fillStyle = "#FFFFFF";
     ctx[2].beginPath();
     ctx[2].arc(
-        (global.screenWidth * 1) / 6,
+        global.screenWidth / 6,
         (global.screenHeight * 2) / 3,
         radius,
         0,
@@ -4485,7 +4490,7 @@ function drawMobileJoysticks() {
     ctx[2].beginPath();
     if (global.mobileStatus.showJoysticks && global.canvas.movementTouchPos) {
         ctx[2].arc(
-            global.canvas.movementTouchPos.x + (global.screenWidth * 1) / 6,
+            global.canvas.movementTouchPos.x + global.screenWidth / 6,
             global.canvas.movementTouchPos.y + (global.screenHeight * 2) / 3,
             radius / 2.5,
             0,
@@ -4513,7 +4518,7 @@ function drawCrosshair() {
         };
         ctx[2].lineWidth = 1;
         ctx[2].globalAlpha = 1;
-        gameDraw.setColor(ctx[2], colors.black);
+        gameDraw.setColor(ctx[2], color.black);
         ctx[2].beginPath();
         ctx[2].moveTo(crosshairpos.x, crosshairpos.y - 20);
         ctx[2].lineTo(crosshairpos.x, crosshairpos.y + 20);
@@ -4546,11 +4551,11 @@ function drawOperatorKeyboard(spacing, alcoveSize) {
     // Toggle butonu, operatorKeys grubunda ama index 0 sabit (tuşlar 1'den başlıyor, çakışmıyor)
     global.clickables.operatorKeys.place(0, toggleX * clickableRatio, toggleY * clickableRatio, toggleSize * clickableRatio, toggleSize * clickableRatio);
 
-    ctx[2].fillStyle = global.operatorKeyboard.open ? colors.guiwhite : colors.grey;
+    ctx[2].fillStyle = global.operatorKeyboard.open ? color.guiwhite : color.grey;
     drawGuiRect(toggleX, toggleY, toggleSize, toggleSize);
     ctx[2].globalAlpha = 1;
-    drawText("`", toggleX + toggleSize / 2, toggleY + toggleSize / 2, toggleSize * 0.6, colors.guiwhite, "center", true);
-    ctx[2].strokeStyle = colors.black;
+    drawText("`", toggleX + toggleSize / 2, toggleY + toggleSize / 2, toggleSize * 0.6, color.guiwhite, "center", true);
+    ctx[2].strokeStyle = color.black;
     ctx[2].lineWidth = 3;
     drawGuiRect(toggleX, toggleY, toggleSize, toggleSize, true);
 
@@ -4576,11 +4581,11 @@ function drawOperatorKeyboard(spacing, alcoveSize) {
             const armed = key.prefix && global.operatorKeyboard.prefix === key.prefix;
             const usable = key.code || key.prefix || (global.operatorKeyboard.prefix && key[global.operatorKeyboard.prefix]);
             ctx[2].globalAlpha = usable ? 0.5 : 0.2;
-            ctx[2].fillStyle = armed ? colors.guiwhite : colors.grey;
+            ctx[2].fillStyle = armed ? color.guiwhite : color.grey;
             drawGuiRect(x, y, keySize, keySize);
             ctx[2].globalAlpha = usable ? 1 : 0.4;
-            drawText(key.label, x + keySize / 2, y + keySize / 2, keySize * 0.55, armed ? colors.black : colors.guiwhite, "center", true);
-            ctx[2].strokeStyle = colors.black;
+            drawText(key.label, x + keySize / 2, y + keySize / 2, keySize * 0.55, armed ? color.black : color.guiwhite, "center", true);
+            ctx[2].strokeStyle = color.black;
             ctx[2].lineWidth = 2;
             drawGuiRect(x, y, keySize, keySize, true);
             index++;
@@ -4595,25 +4600,26 @@ function drawMobileButtons(spacing, alcoveSize) {
 
         // Draw boxes
         ctx[2].globalAlpha = 0.5;
-        ctx[2].fillStyle = colors.grey;
+        ctx[2].fillStyle = color.grey;
         drawGuiRect(x, y, width, height);
         ctx[2].globalAlpha = 0.1;
-        ctx[2].fillStyle = colors.black;
+        ctx[2].fillStyle = color.black;
         drawGuiRect(x, y + height * 0.6, width, height * 0.4);
         ctx[2].globalAlpha = 1;
 
         // Draw text
-        drawText(text, x + width / 2, y + height * 0.5, height * 0.6, colors.guiwhite, "center", true);
+        drawText(text, x + width / 2, y + height * 0.5, height * 0.6, color.guiwhite, "center", true);
 
         // Draw the borders
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         ctx[2].lineWidth = 3;
         drawGuiRect(x, y, width, height, true);
     };
 
     const makeButtons = (buttons, startX, startY, baseSize, clickableRatio, spacing) => {
-        let x = startX; let y = startY; let
-            index = 0;
+        let x = startX;
+        let y = startY;
+        let index = 0;
 
         for (let row = 0; row < buttons.length; row++) {
             for (let col = 0; col < buttons[row].length; col++) {
@@ -4682,7 +4688,7 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
 
     try {
         statNames = gui.getStatNames(global.mockups[parseInt(gui.type.split("-")[0])].statnames);
-    } catch (e) {
+    } catch {
         statNames = gui.getStatNames(global.missingno[0].statnames);
     }
 
@@ -4696,7 +4702,7 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
             }
 
             const amount = skill.amount;
-            const skillColor = colors[skill.color];
+            const skillColor = color[skill.color];
             const cap = skill.cap;
             const name = statNames[9 - i].split(/\s+/);
             const halfNameLength = Math.floor(name.length / 2);
@@ -4707,17 +4713,17 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
             drawGuiRect(x, spacing, t, 2 * q / 3);
 
             ctx[2].globalAlpha = 0.1;
-            ctx[2].fillStyle = colors.black;
+            ctx[2].fillStyle = color.black;
             drawGuiRect(x, spacing + q * 2 / 3 * 2 / 3, t, q * 2 / 3 / 3);
 
             ctx[2].globalAlpha = 1;
-            ctx[2].fillStyle = colors.guiwhite;
+            ctx[2].fillStyle = color.guiwhite;
             drawGuiRect(x, spacing + q * 2 / 3, t, q / 3);
 
             ctx[2].fillStyle = skillColor;
             drawGuiRect(x, spacing + q * 2 / 3, t * amount / softcap, q / 3);
 
-            ctx[2].strokeStyle = colors.black;
+            ctx[2].strokeStyle = color.black;
             ctx[2].lineWidth = 1;
             for (let j = 1; j < cap; j++) {
                 const width = x + j / softcap * t;
@@ -4727,17 +4733,17 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
             cap === 0 || !gui.points || softcap !== cap && amount === softcap || global.clickables.stat.place(9 - i, x * clickableRatio, spacing * clickableRatio, t * clickableRatio, q * clickableRatio);
 
             if (name2) {
-                drawText(name2, x + t / 2, spacing + q * 0.55, q / 5, colors.guiwhite, "center");
-                drawText(name1, x + t / 2, spacing + q * 0.3, q / 5, colors.guiwhite, "center");
+                drawText(name2, x + t / 2, spacing + q * 0.55, q / 5, color.guiwhite, "center");
+                drawText(name1, x + t / 2, spacing + q * 0.3, q / 5, color.guiwhite, "center");
             } else {
-                drawText(name1, x + t / 2, spacing + q * 0.425, q / 5, colors.guiwhite, "center");
+                drawText(name1, x + t / 2, spacing + q * 0.425, q / 5, color.guiwhite, "center");
             }
 
             if (amount > 0) {
                 drawText(`+${amount}`, x + t / 2, spacing + q * 1.3, q / 4, skillColor, "center");
             }
 
-            ctx[2].strokeStyle = colors.black;
+            ctx[2].strokeStyle = color.black;
             ctx[2].globalAlpha = 1;
             ctx[2].lineWidth = 3;
             drawGuiLine(x, spacing + q * 2 / 3, x + t, spacing + q * 2 / 3);
@@ -4747,7 +4753,7 @@ function drawMobileSkillUpgrades(spacing, alcoveSize) {
         }
 
         if (gui.points > 1) {
-            drawText(`x${gui.points}`, x, spacing + 20, 20, colors.guiwhite, "left");
+            drawText(`x${gui.points}`, x, spacing + 20, 20, color.guiwhite, "left");
         }
     }
 }; // END OF MOBILE FUNCTIONS
@@ -4789,9 +4795,9 @@ function drawChatInput(x, y, instance, ratio, isize) {
         const boxLengthHalf = (10.49 * g) / 2;
         global.canvas.chatBox.loadedProperly = true;
         // Box drawing
-        global.canvas.chatBox.style.color = colors.black;
-        global.canvas.chatBox.style.backgroundColor = colors.guiwhite;
-        global.canvas.chatBox.style.borderColor = colors.black;
+        global.canvas.chatBox.style.color = color.black;
+        global.canvas.chatBox.style.backgroundColor = color.guiwhite;
+        global.canvas.chatBox.style.borderColor = color.black;
         global.canvas.chatBox.style.borderWidth = `${0.1 * g}px`;
         global.canvas.chatBox.style.opacity = global.showChatGlide;
         global.canvas.chatBox.style.width = `${(boxLengthHalf * 2 + 0.75 * g) / global.screenWidth * 100}%`;
@@ -4801,7 +4807,7 @@ function drawChatInput(x, y, instance, ratio, isize) {
         // Input
         global.canvas.chatInput.style.opacity = global.showChatGlide;
         global.canvas.chatInput.style["font-size"] = `${0.5 * g}px`;
-        global.canvas.chatInput.style.color = colors.black;
+        global.canvas.chatInput.style.color = color.black;
         global.canvas.chatInput.style.width = `${(boxLengthHalf * 2 + 0.35 * g) / global.screenWidth * 100}%`;
         global.canvas.chatInput.style.height = `${0.95 * g}px`;
         global.canvas.chatInput.style.left = `${(x - boxLengthHalf - 0.35 * g / 2) / global.screenWidth * 100}%`;
@@ -4822,7 +4828,7 @@ const drawAdScreen = () => {
     ctx[2].globalAlpha = 1;
     gameDraw.setColor(ctx[2], "#000");
     drawGuiRect(x, y, width, height);
-    gameDraw.setColor(ctx[2], colors.grey);
+    gameDraw.setColor(ctx[2], color.grey);
     ctx[2].lineWidth = 3;
     drawGuiRect(x, y, width, height, true);
     if (global.dailyTankAd.readyToRender) {
@@ -4846,7 +4852,7 @@ const drawAdScreen = () => {
                     global.dailyTankAd.closebtnAnim.set(1);
                 }, 1000);
             }
-            drawButton(x + width - 25, y + 7, 35, 35, global.dailyTankAd.closebtnAnim.get(), "rect", "✕", 24, colors.red, colors.red, false, true, "dailyTankCloseAd", global.canvas.height / global.screenHeight / global.ratio, {
+            drawButton(x + width - 25, y + 7, 35, 35, global.dailyTankAd.closebtnAnim.get(), "rect", "✕", 24, color.red, color.red, false, true, "dailyTankCloseAd", global.canvas.height / global.screenHeight / global.ratio, {
                 index: false
             });
         }
@@ -4900,9 +4906,10 @@ const getDeath = () => {
             txt += ` ${util.addArticle(util.getEntityImageFromMockup(e).name)} and`;
         }
         txt = txt.slice(0, -4);
-    } /*else if () { //todo: check for self-destruct
-            txt += "💣 Self-destruct completed";
-        }*/ else {
+    /*} else if () { //todo: check for self-destruct
+        txt += "💣 Self-destruct completed";
+    */
+    } else {
         txt += "⛈  Vanished into thin air";
     }
     return txt;
@@ -4934,25 +4941,25 @@ const gameDrawDead = () => {
     const name = global.player.name.substring(7, global.player.name.length + 1);
     const timestamp = Math.floor(global.deathTimestamp || Date.now());
 
-    clearScreen(colors.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
+    clearScreen(color.black, 0.1 + 0.15 * global.lerp(0, 0.5, glide), ctx[2]);
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
     drawEntity(baseColor, (xx - 191 - len / 2 + 0.5) | 0, (yy - -26 + 0.5) | 0, picture, 1.5, 1, (0.5 * scale) / picture.realSize, 1, -Math.PI / 4, true, ctx[2]);
-    drawText(`Level ${gui.__s.getLevel()}`, x - 270, y + 100, 12, colors.guiwhite, "center");
-    drawText(picture.name, x - 270, y + 125, 18, colors.guiwhite, "center");
-    drawText(`${new Date(timestamp).toISOString()}`, x, y - 164, 8.125, colors.guiwhite, "center");
-    drawText(name == "" ? "Your Score: " : `${name}'s Score: `, x - 170, y - 50, 23.75, colors.guiwhite);
-    drawText(util.formatLargeNumber(Math.round(global.finalScore.get())), x - 170, y + 11, 48, colors.guiwhite);
+    drawText(`Level ${gui.__s.getLevel()}`, x - 270, y + 100, 12, color.guiwhite, "center");
+    drawText(picture.name, x - 270, y + 125, 18, color.guiwhite, "center");
+    drawText(`${new Date(timestamp).toISOString()}`, x, y - 164, 8.125, color.guiwhite, "center");
+    drawText(name == "" ? "Your Score: " : `${name}'s Score: `, x - 170, y - 50, 23.75, color.guiwhite);
+    drawText(util.formatLargeNumber(Math.round(global.finalScore.get())), x - 170, y + 11, 48, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(1, 1.25, glide);
-    drawText(`⌚ Survived for ${util.timeForHumans(Math.round(global.finalLifetime.get()))}`, x - 170, y + 50, 14, colors.guiwhite);
+    drawText(`⌚ Survived for ${util.timeForHumans(Math.round(global.finalLifetime.get()))}`, x - 170, y + 50, 14, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(1.25, 1.5, glide);
-    drawText(getKills(), x - 170, y + 75, 14, colors.guiwhite);
+    drawText(getKills(), x - 170, y + 75, 14, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(1.5, 1.75, glide);
-    drawText(getTips(), x - 170, y + 100, 14, colors.guiwhite);
+    drawText(getTips(), x - 170, y + 100, 14, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(1.75, 2, glide);
-    drawText(getDeath(), x - 170, y + 125, 14, colors.guiwhite);
+    drawText(getDeath(), x - 170, y + 125, 14, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(2, 2.25, glide);
-    drawText(`📋 The server was ${(100 * gui.fps).toFixed(0)}%` + " active", x - 170, y + 150, 14, colors.guiwhite);
+    drawText(`📋 The server was ${(100 * gui.fps).toFixed(0)}%` + " active", x - 170, y + 150, 14, color.guiwhite);
     ctx[2].globalAlpha = global.lerp(3, 3.25, glide);
     if (global.cannotRespawn || global.mobile || global.gamepadMode) {
         drawText(global.cannotRespawn ?
@@ -4964,7 +4971,7 @@ const gameDrawDead = () => {
                 : global.gamepadMode ?
                     "(Press RT or R2 button to respawn)"
                     : "",
-        x, y + 189, 16, colors.guiwhite, "center");
+        x, y + 189, 16, color.guiwhite, "center");
     }
     if (!global.disconnected && !global.cannotRespawn) {
         if (!global.mobile && !global.gamepadMode) {
@@ -4984,8 +4991,6 @@ const gameDrawDead = () => {
 
 const applyScreenShake = (type = "camera", returnOption = false) => {
     const properties = type == "gui" ? config.graphical.shakeProperties.UIShake : config.graphical.shakeProperties.CameraShake;
-    var cdx = 0;
-    var cdy = 0;
     if (properties.shakeStartTime == -1) {
         return;
     }
@@ -4998,8 +5003,8 @@ const applyScreenShake = (type = "camera", returnOption = false) => {
     }
     var easingCoef = dt / properties.shakeDuration;
     var easing = Math.pow(easingCoef - 1, 3);
-    cdx = easing * (Math.cos(dt * 0.1) + Math.cos(dt * 0.3115)) * Math.random() * properties.shakeAmount;
-    cdy = easing * (Math.sin(dt * 0.05) + Math.sin(dt * 0.3115)) * Math.random() * properties.shakeAmount;
+    const cdx = easing * (Math.cos(dt * 0.1) + Math.cos(dt * 0.3115)) * Math.random() * properties.shakeAmount;
+    const cdy = easing * (Math.sin(dt * 0.05) + Math.sin(dt * 0.3115)) * Math.random() * properties.shakeAmount;
     if (properties.keepShake && dt > 100) {
         properties.shakeStartTime = Date.now();
     }
@@ -5165,9 +5170,7 @@ function drawToolip(cb) {
             boxH = textH + paddingY * 2.5;
         }
         if (splitTooltip.length !== 1) {
-            for (const line of splitTooltip) {
-                boxH += textH;
-            }
+            boxH += textH * splitTooltip.length;
         }
         // convert from screen → canvas
         const tipX = cb.tooltipService.x / clickableRatio;
@@ -5188,7 +5191,7 @@ function drawToolip(cb) {
             const text = splitTooltip[i];
             const increaseLength = splitTooltip.length === 1 ? 22 : 17.6;
             textY += increaseLength;
-            drawText(text, bx + paddingX, splitTooltip.length === 1 ? textY : textY + 3, 13.5, colors.guiwhite);
+            drawText(text, bx + paddingX, splitTooltip.length === 1 ? textY : textY + 3, 13.5, color.guiwhite);
         }
 
         ctx[2].restore();
@@ -5214,7 +5217,7 @@ function optionsMenu_getUserInterfaceOptions() {
         label: option.textContent.replace("UI Scale", "").replace("(", "").replace(")", "").replace(" ", "")
     }));
 }
-function optionsMenu_getGraphicsOptions() {
+/* function optionsMenu_getGraphicsOptions() {
     const doc = document.getElementById("optGraphics");
     if (!doc) {
         return [];
@@ -5227,7 +5230,7 @@ function optionsMenu_getGraphicsOptions() {
         value: option.value,
         label: option.textContent
     }));
-}
+} */
 
 const THEME_SWATCHES = [
     ["blue", "Blue", "Blue team (ID 10)"],
@@ -5252,21 +5255,29 @@ const THEME_SWATCHES = [
     ["black", "Borders", "The borders of all text, bars, and other UI elements, as well as the color of shells (ID 9)\nNote: It's highly recommended for this color to be a dark color and contrast the text color."]
 ];
 
-const OV_ROW1 = 41; const OV_ROW2 = 81; const
-    OV_ROW3 = 121;
-const OV_COLORS_HEAD = 183; const OV_GRID_TOP = 201; const
-    OV_GRID_PITCH = 40;
-const OV_BORDERS_HEAD = 503; const OV_SLIDER_TOP = 524; const
-    OV_NEON_TOP = 561;
-const OV_CTRL_H = 28; const OV_SWATCH = 28; const OV_GAP = 13; const OV_COL_PITCH = 145; const
-    OV_BADGE = 26;
-const OV_INSET_L = 24; const OV_INSET_R = 18; const OV_CODE_GAP = 11; const
-    OV_REMOVE_W = 98;
-const OV_SLIDER_W = 152; const
-    OV_TITLE_TOP = 30;
+const OV_ROW1 = 41;
+const OV_ROW2 = 81;
+const OV_ROW3 = 121;
+const OV_COLORS_HEAD = 183;
+const OV_GRID_TOP = 201;
+const OV_GRID_PITCH = 40;
+const OV_BORDERS_HEAD = 503;
+const OV_SLIDER_TOP = 524;
+const OV_NEON_TOP = 561;
+const OV_CTRL_H = 28;
+const OV_SWATCH = 28;
+const OV_GAP = 13;
+const OV_COL_PITCH = 145;
+const OV_BADGE = 26;
+const OV_INSET_L = 24;
+const OV_INSET_R = 18;
+const OV_CODE_GAP = 11;
+const OV_REMOVE_W = 98;
+const OV_SLIDER_W = 152;
+const OV_TITLE_TOP = 30;
 const THEME_PANEL_H = 608;
-const KB_ROW_TOP = 47; const
-    KB_ROW_PITCH = 39;
+const KB_ROW_TOP = 47;
+const KB_ROW_PITCH = 39;
 const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
 const SECRET_SECTION_LAYOUT = {
     secret: { title: "Secret Options", titleY: 30,  rowTop: 45 },
@@ -5292,7 +5303,7 @@ function loadThemes() {
         _themeList = fetch("themes.json")
             .then((r) => r.json())
             .then((list) => list.concat(LEGACY_THEMES.map(([key, name, author]) => {
-                const theme = colors[key];
+                const theme = color[key];
                 return {
                     name,
                     author,
@@ -5313,13 +5324,13 @@ function loadPersonalThemes() {
     let list = [];
     try {
         list = JSON.parse(localStorage.getItem(PERSONAL_THEMES_KEY) || "[]");
-    } catch { }
+    } catch { /* empty */ }
     return Array.isArray(list) ? list.filter((t) => t && t.content) : [];
 }
 function savePersonalThemes(list) {
     try {
         localStorage.setItem(PERSONAL_THEMES_KEY, JSON.stringify(list));
-    } catch { }
+    } catch { /* empty */ }
 }
 
 let _keybindEntries = null;
@@ -5356,7 +5367,8 @@ function keybindsPanelHeight() {
 function themeCode(palette, name, author) {
     const bytes = [0x6a, 0xba, 0xda, 0xb3, 0xf0, 1];
     const push = (str) => {
-        bytes.push(str.length); for (const c of str) {
+        bytes.push(str.length);
+        for (const c of str) {
             bytes.push(c.charCodeAt(0));
         }
     };
@@ -5447,13 +5459,23 @@ function ensureThemeOverlay() {
         return e;
     };
 
-    const name = mk("input", OV_INPUT, "ovName"); name.type = "text"; name.placeholder = "Theme Name";
-    const author = mk("input", OV_INPUT, "ovAuthor"); author.type = "text"; author.placeholder = "Author";
-    const code = mk("input", OV_INPUT, "ovCode"); code.type = "text"; code.spellcheck = false; code.autocomplete = "off";
-    const remove = mk("button", OV_BTN, "ovRemove"); remove.type = "button"; remove.textContent = "Remove";
+    const name = mk("input", OV_INPUT, "ovName");
+    name.type = "text";
+    name.placeholder = "Theme Name";
+    const author = mk("input", OV_INPUT, "ovAuthor");
+    author.type = "text";
+    author.placeholder = "Author";
+    const code = mk("input", OV_INPUT, "ovCode");
+    code.type = "text";
+    code.spellcheck = false;
+    code.autocomplete = "off";
+    const remove = mk("button", OV_BTN, "ovRemove");
+    remove.type = "button";
+    remove.textContent = "Remove";
     const colorsSel = mk("select", OV_SELECT, "ovColors");
     const bordersSel = mk("select", OV_SELECT, "ovBorders");
-    const borderColor = mk("input", OV_COLOR, "ovBorderColor"); borderColor.type = "color";
+    const borderColor = mk("input", OV_COLOR, "ovBorderColor");
+    borderColor.type = "color";
     const swatches = THEME_SWATCHES.map(([key]) => {
         const inp = mk("input", OV_COLOR);
         inp.type = "color";
@@ -5528,7 +5550,8 @@ function ensureThemeOverlay() {
         config.graphical.darkBorders = bordersSel.value === "dark" || bordersSel.value === "neon";
         config.graphical.neon = bordersSel.value === "neon" || bordersSel.value === "glass";
         if (gameDraw.color) {
-            gameDraw.color.neon = config.graphical.neon; gameDraw.colorCache = {};
+            gameDraw.color.neon = config.graphical.neon;
+            gameDraw.colorCache = {};
         }
         const src = document.getElementById("optBorders");
         if (src) {
@@ -5538,7 +5561,8 @@ function ensureThemeOverlay() {
     });
     borderColor.addEventListener("input", (e) => {
         if (gameDraw.color) {
-            gameDraw.color.black = e.target.value; gameDraw.colorCache = {};
+            gameDraw.color.black = e.target.value;
+            gameDraw.colorCache = {};
         }
         markThemeCustom();
         refreshThemeCode();
@@ -5546,7 +5570,8 @@ function ensureThemeOverlay() {
     swatches.forEach((inp) => {
         inp.addEventListener("input", () => {
             if (gameDraw.color) {
-                gameDraw.color[inp.dataset.key] = inp.value; gameDraw.colorCache = {};
+                gameDraw.color[inp.dataset.key] = inp.value;
+                gameDraw.colorCache = {};
             }
             if (inp.dataset.key === "black") {
                 wrap._ov.borderColor.value = inp.value;
@@ -5571,21 +5596,25 @@ function ensureThemeOverlay() {
             colorsSel.value = "t0";
             applyTheme(list[0]);
         } else {
-            const c = colors["normal"];
-            gameDraw.color = c; gameDraw.colorCache = {}; global.currentColors = c;
+            const c = color["normal"];
+            gameDraw.color = c;
+            gameDraw.colorCache = {};
+            global.currentColors = c;
             syncThemeOverlay();
         }
     });
     name.addEventListener("input", () => {
-        markThemeCustom(); refreshThemeCode();
+        markThemeCustom();
+        refreshThemeCode();
     });
     author.addEventListener("input", () => {
-        markThemeCustom(); refreshThemeCode();
+        markThemeCustom();
+        refreshThemeCode();
     });
     code.addEventListener("change", () => {
         const parsed = parseTheme(code.value);
         if (parsed && parsed.content) {
-            const c = Object.assign({}, colors["normal"], parsed.content);
+            const c = Object.assign({}, color["normal"], parsed.content);
             c.border = parsed.content.border;
             c.neon = Boolean(parsed.content.neon);
             gameDraw.color = c;
@@ -5698,7 +5727,7 @@ function applyCustomTheme() {
     const code = (src && src.value) || localStorage.getItem("optCustomValue") || "";
     const parsed = code ? parseTheme(code) : null;
     if (parsed && parsed.content) {
-        const c = Object.assign({}, colors["normal"], parsed.content);
+        const c = Object.assign({}, color["normal"], parsed.content);
         c.border = parsed.content.border;
         c.neon = Boolean(parsed.content.neon);
         gameDraw.color = c;
@@ -5720,7 +5749,7 @@ function applyTheme(theme) {
     if (!theme || !theme.content) {
         return;
     }
-    const c = Object.assign({}, colors["normal"], theme.content);
+    const c = Object.assign({}, color["normal"], theme.content);
     c.paletteSize = theme.paletteSize || THEME_PALETTE_KEYS.length;
     c.border = typeof theme.border === "number" ? theme.border : 0.6;
     c.neon = Boolean(theme.neon);
@@ -5794,8 +5823,9 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     const r = clickableRatio;
     const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[1]
         ? global.optionsMenu_Anim.scrollOffsets[1].get() : 0;
-    const L = PANEL_X + OV_INSET_L; const W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R; const
-        T = PANEL_Y - scrollY;
+    const L = PANEL_X + OV_INSET_L;
+    const W = PANEL_WIDTH - OV_INSET_L - OV_INSET_R;
+    const T = PANEL_Y - scrollY;
     const hw = (W - OV_GAP) / 2;
     const put = (el, x, y, w, h) => {
         el.style.left = `${x * r}px`;
@@ -5810,60 +5840,62 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     put(o.remove, L + W - OV_REMOVE_W, T + OV_ROW2, OV_REMOVE_W, OV_CTRL_H);
     put(o.colorsSel, L, T + OV_ROW3, hw, OV_CTRL_H);
     put(o.bordersSel, L + hw + OV_GAP, T + OV_ROW3, hw, OV_CTRL_H);
-    const bcx = L + 2 * OV_COL_PITCH; const
-        bcy = T + OV_SLIDER_TOP - 2;
+    const bcx = L + 2 * OV_COL_PITCH;
+    const bcy = T + OV_SLIDER_TOP - 2;
     put(o.borderColor, bcx, bcy, OV_SWATCH, OV_SWATCH);
     put(o.borderHit, bcx + OV_SWATCH, bcy, 9 + measureText("Borders", 13.5), OV_SWATCH);
     o.swatches.forEach((inp, i) => {
-        const col = i % 3; const
-            row = (i / 3) | 0;
-        const x = L + col * OV_COL_PITCH; const
-            y = T + OV_GRID_TOP + row * OV_GRID_PITCH;
+        const col = i % 3;
+        const row = (i / 3) | 0;
+        const x = L + col * OV_COL_PITCH;
+        const y = T + OV_GRID_TOP + row * OV_GRID_PITCH;
         put(inp, x, y, OV_SWATCH, OV_SWATCH);
         put(o.hits[i], x + OV_SWATCH, y, 9 + measureText(THEME_SWATCHES[i][1], 13.5), OV_SWATCH);
         ctx[2].fillStyle = inp.value;
         drawGuiRect(x, y, OV_SWATCH, OV_SWATCH);
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         ctx[2].lineWidth = 3;
         drawGuiRect(x, y, OV_SWATCH, OV_SWATCH, true);
-        drawText(THEME_SWATCHES[i][1], x + OV_SWATCH + 9, y + OV_SWATCH / 2 + 1, 13.5, colors.guiwhite, "left", true);
+        drawText(THEME_SWATCHES[i][1], x + OV_SWATCH + 9, y + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
     });
     ctx[2].fillStyle = o.borderColor.value;
     drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH);
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].strokeStyle = color.black;
     ctx[2].lineWidth = 3;
     drawGuiRect(bcx, bcy, OV_SWATCH, OV_SWATCH, true);
 
     const cx = PANEL_X + PANEL_WIDTH / 2;
-    drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, colors.guiwhite, "center", true);
-    drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, colors.guiwhite, "center", true);
+    drawText("Colors", cx, T + OV_COLORS_HEAD, 15.5, color.guiwhite, "center", true);
+    drawText("Borders", cx, T + OV_BORDERS_HEAD, 15.5, color.guiwhite, "center", true);
 
-    const sx = L; const sy = T + OV_SLIDER_TOP; const SW = OV_SLIDER_W; const
-        SH = 20;
+    const sx = L;
+    const sy = T + OV_SLIDER_TOP;
+    const SW = OV_SLIDER_W;
+    const SH = 20;
     const sv = themeBlend();
-    ctx[2].fillStyle = colors.guiwhite;
+    ctx[2].fillStyle = color.guiwhite;
     drawGuiRect(sx, sy + 2.5, SW, SH);
-    ctx[2].fillStyle = colors.green;
+    ctx[2].fillStyle = color.green;
     ctx[2].globalAlpha *= 0.7;
     drawGuiRect(sx, sy + 2.5, SW * sv, SH);
     ctx[2].globalAlpha /= 0.7;
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].strokeStyle = color.black;
     ctx[2].lineWidth = 3;
     drawGuiRect(sx, sy + 2.5, SW, SH, true);
     const knob = sx + (SW - 12.5) * sv;
-    ctx[2].fillStyle = colors.green;
+    ctx[2].fillStyle = color.green;
     drawGuiRect(knob, sy, 12.5, SH + 5);
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].strokeStyle = color.black;
     drawGuiRect(knob, sy, 12.5, SH + 5, true);
     const midY = sy + SH / 2 + 2.5;
-    drawText("Blend Ratio", sx + SW + 8, midY, 13.5, colors.guiwhite, "left", true);
-    drawText("Borders", sx + 2 * OV_COL_PITCH + OV_SWATCH + 9, midY, 13.5, colors.guiwhite, "left", true);
+    drawText("Blend Ratio", sx + SW + 8, midY, 13.5, color.guiwhite, "left", true);
+    drawText("Borders", sx + 2 * OV_COL_PITCH + OV_SWATCH + 9, midY, 13.5, color.guiwhite, "left", true);
 
-    const nx = L; const
-        ny = T + OV_NEON_TOP;
+    const nx = L;
+    const ny = T + OV_NEON_TOP;
     const on = Boolean(config.graphical.neon);
     ctx[2].lineWidth = 3;
-    gameDraw.setColor(ctx[2], on ? colors.green : colors.guiwhite);
+    gameDraw.setColor(ctx[2], on ? color.green : color.guiwhite);
     drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH);
     if (on) {
         ctx[2].strokeStyle = "#FFFFFF";
@@ -5874,9 +5906,9 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
         ctx[2].lineTo(nx + OV_SWATCH - 6, ny + 8);
         ctx[2].stroke();
     }
-    gameDraw.setColor(ctx[2], colors.black);
+    gameDraw.setColor(ctx[2], color.black);
     drawGuiRect(nx, ny, OV_SWATCH, OV_SWATCH, true);
-    drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, colors.guiwhite, "left", true);
+    drawText("Neon Borders", nx + OV_SWATCH + 9, ny + OV_SWATCH / 2 + 1, 13.5, color.guiwhite, "left", true);
 
     const ts = wrap.tooltipService;
     const hover = wrap._colorHover;
@@ -5886,8 +5918,8 @@ function drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
         ts.x = bcx * r;
         ts.y = (bcy + OV_SWATCH + 10) * r;
     } else if (hover >= 0) {
-        const col = hover % 3; const
-            row = (hover / 3) | 0;
+        const col = hover % 3;
+        const row = (hover / 3) | 0;
         ts.text = THEME_SWATCHES[hover][2];
         ts.x = (L + col * OV_COL_PITCH) * r;
         ts.y = (T + OV_GRID_TOP + row * OV_GRID_PITCH + OV_SWATCH + 10) * r;
@@ -5907,38 +5939,38 @@ function drawKeybindsTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio) {
     global.ingameThemeNeon = null;
     const scrollY = global.optionsMenu_Anim.scrollOffsets && global.optionsMenu_Anim.scrollOffsets[2]
         ? global.optionsMenu_Anim.scrollOffsets[2].get() : 0;
-    const L = PANEL_X + 22; const
-        W = PANEL_WIDTH - 44;
+    const L = PANEL_X + 22;
+    const W = PANEL_WIDTH - 44;
     const T = PANEL_Y - scrollY;
     const cr = clickableRatio * global.ratio;
     const colW = W / 2;
     const entries = getKeybindEntries();
-    const rows = Math.max(1, Math.ceil(entries.length / 2));
+    // const rows = Math.max(1, Math.ceil(entries.length / 2));
 
-    drawText("Keybinds", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, colors.guiwhite, "center");
+    drawText("Keybinds", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
 
     const rects = [];
     entries.forEach((e, i) => {
-        const col = i % 2; const
-            row = (i / 2) | 0;
+        const col = i % 2;
+        const row = (i / 2) | 0;
         const x = L + col * colW;
         const y = T + KB_ROW_TOP + row * KB_ROW_PITCH;
         const td = e.el.closest("td");
         ctx[2].lineWidth = 3;
-        ctx[2].fillStyle = colors.guiwhite;
+        ctx[2].fillStyle = color.guiwhite;
         drawGuiRect(x, y, OV_BADGE, OV_BADGE);
         if (td && td.classList.contains("editing")) {
-            ctx[2].fillStyle = colors.green;
+            ctx[2].fillStyle = color.green;
             drawGuiRect(x, y, OV_BADGE, OV_BADGE);
         }
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         drawGuiRect(x, y, OV_BADGE, OV_BADGE, true);
-        drawText(getKeybind(e.el.dataset.key) || "", x + OV_BADGE / 2, y + OV_BADGE / 2, 12, colors.black, "center", true, 1, false);
+        drawText(getKeybind(e.el.dataset.key) || "", x + OV_BADGE / 2, y + OV_BADGE / 2, 12, color.black, "center", true, 1, false);
         ctx[2].save();
         ctx[2].beginPath();
         ctx[2].rect(x + OV_BADGE + 10, y, colW - OV_BADGE - 18, OV_BADGE);
         ctx[2].clip();
-        drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, colors.guiwhite, "left", true);
+        drawText(e.label, x + OV_BADGE + 13, y + OV_BADGE / 2, 13.5, color.guiwhite, "left", true);
         ctx[2].restore();
         rects.push({ el: e.el, x: x * cr, y: y * cr, w: colW * cr, h: OV_BADGE * cr });
     });
@@ -6007,7 +6039,7 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlock
     const secretTooltips = [];
     const fullExtra = fullUnlocked ? 40 : 0;
     for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-        drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, colors.guiwhite, "center");
+        drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + (section === "secret" ? 0 : fullExtra), 15.5, color.guiwhite, "center");
     }
     for (let i = 0; i < global.optionsCheckboxes.length; i++) {
         const cb = global.optionsCheckboxes[i];
@@ -6089,9 +6121,9 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlock
             global.clickables.optionsMenu.toggleBoxes.place(i, x * clickableRatio, y * clickableRatio, hitSize, hitSize);
         }
         ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], isOn ? colors.green : colors.guiwhite);
+        gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
         drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-        gameDraw.setColor(ctx[2], colors.black);
+        gameDraw.setColor(ctx[2], color.black);
         drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
         if (isOn) {
             ctx[2].strokeStyle = "#FFFFFF";
@@ -6102,7 +6134,7 @@ function drawSecretTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio, fullUnlock
             ctx[2].lineTo(x + BOX_SIZE - 6, y + 8);
             ctx[2].stroke();
         }
-        drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, colors.guiwhite, "left", false, 1, 5.5);
+        drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
         secretTooltips.push(cb);
     }
     for (const cb of secretTooltips) {
@@ -6166,7 +6198,7 @@ function drawOptionsMenu() {
 
     // Draw button background
     ctx[2].lineWidth = 3;
-    gameDraw.setColor(ctx[2], colors.green);
+    gameDraw.setColor(ctx[2], color.green);
     drawGuiRect(BTN_X, BTN_Y, animatedWidth, BTN_SIZE);
     if (hover) {
         gameDraw.setColor(ctx[2], global.clickables.clicked ? "#000" : "#fff");
@@ -6178,10 +6210,10 @@ function drawOptionsMenu() {
     if (animValue > 0.1) {
         const textX = BTN_X + BTN_WIDTH_COLLAPSED / 2 + animatedWidth - 105;
         const textY = BTN_Y + BTN_SIZE / 2;
-        drawText("Options", textX, textY * 1.13, 12, colors.guiwhite, "left");
+        drawText("Options", textX, textY * 1.13, 12, color.guiwhite, "left");
     }
     ctx[2].lineWidth = 3;
-    gameDraw.setColor(ctx[2], colors.black);
+    gameDraw.setColor(ctx[2], color.black);
     drawGuiRect(BTN_X, BTN_Y, animatedWidth, BTN_SIZE, true); // Draw stroke(Outline) between the box
 
     // Draw THICK border
@@ -6189,7 +6221,7 @@ function drawOptionsMenu() {
     // Draw separator line between options area and arrow area (when expanded)
     if (animValue > 0.001) {
         const separatorX = BTN_X + animatedWidth - BTN_WIDTH_COLLAPSED - 2;
-        ctx[2].strokeStyle = colors.black;
+        ctx[2].strokeStyle = color.black;
         ctx[2].lineWidth = 6;
         ctx[2].beginPath();
         ctx[2].moveTo(separatorX, BTN_Y + 2);
@@ -6251,17 +6283,17 @@ function drawOptionsMenu() {
     const fullUnlocked = fullBox ? Boolean(fullBox.value) : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
     const secretPanelH = SECRET_PANEL_H + (fullUnlocked ? 40 : 0);
     const TAB_CONTENT_HEIGHTS = [
-        (PANEL_Y + 685 + 1 * 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
+        (PANEL_Y + 685 + 40 + 45) - PANEL_Y,  // perf section: last row baseY + 1 row + padding
         THEME_PANEL_H,
         keybindsPanelHeight(),
         secretPanelH
     ];
-    const TAB_CONTENT_MAX_SCROLL = [
+    /* const TAB_CONTENT_MAX_SCROLL = [
         0,
         THEME_PANEL_H,
         keybindsPanelHeight(),
         secretPanelH
-    ];
+    ]; */
     global.optionsMenu_Anim.tabs[1][1] = THEME_PANEL_H;
     global.optionsMenu_Anim.tabs[2][1] = TAB_CONTENT_HEIGHTS[2];
     global.optionsMenu_Anim.tabs[3][1] = secretPanelH;
@@ -6276,7 +6308,7 @@ function drawOptionsMenu() {
     const activeTab = global.optionsMenu_Anim.activeTab || 0;
     const scrollOffsetAnim = global.optionsMenu_Anim.scrollOffsets[activeTab];
     const contentH = TAB_CONTENT_HEIGHTS[activeTab];
-    const contentM = TAB_CONTENT_MAX_SCROLL[activeTab];
+    // const contentM = TAB_CONTENT_MAX_SCROLL[activeTab];
     const maxScroll = Math.max(0, contentH - PANEL_HEIGHT);
 
     if (global.optionsMenu_Anim.scrollTargets[activeTab] < 0) {
@@ -6313,9 +6345,9 @@ function drawOptionsMenu() {
 
     // background
     ctx[2].lineWidth = 3;
-    gameDraw.setColor(ctx[2], colors.grey);
+    gameDraw.setColor(ctx[2], color.grey);
     drawGuiRect(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT);
-    gameDraw.setColor(ctx[2], colors.black);
+    gameDraw.setColor(ctx[2], color.black);
     drawGuiRect(PANEL_X, PANEL_Y, PANEL_WIDTH, PANEL_HEIGHT, true);
 
     // Top tabs with interactive functionality
@@ -6324,7 +6356,7 @@ function drawOptionsMenu() {
     const TAB_HEIGHT = 50;
     const TAB_Y = PANEL_Y - TAB_HEIGHT;
 
-    drawText("ingame options is not finished, expect missing features and bugs lol", PANEL_X + PANEL_WIDTH / 2, PANEL_Y - 57, 9.5, colors.guiwhite, "center");
+    drawText("ingame options is not finished, expect missing features and bugs lol", PANEL_X + PANEL_WIDTH / 2, PANEL_Y - 57, 9.5, color.guiwhite, "center");
 
     // Initialize tab clickables
     global.optionsMenu_Anim.tabClickables.hide();
@@ -6344,10 +6376,10 @@ function drawOptionsMenu() {
 
         // Draw tab background
         ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], gameDraw.mixColors(colors.grey, colors.black, 0.3));
+        gameDraw.setColor(ctx[2], gameDraw.mixColors(color.grey, color.black, 0.3));
         drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT);
         if (tabHover) {
-            gameDraw.setColor(ctx[2], global.clickables.clicked ? colors.guiblack : colors.lgrey);
+            gameDraw.setColor(ctx[2], global.clickables.clicked ? color.guiblack : color.lgrey);
             ctx[2].globalAlpha = global.clickables.clicked ? 0.10 : 1;
             drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT);
             ctx[2].globalAlpha = 1;
@@ -6361,17 +6393,17 @@ function drawOptionsMenu() {
 
         // Draw tab border
         ctx[2].lineWidth = 3;
-        gameDraw.setColor(ctx[2], colors.black);
+        gameDraw.setColor(ctx[2], color.black);
         drawGuiRect(TAB_X, TAB_Y, TAB_WIDTH, TAB_HEIGHT, true);
     }
 
     // Sliding tab background and border (above borders, below text)
     const currentTab = global.optionsMenu_Anim.tabOffset.get();
     const bgX = PANEL_X + currentTab * TAB_WIDTH * 1.162 + 50;
-    gameDraw.setColor(ctx[2], colors.grey);
+    gameDraw.setColor(ctx[2], color.grey);
     drawGuiRect(bgX, TAB_Y, TAB_WIDTH, TAB_HEIGHT + 3); // Extend height to cover bottom border
     // Draw border without bottom
-    ctx[2].strokeStyle = colors.black;
+    ctx[2].strokeStyle = color.black;
     ctx[2].lineWidth = 3;
     ctx[2].beginPath();
     ctx[2].moveTo(bgX, TAB_Y);
@@ -6390,7 +6422,7 @@ function drawOptionsMenu() {
         // Tab label, centered on the tab
         const cx = TAB_X + TAB_WIDTH / 2;
         const cy = TAB_Y + TAB_HEIGHT - 18;
-        drawText(TAB_NAMES[tabIndex][0], cx, cy, TAB_NAMES.length === 4 ? 13.5 : 16, colors.guiwhite, "center");
+        drawText(TAB_NAMES[tabIndex][0], cx, cy, TAB_NAMES.length === 4 ? 13.5 : 16, color.guiwhite, "center");
     }
 
     // Draw tab content with fade animation
@@ -6409,10 +6441,10 @@ function drawOptionsMenu() {
 
         // OPTIONS TAB
 
-        drawText("Game Appearance", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP,       15.5, colors.guiwhite, "center");
-        drawText("UI Elements",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 320, 15.5, colors.guiwhite, "center");
-        drawText("Extra",           PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 480, 15.5, colors.guiwhite, "center");
-        drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, colors.guiwhite, "center");
+        drawText("Game Appearance", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP,       15.5, color.guiwhite, "center");
+        drawText("UI Elements",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 320, 15.5, color.guiwhite, "center");
+        drawText("Extra",           PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 480, 15.5, color.guiwhite, "center");
+        drawText("Performance",     PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP + 680, 15.5, color.guiwhite, "center");
 
         if (!global.optionsCheckboxes) {
             const legacyOptionNotice = "\nNote: This is a legacy option and will be removed in a future update.";
@@ -6620,13 +6652,13 @@ function drawOptionsMenu() {
                 cb.optionService.hitX = hitX;
                 cb.optionService.hitY = hitY;
                 cb.optionService.hitYCalc = hitYCalc;
-                ctx[2].fillStyle = colors.guiwhite;
+                ctx[2].fillStyle = color.guiwhite;
                 drawGuiRect(x, y, cb.width, 25);
-                ctx[2].strokeStyle = colors.black;
+                ctx[2].strokeStyle = color.black;
                 ctx[2].lineWidth = 3;
                 drawGuiRect(x, y, cb.width, 25, true);
-                drawText(cb.optionService.selected, x + 13, y + 17, 11.5, colors.guiwhite, "left", false, 1, 6.5);
-                ctx[2].fillStyle = colors.black;
+                drawText(cb.optionService.selected, x + 13, y + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
+                ctx[2].fillStyle = color.black;
                 const arrowW = 5; // Arrow width (horizontal)
                 const arrowH = 30 * 0.3; // Arrow height (vertical)
                 const arrowBaseX = x + cb.width + 17;
@@ -6656,23 +6688,23 @@ function drawOptionsMenu() {
                 const strokeValue = Math.max(cb.maxLowestValue, Math.min(cb.maxValue, rawStrokeValue));
                 const renderRange = cb.maxValue - cb.maxLowestValue;
                 const strokeRatio = renderRange > 0 ? (strokeValue - cb.maxLowestValue) / renderRange : 0;
-                ctx[2].fillStyle = colors.guiwhite;
+                ctx[2].fillStyle = color.guiwhite;
                 drawGuiRect(x, y + 2.5, 150, 20);
-                ctx[2].fillStyle = colors.green;
+                ctx[2].fillStyle = color.green;
                 ctx[2].globalAlpha = 0.7 * fadeOptions;
                 drawGuiRect(x, y + 2.5, 150 * strokeRatio, 20);
                 ctx[2].globalAlpha = fadeOptions;
-                ctx[2].strokeStyle = colors.black;
+                ctx[2].strokeStyle = color.black;
                 ctx[2].lineWidth = 3;
                 drawGuiRect(x, y + 2.5, 150, 20, true);
 
                 const knob = x + 137.5 * strokeRatio;
-                ctx[2].fillStyle = colors.green;
+                ctx[2].fillStyle = color.green;
                 drawGuiRect(knob, y, 12.5, 17 + 8);
-                ctx[2].strokeStyle = colors.black;
+                ctx[2].strokeStyle = color.black;
                 drawGuiRect(knob, y, 12.5, 17 + 8, true);
 
-                drawText(cb.label, x + 160, y + 18, 13.5, colors.guiwhite, "left", false, 1, 5.5);
+                drawText(cb.label, x + 160, y + 18, 13.5, color.guiwhite, "left", false, 1, 5.5);
 
                 global.clickables.optionsMenu.HoverBoxes.place(i, hitX, hitYCalc + 2.5, 150 + measureText(cb.label, 25 * clickableRatio) * 0.65, 22 * clickableRatio);
                 global.clickables.optionsMenu.toggleBoxes.place(i, hitX, hitYCalc + 2.5, 150 * clickableRatio, 22 * clickableRatio);
@@ -6709,15 +6741,15 @@ function drawOptionsMenu() {
 
                 const isOn = !cb.placeholder && ((cb.reverseCheck && !cb.value) || (!cb.reverseCheck && cb.value));
                 ctx[2].lineWidth = 3;
-                gameDraw.setColor(ctx[2], isOn ? colors.green : colors.guiwhite);
+                gameDraw.setColor(ctx[2], isOn ? color.green : color.guiwhite);
                 drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
                 if (!cb.placeholder && clickHover !== -1 && clickHover === i) {
-                    gameDraw.setColor(ctx[2], !isOn ? global.clickables.clicked ? colors.guiblack : colors.black : global.clickables.clicked ? colors.black : colors.guiwhite);
+                    gameDraw.setColor(ctx[2], !isOn ? global.clickables.clicked ? color.guiblack : color.black : global.clickables.clicked ? color.black : color.guiwhite);
                     ctx[2].globalAlpha = global.clickables.clicked ? 0.25 : 0.2;
                     drawGuiRect(x, y, BOX_SIZE, BOX_SIZE);
-                    ctx[2].globalAlpha = 1 * fadeOptions;
+                    ctx[2].globalAlpha = fadeOptions;
                 }
-                gameDraw.setColor(ctx[2], colors.black);
+                gameDraw.setColor(ctx[2], color.black);
                 drawGuiRect(x, y, BOX_SIZE, BOX_SIZE, true);
 
                 if (isOn) {
@@ -6730,7 +6762,7 @@ function drawOptionsMenu() {
                     ctx[2].stroke();
                 }
 
-                drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, colors.guiwhite, "left", false, 1, 5.5);
+                drawText(cb.label, x + BOX_SIZE + 10.5, y + BOX_SIZE / 2 + 6, 13.5, color.guiwhite, "left", false, 1, 5.5);
             }
         }
     }
@@ -6742,10 +6774,7 @@ function drawOptionsMenu() {
         }
         if (cb.type === "option" && cb.optionService) {
             let above = cb.location === "top";
-            let height = 0;
-            for (const box of cb.optionData) {
-                height += 25;
-            }
+            const height = cb.optionData.length * 25;
             const bottomPos = cb.optionService.y + 25 + height;
             if (bottomPos > global.screenHeight && cb.location === "auto") {
                 above = true;
@@ -6772,18 +6801,18 @@ function drawOptionsMenu() {
                     for (let i = 0; i < cb.optionData.length; i++) {
                         const box = cb.optionData[i];
                         const hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                        ctx[2].fillStyle = colors.guiwhite;
+                        ctx[2].fillStyle = color.guiwhite;
                         drawGuiRect(cbp.x, yy, cb.width, 25);
                         if (hover === i) {
-                            ctx[2].fillStyle = colors.black;
+                            ctx[2].fillStyle = color.black;
                             ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
                             drawGuiRect(cbp.x, yy, cb.width, 25);
                             ctx[2].globalAlpha = 1;
                         }
-                        ctx[2].strokeStyle = colors.black;
+                        ctx[2].strokeStyle = color.black;
                         ctx[2].lineWidth = 3;
                         drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                        drawText(box.label, cbp.x + 13, yy + 17, 11.5, colors.guiwhite, "left", false, 1, 6.5);
+                        drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
                         if (cbp.opened && cbp.canClick) {
                             global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio);
                         } else {
@@ -6803,18 +6832,18 @@ function drawOptionsMenu() {
                     for (let i = 0; i < cb.optionData.length; i++) {
                         const box = cb.optionData[i];
                         const hover = global.clickables.optionsMenu.optionBoxes.check(mpos);
-                        ctx[2].fillStyle = colors.guiwhite;
+                        ctx[2].fillStyle = color.guiwhite;
                         drawGuiRect(cbp.x, yy, cb.width, 25);
                         if (hover === i) {
-                            ctx[2].fillStyle = colors.black;
+                            ctx[2].fillStyle = color.black;
                             ctx[2].globalAlpha = global.clickables.clicked ? 0.9 : 0.7;
                             drawGuiRect(cbp.x, yy, cb.width, 25);
                             ctx[2].globalAlpha = 1;
                         }
-                        ctx[2].strokeStyle = colors.black;
+                        ctx[2].strokeStyle = color.black;
                         ctx[2].lineWidth = 3;
                         drawGuiRect(cbp.x, yy, cb.width, 25, true);
-                        drawText(box.label, cbp.x + 13, yy + 17, 11.5, colors.guiwhite, "left", false, 1, 6.5);
+                        drawText(box.label, cbp.x + 13, yy + 17, 11.5, color.guiwhite, "left", false, 1, 6.5);
                         if (cbp.opened) {
                             global.clickables.optionsMenu.optionBoxes.place(i, cbp.x * clickableRatio, yy * clickableRatio, cb.width * clickableRatio, 25 * clickableRatio);
                         } else {
@@ -6836,7 +6865,7 @@ function drawOptionsMenu() {
     ctx[2].translate(0, -scrollY);
     if (fadeTheme > 0.01 && activeTab === 1) {
         // THEME TAB
-        drawText("Theme", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, colors.guiwhite, "center");
+        drawText("Theme", PANEL_X + PANEL_WIDTH / 2, PANEL_Y + OV_TITLE_TOP, 15.5, color.guiwhite, "center");
         drawThemeTab(PANEL_X, PANEL_Y, PANEL_WIDTH, clickableRatio);
     } else if (global.themeOverlay) {
         global.themeOverlay.style.display = "none";
@@ -6882,7 +6911,7 @@ function drawOptionsMenu() {
     ctx[2].save();
     ctx[2].globalAlpha = 1;
 
-    gameDraw.setColor(ctx[2], colors.red);
+    gameDraw.setColor(ctx[2], color.red);
     ctx[2].lineWidth = 3;
     drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE);
     if (cstate === 1) {
@@ -6891,7 +6920,7 @@ function drawOptionsMenu() {
         drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE);
         ctx[2].globalAlpha = 1;
     }
-    gameDraw.setColor(ctx[2], colors.black);
+    gameDraw.setColor(ctx[2], color.black);
     drawGuiRect(closeX, closeY, CLOSE_SIZE, CLOSE_SIZE, true);
 
     ctx[2].strokeStyle = "#FFFFFF";
@@ -6921,22 +6950,22 @@ function runSecondary() {
 const drawConnectingScreen = () => {
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
-    clearScreen(colors.white, 1, ctx[2]);
-    drawText("Connecting...", global.screenWidth / 2, global.screenHeight / 2, 30, colors.guiwhite, "center");
-    drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, colors.lgreen, "center");
-    drawText(global.tips, global.screenWidth / 2, global.screenHeight / 2 + 60, 15, colors.guiwhite, "center");
+    clearScreen(color.white, 1, ctx[2]);
+    drawText("Connecting...", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
+    drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.lgreen, "center");
+    drawText(global.tips, global.screenWidth / 2, global.screenHeight / 2 + 60, 15, color.guiwhite, "center");
 };
 
 const drawDisconnectedScreen = () => {
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
-    clearScreen(gameDraw.mixColors(colors.red, colors.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
-    drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, colors.guiwhite, "center");
+    clearScreen(gameDraw.mixColors(color.red, color.guiblack, 0.3), global.gameStart ? 0.25 : 1, ctx[2]);
+    drawText("Disconnected", global.screenWidth / 2, global.screenHeight / 2, 30, color.guiwhite, "center");
     if (global.message === "") {
         global.message = "The connection closed due to an error.\nTry reloading and clearing your cache, or joining another server.";
     }
-    drawText(`${new Date(global.disconnectTimestamp || Date.now()).toISOString()}`, global.screenWidth / 2, global.screenHeight / 2 - 224, 8.125, colors.guiwhite, "center");
-    drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, colors.orange, "center");
+    drawText(`${new Date(global.disconnectTimestamp || Date.now()).toISOString()}`, global.screenWidth / 2, global.screenHeight / 2 - 224, 8.125, color.guiwhite, "center");
+    drawText(global.message, global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.orange, "center");
     lastPing = 0;
     drawButton(global.screenWidth / 2 - 75, global.screenHeight / 2 + 138, 120, 30, 1, "rect", "Back", 14, false, false, false, true, "exitGame", global.canvas.height / global.screenHeight / global.ratio, {
         index: 0
@@ -6954,19 +6983,19 @@ const drawDisconnectedScreen = () => {
 const drawResyncScreen = () => {
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
-    clearScreen(gameDraw.mixColors(colors.black, colors.guiblack, 0.3), 0.25, ctx[2]);
-    drawText("Out of sync!", global.screenWidth / 2, global.screenHeight / 2 - 10, 30, colors.red, "center");
-    drawText("The client is out of sync, please wait until this screen has disappeared.", global.screenWidth / 2, global.screenHeight / 2 + 40, 15, colors.guiwhite, "center");
-    drawText("The rendering has paused to prevent interuptions.", global.screenWidth / 2, global.screenHeight / 2 + 90, 15, colors.guiwhite, "center");
+    clearScreen(gameDraw.mixColors(color.black, color.guiblack, 0.3), 0.25, ctx[2]);
+    drawText("Out of sync!", global.screenWidth / 2, global.screenHeight / 2 - 10, 30, color.red, "center");
+    drawText("The client is out of sync, please wait until this screen has disappeared.", global.screenWidth / 2, global.screenHeight / 2 + 40, 15, color.guiwhite, "center");
+    drawText("The rendering has paused to prevent interuptions.", global.screenWidth / 2, global.screenHeight / 2 + 90, 15, color.guiwhite, "center");
 };
 
 const drawErrorScreen = () => {
     const ratio = util.getScreenRatio();
     scaleScreenRatio(ratio, true);
-    clearScreen(gameDraw.mixColors(colors.black, colors.guiblack, 0.3), 0.25, ctx[2]);
-    drawText("Client error detected!", global.screenWidth / 2, global.screenHeight / 2, 30, colors.red, "center");
-    drawText("If this is because of an entity, try to move away from it.", global.screenWidth / 2, global.screenHeight / 2 + 30, 15, colors.guiwhite, "center");
-    drawText("Check your browser's console logs and report whatever you see to the developers.", global.screenWidth / 2, global.screenHeight / 2 + 60, 15, colors.guiwhite, "center");
+    clearScreen(gameDraw.mixColors(color.black, color.guiblack, 0.3), 0.25, ctx[2]);
+    drawText("Client error detected!", global.screenWidth / 2, global.screenHeight / 2, 30, color.red, "center");
+    drawText("If this is because of an entity, try to move away from it.", global.screenWidth / 2, global.screenHeight / 2 + 30, 15, color.guiwhite, "center");
+    drawText("Check your browser's console logs and report whatever you see to the developers.", global.screenWidth / 2, global.screenHeight / 2 + 60, 15, color.guiwhite, "center");
 };
 
 const animationFrame =
@@ -7062,7 +7091,7 @@ function animloop(tick) {
     const viewY = (fullScreenHeight - viewHeight) / 2;
     if (force169) {
         ctx[0].globalAlpha = 1;
-        ctx[0].fillStyle = colors.grey;
+        ctx[0].fillStyle = color.grey;
         ctx[0].fillRect(0, 0, fullScreenWidth, fullScreenHeight);
         global.screenWidth = global.vscreenSize = viewWidth;
         global.screenHeight = global.vscreenSizey = viewHeight;

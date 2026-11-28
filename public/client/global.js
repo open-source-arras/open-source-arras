@@ -535,7 +535,7 @@ const global = {
             themeClickables: Region(100),
             activeTab: 0, // 0=Options, 1=Theme, 2=Keybinds, 3=Secret
             storageName: ["optionsCheckboxes", "?", "?", "optionsSecretCheckboxes"],
-            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838], ["Secrets", 570]],
+            tabs: [["Options", 770], ["Theme", 608], ["Keybinds", 838], ["Secrets", 690]],
             tabSlideAnim: util.Smoothbar(0, 0.3, 1.5, 0.03, 0.025, true),
             sliderMoving: false,
             currentOptionMenu: false
