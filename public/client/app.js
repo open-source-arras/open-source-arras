@@ -5050,11 +5050,10 @@ const SIDE_BORDER = 0.5;
     const THEME_PANEL_H = 608;
     const KB_ROW_TOP = 47, KB_ROW_PITCH = 39;
     const SECRET_PANEL_H = global.optionsMenu_Anim.tabs[3][1];
-    const SUPER_SECRET_SECTION_EXTRA = 120;
     const SECRET_SECTION_LAYOUT = {
         secret: { title: "Secret Options",       titleY: 30  },
-        beta:   { title: "Beta Options",         titleY: 270 },
-        legacy: { title: "Legacy Options",       titleY: 390 },
+        beta:   { title: "Beta Options",         titleY: 390 },
+        legacy: { title: "Legacy Options",       titleY: 510 },
     };
     const isSecretSection = (section) => section === "secret" || section === "beta" || section === "legacy";
 
@@ -5653,18 +5652,15 @@ const SIDE_BORDER = 0.5;
     };
     global.applyCrosshairCursor();
 
-    function drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, superUnlocked, mpos, fadeSecret) {
+    function drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, mpos, fadeSecret) {
         if (global.themeOverlay) global.themeOverlay.style.display = "none";
         global.ingameThemeSlider = null;
         global.ingameThemeNeon = null;
         global.ingameKeybindRects = null;
         global.clickables.optionsMenu.toggleBoxes.hide();
         global.clickables.optionsMenu.HoverBoxes.hide();
-        const superExtra = superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0;
-        const sectionOffset = (section) => (section === "beta" || section === "legacy") ? superExtra : 0;
-        for (const [section, layout] of Object.entries(SECRET_SECTION_LAYOUT)) {
-            if (section === "super" && !superUnlocked) continue;
-            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY + sectionOffset(section), 15.5, color.guiwhite, "center");
+        for (const layout of Object.values(SECRET_SECTION_LAYOUT)) {
+            drawText(layout.title, PANEL_X + PANEL_WIDTH / 2, PANEL_Y + layout.titleY, 15.5, color.guiwhite, "center");
         }
         if (!global.optionsSecretCheckboxes) {
             global.optionsSecretCheckboxes = [
@@ -6146,14 +6142,11 @@ const SIDE_BORDER = 0.5;
         const PANEL_VISIBLE_X = mainMenuAnim;
         const PANEL_HIDDEN_X = PANEL_VISIBLE_X - PANEL_WIDTH - 20;
         const PANEL_X = PANEL_HIDDEN_X + (PANEL_VISIBLE_X - PANEL_HIDDEN_X) - extraLeftX;
-        const superBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSuperSecretOptions");
-        const superUnlocked = superBox ? !!superBox.value : localStorage.getItem("optSuperSecretOptionsChecked") === "true";
-        const secretPanelH = SECRET_PANEL_H + (superUnlocked ? SUPER_SECRET_SECTION_EXTRA : 0);
         const TAB_CONTENT_HEIGHTS = [
             global.optionsMenu_Anim.tabs[0][1],
             global.optionsMenu_Anim.tabs[1][1],
             keybindsPanelHeight(),
-            secretPanelH
+            SECRET_PANEL_H
         ];
         const secretBox = (global.optionsCheckboxes || []).find(cb => cb.id === "optSecretOptions");
         const secretUnlocked = secretBox ? !!secretBox.value : localStorage.getItem("optSecretOptionsChecked") === "true";
@@ -6332,7 +6325,6 @@ const SIDE_BORDER = 0.5;
                     { type: "checkbox", id: "optCurvyTraps",          label: "Curvy Traps",           column: 1, row: 3, section: "appearance", tooltip: "Add curvature to the sides of traps.\n" + "May slightly lower the frame rate." },
                     { type: "checkbox", id: "optTankSkins",           label: "Tank Skins",            column: 1, row: 4, section: "appearance", tooltip: "Show tank skins.\n" + "Note: Skins will be in grayscale if the low WebGl driver is selected." },
                     //{ type: "checkbox", id: "optHexaGrid",            label: "Hexagon Grid",          column: 1, row: 5, section: "appearance", tooltip: "Make the background grid hexagonal.\n" + "May slightly lower the frame rate." },
-                    { type: "checkbox", id: "optSuperSecretOptions",  label: "Super Secret Options",   column: 1, row: 5, section: "appearance", tooltip: "Unlock the super secret options section.\n" + "Note: This is not supposed to be public..." },
 
                     // UI Elements
                     { type: "checkbox", id: "optRenderUpgrades",      label: "Upgrades",              column: 0, row: 0, section: "ui", tooltip: "Toggle the visibility of the class and skill upgrade menus." },
@@ -6449,7 +6441,7 @@ const SIDE_BORDER = 0.5;
         ctx[2].clip();
         ctx[2].translate(0, -scrollY);
         if (fadeSecret > 0.01 && secretUnlocked) {
-            drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, superUnlocked, mpos, fadeSecret);
+            drawSecretTab(PANEL_X, PANEL_Y, scrollY, PANEL_WIDTH, clickableRatio, mpos, fadeSecret);
         }
         ctx[2].restore();
         ctx[2].restore();
